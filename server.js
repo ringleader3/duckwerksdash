@@ -164,6 +164,6 @@ app.get('/api/shippo/:path(*)', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Duckwerks proxy running at http://localhost:${PORT}`);
+  console.log(`Duckwerks proxy running at http://localhost:${PORT}/duckwerks-dashboard.html`);
   console.log(`Shippo test mode: ${!!process.env.SHIPPO_TEST_TOKEN}`);
 });
