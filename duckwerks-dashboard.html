@@ -1261,6 +1261,10 @@ function renderCategories() {
 
 // ── ALL ITEMS ─────────────────────────────────────────────────────────────────
 function renderItems() {
+  const prevStatus = $('filt-status')?.value || '';
+  const prevCat    = $('filt-cat')?.value    || '';
+  const prevSite   = $('filt-site')?.value   || '';
+  const prevQ      = $('search-q')?.value    || '';
   const cats = [...new Set(records.map(r=>str(r,F.category)).filter(Boolean))];
   $('items-content').innerHTML = `
     <div class="search-bar">
@@ -1285,6 +1289,10 @@ function renderItems() {
     <div class="panel" style="padding:0">
       <div id="items-table"></div>
     </div>`;
+  if (prevStatus) $('filt-status').value = prevStatus;
+  if (prevCat)    $('filt-cat').value    = prevCat;
+  if (prevSite)   $('filt-site').value   = prevSite;
+  if (prevQ)      $('search-q').value    = prevQ;
   filterItems();
 }
 
@@ -1352,7 +1360,7 @@ function renderItemsTable(rows) {
         <td class="r" style="color:var(--red)">${num(r,F.cost)?fmt0(num(r,F.cost)):'—'}</td>
         <td class="r" style="color:${isSold?'var(--green)':'var(--yellow)'}">${isSold?fmt0(num(r,F.sale)):num(r,F.listPrice)?fmt0(eaf(num(r,F.listPrice))):'—'}</td>
         <td class="r" style="${!isSold&&estP!==null&&r.fields[F.shipping]==null?'color:var(--yellow)':'color:var(--muted)'}">
-          ${isSold?fmt0(num(r,F.shipping)):estP!==null&&r.fields[F.shipping]==null?'($10)':'—'}</td>
+          ${isSold?fmt0(num(r,F.shipping)):r.fields[F.shipping]!=null?fmt0(num(r,F.shipping)):estP!==null?'($10)':'—'}</td>
         <td class="r"><span class="${isSold?pc:'profit-neu'}" style="${!isSold&&estP!==null?'color:var(--yellow)':''}">${isSold?fmt0(profit):estP!==null?fmt0(estP):'—'}</span></td>
       </tr>`;
     }).join('')}
@@ -1473,7 +1481,7 @@ function renderLotDetail(lotName) {
             <td class="r" style="color:var(--red)">${num(r,F.cost)?fmt0(num(r,F.cost)):'—'}</td>
             <td class="r" style="color:${isSold?'var(--green)':'var(--yellow)'}">${isSold?fmt0(num(r,F.sale)):num(r,F.listPrice)?fmt0(eaf(num(r,F.listPrice))):'—'}</td>
             <td class="r" style="${!isSold&&estP!==null&&r.fields[F.shipping]==null?'color:var(--yellow)':'color:var(--muted)'}">
-          ${isSold?fmt0(num(r,F.shipping)):estP!==null&&r.fields[F.shipping]==null?'($10)':'—'}</td>
+          ${isSold?fmt0(num(r,F.shipping)):r.fields[F.shipping]!=null?fmt0(num(r,F.shipping)):estP!==null?'($10)':'—'}</td>
             <td class="r"><span class="${isSold?pc:'profit-neu'}" style="${!isSold&&estP!==null?'color:var(--yellow)':''}">${isSold?fmt0(profit):estP!==null?fmt0(estP):'—'}</span></td>
           </tr>`;
         }).join('')}
