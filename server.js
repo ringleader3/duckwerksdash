@@ -14,6 +14,12 @@ function getShippoToken(testMode) {
   return token;
 }
 
+// ── CONFIG ENDPOINT ───────────────────────────────────────────────────────────
+
+app.get('/api/config', (_req, res) => {
+  res.json({ airtablePat: process.env.AIRTABLE_PAT || '' });
+});
+
 // ── LABEL ENDPOINTS ───────────────────────────────────────────────────────────
 
 function fromAddress() {

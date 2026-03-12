@@ -408,8 +408,8 @@ body{background:var(--bg);font-family:'Space Mono',monospace;color:var(--text);m
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 const BASE_ID  = 'appLj1a6YcqzA9uum';
 // TODO: bump VERSION string on every output
-const VERSION  = 'v19';
-const SHIPPO_TEST_MODE = true; // flip to false when live key is ready
+const VERSION  = 'v20';
+const SHIPPO_TEST_MODE = false; // flip to false when live key is ready
 const TABLE_ID = 'tbly2xgKYqgF96kWw';
 const F = {
   name:      'fldY4lOcgWYz1Xh7f',
@@ -1996,12 +1996,23 @@ async function submitAdd() {
 }
 
 // Show warning if opened as a local file (file:// URLs block password manager autofill)
-document.addEventListener('DOMContentLoaded', function() {
+// Also prefill PAT from server config if available
+document.addEventListener('DOMContentLoaded', async function() {
   const gv = document.getElementById('gate-version');
   if (gv) gv.textContent = VERSION;
   if (window.location.protocol === 'file:') {
     const w = document.getElementById('file-warning');
     if (w) w.style.display = 'block';
+  }
+  if (window.location.protocol !== 'file:') {
+    try {
+      const res = await fetch('/api/config');
+      const cfg = await res.json();
+      if (cfg.airtablePat) {
+        $('token-input').value = cfg.airtablePat;
+        startApp();
+      }
+    } catch (e) { /* no config endpoint, proceed manually */ }
   }
 });
 

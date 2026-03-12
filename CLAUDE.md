@@ -54,7 +54,8 @@ Update `duckwerks_dashboard_architecture.md` if any function, state var, view, C
 ## Environment Variables (.env)
 ```
 SHIPPO_TEST_TOKEN=shippo_test_...
-SHIPPO_LIVE_TOKEN=                  # blank until live key obtained
+SHIPPO_LIVE_TOKEN=shippo_live_...
+AIRTABLE_PAT=pat...
 FROM_NAME=Geoff Goss, Duckwerks Music
 FROM_STREET1=...
 FROM_CITY=San Francisco
@@ -66,12 +67,13 @@ FROM_PHONE=...
 
 ## Shippo Test vs Live
 - `SHIPPO_TEST_MODE = true/false` constant at top of HTML script block
-- Flip to `false` + add `SHIPPO_LIVE_TOKEN` when going live
+- Currently set to `false` (live mode)
 - Test transactions visible at goshippo.com under Test Mode toggle
 
 ---
 
 ## server.js API Endpoints
+- `GET /api/config` — returns `{ airtablePat }` from `.env`; used by frontend to auto-login on load
 - `POST /api/label/rates` — create Shippo shipment, return sorted rates. Body: `{ testMode, toAddress, parcel }`
 - `POST /api/label/purchase` — purchase a rate, return tracking + label URL. Body: `{ testMode, rateObjectId }`
 - `POST /api/shippo/:path` — generic Shippo proxy (POST). Body: `{ testMode, ...shippoPayload }`
@@ -84,7 +86,8 @@ From-address is injected server-side from `.env` — never exposed to the browse
 
 ## Airtable
 - Called directly from the browser (has CORS headers, unlike Shippo)
-- `BASE_ID`, `TABLE_ID`, and `TOKEN` are in the HTML `<script>` block (known limitation)
+- `BASE_ID` and `TABLE_ID` are in the HTML `<script>` block
+- `AIRTABLE_PAT` is now in `.env` — fetched via `/api/config` on load and used to auto-login
 - Field IDs in the `F` object — always use field IDs, not names
 
 ---

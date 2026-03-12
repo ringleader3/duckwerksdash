@@ -1,5 +1,5 @@
 # Duckwerks Dashboard — Architecture Reference
-_Last synced: dashboard v19_
+_Last synced: dashboard v20_
 
 > **Maintenance rule:** This doc must be updated in the same session as any structural change
 > to `duckwerks-dashboard.html`. If a new function, state var, view, CSS class, or data field
@@ -29,7 +29,7 @@ _Last synced: dashboard v19_
 ---
 
 ## Data Layer
-- Backend: Airtable (BASE_ID + API key + TABLE_ID in `<script>` block near top)
+- Backend: Airtable (BASE_ID + TABLE_ID in `<script>` block; PAT now fetched from server via `/api/config`)
 - `F` object maps logical field names to Airtable field IDs (e.g. `F.name`, `F.status`, `F.profit`, `F.lot`, `F.category`, `F.listPrice`, `F.sale`, `F.shipping`, `F.cost`)
 - `records[]` — global array of raw Airtable records, populated by `fetchAll()`
 - `siteLabel(r)` — derives 'eBay' or 'Reverb' from record fields
