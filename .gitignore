@@ -2,3 +2,6 @@
 node_modules/
 .DS_Store
 *.log
+*.pdf
+test.html
+comic-reselling-project.md
