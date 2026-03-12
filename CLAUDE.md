@@ -18,6 +18,11 @@ npm start   # starts Express on http://localhost:3000
 ```
 Open: `http://localhost:3000/duckwerks-dashboard.html`
 
+## Version Control
+- GitHub: https://github.com/ringleader3/duckwerksdash (private)
+- Commit after any meaningful session of changes
+- Never commit `.env`, `node_modules/`, `*.pdf`, `test.html`, `comic-reselling-project.md`
+
 ---
 
 ## Key Files

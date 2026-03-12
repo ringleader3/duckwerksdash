@@ -134,3 +134,8 @@ const eaf = p => p > 0 ? Math.max(0, p * 0.9181 - 0.49) : 0;
 3. Surgical Edit (str_replace) — one edit per logical change
 4. Bump `VERSION` constant in HTML config section
 5. Update this architecture doc if anything structural changed
+6. Remind Geoff to commit when the session wraps up
+
+## Version Control
+- GitHub: https://github.com/ringleader3/duckwerksdash (private)
+- Commit after any meaningful session of changes
