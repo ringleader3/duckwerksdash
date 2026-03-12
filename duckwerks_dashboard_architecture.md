@@ -30,7 +30,7 @@ _Last synced: dashboard v20_
 
 ## Data Layer
 - Backend: Airtable (BASE_ID + TABLE_ID in `<script>` block; PAT now fetched from server via `/api/config`)
-- `F` object maps logical field names to Airtable field IDs (e.g. `F.name`, `F.status`, `F.profit`, `F.lot`, `F.category`, `F.listPrice`, `F.sale`, `F.shipping`, `F.cost`)
+- `F` object maps logical field names to Airtable field IDs (e.g. `F.name`, `F.status`, `F.profit`, `F.lot`, `F.category`, `F.listPrice`, `F.sale`, `F.shipping`, `F.cost`, `F.reverbListingId`, `F.reverbOrderNum`)
 - `records[]` — global array of raw Airtable records, populated by `fetchAll()`
 - `siteLabel(r)` — derives 'eBay' or 'Reverb' from record fields
 - Helper functions: `str(r, field)`, `num(r, field)`, `fmt0(n)`, `fmtK(n)`, `pct(a,b)`, `esc(s)`, `clamp(v,lo,hi)`, `eaf(p)`
@@ -102,13 +102,15 @@ const eaf = p => p > 0 ? Math.max(0, p * 0.9181 - 0.49) : 0;
 - EDIT button: `id="modal-edit-btn"`, `onclick="toggleModalEdit()"`
 - SHIP button: `id="modal-ship-btn"`, shown for `Listed` and `Sold` items only, `onclick="openLabelModal(currentModalId)"`
 - Modal already shows EAF for listed items and EST. PROFIT with shipping label
+- Read-only view shows REVERB row (listing ID + order number) if either is set on the record
+- Edit view includes REVERB LISTING ID field (`me-reverb-listing-id`) saved to `F.reverbListingId`
 
 ---
 
 ## Label Modal (Shippo)
 - Second overlay: `id="label-overlay"`, `id="label-box"`, `id="label-body"`
 - `SHIPPO_TEST_MODE` — boolean const in CONFIG section; flip to `false` for live
-- `openLabelModal(recId)` — opens modal, renders form step
+- `openLabelModal(recId)` — async; opens modal, auto-fetches Reverb order by `F.reverbOrderNum` if set and `labelAddrText` is empty, then calls `renderLabelForm()`
 - `closeLabelModal()` / `maybeLabelClose(e)`
 - `parseAddress(text)` — parses pasted address block: Name / Street1 / [Street2] / City State Zip / [Country]
 - `renderLabelForm()` — address textarea + package type toggle (BOX / POLY BAG) + weight + dims
@@ -120,6 +122,22 @@ const eaf = p => p > 0 ? Math.max(0, p * 0.9181 - 0.49) : 0;
 - `labelSaveShipping(price)`:
   - If `inp-ship-{recId}` exists in DOM (Update view open) → fills field, closes modal, user saves via SAVE button
   - Otherwise (opened from item modal) → saves shipping cost directly to Airtable
+
+---
+
+## Reverb Integration
+
+### Sync Modal
+- Nav sidebar ACTIONS section → "SYNC REVERB" → `openReverbSync()`
+- Overlay: `id="reverb-sync-overlay"`, body: `id="reverb-sync-body"`
+- `runReverbSync()` — fetches `GET /api/reverb/my/orders/selling/awaiting_shipment`
+- Matches each order's `product_id` to `F.reverbListingId` in `records[]`
+- `renderReverbSyncResults(orders)` — shows MATCHED / UNMATCHED sections, SAVE button
+- `saveReverbMatches()` — PATCHes `F.reverbOrderNum` on matched Airtable records
+- `reverbAddrToText(a)` — formats Reverb `shipping_address` object → textarea string
+
+### Server proxy
+- `GET /api/reverb/*` — generic Reverb API proxy; injects `Authorization: Bearer REVERB_PAT` from `.env`
 
 ### Label Modal State Vars
 - `labelRecId` — current record being shipped

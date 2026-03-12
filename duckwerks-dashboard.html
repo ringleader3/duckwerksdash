@@ -306,6 +306,19 @@ body{background:var(--bg);font-family:'Space Mono',monospace;color:var(--text);m
   </div>
 </div>
 
+<!-- REVERB SYNC MODAL -->
+<div class="modal-overlay" id="reverb-sync-overlay" onclick="maybeReverbSyncClose(event)">
+  <div class="modal-box" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title">SYNC REVERB ORDERS</div>
+      <button class="modal-close" onclick="closeReverbSync()">✕</button>
+    </div>
+    <div class="modal-body" id="reverb-sync-body">
+      <div class="loading-screen" style="padding:40px 0"><div class="spinner"></div>FETCHING ORDERS...</div>
+    </div>
+  </div>
+</div>
+
 <!-- APP -->
 <div id="app">
   <div class="shell">
@@ -343,6 +356,10 @@ body{background:var(--bg);font-family:'Space Mono',monospace;color:var(--text);m
       </div>
       <div class="nav-section">LOTS</div>
       <div id="lot-nav"></div>
+      <div class="nav-section" style="margin-top:16px">ACTIONS</div>
+      <div class="nav-item" onclick="openReverbSync()" id="nav-reverb-sync">
+        <div class="nav-dot" style="background:var(--reverb)"></div>SYNC REVERB
+      </div>
     </div>
 
     <!-- MAIN CONTENT -->
@@ -408,21 +425,24 @@ body{background:var(--bg);font-family:'Space Mono',monospace;color:var(--text);m
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 const BASE_ID  = 'appLj1a6YcqzA9uum';
 // TODO: bump VERSION string on every output
-const VERSION  = 'v20';
+const VERSION  = 'v21';
 const SHIPPO_TEST_MODE = false; // flip to false when live key is ready
 const TABLE_ID = 'tbly2xgKYqgF96kWw';
 const F = {
-  name:      'fldY4lOcgWYz1Xh7f',
-  status:    'fldE6NtzEZzAVH5TC',
-  listPrice: 'fldFYd9nqbYVITVSI',
-  cost:      'fld6gdPNNaCMmeZU4',
-  sale:      'fldwZSF8D6sWUT9zt',
-  shipping:  'fldlrSl2HdhA02NUp',
-  profit:    'fld189wjDfn9EZiHs',
-  lot:       'fldxpAbnsKO1zBdJ9',
-  category:  'fldijAUBNfrgfJO1P',
-  site:      'fld7d1DwvXTqJpJe9',
-  url:       'fldz2lwmbIw9AeNam',
+  name:            'fldY4lOcgWYz1Xh7f',
+  status:          'fldE6NtzEZzAVH5TC',
+  listPrice:       'fldFYd9nqbYVITVSI',
+  cost:            'fld6gdPNNaCMmeZU4',
+  sale:            'fldwZSF8D6sWUT9zt',
+  shipping:        'fldlrSl2HdhA02NUp',
+  profit:          'fld189wjDfn9EZiHs',
+  lot:             'fldxpAbnsKO1zBdJ9',
+  category:        'fldijAUBNfrgfJO1P',
+  site:            'fld7d1DwvXTqJpJe9',
+  url:             'fldz2lwmbIw9AeNam',
+  // ── Reverb integration — create these two text fields in Airtable, paste IDs here
+  reverbListingId: 'fldMtW0wQEMcUG9X1',
+  reverbOrderNum:  'fldman6gKCzhYPv8S',
 };
 
 let TOKEN = '', records = [];
@@ -592,6 +612,13 @@ function openModal(recId) {
       <span class="modal-field">LISTING</span>
       <span class="modal-val"><a href="${esc(url)}" target="_blank">↗ OPEN LISTING</a></span>
     </div>` : ''}
+    ${(str(r,F.reverbOrderNum)||str(r,F.reverbListingId)) ? `<div class="modal-row">
+      <span class="modal-field">REVERB</span>
+      <span class="modal-val" style="display:flex;gap:12px;flex-wrap:wrap">
+        ${str(r,F.reverbListingId) ? `<span style="font-size:11px;color:var(--muted)">Listing&nbsp;#${esc(str(r,F.reverbListingId))}</span>` : ''}
+        ${str(r,F.reverbOrderNum)  ? `<span style="font-size:11px;color:var(--reverb)">Order&nbsp;#${esc(str(r,F.reverbOrderNum))}</span>` : ''}
+      </span>
+    </div>` : ''}
 
     <div class="modal-divider"></div>
     <div class="modal-section-label">FINANCIALS</div>
@@ -672,13 +699,30 @@ let labelRecId = null;
 let labelAddrText = '';
 let labelParcel = { type: 'box', weight: '', length: '', width: '', height: '' };
 
-function openLabelModal(recId) {
+async function openLabelModal(recId) {
   labelRecId = recId;
   const r = records.find(x => x.id === recId);
   $('label-item-name').textContent = r ? str(r, F.name).replace(/\n/g,'') : '—';
   $('label-test-badge').textContent = SHIPPO_TEST_MODE ? 'TEST MODE' : '';
-  renderLabelForm();
   $('label-overlay').classList.add('open');
+
+  // Auto-fill address from Reverb order if linked and address not already entered
+  const orderNum = r ? str(r, F.reverbOrderNum) : '';
+  if (orderNum && !labelAddrText) {
+    renderLabelForm(); // show form immediately, then patch address in
+    try {
+      const res = await fetch(`/api/reverb/my/orders/selling/${orderNum}`);
+      if (res.ok) {
+        const order = await res.json();
+        if (order.shipping_address) {
+          labelAddrText = reverbAddrToText(order.shipping_address);
+          renderLabelForm();
+        }
+      }
+    } catch(e) { console.warn('Reverb order fetch failed:', e); }
+  } else {
+    renderLabelForm();
+  }
 }
 
 function closeLabelModal() {
@@ -687,6 +731,233 @@ function closeLabelModal() {
 
 function maybeLabelClose(e) {
   if (e.target === $('label-overlay')) closeLabelModal();
+}
+
+// ── REVERB SYNC ────────────────────────────────────────────────────────────────
+
+function openReverbSync() {
+  $('reverb-sync-overlay').classList.add('open');
+  runReverbSync();
+}
+
+function closeReverbSync() {
+  $('reverb-sync-overlay').classList.remove('open');
+}
+
+function maybeReverbSyncClose(e) {
+  if (e.target === $('reverb-sync-overlay')) closeReverbSync();
+}
+
+async function runReverbSync() {
+  const body = $('reverb-sync-body');
+  body.innerHTML = `<div class="loading-screen" style="padding:40px 0"><div class="spinner"></div>FETCHING FROM REVERB...</div>`;
+  try {
+    const [ordersRes, listingsRes] = await Promise.all([
+      fetch('/api/reverb/my/orders/selling/awaiting_shipment'),
+      fetch('/api/reverb/my/listings'),
+    ]);
+    if (!ordersRes.ok) throw new Error(`Orders HTTP ${ordersRes.status}`);
+    if (!listingsRes.ok) throw new Error(`Listings HTTP ${listingsRes.status}`);
+    const [ordersData, listingsData] = await Promise.all([ordersRes.json(), listingsRes.json()]);
+    renderReverbSyncResults(ordersData.orders || [], listingsData.listings || []);
+  } catch(e) {
+    body.innerHTML = `<div style="padding:24px;color:var(--red);font-size:12px">ERROR: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderReverbSyncResults(orders, listings) {
+  let html = '';
+
+  // ── SECTION 1: AWAITING SHIPMENT ─────────────────────────────────────────
+  const matched = [], unmatched = [];
+  for (const order of orders) {
+    const listingId = String(order.product_id);
+    const rec = records.find(r => str(r, F.reverbListingId) === listingId);
+    if (rec) matched.push({ order, rec });
+    else unmatched.push(order);
+  }
+  const toSave = matched.filter(m => str(m.rec, F.reverbOrderNum) !== String(m.order.order_number));
+
+  html += `<div class="modal-section-label">AWAITING SHIPMENT</div>`;
+
+  if (!orders.length) {
+    html += `<div style="padding:10px 0;font-size:12px;color:var(--muted)">No orders awaiting shipment.</div>`;
+  } else {
+    if (matched.length) {
+      for (const { order, rec } of matched) {
+        const already = str(rec, F.reverbOrderNum) === String(order.order_number);
+        const addr = order.shipping_address;
+        html += `
+          <div style="padding:10px 0;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;color:var(--white);margin-bottom:3px">${esc(order.title)}</div>
+              <div style="font-size:11px;color:var(--muted)">${esc(addr.name)} · ${esc(addr.locality)}, ${esc(addr.region)}</div>
+              <div style="font-size:10px;color:#555;margin-top:2px">Order #${esc(String(order.order_number))}</div>
+            </div>
+            <div style="font-size:10px;letter-spacing:1px;flex-shrink:0;margin-top:2px;color:${already?'var(--green)':'var(--yellow)'}">
+              ${already ? '✓ LINKED' : 'PENDING'}
+            </div>
+          </div>`;
+      }
+    }
+    if (unmatched.length) {
+      for (const order of unmatched) {
+        const addr = order.shipping_address;
+        html += `
+          <div style="padding:10px 0;border-bottom:1px solid var(--border2)">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:3px">${esc(order.title)}</div>
+            <div style="font-size:11px;color:#555">${esc(addr.name)} · ${esc(addr.locality)}, ${esc(addr.region)}</div>
+            <div style="font-size:10px;color:#444;margin-top:2px">Listing ID: ${esc(String(order.product_id))} · Order #${esc(String(order.order_number))}</div>
+          </div>`;
+      }
+      html += `<div style="font-size:11px;color:#666;padding:6px 0 2px;letter-spacing:1px">${unmatched.length} order${unmatched.length>1?'s':''} have no matching listing ID in your inventory.</div>`;
+    }
+    if (toSave.length) {
+      html += `
+        <div style="padding:14px 0 4px;display:flex;gap:12px;align-items:center">
+          <button onclick="saveReverbMatches()"
+            style="padding:10px 28px;background:var(--reverb);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer">
+            SAVE ${toSave.length} MATCH${toSave.length>1?'ES':''}
+          </button>
+          <span id="reverb-sync-msg" style="font-size:11px;color:var(--muted)"></span>
+        </div>`;
+    } else if (matched.length) {
+      html += `<div style="padding:10px 0;font-size:11px;color:var(--green);letter-spacing:1px">✓ ALL MATCHES UP TO DATE</div>`;
+    }
+  }
+
+  // ── SECTION 2: LINK LISTINGS ──────────────────────────────────────────────
+  const unlinkedRecs = records.filter(r =>
+    str(r, F.status) === 'Listed' &&
+    siteLabel(r) === 'Reverb' &&
+    !str(r, F.reverbListingId)
+  );
+
+  // build set of listing IDs already used by some record
+  const usedIds = new Set(records.map(r => str(r, F.reverbListingId)).filter(Boolean));
+
+  // sort listings alphabetically for the dropdowns
+  const sortedListings = [...listings].sort((a, b) => (a.title||'').localeCompare(b.title||''));
+
+  html += `<div class="modal-section-label" style="margin-top:20px">LINK LISTINGS</div>`;
+
+  if (!unlinkedRecs.length) {
+    html += `<div style="padding:10px 0;font-size:12px;color:var(--muted)">All Listed/Reverb items already have a listing ID.</div>`;
+  } else if (!listings.length) {
+    html += `<div style="padding:10px 0;font-size:12px;color:var(--muted)">No live Reverb listings found.</div>`;
+  } else {
+    html += `<div style="font-size:11px;color:#666;padding:4px 0 10px;letter-spacing:1px">Match your unlinked items to their Reverb listings.</div>`;
+    for (const rec of unlinkedRecs) {
+      const recId = rec.id;
+      const opts = sortedListings.map(l => {
+        const lid = String(l.id);
+        const isUsed = usedIds.has(lid);
+        return `<option value="${esc(lid)}" ${isUsed ? 'disabled style="color:#444"' : ''}>${esc(l.title)}${isUsed ? ' ✓' : ''}</option>`;
+      }).join('');
+      html += `
+        <div style="padding:10px 0;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="font-size:12px;color:var(--white);min-width:160px;flex:1">${esc(str(rec, F.name))}</div>
+          <select id="link-sel-${esc(recId)}"
+            style="flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:11px;padding:6px 8px">
+            <option value="">— pick listing —</option>
+            ${opts}
+          </select>
+        </div>`;
+    }
+    html += `
+      <div style="padding:14px 0 4px;display:flex;gap:12px;align-items:center">
+        <button onclick="saveLinkListings()"
+          style="padding:10px 28px;background:var(--reverb);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer">
+          SAVE LINKS
+        </button>
+        <span id="reverb-link-msg" style="font-size:11px;color:var(--muted)"></span>
+      </div>`;
+  }
+
+  const body = $('reverb-sync-body');
+  body.innerHTML = html;
+  body._pendingSaves = toSave;
+  body._unlinkedRecs = unlinkedRecs;
+}
+
+async function saveReverbMatches() {
+  const body = $('reverb-sync-body');
+  const pending = body._pendingSaves || [];
+  if (!pending.length) return;
+  const btn = body.querySelector('button[onclick="saveReverbMatches()"]');
+  const msg = $('reverb-sync-msg');
+  if (btn) { btn.disabled = true; btn.textContent = 'SAVING...'; }
+  let saved = 0, errors = 0;
+  for (const { order, rec } of pending) {
+    try {
+      const fields = { [F.reverbOrderNum]: String(order.order_number) };
+      const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}/${rec.id}?returnFieldsByFieldId=true`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const idx = records.findIndex(r => r.id === rec.id);
+      if (idx >= 0) records[idx] = { ...records[idx], fields: { ...records[idx].fields, ...fields } };
+      saved++;
+    } catch(e) {
+      console.error('saveReverbMatches:', e);
+      errors++;
+    }
+  }
+  if (msg) msg.textContent = errors ? `${saved} saved, ${errors} failed` : `✓ ${saved} saved`;
+  if (msg) msg.style.color = errors ? 'var(--red)' : 'var(--green)';
+  if (btn) { btn.disabled = false; btn.textContent = 'SAVED'; }
+  setTimeout(() => runReverbSync(), 800);
+}
+
+async function saveLinkListings() {
+  const body = $('reverb-sync-body');
+  const unlinkedRecs = body._unlinkedRecs || [];
+  const btn = body.querySelector('button[onclick="saveLinkListings()"]');
+  const msg = $('reverb-link-msg');
+
+  const toLink = [];
+  for (const rec of unlinkedRecs) {
+    const sel = $(`link-sel-${rec.id}`);
+    if (sel && sel.value) toLink.push({ rec, listingId: sel.value });
+  }
+  if (!toLink.length) {
+    if (msg) { msg.textContent = 'nothing selected'; msg.style.color = 'var(--muted)'; }
+    return;
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = 'SAVING...'; }
+  let saved = 0, errors = 0;
+  for (const { rec, listingId } of toLink) {
+    try {
+      const fields = { [F.reverbListingId]: listingId };
+      const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}/${rec.id}?returnFieldsByFieldId=true`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const idx = records.findIndex(r => r.id === rec.id);
+      if (idx >= 0) records[idx] = { ...records[idx], fields: { ...records[idx].fields, ...fields } };
+      saved++;
+    } catch(e) {
+      console.error('saveLinkListings:', e);
+      errors++;
+    }
+  }
+  if (msg) msg.textContent = errors ? `${saved} saved, ${errors} failed` : `✓ ${saved} saved`;
+  if (msg) msg.style.color = errors ? 'var(--red)' : 'var(--green)';
+  if (btn) { btn.disabled = false; btn.textContent = 'SAVED'; }
+  setTimeout(() => runReverbSync(), 800);
+}
+
+function reverbAddrToText(a) {
+  const lines = [a.name, a.street_address];
+  if (a.extended_address) lines.push(a.extended_address);
+  lines.push(`${a.locality} ${a.region} ${a.postal_code}`);
+  if (a.country_code && a.country_code !== 'US') lines.push(a.country_code);
+  return lines.join('\n');
 }
 
 function parseAddress(text) {
@@ -1013,6 +1284,12 @@ function openModalEdit(recId) {
         <input class="modal-input" id="me-url" type="text" value="${esc(str(r,F.url))}">
       </span>
     </div>
+    <div class="modal-row">
+      <span class="modal-field">REVERB LISTING ID</span>
+      <span class="modal-val" style="flex:1;margin-left:16px">
+        <input class="modal-input" id="me-reverb-listing-id" type="text" placeholder="e.g. 94655617" value="${esc(str(r,F.reverbListingId))}">
+      </span>
+    </div>
 
     <div class="modal-divider"></div>
     <div class="modal-section-label">FINANCIALS</div>
@@ -1054,7 +1331,8 @@ async function saveModalEdit(recId) {
   const catVal   = $('me-category')?.value;
   const siteVal  = $('me-site')?.value;
   const lotVal   = $('me-lot')?.value;
-  const urlVal   = $('me-url')?.value.trim();
+  const urlVal          = $('me-url')?.value.trim();
+  const reverbListingVal= $('me-reverb-listing-id')?.value.trim();
   const listP    = $('me-listprice')?.value;
   const cost     = $('me-cost')?.value;
   const sale     = $('me-sale')?.value;
@@ -1065,7 +1343,8 @@ async function saveModalEdit(recId) {
   if (catVal)               fields[F.category]  = catVal;
   if (siteVal)              fields[F.site]      = siteVal;
   if (lotVal !== undefined) fields[F.lot]       = lotVal; // allow clearing
-  if (urlVal  !== undefined)fields[F.url]       = urlVal;
+  if (urlVal           !== undefined) fields[F.url]            = urlVal;
+  if (reverbListingVal !== undefined) fields[F.reverbListingId]= reverbListingVal;
   if (listP != null && listP !== '') fields[F.listPrice] = parseFloat(listP);
   if (cost  != null && cost  !== '') fields[F.cost]      = parseFloat(cost);
   if (sale  != null && sale  !== '') fields[F.sale]      = parseFloat(sale);
