@@ -199,5 +199,6 @@ app.get('/api/reverb/*', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Duckwerks proxy running at http://localhost:${PORT}/duckwerks-dashboard.html`);
-  console.log(`Shippo test mode: ${!!process.env.SHIPPO_TEST_TOKEN}`);
+  const testOk = !!process.env.SHIPPO_TEST_TOKEN, liveOk = !!process.env.SHIPPO_LIVE_TOKEN;
+  console.log(`Shippo tokens: test=${testOk ? 'OK' : 'MISSING'}, live=${liveOk ? 'OK' : 'MISSING'} (active mode set by SHIPPO_TEST_MODE in HTML)`);
 });
