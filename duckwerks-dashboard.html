@@ -217,9 +217,9 @@ body{background:var(--bg);font-family:'Space Mono',monospace;color:var(--text);m
   <div style="width:100%;max-width:480px;background:var(--surface);border:1px solid var(--border2);padding:32px;">
     <div id="file-warning" style="display:none;background:#f5c40012;border:1px solid var(--yellow);padding:12px 14px;margin-bottom:16px;font-size:12px;line-height:1.9;color:var(--yellow);">
       <div style="letter-spacing:2px;margin-bottom:4px;">&#9888; RUNNING AS LOCAL FILE</div>
-      <div style="color:var(--muted);">Password managers won&#39;t autofill on <code style="color:var(--text)">file://</code> URLs. To enable autofill and phone access, serve this file over HTTP instead:<br>
-      <code style="color:var(--green);display:inline-block;margin-top:6px;">python3 -m http.server 8080</code><br>
-      Then open <code style="color:var(--blue)">http://localhost:8080</code> and update your 1Password item URL to match. <span style="cursor:pointer;text-decoration:underline;" onclick="document.getElementById('file-warning').style.display='none'">Dismiss</span></div>
+      <div style="color:var(--muted);">You should be running this through the Express server, not as a local file. In the project folder run:<br>
+      <code style="color:var(--green);display:inline-block;margin-top:6px;">npm start</code><br>
+      Then open <code style="color:var(--blue)">http://localhost:3000</code> and update your 1Password item URL to match. <span style="cursor:pointer;text-decoration:underline;" onclick="document.getElementById('file-warning').style.display='none'">Dismiss</span></div>
     </div>
     <div style="font-size:11px;letter-spacing:3px;color:#aaa;margin-bottom:20px">AIRTABLE ACCESS TOKEN</div>
     <form id="gate-form" onsubmit="event.preventDefault();startApp()" autocomplete="on">
@@ -426,7 +426,7 @@ body{background:var(--bg);font-family:'Space Mono',monospace;color:var(--text);m
 const BASE_ID  = 'appLj1a6YcqzA9uum';
 // TODO: bump VERSION string on every output
 const VERSION  = 'v21';
-const SHIPPO_TEST_MODE = false; // flip to false when live key is ready
+const SHIPPO_TEST_MODE = true; // flip to false when live key is ready
 const TABLE_ID = 'tbly2xgKYqgF96kWw';
 const F = {
   name:            'fldY4lOcgWYz1Xh7f',
@@ -2377,14 +2377,28 @@ function renderHelp() {
       <div class="panel" style="border-top:2px solid var(--muted)">
         <div class="panel-title">LOCAL HOSTING</div>
         <div style="font-size:14px;line-height:2.1;color:var(--white)">
-          This dashboard is a single self-contained HTML file — no server, no dependencies, no build step. To host it on your local network so your phone can access it:
+          This dashboard runs via a local Express server that proxies Shippo API calls and auto-injects your Airtable token. Always start it with <code style="color:var(--green)">npm start</code> from the project folder — don&#39;t open the HTML file directly. To access on your local network:
           <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px;">
-            ${helpStep('macOS (simplest)','Open Terminal in the folder containing this file and run:<br><code style="color:var(--green);background:var(--dim);padding:4px 10px;display:inline-block;margin-top:6px;">python3 -m http.server 8080</code><br>Then open <code style="color:var(--blue)">http://YOUR-MAC-IP:8080/duckwerks-dashboard.html</code> on any device on the same Wi-Fi. Find your IP in System Settings &rarr; Network.')}
-            ${helpStep('Linux / always-on box','Same command. To keep it running after you close the terminal:<br><code style="color:var(--green);background:var(--dim);padding:4px 10px;display:inline-block;margin-top:6px;">nohup python3 -m http.server 8080 &amp;</code><br>For a permanent setup, drop a simple nginx config pointing to the folder — happy to write that config for you if needed.')}
-            ${helpStep('Bookmark on phone','Once it\'s running, open Safari or Chrome on your iPhone, navigate to the URL, tap Share &rarr; Add to Home Screen. It\'ll behave like a mini app with your Airtable token saved by the browser.')}
-            ${helpStep('1Password setup','Once running on HTTP, open your 1Password Login item for this dashboard and set the <b>Website</b> field to <code style="color:var(--green)">http://localhost:8080</code>. 1Password will then recognize the page and autofill automatically. On your phone, use your Mac\'s local IP instead (e.g. <code style="color:var(--green)">http://192.168.x.x:8080</code>) and save a second Login item pointing to that URL.') +
-            helpStep('Security note','Your Airtable token is only in browser memory — it\'s never written to disk or sent anywhere except Airtable\'s API. The page itself has no backend. On your local network this is fine; don\'t expose port 8080 to the public internet.')}
+            ${helpStep('Starting the server','In the project folder (where server.js lives), run:<br><code style="color:var(--green);background:var(--dim);padding:4px 10px;display:inline-block;margin-top:6px;">npm start</code><br>Then open <code style="color:var(--blue)">http://localhost:3000</code>. The server reads your .env file and auto-logs you in.')}
+            ${helpStep('Access from phone / other devices','Once running, open <code style="color:var(--blue)">http://YOUR-MAC-IP:3000</code> on any device on the same Wi-Fi. Find your Mac\'s IP in System Settings &rarr; Network. The Express server handles Shippo and config on behalf of all clients.')}
+            ${helpStep('Bookmark on phone','Open Safari or Chrome on your iPhone, navigate to the URL, tap Share &rarr; Add to Home Screen. It\'ll behave like a mini app.')}
+            ${helpStep('1Password setup','Open your 1Password Login item for this dashboard and set the <b>Website</b> field to <code style="color:var(--green)">http://localhost:3000</code>. 1Password will then recognize the page and autofill automatically. On your phone, use your Mac\'s local IP instead (e.g. <code style="color:var(--green)">http://192.168.x.x:3000</code>) and save a second Login item pointing to that URL.') +
+            helpStep('Security note','Your Airtable token comes from the server\'s .env file and is never written to disk on the client. Shippo calls are proxied server-side. On your local network this is fine; don\'t expose port 3000 to the public internet.')}
           </div>
+        </div>
+      </div>
+
+      <!-- SHIPPO CONFIG -->
+      <div class="panel" style="border-top:2px solid var(--yellow)">
+        <div class="panel-title">SHIPPO CONFIG</div>
+        <div style="font-size:14px;line-height:2.1;color:var(--white)">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <span>Active mode:</span>
+            <span style="font-size:13px;font-weight:700;padding:3px 10px;border-radius:4px;background:${SHIPPO_TEST_MODE ? 'var(--yellow)' : 'var(--green)'};color:#000">
+              ${SHIPPO_TEST_MODE ? 'TEST' : 'LIVE'}
+            </span>
+          </div>
+          <div style="font-size:12px;color:var(--muted)">Set by <code style="background:var(--dim);padding:2px 6px">SHIPPO_TEST_MODE</code> constant at the top of the HTML script block. TEST uses Shippo test tokens and generates dummy labels. LIVE uses real tokens and charges your Shippo account.</div>
         </div>
       </div>
 
