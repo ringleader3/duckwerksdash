@@ -77,13 +77,24 @@ a:hover { text-decoration: underline; }
 .sidebar-logo {
   margin: -16px -16px 0;
   border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.sidebar-logo-name {
+  font-family: var(--font-big);
+  font-size: 26px;
+  letter-spacing: 0.06em;
+  color: #fff;
+  line-height: 1;
+  padding: 10px 16px 12px;
 }
 .sidebar-logo-img {
   width: 100%;
   display: block;
   object-fit: cover;
-  object-position: center 25%;
+  object-position: 20% 55%;
   height: 130px;
+  transform: scale(1.45);
+  transform-origin: 20% 55%;
 }
 
 .sidebar-section-label {
