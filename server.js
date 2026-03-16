@@ -4,8 +4,8 @@ const path = require('path');
 const app = express();
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public/v2')));
 app.use('/v2', express.static(path.join(__dirname, 'public/v2')));
-app.get('/', (_req, res) => res.redirect('/v2'));
 app.use(express.static(__dirname));
 
 // ── CONFIG ────────────────────────────────────────────────────────────────────
