@@ -245,12 +245,20 @@ Edit → surgical str_replace
 ## Bug & Enhancement Tracking
 GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` at session start to see open items.
 - `gh` CLI: `brew install gh` + `gh auth login` (choose HTTPS — repo remote is HTTPS)
-- Labels: `bug`, `enhancement`. Reference issues in commits as "fix #N" or "closes #N".
+- **Issue types:** `bug` or `enhancement` label
+- **Priorities:** `P1` (do first) or `P2` (do after P1s) label
+- Work P1 bugs first, then P1 enhancements, then P2s
+- **Reference issues in commits** using `ref #N` (e.g. `ref #3: improve sidebar logo`) but **do not close issues** — only Geoff closes issues after confirming the fix looks right in the browser
+- Never use `fix #N` or `closes #N` in commit messages as GitHub auto-closes on push
 
 ---
 
 ## Session Log
 _Most recent first. Update this at the end of every session._
+
+### 2026-03-16 (Bug & Enhancement session)
+- **#1 bug (P1):** Search results scrollable dropdown — added `scrollIntoView` on active row during keyboard nav
+- **#3 enhancement (P1):** Sidebar logo — replaced base64 JPEG with actual file (`public/v2/duckwerksheader.jpeg`); full-bleed banner with zoom/crop to foreground, DUCKWERKS title below
 
 ### 2026-03-16 (Phase 8)
 - Added `cmd+k` shortcut to focus search (alongside `/`)
