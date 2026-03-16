@@ -20,7 +20,7 @@ document.addEventListener('alpine:init', () => {
       this.saving  = false;
     },
 
-    async save() {
+    async save(keepOpen = false) {
       if (!this.form.name.trim()) { this.saveMsg = 'Name is required'; return; }
 
       const fields = {};
@@ -37,8 +37,15 @@ document.addEventListener('alpine:init', () => {
       this.saveMsg = '';
       try {
         await Alpine.store('dw').createRecord(fields);
-        this.reset();
-        Alpine.store('dw').closeModal();
+        if (keepOpen) {
+          const sticky = { status: this.form.status, category: this.form.category, site: this.form.site, lot: this.form.lot, newLot: this.form.newLot };
+          this.reset();
+          Object.assign(this.form, sticky);
+          this.saveMsg = 'Saved!';
+        } else {
+          this.reset();
+          Alpine.store('dw').closeModal();
+        }
       } catch (e) {
         this.saveMsg = 'ERROR: ' + e.message;
         this.saving  = false;

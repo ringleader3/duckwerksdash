@@ -164,7 +164,20 @@
 .data-table tbody tr:hover { background: var(--border); }
 
 /* Numeric columns right-aligned */
-.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table .num    { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table .num-col { text-align: right; font-variant-numeric: tabular-nums; }
+.num-col { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Color utilities on table cells */
+.data-table td.green { color: var(--green); }
+.data-table td.yellow { color: var(--yellow); }
+.data-table td.red { color: var(--red); }
+td.green { color: var(--green); }
+td.yellow { color: var(--yellow); }
+td.red { color: var(--red); }
+span.green { color: var(--green); }
+span.yellow { color: var(--yellow); }
+span.red { color: var(--red); }
 
 /* Yellow for estimates */
 .est { color: var(--yellow); }
@@ -187,6 +200,7 @@
   transition: width 0.3s;
 }
 
+.progress-fill.green  { background: var(--green); }
 .progress-fill.yellow { background: var(--yellow); }
 .progress-fill.red    { background: var(--red); }
 
@@ -253,6 +267,10 @@
   gap: 8px;
   justify-content: flex-end;
 }
+
+.modal-box-wide { max-width: 800px; }
+
+.muted-detail { color: var(--muted); font-size: 11px; margin-left: 4px; }
 
 /* ── Controls Row (above tables) ─────────────────────────────────────────── */
 

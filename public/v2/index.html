@@ -174,7 +174,43 @@
         <div class="view-header">
           <div class="view-title">LOTS</div>
         </div>
-        <div class="state-loading" style="color: var(--muted)">Lots view — coming in Phase 5</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Lot</th>
+              <th class="num-col">Items</th>
+              <th class="num-col">Cost</th>
+              <th class="num-col">Recovered</th>
+              <th style="min-width:120px">Recovery</th>
+              <th class="num-col">Est. Upside</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="lot in rows" :key="lot.name">
+              <tr class="clickable-row" @click="openLot(lot)">
+                <td x-text="lot.name"></td>
+                <td class="num-col">
+                  <span x-text="lot.items.length"></span>
+                  <span class="muted-detail" x-text="'(' + countByStatus(lot,'Sold') + 's/' + countByStatus(lot,'Listed') + 'l)'"></span>
+                </td>
+                <td class="num-col red" x-text="$store.dw.fmt0(totalCost(lot))"></td>
+                <td class="num-col green" x-text="$store.dw.fmt0(recovered(lot))"></td>
+                <td>
+                  <div style="display:flex; align-items:center; gap:8px">
+                    <div class="progress-bar" style="flex:1">
+                      <div class="progress-fill" :class="recoveryBarClass(recoveryPct(lot))" :style="'width:' + recoveryPct(lot) + '%'"></div>
+                    </div>
+                    <span class="num-col" :class="recoveryBarClass(recoveryPct(lot))" x-text="recoveryPct(lot) + '%'"></span>
+                  </div>
+                </td>
+                <td class="num-col yellow" x-text="estUpside(lot) > 0 ? $store.dw.fmt0(estUpside(lot)) : '—'"></td>
+              </tr>
+            </template>
+            <tr x-show="rows.length === 0">
+              <td colspan="6" style="color:var(--muted); text-align:center">No lots found</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
     </div>
@@ -399,7 +435,8 @@
   </div>
 
   <!-- Add Modal -->
-  <div x-show="$store.dw.activeModal === 'add'" x-data="addModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
+  <template x-if="$store.dw.activeModal === 'add'">
+  <div x-data="addModal" class="modal-overlay" @click.self="$store.dw.closeModal()">
     <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()">
 
       <div class="modal-header">
@@ -449,7 +486,7 @@
         <div class="modal-row">
           <span class="modal-field">Lot</span>
           <span class="modal-val">
-            <select class="modal-select" x-model="form.lot" :disabled="form.newLot.trim()">
+            <select class="modal-select" x-model="form.lot" :disabled="form.newLot.trim().length > 0">
               <option value="">— none —</option>
               <template x-for="l in $store.dw.lots" :key="l.name">
                 <option :value="l.name" x-text="l.name"></option>
@@ -474,13 +511,98 @@
 
         <div class="modal-save-row">
           <button class="btn btn-save" @click="save()" :disabled="saving" x-text="saving ? 'SAVING...' : 'ADD ITEM'"></button>
+          <button class="btn btn-ghost" @click="save(true)" :disabled="saving">+ ADD ANOTHER</button>
           <span class="save-msg" :class="saveMsg.startsWith('ERROR') ? 'error' : ''" x-text="saveMsg"></span>
         </div>
       </div>
 
     </div>
   </div>
-  <div x-show="$store.dw.activeModal === 'lot'"    x-data="lotModal"    class="modal-overlay" @click.self="$store.dw.closeModal()"></div>
+  </template>
+  <!-- Lot Modal -->
+  <div x-show="$store.dw.activeModal === 'lot'" x-data="lotModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
+    <div class="modal-box modal-box-wide" x-show="lot" @keydown.escape.window="$store.dw.closeModal()">
+
+      <div class="modal-header">
+        <div class="modal-title" x-text="lot ? lot.name : ''"></div>
+        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Lot stat cards -->
+        <div class="stat-grid" style="margin-bottom:16px">
+          <div class="stat-card red">
+            <div class="stat-card-label">TOTAL COST</div>
+            <div class="stat-card-value" x-text="$store.dw.fmt0(totalCost())"></div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-card-label">RECOVERED</div>
+            <div class="stat-card-value" x-text="$store.dw.fmt0(recovered())"></div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-card-label">EST. UPSIDE</div>
+            <div class="stat-card-value" x-text="estUpside() > 0 ? $store.dw.fmt0(estUpside()) : '—'"></div>
+            <div class="stat-card-sub">listed items @ EAF</div>
+          </div>
+          <div class="stat-card" :class="estTotalProfit() >= 0 ? 'green' : 'red'">
+            <div class="stat-card-label">EST. TOTAL PROFIT</div>
+            <div class="stat-card-value" x-text="(estTotalProfit() >= 0 ? '+' : '') + $store.dw.fmt0(estTotalProfit())"></div>
+            <div class="stat-card-sub">if all listed sell</div>
+          </div>
+        </div>
+
+        <!-- Break-even progress bar -->
+        <div style="margin-bottom:20px">
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-bottom:6px">
+            <span>RECOVERY PROGRESS</span>
+            <span :class="recoveryBarClass()" x-text="recoveryPct() + '%'"></span>
+          </div>
+          <div class="progress-bar" style="height:10px">
+            <div class="progress-fill" :class="recoveryBarClass()" :style="'width:' + recoveryPct() + '%'"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:4px">
+            <span x-text="countByStatus('Sold') + ' sold, ' + countByStatus('Listed') + ' listed, ' + countByStatus('Prepping') + ' prepping'"></span>
+            <span x-text="items.length + ' items total'"></span>
+          </div>
+        </div>
+
+        <!-- Item table -->
+        <div class="modal-section-label" style="margin-bottom:8px">ITEMS IN LOT</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Status</th>
+              <th class="num-col">Cost</th>
+              <th class="num-col">List / EAF</th>
+              <th class="num-col">Sale</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="r in items" :key="r.id">
+              <tr class="clickable-row" @click="openItem(r)">
+                <td x-text="$store.dw.str(r, F.name)"></td>
+                <td><span class="badge" :class="badgeClass($store.dw.str(r, F.status))" x-text="$store.dw.str(r, F.status)"></span></td>
+                <td class="num-col red" x-text="$store.dw.num(r, F.cost) ? $store.dw.fmt0($store.dw.num(r, F.cost)) : '—'"></td>
+                <td class="num-col yellow" x-text="eafDisplay(r)"></td>
+                <td class="num-col green" x-text="$store.dw.num(r, F.sale) ? $store.dw.fmt0($store.dw.num(r, F.sale)) : '—'"></td>
+              </tr>
+            </template>
+            <tr x-show="items.length === 0">
+              <td colspan="5" style="color:var(--muted); text-align:center">No items in this lot</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div><!-- .modal-body -->
+
+      <div class="modal-footer">
+        <button class="btn btn-ghost" @click="$store.dw.closeModal()">CLOSE</button>
+      </div>
+
+    </div>
+  </div>
   <div x-show="$store.dw.activeModal === 'label'"  x-data="labelModal"  class="modal-overlay" @click.self="$store.dw.closeModal()"></div>
   <div x-show="$store.dw.activeModal === 'reverb'" x-data="reverbModal" class="modal-overlay" @click.self="$store.dw.closeModal()"></div>
 

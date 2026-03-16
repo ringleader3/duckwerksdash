@@ -252,6 +252,13 @@ Commit at every checkpoint.
 ## Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-16 (Phase 5)
+- Implemented Lots view (`lots.js`) — table with item count, cost, recovered, recovery progress bar, est. upside
+- Implemented Lot modal (`lot-modal.js`) — stat cards (cost, recovered, est. upside, est. total profit), recovery progress bar, items table with click-through to item modal
+- Fixed Add modal Lot dropdown always disabled — Alpine treats `''` (empty string) as truthy for boolean attributes; changed `:disabled="form.newLot.trim()"` to `:disabled="form.newLot.trim().length > 0"`
+- Added "+ ADD ANOTHER" button to Add modal — saves and re-opens with status/category/site/lot fields preserved; name/price/cost cleared
+- **Next:** Phase 6 — Label modal (Shippo flow)
+
 ### 2026-03-15 (Phase 4)
 - Implemented `item-modal.js` — read view (status, classification, financials, EAF/profit/margin) + edit view (all fields, inline save)
 - Implemented `add-modal.js` — add new item form (name, status, category, platform, lot, list price, cost)
