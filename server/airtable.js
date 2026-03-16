@@ -14,8 +14,8 @@ function airtableHeaders() {
 
 // Generic GET — handles pagination, field filters, etc.
 router.get('/*', async (req, res) => {
-  const query = new URLSearchParams(req.query).toString();
-  const url = `${AIRTABLE_API}/${req.params[0]}${query ? '?' + query : ''}`;
+  const rawQuery = req.url.split('?').slice(1).join('?');
+  const url = `${AIRTABLE_API}/${req.params[0]}${rawQuery ? '?' + rawQuery : ''}`;
   try {
     const response = await fetch(url, { headers: airtableHeaders() });
     const data = await response.json();
