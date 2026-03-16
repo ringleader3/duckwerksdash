@@ -219,14 +219,15 @@ Same as v1 — do not redesign:
 ### V2 Label Modal — Ship Workflow
 - Weight input is lbs + oz (combined as `lbs + oz/16` for Shippo API)
 - On open: fetches Reverb order (if `reverbOrderNum` set) to auto-fill shipping address
-- On SAVE SHIPPING COST: writes shipping cost + status=Sold + dateSold + sale price in one Airtable update
-- Sale price sourced from `order.amount_product.amount` on the Reverb order response
-- After label purchase, auto-fires mark-shipped to Reverb if `reverbLinks.ship` is present
+- On label purchase: auto-fires saveShipping() + markShipped() immediately — do not wait for button click
+- saveShipping() writes shipping cost + status=Sold + dateSold + sale price in one Airtable update
+- Sale price uses `order.direct_checkout_payout` (post-fee payout) with fallback to `order.amount_product.amount`
 
 ### Reverb API `_links` Structure
 - `_links.ship.href` — direct href, POST to mark order shipped
 - `_links.packing_slip.web.href` — public reverb.com URL, open directly (no proxy needed)
-- `order.amount_product.amount` — sale price; `order.shipping_address` — buyer address
+- `order.direct_checkout_payout` — post-fee seller payout (what to store as F.sale); `order.amount_product.amount` is pre-fee listing price
+- `order.shipping_address` — buyer address
 
 ### Working on V2 Files
 V2 JS files are small and targeted — you can read them in full if under ~150 lines.
@@ -272,6 +273,7 @@ _Most recent first. Update this at the end of every session._
 - Implemented Reverb Sync modal (`reverb-modal.js`) — awaiting shipment matching + link listings; SHIP button directly on matched orders
 - Moved `SHIPPO_TEST_MODE` server-side to `.env`; server logs active mode on startup
 - Fixed packing slip: `_links.packing_slip.web.href` is a plain reverb.com URL — open directly, no proxy
+- **Post-phase bug fixes:** auto-save on purchase (opening packing slip in new tab then clicking back could trigger overlay close before manual save); switched sale amount to `direct_checkout_payout` (post-fee); SAVE button shows ✓ SAVED state
 - **Next:** Phase 8 — Polish + cutover
 
 ### 2026-03-16 (Phase 6)
