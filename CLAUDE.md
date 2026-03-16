@@ -73,8 +73,9 @@ FROM_PHONE=...
 ```
 
 ## Shippo Test vs Live
-- `SHIPPO_TEST_MODE = true/false` constant at top of HTML script block
-- Currently set to `false` (live mode)
+- `SHIPPO_TEST_MODE=true/false` in `.env` — server-side only, never client-controlled
+- Requires server restart to take effect — startup log shows `Shippo: mode=LIVE` or `mode=TEST`
+- Use test mode to buy free fake labels for end-to-end testing without spending money
 - Test transactions visible at goshippo.com under Test Mode toggle
 
 ---
@@ -92,10 +93,11 @@ FROM_PHONE=...
 - `POST /api/airtable/*` — create record
 
 **server/shippo.js** (mounted at `/api/label` and `/api/shippo`)
-- `POST /api/label/rates` — create Shippo shipment, return sorted rates. Body: `{ testMode, toAddress, parcel }`
-- `POST /api/label/purchase` — purchase a rate, return tracking + label URL. Body: `{ testMode, rateObjectId }`
-- `POST /api/shippo/:path` — generic Shippo proxy (POST). Body: `{ testMode, ...shippoPayload }`
-- `GET /api/shippo/:path` — generic Shippo proxy (GET). Query: `?testMode=true`
+- `POST /api/label/rates` — create Shippo shipment, return sorted rates. Body: `{ toAddress, parcel }` (parcel weight in decimal lbs)
+- `POST /api/label/purchase` — purchase a rate, return tracking + label URL. Body: `{ rateObjectId }`
+- `POST /api/shippo/:path` — generic Shippo proxy (POST)
+- `GET /api/shippo/:path` — generic Shippo proxy (GET)
+- Note: `testMode` is read from `.env` server-side — do not send it from client
 
 **server/reverb.js** (mounted at `/api/reverb`)
 - `GET /api/reverb/*` — proxies to Reverb API with auth
@@ -214,6 +216,18 @@ Same as v1 — do not redesign:
 - Color semantics: yellow = estimate/pending, green = actual/positive,
   red = cost/negative, blue = action
 
+### V2 Label Modal — Ship Workflow
+- Weight input is lbs + oz (combined as `lbs + oz/16` for Shippo API)
+- On open: fetches Reverb order (if `reverbOrderNum` set) to auto-fill shipping address
+- On SAVE SHIPPING COST: writes shipping cost + status=Sold + dateSold + sale price in one Airtable update
+- Sale price sourced from `order.amount_product.amount` on the Reverb order response
+- After label purchase, auto-fires mark-shipped to Reverb if `reverbLinks.ship` is present
+
+### Reverb API `_links` Structure
+- `_links.ship.href` — direct href, POST to mark order shipped
+- `_links.packing_slip.web.href` — public reverb.com URL, open directly (no proxy needed)
+- `order.amount_product.amount` — sale price; `order.shipping_address` — buyer address
+
 ### Working on V2 Files
 V2 JS files are small and targeted — you can read them in full if under ~150 lines.
 For `index.html`, use grep + targeted reads (same rules as v1 HTML file).
@@ -251,6 +265,14 @@ Commit at every checkpoint.
 
 ## Session Log
 _Most recent first. Update this at the end of every session._
+
+### 2026-03-16 (Phase 7)
+- Implemented Label modal (`label-modal.js`) — lbs+oz weight, 3-step flow (form→rates→result), auto-fills address from Reverb order, auto mark-shipped on Reverb after purchase
+- SAVE SHIPPING COST closes out sale: sets status=Sold, dateSold, sale price (from Reverb order), shipping in one write
+- Implemented Reverb Sync modal (`reverb-modal.js`) — awaiting shipment matching + link listings; SHIP button directly on matched orders
+- Moved `SHIPPO_TEST_MODE` server-side to `.env`; server logs active mode on startup
+- Fixed packing slip: `_links.packing_slip.web.href` is a plain reverb.com URL — open directly, no proxy
+- **Next:** Phase 8 — Polish + cutover
 
 ### 2026-03-16 (Phase 6)
 - Implemented Dashboard view (`dashboard.js`) — 5 stat cards (Total Invested, Revenue, Profit, Upside Pending, Inventory) + Lot Recovery table + Recently Sold table
