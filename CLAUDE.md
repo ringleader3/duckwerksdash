@@ -1,26 +1,24 @@
 # Duckwerks Dashboard — Claude Code Guide
 
-> **Source of truth:** This file (`CLAUDE.md`) is the authoritative architecture reference for all sessions.
-> `duckwerks_dashboard_architecture.md` covers v1 only and will be deprecated after v2 cutover.
-> Update this file at the end of every session with any structural changes made.
+> **Source of truth:** This file is the authoritative reference for all sessions.
+> Update it at the end of every session with any structural changes made.
 
 ## Project Overview
-Personal resale inventory dashboard for Geoff Goss (Duckwerks Music). Tracks music gear, comics, and gaming items sold on eBay and Reverb. A v2 rewrite (Alpine.js, modular file structure) is in progress at `/v2`. The original v1 (`duckwerks-dashboard.html`) remains live and untouched until v2 cutover.
+Personal resale inventory dashboard for Geoff Goss (Duckwerks Music). Tracks music gear, comics, and gaming items sold on eBay and Reverb. Built with Alpine.js, served by a local Express server, backed by Airtable.
 
 ---
 
 ## Stack
-- **Frontend:** `duckwerks-dashboard.html` — single-file vanilla JS/HTML/CSS app (~2000 lines)
-- **Backend:** `server.js` — local Express server (Node 22), serves the HTML and proxies Shippo API calls
-- **Database:** Airtable (REST API, called directly from the browser)
-- **Shipping:** Shippo API (proxied through Express — cannot be called from browser directly)
+- **Frontend:** `public/v2/` — Alpine.js, modular JS files, no build step
+- **Backend:** `server.js` — local Express server (Node 22), proxies all API calls
+- **Database:** Airtable (REST API via server proxy — PAT never leaves the server)
+- **Shipping:** Shippo API (proxied through Express)
 - **Config:** `.env` file — never commit, never read client-side
 
 ## Running Locally
 ```bash
 npm start   # starts Express on http://localhost:3000
 ```
-Open: `http://localhost:3000/duckwerks-dashboard.html`
 
 ## Version Control
 - GitHub: https://github.com/ringleader3/duckwerksdash (private)
@@ -30,31 +28,17 @@ Open: `http://localhost:3000/duckwerks-dashboard.html`
 ---
 
 ## Key Files
-- `duckwerks-dashboard.html` — the entire frontend
-- `server.js` — Express entry point: mounts routers, serves static files
-- `server/airtable.js` — Airtable proxy routes (`/api/airtable/*`) — used by v2
+- `public/v2/index.html` — app shell: layout, CDN scripts, view + modal containers
+- `public/v2/js/` — all frontend logic (config, store, sidebar, views, modals)
+- `public/v2/css/` — main.css (layout/tokens) + components.css (badges, cards, modals)
+- `server.js` — Express entry point: mounts routers, serves static files, redirects `/` → `/v2`
+- `server/airtable.js` — Airtable proxy routes (`/api/airtable/*`)
 - `server/shippo.js` — all Shippo routes (`/api/label/*`, `/api/shippo/*`)
 - `server/reverb.js` — all Reverb routes (`/api/reverb/*`)
-- `.env` — secrets (Shippo tokens, from-address)
-- `duckwerks_dashboard_architecture.md` — detailed frontend architecture reference
+- `.env` — secrets (Shippo tokens, from-address, Airtable PAT)
 - `package.json` / `node_modules/` — Express + dotenv
 
----
-
-## Working on the HTML File
-
-**The HTML file is ~2000 lines. Never read it in full.**
-
-Always use Grep to find line numbers first, then Read only the relevant section (±30 lines). Make surgical edits with Edit. Never regenerate the whole file.
-
-```
-Grep → find line numbers
-Read offset+limit → read only that section
-Edit → surgical str_replace
-```
-
-Bump `VERSION` in the HTML config section on any structural change.
-Update `duckwerks_dashboard_architecture.md` if any function, state var, view, CSS class, or data field is added/removed/renamed.
+The old single-file dashboard (`duckwerks-dashboard.html`) remains in the repo as a fallback but is not the active frontend.
 
 ---
 
@@ -83,11 +67,11 @@ FROM_PHONE=...
 ## Server API Endpoints
 
 **server.js** (entry point — thin)
-- `GET /api/config` — returns `{ airtablePat }` from `.env`; used by v1 frontend only
+- `GET /` — redirects to `/v2`
+- `GET /api/config` — returns `{ airtablePat }` from `.env`
 - `/v2` static route → `public/v2/`
-- Static file serving for project root at `/`
 
-**server/airtable.js** (mounted at `/api/airtable`) — v2 uses this; v1 calls Airtable directly
+**server/airtable.js** (mounted at `/api/airtable`)
 - `GET /api/airtable/*` — proxies to `api.airtable.com/v0/*`, injects PAT server-side
 - `PATCH /api/airtable/*` — update record
 - `POST /api/airtable/*` — create record
@@ -110,10 +94,9 @@ All credentials injected server-side from `.env` — never exposed to the browse
 ---
 
 ## Airtable
-- **v1:** called directly from browser; PAT fetched via `/api/config` on load (CORS allowed by Airtable)
-- **v2:** all Airtable calls go through `/api/airtable` proxy — PAT never leaves the server
-- `BASE_ID` and `TABLE_ID` in `public/v2/js/config.js` (v2) and HTML `<script>` block (v1)
-- Field IDs in the `F` object — always use field IDs, not names
+- All Airtable calls go through `/api/airtable` proxy — PAT never leaves the server
+- `BASE_ID` and `TABLE_ID` in `public/v2/js/config.js`
+- Field IDs in the `F` object in `config.js` — always use field IDs, not names
 
 ---
 
@@ -123,14 +106,12 @@ All credentials injected server-side from `.env` — never exposed to the browse
 - No unnecessary abstractions or future-proofing
 - Dark theme, monospace font (`Space Mono`), `Bebas Neue` for large numbers
 - Yellow = estimate/pending, Green = actual/positive, Red = cost/negative, Blue = action
+
 ---
 
-## V2 Dashboard (Alpine.js Rewrite)
+## Dashboard (Alpine.js)
 
-A parallel rewrite served at `localhost:3000/v2`. The original `duckwerks-dashboard.html`
-remains live and untouched at `/`. Do not modify it during v2 work.
-
-### V2 File Structure
+### File Structure
 ```
 public/v2/
   index.html              ← shell: layout, CDN scripts, view + modal containers
@@ -153,13 +134,6 @@ public/v2/
       reverb-modal.js     ← Alpine.data('reverbModal') — Reverb sync
 ```
 
-### Server
-One line added to `server.js`:
-```js
-app.use('/v2', express.static(path.join(__dirname, 'public/v2')));
-```
-No other server changes. All existing `/api/*` routes work as-is.
-
 ### Alpine Conventions
 - **Store** (`Alpine.store('dw', {...})`) — single source of truth. All records, lots,
   loading state, active view, active modal, and active record ID live here.
@@ -170,16 +144,15 @@ No other server changes. All existing `/api/*` routes work as-is.
 - **No imports** — files are loaded via `<script src>` in order in index.html.
   Load order: config.js → store.js → sidebar.js → views/* → modals/*
 
-### V2 Data Layer
-- `F{}` field map in `config.js` — same field IDs as v1, single source of truth
+### Data Layer
+- `F{}` field map in `config.js` — single source of truth for Airtable field IDs
 - `$store.dw.records[]` — all Airtable inventory records, fetched on init
 - `$store.dw.lots[]` — all Airtable lot records, fetched on init
 - `$store.dw.fetchAll()` — only place Airtable is called. Re-call after any write.
-- Airtable PAT fetched from `/api/config` on init, same as v1
 
-### Key Computed Values (same as v1 — do not change formula)
+### Key Computed Values (do not change formula)
 ```js
-// Earnings after fees — apply to listPrice only, never to F.sale
+// Earnings after fees (Reverb: 5% selling + 3.19% processing + $0.49 flat)
 eaf(p) { return p > 0 ? Math.max(0, p * 0.9181 - 0.49) : 0; }
 
 // Estimated profit for listed items
@@ -192,14 +165,14 @@ estProfit(r) {
 }
 ```
 
-### V2 Views
+### Views
 | View | Default filters | Entry point |
 |---|---|---|
 | Dashboard | — | KPIs, lot recovery table, recently sold |
 | Items | Status: Listed, Site: All | Daily driver — inline status edit, EAF payout column |
 | Lots | All lots | Click row → Lot Detail modal |
 
-### V2 Sidebar
+### Sidebar
 - **ADD ITEM** button → opens Add modal
 - **Quick Find** — live search against `$store.dw.records` in memory (no Airtable calls)
   - Results: Items (→ Item modal), Lots (→ Lot modal), Categories (→ Items view filtered)
@@ -208,15 +181,14 @@ estProfit(r) {
 - **Nav pills** — Dashboard / Items / Lots
 - **Actions** — Sync Reverb
 
-### V2 Design System
-Same as v1 — do not redesign:
+### Design System
 - Dark theme, `Space Mono` body, `Bebas Neue` large numbers
 - CSS vars: `--green`, `--yellow`, `--red`, `--blue`, `--purple`, `--orange`,
   `--muted`, `--surface`, `--border`, `--border2`, `--ebay`, `--reverb`
 - Color semantics: yellow = estimate/pending, green = actual/positive,
   red = cost/negative, blue = action
 
-### V2 Label Modal — Ship Workflow
+### Label Modal — Ship Workflow
 - Weight input is lbs + oz (combined as `lbs + oz/16` for Shippo API)
 - On open: fetches Reverb order (if `reverbOrderNum` set) to auto-fill shipping address
 - On label purchase: auto-fires saveShipping() + markShipped() immediately — do not wait for button click
@@ -229,24 +201,28 @@ Same as v1 — do not redesign:
 - `order.direct_checkout_payout` — post-fee seller payout (what to store as F.sale); `order.amount_product.amount` is pre-fee listing price
 - `order.shipping_address` — buyer address
 
-### Working on V2 Files
-V2 JS files are small and targeted — you can read them in full if under ~150 lines.
-For `index.html`, use grep + targeted reads (same rules as v1 HTML file).
-Never read `public/v2/index.html` in full once it exceeds ~300 lines.
+### Working on Files
+JS files are small and targeted — read them in full if under ~150 lines.
+For `index.html`, always grep first then targeted reads only.
+Never read `public/v2/index.html` in full — it exceeds 300 lines.
 
-### Build Phases
-All 8 phases complete. v2 is now primary — `localhost:3000` redirects to `/v2`.
-Old dashboard remains accessible at `/duckwerks-dashboard.html` as fallback.
-See `duckwerks-v2-buildplan.md` for the full phase history.
+```
+Grep → find line numbers
+Read offset+limit → read only that section
+Edit → surgical str_replace
+```
 
-### Session Start Checklist (V2 work)
-1. Read `CLAUDE.md` (this file) — especially V2 section and Session Log
-2. Reference `duckwerks_dashboard_architecture.md` only when porting v1 logic
-3. Ask Geoff: which phase, what was the last checkpoint completed?
-4. Grep before any file read. One edit per logical change. Commit when done.
-5. Update Session Log below before ending the session.
+---
 
-### Debugging Alpine / V2 Issues
+## Session Start Checklist
+1. Read `CLAUDE.md` (this file) — especially Session Log
+2. Run `gh issue list --state open` to see current bugs and enhancements
+3. Grep before any file read. One edit per logical change. Commit when done.
+4. Update Session Log and close/reference any resolved GitHub issues at end of session.
+
+---
+
+## Debugging Alpine Issues
 - **Always ask for browser console output** when something doesn't work as expected.
   Console errors (especially Alpine expression errors) give the exact expression and
   element that failed — far faster than guessing from code review alone.
@@ -259,13 +235,15 @@ See `duckwerks-v2-buildplan.md` for the full phase history.
     object is null; use `record?.fields?.[x]` or add an `x-show="record"` outer guard
   - `x-show` hides elements but Alpine still evaluates all bound expressions inside —
     only `x-if` prevents evaluation
-- For hard-to-reproduce bugs, add temporary `console.log` inside store methods or
-  Alpine `init()` hooks, then ask Geoff to trigger the action and share the output.
 - `Alpine.effect(() => { ... })` works inside `Alpine.store` init() for reactive side effects (e.g. localStorage persistence)
 - `x-for="(item, i) in list"` — use this syntax when you need the loop index in template expressions
+- For hard-to-reproduce bugs, add temporary `console.log` inside store methods or
+  Alpine `init()` hooks, then ask Geoff to trigger the action and share the output.
+
+---
 
 ## Bug & Enhancement Tracking
-GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list` at session start to see open items.
+GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` at session start to see open items.
 - `gh` CLI: `brew install gh` + `gh auth login` (choose HTTPS — repo remote is HTTPS)
 - Labels: `bug`, `enhancement`. Reference issues in commits as "fix #N" or "closes #N".
 
@@ -281,6 +259,7 @@ _Most recent first. Update this at the end of every session._
 - Added keyboard navigation (↑/↓/Enter) to Quick Find search results
 - Cutover: `GET /` now redirects to `/v2`; old dashboard accessible at `/duckwerks-dashboard.html`
 - Switched to GitHub Issues for bug/enhancement tracking (`gh` CLI, HTTPS auth)
+- Cleaned up CLAUDE.md: removed all porting/build-phase framing; deleted `duckwerks-v2-buildplan.md` and `duckwerks_dashboard_architecture.md`
 
 ### 2026-03-16 (Phase 7)
 - Implemented Label modal (`label-modal.js`) — lbs+oz weight, 3-step flow (form→rates→result), auto-fills address from Reverb order, auto mark-shipped on Reverb after purchase
@@ -288,58 +267,30 @@ _Most recent first. Update this at the end of every session._
 - Implemented Reverb Sync modal (`reverb-modal.js`) — awaiting shipment matching + link listings; SHIP button directly on matched orders
 - Moved `SHIPPO_TEST_MODE` server-side to `.env`; server logs active mode on startup
 - Fixed packing slip: `_links.packing_slip.web.href` is a plain reverb.com URL — open directly, no proxy
-- **Post-phase bug fixes:** auto-save on purchase (opening packing slip in new tab then clicking back could trigger overlay close before manual save); switched sale amount to `direct_checkout_payout` (post-fee); SAVE button shows ✓ SAVED state
-- **Next:** Phase 8 — Polish + cutover
+- **Post-phase bug fixes:** auto-save on purchase; switched sale amount to `direct_checkout_payout` (post-fee); SAVE button shows ✓ SAVED state
 
 ### 2026-03-16 (Phase 6)
-- Implemented Dashboard view (`dashboard.js`) — 5 stat cards (Total Invested, Revenue, Profit, Upside Pending, Inventory) + Lot Recovery table + Recently Sold table
-- Inventory card breaks down sold/listed/other counts
+- Implemented Dashboard view — 5 stat cards (Total Invested, Revenue, Profit, Upside Pending, Inventory) + Lot Recovery table + Recently Sold table
 - Added `F.dateSold` field (`fldcIJOUtePuaxAVH`) to `config.js`
-- Auto-populate dateSold when status set to Sold — wired in inline status change (`items.js`) and item modal save (`item-modal.js`); only sets if not already present
-- Recently Sold sorts by dateSold, falls back to `createdTime`; display also falls back to createdTime for eBay items without a date
-- Recently Sold table shows category badge, site badge, date, sale, profit
-- Added `scripts/backfill-sold-dates.js` — one-time backfill of dateSold from Reverb orders for records with reverbOrderNum
-- Added `scripts/match-reverb-orders.js` — interactive fuzzy-match script: pulls all Reverb selling orders, matches against unlinked Airtable sold records by title similarity, prompts to confirm, writes dateSold + reverbOrderNum
-- **Next:** Phase 7 — Port Label modal (Shippo) + Reverb Sync modal
+- Auto-populate dateSold when status set to Sold (items.js inline + item-modal.js save)
+- Added `scripts/backfill-sold-dates.js` and `scripts/match-reverb-orders.js` — one-time data migration scripts
 
 ### 2026-03-16 (Phase 5)
-- Implemented Lots view (`lots.js`) — table with item count, cost, recovered, recovery progress bar, est. upside
-- Implemented Lot modal (`lot-modal.js`) — stat cards (cost, recovered, est. upside, est. total profit), recovery progress bar, items table with click-through to item modal
-- Fixed Add modal Lot dropdown always disabled — Alpine treats `''` (empty string) as truthy for boolean attributes; changed `:disabled="form.newLot.trim()"` to `:disabled="form.newLot.trim().length > 0"`
-- Added "+ ADD ANOTHER" button to Add modal — saves and re-opens with status/category/site/lot fields preserved; name/price/cost cleared
-- **Next:** Phase 6 — Dashboard view (stat cards, lot recovery table, recently sold)
+- Implemented Lots view and Lot modal
+- Fixed Add modal Lot dropdown always disabled — Alpine treats `''` as truthy for boolean attributes
+- Added "+ ADD ANOTHER" button to Add modal
 
 ### 2026-03-15 (Phase 4)
-- Implemented `item-modal.js` — read view (status, classification, financials, EAF/profit/margin) + edit view (all fields, inline save)
-- Implemented `add-modal.js` — add new item form (name, status, category, platform, lot, list price, cost)
-- Added `createRecord()` to store, `updateRecord()` already existed from Phase 3
-- Added modal inner HTML to `index.html` for item and add modals
-- Added modal CSS to `components.css` (modal-row, modal-field, modal-val, modal-input, modal-select, modal-big-profit, etc.)
-- Added `[x-cloak]` rule to main.css to prevent flash-of-unstyled-modal
-- Row click → item modal already wired in Phase 3 items.js; ADD ITEM button already wired in Phase 2 sidebar
-- **Next:** Phase 5 — Lots view + Lot modal
+- Implemented Item modal (read + edit views) and Add modal
+- Added `createRecord()` to store; modal CSS to components.css; `[x-cloak]` rule
 
 ### 2026-03-15 (Phase 3)
-- Implemented Items view (`items.js`) — status/site/name filters, full table
-- Added Site and Status columns; inline status dropdown (no modal needed)
-- EAF payout + est. profit shown in yellow; shipping yellow if estimated
-- Added `updateRecord()` to store for inline status edits
-- Fixed listed badge color (solid blue) to distinguish from Music category badge
-- Added Site column (eBay/Reverb badge)
-- **Next:** Phase 4 — Item modal + Add modal
+- Implemented Items view — status/site/name filters, full table, inline status edit
+- Added `updateRecord()` to store
 
 ### 2026-03-15 (Phase 2)
-- Implemented Quick Find search in sidebar (`sidebar.js`) — items, lots, categories
-- Added `categoryFilter` state to store; nav pills reset it on click
-- Keyboard shortcut `/` focuses search input
-- Search results: items open item modal, lots open lot modal, categories filter items view
-- Sold items shown dimmed in results; lots show % cost recovered badge
-- **Next:** Phase 3 — Items view
+- Implemented Quick Find search in sidebar — items, lots, categories; keyboard shortcut `/`
 
 ### 2026-03-15 (Phase 1)
-- Introduced CLI-based Claude Code workflow (tmux for session persistence)
-- Split `server.js` into modules: `server/shippo.js`, `server/reverb.js`
-- Added `server/airtable.js` proxy — PAT now never exposed to browser
-- Scaffolded full v2 file structure (`public/v2/`) — Phase 1 complete
-- Alpine store wired up, `fetchAll()` confirmed loading 91 records via proxy
-- `CLAUDE.md` established as primary architecture source of truth
+- Split `server.js` into modules; added `server/airtable.js` proxy
+- Scaffolded full `public/v2/` file structure; Alpine store wired up
