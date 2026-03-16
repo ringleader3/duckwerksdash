@@ -34,4 +34,7 @@ const CAT_BADGE = {
   Gaming:   'badge-gaming',
 };
 
+// Shippo test mode — flip to false for live labels
+const SHIPPO_TEST_MODE = false;
+
 // Airtable is accessed via /api/airtable proxy — PAT never leaves the server

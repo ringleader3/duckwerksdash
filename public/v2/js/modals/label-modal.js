@@ -1,4 +1,201 @@
 // ── Label Modal (Shippo) — Phase 7 ───────────────────────────────────────────
 document.addEventListener('alpine:init', () => {
-  Alpine.data('labelModal', () => ({}));
+  Alpine.data('labelModal', () => ({
+    step:           'form',   // 'form' | 'rates' | 'result'
+    addrText:       '',
+    parcel:         { type: 'box', weight: '', length: '', width: '', height: '' },
+    rates:          [],
+    purchaseResult: null,
+    ratePrice:      0,
+    carrier:        null,
+    reverbLinks:    null,
+    loading:        false,
+    errMsg:         '',
+    saveMsg:        '',
+    savingShip:     false,
+
+    init() {
+      this.$watch('$store.dw.activeModal', val => {
+        if (val === 'label') this._open();
+      });
+    },
+
+    async _open() {
+      this.step           = 'form';
+      this.addrText       = '';
+      this.rates          = [];
+      this.purchaseResult = null;
+      this.ratePrice      = 0;
+      this.carrier        = null;
+      this.reverbLinks    = null;
+      this.loading        = false;
+      this.errMsg         = '';
+      this.saveMsg        = '';
+      this.savingShip     = false;
+
+      const dw = Alpine.store('dw');
+      const r  = dw.records.find(x => x.id === dw.activeRecordId);
+      if (!r) return;
+
+      const orderNum = dw.str(r, F.reverbOrderNum);
+      if (orderNum) {
+        try {
+          const res = await fetch(`/api/reverb/my/orders/selling/${orderNum}`);
+          if (res.ok) {
+            const order = await res.json();
+            this.reverbLinks = order._links || null;
+            if (order.shipping_address) {
+              this.addrText = this._addrToText(order.shipping_address);
+            }
+          }
+        } catch(e) { console.warn('Reverb order fetch failed:', e); }
+      }
+    },
+
+    get record() {
+      const dw = Alpine.store('dw');
+      return dw.records.find(r => r.id === dw.activeRecordId) || null;
+    },
+
+    get itemName() {
+      return this.record
+        ? Alpine.store('dw').str(this.record, F.name).replace(/\n/g, '')
+        : '—';
+    },
+
+    setType(type) {
+      this.parcel.type = type;
+      if (type === 'poly') { this.parcel.width = ''; this.parcel.height = ''; }
+    },
+
+    _addrToText(a) {
+      const lines = [a.name, a.street_address];
+      if (a.extended_address) lines.push(a.extended_address);
+      lines.push(`${a.locality} ${a.region} ${a.postal_code}`);
+      if (a.country_code && a.country_code !== 'US') lines.push(a.country_code);
+      return lines.join('\n');
+    },
+
+    _parseAddress(text) {
+      const lines = text.trim().split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length < 3) return null;
+      const name = lines[0];
+      let rest = lines.slice(1);
+      let country = 'US';
+      const last = rest[rest.length - 1];
+      if (/^[A-Z]{2}$/.test(last))       { country = last; rest = rest.slice(0, -1); }
+      else if (/united states/i.test(last)) { country = 'US'; rest = rest.slice(0, -1); }
+      const csz    = rest[rest.length - 1];
+      const streets = rest.slice(0, -1);
+      const parts  = csz.split(/\s+/);
+      if (parts.length < 2) return null;
+      const zip   = parts[parts.length - 1];
+      const state = parts[parts.length - 2];
+      const city  = parts.slice(0, parts.length - 2).join(' ');
+      return { name, street1: streets[0] || '', street2: streets[1] || '', city, state, zip, country };
+    },
+
+    async getRates() {
+      this.errMsg = '';
+      const addr = this._parseAddress(this.addrText);
+      if (!addr)                { this.errMsg = 'Could not parse address — check format'; return; }
+      if (!this.parcel.weight)  { this.errMsg = 'Weight required'; return; }
+      if (!this.parcel.length)  { this.errMsg = 'Length required'; return; }
+      if (this.parcel.type === 'box' && (!this.parcel.width || !this.parcel.height)) {
+        this.errMsg = 'Width and height required for boxes'; return;
+      }
+      const parcel = {
+        weight: this.parcel.weight,
+        length: this.parcel.length,
+        width:  this.parcel.type === 'box' ? this.parcel.width  : '1',
+        height: this.parcel.type === 'box' ? this.parcel.height : '1',
+      };
+      this.loading = true;
+      try {
+        const res  = await fetch('/api/label/rates', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ testMode: SHIPPO_TEST_MODE, toAddress: addr, parcel }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.rates) {
+          this.errMsg = data.error || 'No rates returned';
+          return;
+        }
+        this.rates = data.rates;
+        this.step  = 'rates';
+      } catch(e) {
+        this.errMsg = e.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async purchase(rateId, price, carrier) {
+      this.carrier   = carrier || null;
+      this.ratePrice = price;
+      this.loading   = true;
+      this.errMsg    = '';
+      try {
+        const res  = await fetch('/api/label/purchase', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ testMode: SHIPPO_TEST_MODE, rateObjectId: rateId }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          this.errMsg = data.error || 'Purchase failed';
+          this.step   = 'rates';
+          return;
+        }
+        this.purchaseResult = data;
+        this.step = 'result';
+      } catch(e) {
+        this.errMsg = e.message;
+        this.step   = 'rates';
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async saveShipping() {
+      if (!this.record) return;
+      this.savingShip = true;
+      this.saveMsg    = '';
+      try {
+        await Alpine.store('dw').updateRecord(this.record.id, { [F.shipping]: this.ratePrice });
+        this.saveMsg = '✓ shipping saved';
+      } catch(e) {
+        this.saveMsg = 'ERROR: ' + e.message;
+      } finally {
+        this.savingShip = false;
+      }
+    },
+
+    async markShipped() {
+      if (!this.reverbLinks?.ship?.href || !this.purchaseResult?.trackingNumber) return;
+      const apiPath = this.reverbLinks.ship.href
+        .replace(/^https?:\/\/api\.reverb\.com\/api\//, '');
+      const carrierMap = { USPS: 'USPS', UPS: 'UPS', FedEx: 'FedEx', DHL: 'DHL', DHLExpress: 'DHLExpress' };
+      const provider   = (this.carrier && carrierMap[this.carrier]) || this.carrier || 'Other';
+      try {
+        const res = await fetch(`/api/reverb/${apiPath}`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            provider,
+            tracking_number:   this.purchaseResult.trackingNumber,
+            send_notification: true,
+          }),
+        });
+        if (!res.ok) {
+          const d = await res.json();
+          throw new Error(d.message || `HTTP ${res.status}`);
+        }
+        this.saveMsg = '✓ buyer notified on Reverb';
+      } catch(e) {
+        this.saveMsg = 'Reverb error: ' + e.message;
+      }
+    },
+  }));
 });

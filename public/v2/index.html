@@ -699,8 +699,286 @@
 
     </div>
   </div>
-  <div x-show="$store.dw.activeModal === 'label'"  x-data="labelModal"  class="modal-overlay" @click.self="$store.dw.closeModal()"></div>
-  <div x-show="$store.dw.activeModal === 'reverb'" x-data="reverbModal" class="modal-overlay" @click.self="$store.dw.closeModal()"></div>
+  <!-- ── LABEL MODAL ──────────────────────────────────────────────────────── -->
+  <div x-show="$store.dw.activeModal === 'label'" x-data="labelModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
+    <div class="modal-box" style="max-width:560px">
+      <div class="modal-header">
+        <div class="modal-title" x-text="itemName"></div>
+        <span x-show="typeof SHIPPO_TEST_MODE !== 'undefined' && SHIPPO_TEST_MODE" style="font-size:10px;letter-spacing:2px;color:var(--blue);flex-shrink:0">TEST MODE</span>
+        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Loading -->
+        <div x-show="loading" style="padding:40px;text-align:center;color:#aaa;letter-spacing:2px;font-size:13px">LOADING...</div>
+
+        <!-- STEP: form -->
+        <div x-show="step === 'form' && !loading">
+          <div class="modal-section-label">TO ADDRESS</div>
+          <div class="modal-row" style="flex-direction:column;align-items:stretch;gap:6px">
+            <textarea x-model="addrText" rows="5"
+              placeholder="Name&#10;Street Address&#10;City State Zip&#10;Country (optional)"
+              style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:10px;resize:vertical;box-sizing:border-box;line-height:1.6"></textarea>
+          </div>
+
+          <div class="modal-divider"></div>
+          <div class="modal-section-label">PACKAGE</div>
+
+          <div class="modal-row">
+            <span class="modal-field">TYPE</span>
+            <span class="modal-val" style="display:flex;gap:8px">
+              <button @click="setType('box')"
+                :style="parcel.type==='box' ? 'border-color:var(--blue);color:var(--blue)' : 'border-color:var(--border2);color:var(--muted)'"
+                style="padding:5px 14px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;background:transparent">BOX</button>
+              <button @click="setType('poly')"
+                :style="parcel.type==='poly' ? 'border-color:var(--blue);color:var(--blue)' : 'border-color:var(--border2);color:var(--muted)'"
+                style="padding:5px 14px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;background:transparent">POLY BAG</button>
+            </span>
+          </div>
+
+          <div class="modal-row">
+            <span class="modal-field">WEIGHT (LB)</span>
+            <span class="modal-val">
+              <input x-model="parcel.weight" type="number" step="0.1" min="0.1" placeholder="e.g. 1.5"
+                style="width:100px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+            </span>
+          </div>
+
+          <div class="modal-row" x-show="parcel.type === 'box'">
+            <span class="modal-field">DIMENSIONS (IN)</span>
+            <span class="modal-val" style="display:flex;gap:8px;align-items:center">
+              <input x-model="parcel.length" type="number" step="0.5" min="0.1" placeholder="L"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              <span style="color:var(--muted)">×</span>
+              <input x-model="parcel.width" type="number" step="0.5" min="0.1" placeholder="W"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              <span style="color:var(--muted)">×</span>
+              <input x-model="parcel.height" type="number" step="0.5" min="0.1" placeholder="H"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+            </span>
+          </div>
+
+          <div x-show="parcel.type === 'poly'">
+            <div class="modal-row">
+              <span class="modal-field">LENGTH (IN)</span>
+              <span class="modal-val">
+                <input x-model="parcel.length" type="number" step="0.5" min="0.1" placeholder="e.g. 12"
+                  style="width:100px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              </span>
+            </div>
+            <div class="modal-row" style="margin-top:-8px">
+              <span class="modal-field" style="font-size:10px;color:#555">WIDTH &amp; HEIGHT not required for poly bags</span>
+            </div>
+          </div>
+
+          <div class="modal-divider"></div>
+          <div style="display:flex;gap:10px;align-items:center;padding:4px 0 8px">
+            <button @click="getRates()" :disabled="loading"
+              style="padding:10px 28px;background:var(--blue);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer">
+              GET RATES
+            </button>
+            <span x-show="errMsg" x-text="errMsg" style="font-size:12px;color:var(--red);letter-spacing:1px"></span>
+          </div>
+        </div>
+
+        <!-- STEP: rates -->
+        <div x-show="step === 'rates' && !loading">
+          <div class="modal-section-label">SELECT A RATE</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+            <template x-for="r in rates" :key="r.object_id">
+              <div @click="purchase(r.object_id, r.price, r.carrier)"
+                style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border:1px solid var(--border2);cursor:pointer;transition:border-color .15s"
+                @mouseover="$el.style.borderColor='var(--blue)'" @mouseout="$el.style.borderColor='var(--border2)'">
+                <div>
+                  <div style="font-size:13px;color:var(--white);letter-spacing:1px" x-text="r.carrier + ' — ' + r.service"></div>
+                  <div x-show="r.days" style="font-size:11px;color:#888;margin-top:3px;letter-spacing:1px"
+                    x-text="r.days + ' BUSINESS DAY' + (r.days !== 1 ? 'S' : '')"></div>
+                </div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green)" x-text="'$' + r.price.toFixed(2)"></div>
+              </div>
+            </template>
+          </div>
+          <button @click="step = 'form'"
+            style="padding:8px 20px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer">
+            ← BACK
+          </button>
+        </div>
+
+        <!-- STEP: result -->
+        <div x-show="step === 'result' && !loading">
+          <div style="padding:16px 0 8px;text-align:center">
+            <div style="font-size:11px;letter-spacing:3px;color:var(--green);margin-bottom:8px">LABEL CREATED</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green)" x-text="'$' + ratePrice.toFixed(2)"></div>
+          </div>
+          <div class="modal-divider"></div>
+
+          <div class="modal-row">
+            <span class="modal-field">TRACKING #</span>
+            <span class="modal-val" style="display:flex;gap:8px;align-items:center">
+              <span style="font-size:12px;color:var(--white)" x-text="purchaseResult?.trackingNumber || '—'"></span>
+              <button x-show="purchaseResult?.trackingNumber"
+                @click="navigator.clipboard.writeText(purchaseResult.trackingNumber); $el.textContent='✓'"
+                style="padding:3px 8px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;cursor:pointer">
+                COPY
+              </button>
+            </span>
+          </div>
+
+          <div class="modal-row">
+            <span class="modal-field">LABEL</span>
+            <span class="modal-val">
+              <a :href="purchaseResult?.labelUrl" target="_blank"
+                style="padding:6px 16px;background:var(--blue);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-decoration:none">
+                ↗ OPEN LABEL
+              </a>
+            </span>
+          </div>
+
+          <div class="modal-row" x-show="purchaseResult?.trackingUrl">
+            <span class="modal-field">TRACK</span>
+            <span class="modal-val">
+              <a :href="purchaseResult?.trackingUrl" target="_blank" style="color:var(--muted);font-size:11px">↗ TRACKING PAGE</a>
+            </span>
+          </div>
+
+          <div class="modal-divider"></div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:4px 0 8px">
+            <button @click="saveShipping()" :disabled="savingShip"
+              x-text="savingShip ? 'SAVING...' : 'SAVE SHIPPING COST'"
+              style="padding:10px 24px;background:var(--green);color:#000;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer">
+            </button>
+            <button x-show="reverbLinks?.ship && purchaseResult?.trackingNumber"
+              @click="markShipped()"
+              style="padding:10px 24px;background:transparent;border:1px solid var(--reverb);color:var(--reverb);font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer">
+              MARK SHIPPED ON REVERB
+            </button>
+            <button x-show="reverbLinks?.packing_slip"
+              @click="window.open(reverbLinks.packing_slip.href, '_blank')"
+              style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
+              PACKING SLIP
+            </button>
+            <span x-show="saveMsg" x-text="saveMsg"
+              :style="saveMsg.startsWith('✓') ? 'color:var(--green)' : 'color:var(--red)'"
+              style="font-size:12px;letter-spacing:1px"></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REVERB SYNC MODAL ─────────────────────────────────────────────────── -->
+  <div x-show="$store.dw.activeModal === 'reverb'" x-data="reverbModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
+    <div class="modal-box modal-box-wide">
+      <div class="modal-header">
+        <div class="modal-title">SYNC REVERB ORDERS</div>
+        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Loading -->
+        <div x-show="loading" style="padding:40px 0;text-align:center">
+          <div class="spinner"></div>
+          <div style="color:#aaa;letter-spacing:2px;font-size:13px;margin-top:12px">FETCHING FROM REVERB...</div>
+        </div>
+
+        <!-- Error -->
+        <div x-show="!loading && errMsg" x-text="'ERROR: ' + errMsg"
+          style="padding:24px;color:var(--red);font-size:12px"></div>
+
+        <!-- Results -->
+        <div x-show="!loading && !errMsg">
+
+          <!-- SECTION: Awaiting Shipment -->
+          <div class="modal-section-label">AWAITING SHIPMENT</div>
+
+          <div x-show="!orders.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
+            No orders awaiting shipment.
+          </div>
+
+          <template x-for="item in matched" :key="item.order.order_number">
+            <div style="padding:10px 0;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+              <div style="flex:1;min-width:0">
+                <div style="font-size:12px;color:var(--white);margin-bottom:3px" x-text="item.order.title"></div>
+                <div style="font-size:11px;color:var(--muted)"
+                  x-text="item.order.shipping_address.name + ' · ' + item.order.shipping_address.locality + ', ' + item.order.shipping_address.region"></div>
+                <div style="font-size:10px;color:#555;margin-top:2px" x-text="'Order #' + item.order.order_number"></div>
+              </div>
+              <div style="font-size:10px;letter-spacing:1px;flex-shrink:0;margin-top:2px"
+                :style="$store.dw.str(item.rec, F.reverbOrderNum) === String(item.order.order_number) ? 'color:var(--green)' : 'color:var(--yellow)'"
+                x-text="$store.dw.str(item.rec, F.reverbOrderNum) === String(item.order.order_number) ? '✓ LINKED' : 'PENDING'">
+              </div>
+            </div>
+          </template>
+
+          <template x-for="order in unmatched" :key="order.order_number">
+            <div style="padding:10px 0;border-bottom:1px solid var(--border2)">
+              <div style="font-size:12px;color:var(--muted);margin-bottom:3px" x-text="order.title"></div>
+              <div style="font-size:11px;color:#555"
+                x-text="order.shipping_address.name + ' · ' + order.shipping_address.locality + ', ' + order.shipping_address.region"></div>
+              <div style="font-size:10px;color:#444;margin-top:2px"
+                x-text="'Listing ID: ' + order.product_id + ' · Order #' + order.order_number"></div>
+            </div>
+          </template>
+
+          <div x-show="toSave.length > 0" style="padding:14px 0 4px;display:flex;gap:12px;align-items:center">
+            <button @click="saveMatches()" :disabled="savingMatches"
+              style="padding:10px 28px;background:var(--reverb);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer"
+              x-text="savingMatches ? 'SAVING...' : 'SAVE ' + toSave.length + ' MATCH' + (toSave.length > 1 ? 'ES' : '')">
+            </button>
+            <span x-show="matchesMsg" x-text="matchesMsg"
+              :style="matchesMsg.startsWith('✓') ? 'color:var(--green)' : 'color:var(--red)'"
+              style="font-size:11px;letter-spacing:1px"></span>
+          </div>
+          <div x-show="matched.length > 0 && toSave.length === 0"
+            style="padding:10px 0;font-size:11px;color:var(--green);letter-spacing:1px">
+            ✓ ALL MATCHES UP TO DATE
+          </div>
+
+          <!-- SECTION: Link Listings -->
+          <div class="modal-section-label" style="margin-top:20px">LINK LISTINGS</div>
+
+          <div x-show="!unlinkedRecs.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
+            All Listed/Reverb items already have a listing ID.
+          </div>
+          <div x-show="unlinkedRecs.length > 0 && !listings.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
+            No live Reverb listings found.
+          </div>
+
+          <div x-show="unlinkedRecs.length > 0 && listings.length > 0">
+            <div style="font-size:11px;color:#666;padding:4px 0 10px;letter-spacing:1px">
+              Match your unlinked items to their Reverb listings.
+            </div>
+            <template x-for="rec in unlinkedRecs" :key="rec.id">
+              <div style="padding:10px 0;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                <div style="font-size:12px;color:var(--white);min-width:160px;flex:1" x-text="$store.dw.str(rec, F.name)"></div>
+                <select x-model="linkSelections[rec.id]"
+                  style="flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:11px;padding:6px 8px">
+                  <option value="">— pick listing —</option>
+                  <template x-for="l in sortedListings" :key="l.id">
+                    <option :value="String(l.id)"
+                      :disabled="usedListingIds.has(String(l.id))"
+                      x-text="l.title + (usedListingIds.has(String(l.id)) ? ' ✓' : '')">
+                    </option>
+                  </template>
+                </select>
+              </div>
+            </template>
+            <div style="padding:14px 0 4px;display:flex;gap:12px;align-items:center">
+              <button @click="saveLinks()" :disabled="savingLinks"
+                style="padding:10px 28px;background:var(--reverb);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer"
+                x-text="savingLinks ? 'SAVING...' : 'SAVE LINKS'">
+              </button>
+              <span x-show="linksMsg" x-text="linksMsg"
+                :style="linksMsg.startsWith('✓') ? 'color:var(--green)' : 'color:var(--red)'"
+                style="font-size:11px;letter-spacing:1px"></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
 
 </div><!-- #app -->
 

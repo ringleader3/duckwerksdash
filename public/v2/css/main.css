@@ -227,3 +227,15 @@ a:hover { text-decoration: underline; }
 }
 
 .state-error { color: var(--red); }
+
+
+/* Spinner */
+.spinner {
+  width: 24px; height: 24px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
