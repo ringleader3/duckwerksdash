@@ -89,13 +89,12 @@ a:hover { text-decoration: underline; }
   padding: 10px 16px 12px;
 }
 .sidebar-logo-img {
-  width: 100%;
+  width: 140%;
+  margin-left: -20%;
   display: block;
   object-fit: cover;
-  object-position: 20% 55%;
+  object-position: center 60%;
   height: 130px;
-  transform: scale(1.45);
-  transform-origin: 20% 55%;
 }
 
 .sidebar-section-label {
