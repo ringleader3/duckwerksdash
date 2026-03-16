@@ -88,7 +88,103 @@
         <div class="view-header">
           <div class="view-title">DASHBOARD</div>
         </div>
-        <div class="state-loading" style="color: var(--muted)">Dashboard view — coming in Phase 6</div>
+
+        <!-- KPI Stat Cards -->
+        <div class="stat-grid" style="margin-bottom: 24px">
+          <div class="stat-card red">
+            <div class="stat-card-label">Total Invested</div>
+            <div class="stat-card-value" x-text="$store.dw.fmtK(totalInvested)"></div>
+            <div class="stat-card-sub" x-text="$store.dw.records.length + ' items'"></div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-card-label">Revenue</div>
+            <div class="stat-card-value" x-text="$store.dw.fmtK(revenue)"></div>
+            <div class="stat-card-sub" x-text="$store.dw.soldRecords.length + ' sold'"></div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-card-label">Profit</div>
+            <div class="stat-card-value" x-text="$store.dw.fmtK(profit)"></div>
+            <div class="stat-card-sub" x-text="'ROI ' + $store.dw.pct(profit, totalInvested) + '%'"></div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-card-label">Upside Pending</div>
+            <div class="stat-card-value" x-text="$store.dw.fmtK(pipeline)"></div>
+            <div class="stat-card-sub" x-text="$store.dw.listedRecords.length + ' listed · after fees'"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Inventory</div>
+            <div class="stat-card-value" x-text="$store.dw.records.length"></div>
+            <div class="stat-card-sub" x-text="$store.dw.soldRecords.length + ' sold · ' + $store.dw.listedRecords.length + ' listed · ' + notListed + ' other'"></div>
+          </div>
+        </div>
+
+        <!-- Panels: Lot Recovery + Recently Sold -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+
+          <!-- Lot Recovery -->
+          <div class="panel">
+            <div class="panel-title">Lot Recovery</div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Lot</th>
+                  <th class="num-col">Cost</th>
+                  <th class="num-col">Recovered</th>
+                  <th class="num-col">%</th>
+                  <th class="num-col">Pipeline</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="lot in lotRows" :key="lot.name">
+                  <tr style="cursor:pointer" @click="$store.dw.openModal('lot', null, lot.name)">
+                    <td x-text="lot.name"></td>
+                    <td class="num red" x-text="$store.dw.fmt0(lot.cost)"></td>
+                    <td class="num green" x-text="$store.dw.fmt0(lot.recovered)"></td>
+                    <td class="num">
+                      <div style="display:flex; align-items:center; gap:6px; justify-content:flex-end">
+                        <span :class="barClass(lot.pct) === 'green' ? 'act' : 'est'" x-text="lot.pct + '%'"></span>
+                        <div class="progress-bar" style="width:50px">
+                          <div class="progress-fill" :class="barClass(lot.pct)" :style="'width:' + lot.pct + '%'"></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="num yellow" x-text="$store.dw.fmt0(lot.upside)"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Recently Sold -->
+          <div class="panel">
+            <div class="panel-title">Recently Sold</div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Cat</th>
+                  <th>Site</th>
+                  <th class="num-col">Date</th>
+                  <th class="num-col">Sale</th>
+                  <th class="num-col">Profit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="r in recentlySold" :key="r.id">
+                  <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
+                    <td x-text="$store.dw.str(r, F.name)"></td>
+                    <td><span :class="'badge ' + (CAT_BADGE[$store.dw.str(r, F.category)] || '')" x-text="$store.dw.str(r, F.category)"></span></td>
+                    <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
+                    <td class="num" style="color:var(--muted)" x-text="soldDate(r)"></td>
+                    <td class="num green" x-text="$store.dw.fmt0($store.dw.num(r, F.sale))"></td>
+                    <td class="num" :class="itemProfit(r) >= 0 ? 'green' : 'red'" x-text="$store.dw.fmt0(itemProfit(r))"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
       </div>
 
       <!-- Items -->

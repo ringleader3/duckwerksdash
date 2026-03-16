@@ -252,6 +252,17 @@ Commit at every checkpoint.
 ## Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-16 (Phase 6)
+- Implemented Dashboard view (`dashboard.js`) — 5 stat cards (Total Invested, Revenue, Profit, Upside Pending, Inventory) + Lot Recovery table + Recently Sold table
+- Inventory card breaks down sold/listed/other counts
+- Added `F.dateSold` field (`fldcIJOUtePuaxAVH`) to `config.js`
+- Auto-populate dateSold when status set to Sold — wired in inline status change (`items.js`) and item modal save (`item-modal.js`); only sets if not already present
+- Recently Sold sorts by dateSold, falls back to `createdTime`; display also falls back to createdTime for eBay items without a date
+- Recently Sold table shows category badge, site badge, date, sale, profit
+- Added `scripts/backfill-sold-dates.js` — one-time backfill of dateSold from Reverb orders for records with reverbOrderNum
+- Added `scripts/match-reverb-orders.js` — interactive fuzzy-match script: pulls all Reverb selling orders, matches against unlinked Airtable sold records by title similarity, prompts to confirm, writes dateSold + reverbOrderNum
+- **Next:** Phase 7 — Port Label modal (Shippo) + Reverb Sync modal
+
 ### 2026-03-16 (Phase 5)
 - Implemented Lots view (`lots.js`) — table with item count, cost, recovered, recovery progress bar, est. upside
 - Implemented Lot modal (`lot-modal.js`) — stat cards (cost, recovered, est. upside, est. total profit), recovery progress bar, items table with click-through to item modal

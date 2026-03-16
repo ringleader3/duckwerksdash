@@ -72,7 +72,9 @@ document.addEventListener('alpine:init', () => {
     async changeStatus(r, status, e) {
       e.stopPropagation();
       this.openStatusId = null;
-      await Alpine.store('dw').updateRecord(r.id, { [F.status]: status });
+      const fields = { [F.status]: status };
+      if (status === 'Sold') fields[F.dateSold] = new Date().toISOString().split('T')[0];
+      await Alpine.store('dw').updateRecord(r.id, fields);
     },
 
     openItem(r) {

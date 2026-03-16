@@ -57,6 +57,8 @@ document.addEventListener('alpine:init', () => {
 
       if (f.name)     fields[F.name]     = f.name;
       if (f.status)   fields[F.status]   = f.status;
+      if (f.status === 'Sold' && !Alpine.store('dw').str(this.record, F.dateSold))
+        fields[F.dateSold] = new Date().toISOString().split('T')[0];
       if (f.category) fields[F.category] = f.category;
       if (f.site)     fields[F.site]     = f.site;
       fields[F.lot]             = f.lot             || '';
