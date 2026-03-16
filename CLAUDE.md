@@ -1,7 +1,11 @@
 # Duckwerks Dashboard — Claude Code Guide
 
+> **Source of truth:** This file (`CLAUDE.md`) is the authoritative architecture reference for all sessions.
+> `duckwerks_dashboard_architecture.md` covers v1 only and will be deprecated after v2 cutover.
+> Update this file at the end of every session with any structural changes made.
+
 ## Project Overview
-Personal resale inventory dashboard for Geoff Goss (Duckwerks Music). Tracks music gear, comics, and gaming items sold on eBay and Reverb. Built as a single HTML file backed by Airtable, now served by a local Express proxy.
+Personal resale inventory dashboard for Geoff Goss (Duckwerks Music). Tracks music gear, comics, and gaming items sold on eBay and Reverb. A v2 rewrite (Alpine.js, modular file structure) is in progress at `/v2`. The original v1 (`duckwerks-dashboard.html`) remains live and untouched until v2 cutover.
 
 ---
 
@@ -221,7 +225,22 @@ Always confirm phase checkpoint with Geoff before starting the next phase.
 Commit at every checkpoint.
 
 ### Session Start Checklist (V2 work)
-1. Read `CLAUDE.md` (this file) — especially V2 section
-2. Read `duckwerks_dashboard_architecture.md` — for v1 reference when porting
+1. Read `CLAUDE.md` (this file) — especially V2 section and Session Log
+2. Reference `duckwerks_dashboard_architecture.md` only when porting v1 logic
 3. Ask Geoff: which phase, what was the last checkpoint completed?
 4. Grep before any file read. One edit per logical change. Commit when done.
+5. Update Session Log below before ending the session.
+
+---
+
+## Session Log
+_Most recent first. Update this at the end of every session._
+
+### 2026-03-15
+- Introduced CLI-based Claude Code workflow (tmux for session persistence)
+- Split `server.js` into modules: `server/shippo.js`, `server/reverb.js`
+- Added `server/airtable.js` proxy — PAT now never exposed to browser
+- Scaffolded full v2 file structure (`public/v2/`) — Phase 1 complete
+- Alpine store wired up, `fetchAll()` confirmed loading 91 records via proxy
+- `CLAUDE.md` established as primary architecture source of truth
+- **Next:** Phase 2 — Sidebar search + navigation (new session)
