@@ -78,6 +78,7 @@ a:hover { text-decoration: underline; }
   margin: -16px -16px 0;
   border-bottom: 1px solid var(--border);
   margin-bottom: 16px;
+  overflow: hidden;
 }
 .sidebar-logo-name {
   font-family: var(--font-big);
