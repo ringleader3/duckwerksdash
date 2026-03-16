@@ -697,10 +697,14 @@ let currentModalId = null, modalEditMode = false;
 // ── LABEL MODAL ────────────────────────────────────────────────────────────────
 let labelRecId = null;
 let labelAddrText = '';
+let labelReverbLinks = null;
+let labelCarrier = null;
 let labelParcel = { type: 'box', weight: '', length: '', width: '', height: '' };
 
 async function openLabelModal(recId) {
   labelRecId = recId;
+  labelReverbLinks = null;
+  labelCarrier = null;
   const r = records.find(x => x.id === recId);
   $('label-item-name').textContent = r ? str(r, F.name).replace(/\n/g,'') : '—';
   $('label-test-badge').textContent = SHIPPO_TEST_MODE ? 'TEST MODE' : '';
@@ -708,13 +712,14 @@ async function openLabelModal(recId) {
 
   // Auto-fill address from Reverb order if linked and address not already entered
   const orderNum = r ? str(r, F.reverbOrderNum) : '';
-  if (orderNum && !labelAddrText) {
-    renderLabelForm(); // show form immediately, then patch address in
+  if (orderNum) {
+    renderLabelForm(); // show form immediately, then patch in async
     try {
       const res = await fetch(`/api/reverb/my/orders/selling/${orderNum}`);
       if (res.ok) {
         const order = await res.json();
-        if (order.shipping_address) {
+        labelReverbLinks = order._links || null;
+        if (order.shipping_address && !labelAddrText) {
           labelAddrText = reverbAddrToText(order.shipping_address);
           renderLabelForm();
         }
@@ -1109,7 +1114,7 @@ function renderLabelRates(rates) {
     <div class="modal-section-label">SELECT A RATE</div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
       ${rates.map(r => `
-      <div onclick="labelPurchase('${esc(r.object_id)}', ${r.price})"
+      <div onclick="labelPurchase('${esc(r.object_id)}', ${r.price}, '${esc(r.carrier)}')"
         style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border:1px solid var(--border2);cursor:pointer;transition:border-color .15s"
         onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border2)'">
         <div>
@@ -1123,7 +1128,8 @@ function renderLabelRates(rates) {
   `;
 }
 
-async function labelPurchase(rateId, price) {
+async function labelPurchase(rateId, price, carrier) {
+  labelCarrier = carrier || null;
   $('label-body').innerHTML = `<div style="padding:40px;text-align:center;color:#aaa;letter-spacing:2px;font-size:13px">PURCHASING LABEL...</div>`;
   try {
     const res = await fetch('/api/label/purchase', {
@@ -1171,11 +1177,21 @@ function renderLabelResult(result, price) {
       <span class="modal-val"><a href="${esc(result.trackingUrl)}" target="_blank" style="color:var(--muted);font-size:11px">↗ TRACKING PAGE</a></span>
     </div>` : ''}
     <div class="modal-divider"></div>
-    <div style="display:flex;gap:10px;align-items:center;padding:4px 0 8px">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:4px 0 8px">
       <button onclick="labelSaveShipping(${price})" id="lbl-save-btn"
         style="padding:10px 24px;background:var(--green);color:#000;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer">
         ${$(`inp-ship-${labelRecId}`) ? 'FILL SHIPPING FIELD' : 'SAVE SHIPPING COST'}
       </button>
+      ${labelReverbLinks && labelReverbLinks.ship && result.trackingNumber ? `
+      <button onclick="reverbMarkShipped('${esc(result.trackingNumber)}')" id="lbl-reverb-ship-btn"
+        style="padding:10px 24px;background:transparent;border:1px solid var(--reverb);color:var(--reverb);font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer">
+        MARK SHIPPED ON REVERB
+      </button>` : ''}
+      ${labelReverbLinks && labelReverbLinks.packing_slip ? `
+      <button onclick="window.open('${esc(labelReverbLinks.packing_slip.href)}','_blank')"
+        style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
+        PACKING SLIP
+      </button>` : ''}
       <span id="lbl-save-msg" style="font-size:12px;color:#aaa;letter-spacing:1px"></span>
     </div>
   `;
@@ -1216,6 +1232,39 @@ async function labelSaveShipping(price) {
   } catch(e) {
     btn.disabled = false; btn.textContent = 'SAVE SHIPPING COST';
     msg.style.color = 'var(--red)'; msg.textContent = 'ERROR: ' + e.message;
+  }
+}
+
+async function reverbMarkShipped(trackingNumber) {
+  const btn = $('lbl-reverb-ship-btn');
+  const msg = $('lbl-save-msg');
+  if (!btn || !labelReverbLinks?.ship?.href) return;
+  btn.disabled = true; btn.textContent = 'MARKING...';
+
+  // Extract path from full Reverb URL, e.g. https://api.reverb.com/api/my/orders/selling/123/ship
+  const shipHref = labelReverbLinks.ship.href;
+  const apiPath = shipHref.replace(/^https?:\/\/api\.reverb\.com\/api\//, '');
+
+  // Map Shippo carrier string to Reverb provider name
+  const carrierMap = { USPS: 'USPS', UPS: 'UPS', FedEx: 'FedEx', DHL: 'DHL', DHLExpress: 'DHLExpress' };
+  const provider = (labelCarrier && carrierMap[labelCarrier]) || labelCarrier || 'Other';
+
+  try {
+    const res = await fetch(`/api/reverb/${apiPath}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider, tracking_number: trackingNumber, send_notification: true }),
+    });
+    if (!res.ok) {
+      const d = await res.json();
+      throw new Error(d.message || `HTTP ${res.status}`);
+    }
+    btn.textContent = '✓ MARKED SHIPPED';
+    btn.style.borderColor = 'var(--green)'; btn.style.color = 'var(--green)';
+    msg.style.color = 'var(--green)'; msg.textContent = 'buyer notified on Reverb';
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'MARK SHIPPED ON REVERB';
+    msg.style.color = 'var(--red)'; msg.textContent = 'Reverb error: ' + e.message;
   }
 }
 

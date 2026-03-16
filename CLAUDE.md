@@ -27,7 +27,9 @@ Open: `http://localhost:3000/duckwerks-dashboard.html`
 
 ## Key Files
 - `duckwerks-dashboard.html` — the entire frontend
-- `server.js` — Express proxy server
+- `server.js` — Express entry point: mounts routers, serves static files
+- `server/shippo.js` — all Shippo routes (`/api/label/*`, `/api/shippo/*`)
+- `server/reverb.js` — all Reverb routes (`/api/reverb/*`)
 - `.env` — secrets (Shippo tokens, from-address)
 - `duckwerks_dashboard_architecture.md` — detailed frontend architecture reference
 - `package.json` / `node_modules/` — Express + dotenv
@@ -72,15 +74,25 @@ FROM_PHONE=...
 
 ---
 
-## server.js API Endpoints
+## Server API Endpoints
+
+**server.js** (entry point — thin, ~20 lines)
 - `GET /api/config` — returns `{ airtablePat }` from `.env`; used by frontend to auto-login on load
+- Static file serving: all files in project root served at `/`
+
+**server/shippo.js** (mounted at `/api/label` and `/api/shippo`)
 - `POST /api/label/rates` — create Shippo shipment, return sorted rates. Body: `{ testMode, toAddress, parcel }`
 - `POST /api/label/purchase` — purchase a rate, return tracking + label URL. Body: `{ testMode, rateObjectId }`
 - `POST /api/shippo/:path` — generic Shippo proxy (POST). Body: `{ testMode, ...shippoPayload }`
 - `GET /api/shippo/:path` — generic Shippo proxy (GET). Query: `?testMode=true`
-- Static file serving: all files in project root served at `/`
+
+**server/reverb.js** (mounted at `/api/reverb`)
+- `GET /api/reverb/*` — proxies to Reverb API with auth
+- `POST /api/reverb/*` — proxies to Reverb API with auth
 
 From-address is injected server-side from `.env` — never exposed to the browser.
+
+**Adding a new API integration:** create `server/yourapi.js`, add `app.use('/api/yourapi', require('./server/yourapi'))` in server.js.
 
 ---
 

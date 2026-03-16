@@ -26,6 +26,12 @@ _Last synced: dashboard v20_
 - Served by local Express server at `http://localhost:3000/duckwerks-dashboard.html`
 - `VERSION` constant near `BASE_ID` at top of `<script>` block — bump on every structural change
 
+## Server Structure
+- `server.js` — entry point: config endpoint, mounts routers, starts listener (~20 lines)
+- `server/shippo.js` — all Shippo logic; mounted at both `/api/label` and `/api/shippo`
+- `server/reverb.js` — all Reverb logic; mounted at `/api/reverb`
+- New integrations: add `server/yourapi.js` + one `app.use()` line in server.js
+
 ---
 
 ## Data Layer
