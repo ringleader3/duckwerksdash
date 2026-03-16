@@ -908,9 +908,14 @@
                   x-text="item.order.shipping_address.name + ' · ' + item.order.shipping_address.locality + ', ' + item.order.shipping_address.region"></div>
                 <div style="font-size:10px;color:#555;margin-top:2px" x-text="'Order #' + item.order.order_number"></div>
               </div>
-              <div style="font-size:10px;letter-spacing:1px;flex-shrink:0;margin-top:2px"
-                :style="$store.dw.str(item.rec, F.reverbOrderNum) === String(item.order.order_number) ? 'color:var(--green)' : 'color:var(--yellow)'"
-                x-text="$store.dw.str(item.rec, F.reverbOrderNum) === String(item.order.order_number) ? '✓ LINKED' : 'PENDING'">
+              <div style="flex-shrink:0;margin-top:2px">
+                <button x-show="$store.dw.str(item.rec, F.reverbOrderNum) === String(item.order.order_number)"
+                  @click="$store.dw.openModal('label', item.rec.id)"
+                  style="padding:5px 14px;background:var(--blue);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:10px;letter-spacing:2px;cursor:pointer">
+                  SHIP
+                </button>
+                <span x-show="$store.dw.str(item.rec, F.reverbOrderNum) !== String(item.order.order_number)"
+                  style="font-size:10px;letter-spacing:1px;color:var(--yellow)">PENDING</span>
               </div>
             </div>
           </template>
