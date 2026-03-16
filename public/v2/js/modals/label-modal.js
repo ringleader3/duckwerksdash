@@ -46,7 +46,9 @@ document.addEventListener('alpine:init', () => {
           if (res.ok) {
             const order = await res.json();
             this.reverbLinks      = order._links || null;
-            this.reverbSaleAmount = parseFloat(order.amount_product?.amount) || null;
+            // direct_checkout_payout is post-fee seller payout; amount_product is pre-fee listing price
+            this.reverbSaleAmount = parseFloat(order.direct_checkout_payout) || parseFloat(order.amount_product?.amount) || null;
+            console.log('[Reverb order] direct_checkout_payout:', order.direct_checkout_payout, '| amount_product:', order.amount_product?.amount);
             if (order.shipping_address) {
               this.addrText = this._addrToText(order.shipping_address);
             }
@@ -154,8 +156,9 @@ document.addEventListener('alpine:init', () => {
         }
         this.purchaseResult = data;
         this.step = 'result';
-        // Auto mark shipped on Reverb if this order is linked
+        // Auto-fire both on purchase — don't wait for button clicks
         if (this.reverbLinks?.ship && data.trackingNumber) this.markShipped();
+        this.saveShipping();
       } catch(e) {
         this.errMsg = e.message;
         this.step   = 'rates';

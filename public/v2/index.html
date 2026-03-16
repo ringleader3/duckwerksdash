@@ -846,9 +846,10 @@
 
           <div class="modal-divider"></div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:4px 0 8px">
-            <button @click="saveShipping()" :disabled="savingShip"
-              x-text="savingShip ? 'SAVING...' : 'SAVE SHIPPING COST'"
-              style="padding:10px 24px;background:var(--green);color:#000;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer">
+            <button @click="saveShipping()" :disabled="savingShip || saveMsg.startsWith('✓')"
+              x-text="savingShip ? 'SAVING...' : saveMsg.startsWith('✓') ? '✓ SAVED' : 'SAVE SHIPPING COST'"
+              :style="saveMsg.startsWith('✓') ? 'background:var(--surface);border:1px solid var(--green);color:var(--green);cursor:default' : 'background:var(--green);color:#000;border:none;cursor:pointer'"
+              style="padding:10px 24px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px">
             </button>
             <button x-show="reverbLinks?.ship && purchaseResult?.trackingNumber"
               @click="markShipped()"
