@@ -236,11 +236,18 @@ Commit at every checkpoint.
 ## Session Log
 _Most recent first. Update this at the end of every session._
 
-### 2026-03-15
+### 2026-03-15 (Phase 2)
+- Implemented Quick Find search in sidebar (`sidebar.js`) — items, lots, categories
+- Added `categoryFilter` state to store; nav pills reset it on click
+- Keyboard shortcut `/` focuses search input
+- Search results: items open item modal, lots open lot modal, categories filter items view
+- Sold items shown dimmed in results; lots show % cost recovered badge
+- **Next:** Phase 3 — Items view
+
+### 2026-03-15 (Phase 1)
 - Introduced CLI-based Claude Code workflow (tmux for session persistence)
 - Split `server.js` into modules: `server/shippo.js`, `server/reverb.js`
 - Added `server/airtable.js` proxy — PAT now never exposed to browser
 - Scaffolded full v2 file structure (`public/v2/`) — Phase 1 complete
 - Alpine store wired up, `fetchAll()` confirmed loading 91 records via proxy
 - `CLAUDE.md` established as primary architecture source of truth
-- **Next:** Phase 2 — Sidebar search + navigation (new session)

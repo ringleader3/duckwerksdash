@@ -13,6 +13,7 @@ document.addEventListener('alpine:init', () => {
     activeModal:   null,          // 'item' | 'add' | 'lot' | 'label' | 'reverb'
     activeRecordId: null,
     activeLotName:  null,
+    categoryFilter: null,   // set by sidebar category pick; consumed by itemsView
 
     // ── Init ──────────────────────────────────────────────────────────────────
     async init() {

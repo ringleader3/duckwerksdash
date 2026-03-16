@@ -50,9 +50,9 @@
     <!-- Nav -->
     <div class="sidebar-section">
       <div class="sidebar-section-label">Nav</div>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'dashboard' }" @click="$store.dw.activeView = 'dashboard'">◉ Dashboard</button>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'items' }"     @click="$store.dw.activeView = 'items'">○ Items</button>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'lots' }"      @click="$store.dw.activeView = 'lots'">○ Lots</button>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'dashboard' }" @click="$store.dw.activeView = 'dashboard'; $store.dw.categoryFilter = null">◉ Dashboard</button>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'items' }"     @click="$store.dw.activeView = 'items'; $store.dw.categoryFilter = null">○ Items</button>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'lots' }"      @click="$store.dw.activeView = 'lots'; $store.dw.categoryFilter = null">○ Lots</button>
     </div>
 
     <!-- Actions -->
