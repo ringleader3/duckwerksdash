@@ -75,36 +75,15 @@ a:hover { text-decoration: underline; }
 }
 
 .sidebar-logo {
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
   margin: -16px -16px 0;
+  border-bottom: 1px solid var(--border);
 }
 .sidebar-logo-img {
   width: 100%;
   display: block;
   object-fit: cover;
-  object-position: center 30%;
-  height: 90px;
-  opacity: 0.85;
-}
-.sidebar-logo-name {
-  font-family: var(--font-big);
-  font-size: 26px;
-  letter-spacing: 0.06em;
-  color: #fff;
-  line-height: 1;
-  padding: 8px 16px 0;
-}
-.sidebar-logo-sub {
-  font-family: var(--font-body);
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--muted);
-  padding: 3px 16px 14px;
+  object-position: center 25%;
+  height: 130px;
 }
 
 .sidebar-section-label {
