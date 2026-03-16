@@ -20,8 +20,17 @@ router.get('/*', async (req, res) => {
   const url = `${REVERB_API}/${path}${query ? '?' + query : ''}`;
   try {
     const response = await fetch(url, { headers: reverbHeaders() });
-    const data = await response.json();
-    res.status(response.status).json(data);
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('json')) {
+      const data = await response.json();
+      res.status(response.status).json(data);
+    } else {
+      // Pass through non-JSON responses (e.g. packing slip HTML/PDF)
+      const buffer = await response.arrayBuffer();
+      res.status(response.status)
+        .set('Content-Type', contentType)
+        .send(Buffer.from(buffer));
+    }
   } catch (e) {
     res.status(502).json({ error: 'Reverb request failed', detail: e.message });
   }

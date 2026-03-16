@@ -8,7 +8,8 @@ document.addEventListener('alpine:init', () => {
     purchaseResult: null,
     ratePrice:      0,
     carrier:        null,
-    reverbLinks:    null,
+    reverbLinks:       null,
+    reverbSaleAmount:  null,
     loading:        false,
     errMsg:         '',
     saveMsg:        '',
@@ -26,9 +27,10 @@ document.addEventListener('alpine:init', () => {
       this.rates          = [];
       this.purchaseResult = null;
       this.ratePrice      = 0;
-      this.carrier        = null;
-      this.reverbLinks    = null;
-      this.loading        = false;
+      this.carrier           = null;
+      this.reverbLinks       = null;
+      this.reverbSaleAmount  = null;
+      this.loading           = false;
       this.errMsg         = '';
       this.saveMsg        = '';
       this.savingShip     = false;
@@ -43,7 +45,8 @@ document.addEventListener('alpine:init', () => {
           const res = await fetch(`/api/reverb/my/orders/selling/${orderNum}`);
           if (res.ok) {
             const order = await res.json();
-            this.reverbLinks = order._links || null;
+            this.reverbLinks      = order._links || null;
+            this.reverbSaleAmount = parseFloat(order.amount_product?.amount) || null;
             if (order.shipping_address) {
               this.addrText = this._addrToText(order.shipping_address);
             }
@@ -165,9 +168,16 @@ document.addEventListener('alpine:init', () => {
       if (!this.record) return;
       this.savingShip = true;
       this.saveMsg    = '';
+      const dw     = Alpine.store('dw');
+      const fields = { [F.shipping]: this.ratePrice };
+      // Mark sold + stamp date if not already set
+      if (dw.str(this.record, F.status) !== 'Sold')  fields[F.status]   = 'Sold';
+      if (!dw.str(this.record, F.dateSold))           fields[F.dateSold] = new Date().toISOString().split('T')[0];
+      // Pull in Reverb sale amount if we have it and it's not already set
+      if (this.reverbSaleAmount && !dw.num(this.record, F.sale)) fields[F.sale] = this.reverbSaleAmount;
       try {
-        await Alpine.store('dw').updateRecord(this.record.id, { [F.shipping]: this.ratePrice });
-        this.saveMsg = '✓ shipping saved';
+        await dw.updateRecord(this.record.id, fields);
+        this.saveMsg = '✓ saved';
       } catch(e) {
         this.saveMsg = 'ERROR: ' + e.message;
       } finally {
