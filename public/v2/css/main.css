@@ -80,11 +80,15 @@ a:hover { text-decoration: underline; }
   display: flex;
   flex-direction: column;
   gap: 1px;
+  margin: -16px -16px 0;
 }
-.sidebar-logo-mark {
-  font-size: 22px;
-  line-height: 1;
-  margin-bottom: 2px;
+.sidebar-logo-img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 30%;
+  height: 90px;
+  opacity: 0.85;
 }
 .sidebar-logo-name {
   font-family: var(--font-big);
@@ -92,6 +96,7 @@ a:hover { text-decoration: underline; }
   letter-spacing: 0.06em;
   color: #fff;
   line-height: 1;
+  padding: 8px 16px 0;
 }
 .sidebar-logo-sub {
   font-family: var(--font-body);
@@ -99,7 +104,7 @@ a:hover { text-decoration: underline; }
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-top: 3px;
+  padding: 3px 16px 14px;
 }
 
 .sidebar-section-label {
