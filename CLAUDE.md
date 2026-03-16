@@ -204,7 +204,7 @@ estProfit(r) {
 - **Quick Find** — live search against `$store.dw.records` in memory (no Airtable calls)
   - Results: Items (→ Item modal), Lots (→ Lot modal), Categories (→ Items view filtered)
   - Sold items shown dimmed, not hidden
-  - Keyboard shortcut: `/` focuses search input
+  - Keyboard shortcuts: `/` or `cmd+k` focuses search input; ↑/↓ navigates results; Enter selects
 - **Nav pills** — Dashboard / Items / Lots
 - **Actions** — Sync Reverb
 
@@ -235,9 +235,9 @@ For `index.html`, use grep + targeted reads (same rules as v1 HTML file).
 Never read `public/v2/index.html` in full once it exceeds ~300 lines.
 
 ### Build Phases
-See `duckwerks-v2-buildplan.md` for the full 8-phase plan with checkpoints.
-Always confirm phase checkpoint with Geoff before starting the next phase.
-Commit at every checkpoint.
+All 8 phases complete. v2 is now primary — `localhost:3000` redirects to `/v2`.
+Old dashboard remains accessible at `/duckwerks-dashboard.html` as fallback.
+See `duckwerks-v2-buildplan.md` for the full phase history.
 
 ### Session Start Checklist (V2 work)
 1. Read `CLAUDE.md` (this file) — especially V2 section and Session Log
@@ -261,11 +261,26 @@ Commit at every checkpoint.
     only `x-if` prevents evaluation
 - For hard-to-reproduce bugs, add temporary `console.log` inside store methods or
   Alpine `init()` hooks, then ask Geoff to trigger the action and share the output.
+- `Alpine.effect(() => { ... })` works inside `Alpine.store` init() for reactive side effects (e.g. localStorage persistence)
+- `x-for="(item, i) in list"` — use this syntax when you need the loop index in template expressions
+
+## Bug & Enhancement Tracking
+GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list` at session start to see open items.
+- `gh` CLI: `brew install gh` + `gh auth login` (choose HTTPS — repo remote is HTTPS)
+- Labels: `bug`, `enhancement`. Reference issues in commits as "fix #N" or "closes #N".
 
 ---
 
 ## Session Log
 _Most recent first. Update this at the end of every session._
+
+### 2026-03-16 (Phase 8)
+- Added `cmd+k` shortcut to focus search (alongside `/`)
+- Added localStorage persistence for `activeView` via `Alpine.effect()` in store init
+- Added "needs attention" flag (⚑ orange) on Items view for Listed items ≥ 20 days (uses `createdTime`)
+- Added keyboard navigation (↑/↓/Enter) to Quick Find search results
+- Cutover: `GET /` now redirects to `/v2`; old dashboard accessible at `/duckwerks-dashboard.html`
+- Switched to GitHub Issues for bug/enhancement tracking (`gh` CLI, HTTPS auth)
 
 ### 2026-03-16 (Phase 7)
 - Implemented Label modal (`label-modal.js`) — lbs+oz weight, 3-step flow (form→rates→result), auto-fills address from Reverb order, auto mark-shipped on Reverb after purchase

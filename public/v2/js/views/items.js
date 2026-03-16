@@ -77,6 +77,17 @@ document.addEventListener('alpine:init', () => {
       await Alpine.store('dw').updateRecord(r.id, fields);
     },
 
+    daysListed(r) {
+      const created = new Date(r.createdTime);
+      const now     = new Date();
+      return Math.floor((now - created) / (1000 * 60 * 60 * 24));
+    },
+
+    needsAttention(r) {
+      const dw = Alpine.store('dw');
+      return dw.str(r, F.status) === 'Listed' && this.daysListed(r) >= 20;
+    },
+
     openItem(r) {
       Alpine.store('dw').openModal('item', r.id);
     },

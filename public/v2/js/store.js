@@ -17,6 +17,16 @@ document.addEventListener('alpine:init', () => {
 
     // ── Init ──────────────────────────────────────────────────────────────────
     async init() {
+      // Restore last active view from localStorage
+      const saved = localStorage.getItem('dw-view');
+      if (saved && ['dashboard', 'items', 'lots'].includes(saved)) {
+        this.activeView = saved;
+      }
+      // Persist view changes automatically
+      Alpine.effect(() => {
+        localStorage.setItem('dw-view', this.activeView);
+      });
+
       try {
         await this.fetchAll();
       } catch (e) {

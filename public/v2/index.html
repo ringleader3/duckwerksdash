@@ -34,13 +34,14 @@
           x-model="query"
           @input="search()"
           @keydown.escape="clear()"
+          @keydown="navigate($event)"
           x-ref="searchInput"
         >
         <div class="search-results" x-show="results.length > 0">
-          <template x-for="r in results" :key="r.key">
+          <template x-for="(r, i) in results" :key="r.key">
             <div
               class="search-result-row"
-              :class="{ dimmed: r.dimmed }"
+              :class="{ dimmed: r.dimmed, 'search-result-active': i === selectedIndex }"
               @click="pick(r)"
             >
               <span x-text="r.typeIcon"></span>
@@ -231,7 +232,10 @@
           <tbody>
             <template x-for="r in rows" :key="r.id">
               <tr @click="openItem(r)">
-                <td x-text="$store.dw.str(r, F.name)"></td>
+                <td>
+                  <span x-text="$store.dw.str(r, F.name)"></span>
+                  <span x-show="needsAttention(r)" :title="daysListed(r) + ' days listed'" style="margin-left:6px; color:var(--orange); font-size:11px; cursor:default">⚑</span>
+                </td>
                 <td style="color:var(--muted); font-size:11px" x-text="$store.dw.str(r, F.lot)"></td>
                 <td>
                   <span class="badge" :class="catBadgeClass($store.dw.str(r, F.category))" x-text="$store.dw.str(r, F.category)"></span>

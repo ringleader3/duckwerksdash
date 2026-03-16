@@ -3,20 +3,40 @@ document.addEventListener('alpine:init', () => {
   Alpine.data('sidebar', () => ({
     query: '',
     results: [],
+    selectedIndex: -1,
 
     init() {
       // '/' focuses search when not already in an input
       document.addEventListener('keydown', (e) => {
-        if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+        const inInput = ['INPUT','TEXTAREA'].includes(document.activeElement.tagName);
+        if (e.key === '/' && !inInput) {
+          e.preventDefault();
+          this.$refs.searchInput.focus();
+        }
+        if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
           e.preventDefault();
           this.$refs.searchInput.focus();
         }
       });
     },
 
+    navigate(e) {
+      if (!this.results.length) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+      } else if (e.key === 'Enter' && this.selectedIndex >= 0) {
+        e.preventDefault();
+        this.pick(this.results[this.selectedIndex]);
+      }
+    },
+
     search() {
       const q = this.query.trim().toLowerCase();
-      if (!q) { this.results = []; return; }
+      if (!q) { this.results = []; this.selectedIndex = -1; return; }
 
       const dw = Alpine.store('dw');
       const out = [];
@@ -86,11 +106,13 @@ document.addEventListener('alpine:init', () => {
       }
 
       this.results = out.slice(0, 15);
+      this.selectedIndex = -1;
     },
 
     clear() {
-      this.query  = '';
-      this.results = [];
+      this.query         = '';
+      this.results       = [];
+      this.selectedIndex = -1;
     },
 
     pick(result) {

@@ -5,6 +5,7 @@ const app = express();
 
 app.use(express.json());
 app.use('/v2', express.static(path.join(__dirname, 'public/v2')));
+app.get('/', (_req, res) => res.redirect('/v2'));
 app.use(express.static(__dirname));
 
 // ── CONFIG ────────────────────────────────────────────────────────────────────
@@ -24,7 +25,7 @@ app.use('/api/reverb',   require('./server/reverb'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Duckwerks running at http://localhost:${PORT}/v2`);
+  console.log(`Duckwerks running at http://localhost:${PORT}`);
   const testOk = !!process.env.SHIPPO_TEST_TOKEN, liveOk = !!process.env.SHIPPO_LIVE_TOKEN;
   const shippoMode = process.env.SHIPPO_TEST_MODE === 'true' ? 'TEST' : 'LIVE';
   console.log(`Shippo: mode=${shippoMode}, test=${testOk ? 'OK' : 'MISSING'}, live=${liveOk ? 'OK' : 'MISSING'}`);
