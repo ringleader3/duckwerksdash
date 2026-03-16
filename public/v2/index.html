@@ -856,7 +856,7 @@
               MARK SHIPPED ON REVERB
             </button>
             <button x-show="reverbLinks?.packing_slip"
-              @click="window.open('/api/reverb/' + reverbLinks.packing_slip.href.replace(/^https?:\/\/api\.reverb\.com\/api\//, ''), '_blank')"
+              @click="window.open(reverbLinks.packing_slip.web.href, '_blank')"
               style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
               PACKING SLIP
             </button>
