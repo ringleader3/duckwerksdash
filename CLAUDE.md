@@ -110,3 +110,111 @@ From-address is injected server-side from `.env` — never exposed to the browse
 - No unnecessary abstractions or future-proofing
 - Dark theme, monospace font (`Space Mono`), `Bebas Neue` for large numbers
 - Yellow = estimate/pending, Green = actual/positive, Red = cost/negative, Blue = action
+---
+
+## V2 Dashboard (Alpine.js Rewrite)
+
+A parallel rewrite served at `localhost:3000/v2`. The original `duckwerks-dashboard.html`
+remains live and untouched at `/`. Do not modify it during v2 work.
+
+### V2 File Structure
+```
+public/v2/
+  index.html              ← shell: layout, CDN scripts, view + modal containers
+  css/
+    main.css              ← design tokens, sidebar, layout grid
+    components.css        ← badges, pills, stat cards, tables, modal overlays
+  js/
+    config.js             ← F{} field map, BASE_ID, TABLE_ID, constants
+    store.js              ← Alpine.store('dw') — all data, helpers, modal state
+    sidebar.js            ← Alpine.data('sidebar') — search + nav state
+    views/
+      dashboard.js        ← Alpine.data('dashView')
+      items.js            ← Alpine.data('itemsView')
+      lots.js             ← Alpine.data('lotsView')
+    modals/
+      item-modal.js       ← Alpine.data('itemModal')
+      add-modal.js        ← Alpine.data('addModal')
+      lot-modal.js        ← Alpine.data('lotModal')
+      label-modal.js      ← Alpine.data('labelModal') — Shippo flow
+      reverb-modal.js     ← Alpine.data('reverbModal') — Reverb sync
+```
+
+### Server
+One line added to `server.js`:
+```js
+app.use('/v2', express.static(path.join(__dirname, 'public/v2')));
+```
+No other server changes. All existing `/api/*` routes work as-is.
+
+### Alpine Conventions
+- **Store** (`Alpine.store('dw', {...})`) — single source of truth. All records, lots,
+  loading state, active view, active modal, and active record ID live here.
+- **Views** (`Alpine.data('xyzView', ...)`) — read from `$store.dw.*` only.
+  No Airtable calls in view components — ever.
+- **Modals** (`Alpine.data('xyzModal', ...)`) — same rule. Modal open/close state
+  is managed via `$store.dw.activeModal`, `activeRecordId`, `activeLotName`.
+- **No imports** — files are loaded via `<script src>` in order in index.html.
+  Load order: config.js → store.js → sidebar.js → views/* → modals/*
+
+### V2 Data Layer
+- `F{}` field map in `config.js` — same field IDs as v1, single source of truth
+- `$store.dw.records[]` — all Airtable inventory records, fetched on init
+- `$store.dw.lots[]` — all Airtable lot records, fetched on init
+- `$store.dw.fetchAll()` — only place Airtable is called. Re-call after any write.
+- Airtable PAT fetched from `/api/config` on init, same as v1
+
+### Key Computed Values (same as v1 — do not change formula)
+```js
+// Earnings after fees — apply to listPrice only, never to F.sale
+eaf(p) { return p > 0 ? Math.max(0, p * 0.9181 - 0.49) : 0; }
+
+// Estimated profit for listed items
+// shipEst: use actual shipping if set, else $10 placeholder (show in yellow)
+estProfit(r) {
+  const lp   = this.num(r, F.listPrice);
+  const cost = this.num(r, F.cost);
+  const ship = r.fields[F.shipping] != null ? this.num(r, F.shipping) : 10;
+  return this.eaf(lp) - cost - ship;
+}
+```
+
+### V2 Views
+| View | Default filters | Entry point |
+|---|---|---|
+| Dashboard | — | KPIs, lot recovery table, recently sold |
+| Items | Status: Listed, Site: All | Daily driver — inline status edit, EAF payout column |
+| Lots | All lots | Click row → Lot Detail modal |
+
+### V2 Sidebar
+- **ADD ITEM** button → opens Add modal
+- **Quick Find** — live search against `$store.dw.records` in memory (no Airtable calls)
+  - Results: Items (→ Item modal), Lots (→ Lot modal), Categories (→ Items view filtered)
+  - Sold items shown dimmed, not hidden
+  - Keyboard shortcut: `/` focuses search input
+- **Nav pills** — Dashboard / Items / Lots
+- **Actions** — Sync Reverb
+
+### V2 Design System
+Same as v1 — do not redesign:
+- Dark theme, `Space Mono` body, `Bebas Neue` large numbers
+- CSS vars: `--green`, `--yellow`, `--red`, `--blue`, `--purple`, `--orange`,
+  `--muted`, `--surface`, `--border`, `--border2`, `--ebay`, `--reverb`
+- Color semantics: yellow = estimate/pending, green = actual/positive,
+  red = cost/negative, blue = action
+
+### Working on V2 Files
+V2 JS files are small and targeted — you can read them in full if under ~150 lines.
+For `index.html`, use grep + targeted reads (same rules as v1 HTML file).
+Never read `public/v2/index.html` in full once it exceeds ~300 lines.
+
+### Build Phases
+See `duckwerks-v2-buildplan.md` for the full 8-phase plan with checkpoints.
+Always confirm phase checkpoint with Geoff before starting the next phase.
+Commit at every checkpoint.
+
+### Session Start Checklist (V2 work)
+1. Read `CLAUDE.md` (this file) — especially V2 section
+2. Read `duckwerks_dashboard_architecture.md` — for v1 reference when porting
+3. Ask Geoff: which phase, what was the last checkpoint completed?
+4. Grep before any file read. One edit per logical change. Commit when done.

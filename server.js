@@ -1,8 +1,10 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const app = express();
 
 app.use(express.json());
+app.use('/v2', express.static(path.join(__dirname, 'public/v2')));
 app.use(express.static(__dirname));
 
 // ── CONFIG ────────────────────────────────────────────────────────────────────

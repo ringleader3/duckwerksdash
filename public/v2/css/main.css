@@ -1,0 +1,225 @@
+/* ── Duckwerks v2 — Design Tokens + Layout ───────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&display=swap');
+
+:root {
+  /* Color palette — same as v1 */
+  --green:   #4caf82;
+  --yellow:  #f0c040;
+  --red:     #e05c5c;
+  --blue:    #5b9cf6;
+  --purple:  #a87cf3;
+  --orange:  #f0954a;
+  --muted:   #888;
+
+  /* Surfaces */
+  --bg:       #0f0f0f;
+  --surface:  #1a1a1a;
+  --surface2: #222;
+  --border:   #2a2a2a;
+  --border2:  #333;
+
+  /* Platform colors */
+  --ebay:   #e43137;
+  --reverb: #5b9cf6;
+
+  /* Sidebar */
+  --sidebar-w: 220px;
+
+  /* Typography */
+  --font-body: 'Space Mono', monospace;
+  --font-big:  'Bebas Neue', sans-serif;
+}
+
+/* ── Reset ───────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: #e0e0e0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── App Shell ───────────────────────────────────────────────────────────── */
+
+#app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+
+#sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  gap: 20px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  font-family: var(--font-big);
+  font-size: 22px;
+  letter-spacing: 0.05em;
+  color: #fff;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-section-label {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Search */
+.sidebar-search {
+  position: relative;
+}
+
+.sidebar-search input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 6px 10px;
+  outline: none;
+}
+
+.sidebar-search input:focus {
+  border-color: var(--blue);
+}
+
+.sidebar-search input::placeholder {
+  color: var(--muted);
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  overflow: hidden;
+  z-index: 100;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.search-result-row {
+  padding: 7px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.search-result-row:last-child { border-bottom: none; }
+.search-result-row:hover { background: var(--border); }
+.search-result-row.dimmed { opacity: 0.45; }
+
+/* Nav pills */
+.nav-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #ccc;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-body);
+  transition: background 0.1s;
+}
+
+.nav-pill:hover { background: var(--border); }
+.nav-pill.active { background: var(--border2); color: #fff; }
+
+/* Action links */
+.sidebar-action {
+  display: block;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--blue);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.sidebar-action:hover { background: var(--border); }
+
+/* Spacer pushes version to bottom */
+.sidebar-spacer { flex: 1; }
+
+.sidebar-version {
+  font-size: 10px;
+  color: var(--muted);
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Main Content ─────────────────────────────────────────────────────────── */
+
+#main {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.view-header {
+  margin-bottom: 20px;
+}
+
+.view-title {
+  font-family: var(--font-big);
+  font-size: 28px;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+/* ── Loading / Error States ──────────────────────────────────────────────── */
+
+.state-loading,
+.state-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.state-error { color: var(--red); }

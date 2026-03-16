@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duckwerks v2</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<div id="app" x-data>
+
+  <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+  <aside id="sidebar" x-data="sidebar">
+
+    <div class="sidebar-logo">DUCKWERKS</div>
+
+    <!-- Add Item -->
+    <button class="btn btn-add" @click="$store.dw.openModal('add')">+ ADD ITEM</button>
+
+    <!-- Quick Find -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Quick Find</div>
+      <div class="sidebar-search">
+        <input
+          type="text"
+          placeholder="/ to search..."
+          x-model="query"
+          @input="search()"
+          @keydown.escape="clear()"
+          x-ref="searchInput"
+        >
+        <div class="search-results" x-show="results.length > 0">
+          <template x-for="r in results" :key="r.key">
+            <div
+              class="search-result-row"
+              :class="{ dimmed: r.dimmed }"
+              @click="pick(r)"
+            >
+              <span x-text="r.typeIcon"></span>
+              <span x-text="r.label"></span>
+              <span x-show="r.badge" class="badge" :class="r.badgeClass" x-text="r.badge"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Nav</div>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'dashboard' }" @click="$store.dw.activeView = 'dashboard'">◉ Dashboard</button>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'items' }"     @click="$store.dw.activeView = 'items'">○ Items</button>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'lots' }"      @click="$store.dw.activeView = 'lots'">○ Lots</button>
+    </div>
+
+    <!-- Actions -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Actions</div>
+      <a class="sidebar-action" @click="$store.dw.openModal('reverb')">Sync Reverb</a>
+    </div>
+
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-version">Duckwerks v2</div>
+
+  </aside>
+
+  <!-- ── Main Content ──────────────────────────────────────────────────────── -->
+  <main id="main">
+
+    <!-- Loading -->
+    <div class="state-loading" x-show="$store.dw.loading">Loading inventory…</div>
+
+    <!-- Error -->
+    <div class="state-error" x-show="$store.dw.error && !$store.dw.loading" x-text="$store.dw.error"></div>
+
+    <!-- Views -->
+    <div x-show="!$store.dw.loading && !$store.dw.error">
+
+      <!-- Dashboard -->
+      <div x-show="$store.dw.activeView === 'dashboard'" x-data="dashView">
+        <div class="view-header">
+          <div class="view-title">DASHBOARD</div>
+        </div>
+        <div class="state-loading" style="color: var(--muted)">Dashboard view — coming in Phase 6</div>
+      </div>
+
+      <!-- Items -->
+      <div x-show="$store.dw.activeView === 'items'" x-data="itemsView">
+        <div class="view-header">
+          <div class="view-title">ITEMS</div>
+        </div>
+        <div class="state-loading" style="color: var(--muted)">Items view — coming in Phase 3</div>
+      </div>
+
+      <!-- Lots -->
+      <div x-show="$store.dw.activeView === 'lots'" x-data="lotsView">
+        <div class="view-header">
+          <div class="view-title">LOTS</div>
+        </div>
+        <div class="state-loading" style="color: var(--muted)">Lots view — coming in Phase 5</div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ── Modal Containers ──────────────────────────────────────────────────── -->
+  <div x-show="$store.dw.activeModal === 'item'"   x-data="itemModal"   class="modal-overlay" @click.self="$store.dw.closeModal()"></div>
+  <div x-show="$store.dw.activeModal === 'add'"    x-data="addModal"    class="modal-overlay" @click.self="$store.dw.closeModal()"></div>
+  <div x-show="$store.dw.activeModal === 'lot'"    x-data="lotModal"    class="modal-overlay" @click.self="$store.dw.closeModal()"></div>
+  <div x-show="$store.dw.activeModal === 'label'"  x-data="labelModal"  class="modal-overlay" @click.self="$store.dw.closeModal()"></div>
+  <div x-show="$store.dw.activeModal === 'reverb'" x-data="reverbModal" class="modal-overlay" @click.self="$store.dw.closeModal()"></div>
+
+</div><!-- #app -->
+
+<!-- ── Scripts: load order matters ──────────────────────────────────────── -->
+<!-- Config first — defines F, BASE_ID, AIRTABLE_API -->
+<script src="js/config.js"></script>
+
+<!-- Alpine store — must register before Alpine initializes -->
+<script src="js/store.js"></script>
+
+<!-- Component data definitions -->
+<script src="js/sidebar.js"></script>
+<script src="js/views/dashboard.js"></script>
+<script src="js/views/items.js"></script>
+<script src="js/views/lots.js"></script>
+<script src="js/modals/item-modal.js"></script>
+<script src="js/modals/add-modal.js"></script>
+<script src="js/modals/lot-modal.js"></script>
+<script src="js/modals/label-modal.js"></script>
+<script src="js/modals/reverb-modal.js"></script>
+
+<!-- Alpine last -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+</body>
+</html>

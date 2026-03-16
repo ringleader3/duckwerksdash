@@ -1,6 +1,10 @@
 # Duckwerks Dashboard — Architecture Reference
 _Last synced: dashboard v20_
 
+> **Scope:** This document describes the v1 monolithic dashboard (`duckwerks-dashboard.html`).
+> For v2 (Alpine.js rewrite), see the V2 section in `CLAUDE.md` and `duckwerks-v2-buildplan.md`.
+> Use this doc as a porting reference when migrating modals and logic to v2.
+
 > **Maintenance rule:** This doc must be updated in the same session as any structural change
 > to `duckwerks-dashboard.html`. If a new function, state var, view, CSS class, or data field
 > is added/removed/renamed, update the relevant section here and sync the version note above.

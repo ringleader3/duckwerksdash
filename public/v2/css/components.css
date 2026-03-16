@@ -1,0 +1,280 @@
+/* ── Duckwerks v2 — Components ───────────────────────────────────────────── */
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 4px;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn:hover { opacity: 0.85; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-primary  { background: var(--blue);  color: #fff; }
+.btn-green    { background: var(--green); color: #fff; }
+.btn-danger   { background: var(--red);   color: #fff; }
+.btn-ghost    { background: var(--border2); color: #ccc; }
+.btn-add      { background: var(--green); color: #fff; width: 100%; justify-content: center; font-size: 13px; padding: 9px; }
+
+/* ── Pill Filters ────────────────────────────────────────────────────────── */
+
+.pill-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: none;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.pill:hover { border-color: #555; color: #ccc; }
+.pill.active { background: var(--surface2); border-color: #666; color: #fff; }
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.badge-sold      { background: #1e3a2a; color: var(--green); }
+.badge-listed    { background: #1a2a3a; color: var(--blue); }
+.badge-pending   { background: #2e2a18; color: var(--yellow); }
+.badge-prepping  { background: #2a1f2a; color: var(--purple); }
+.badge-other     { background: #252525; color: var(--muted); }
+
+.badge-music     { background: #1a2a3a; color: var(--blue); }
+.badge-comp      { background: #241f3a; color: var(--purple); }
+.badge-gaming    { background: #2e2318; color: var(--orange); }
+
+.badge-ebay      { background: #2e1a1a; color: var(--ebay); }
+.badge-reverb    { background: #1a2040; color: var(--reverb); }
+
+/* ── Stat Cards ──────────────────────────────────────────────────────────── */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.stat-card-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.stat-card-value {
+  font-family: var(--font-big);
+  font-size: 32px;
+  line-height: 1;
+}
+
+.stat-card-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* Accent colors */
+.stat-card.green .stat-card-value { color: var(--green); }
+.stat-card.yellow .stat-card-value { color: var(--yellow); }
+.stat-card.red .stat-card-value { color: var(--red); }
+.stat-card.blue .stat-card-value { color: var(--blue); }
+.stat-card.purple .stat-card-value { color: var(--purple); }
+
+/* ── Panels ──────────────────────────────────────────────────────────────── */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.panel-title {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+/* ── Data Tables ─────────────────────────────────────────────────────────── */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.data-table th {
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 400;
+}
+
+.data-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+
+.data-table tbody tr { cursor: pointer; transition: background 0.1s; }
+.data-table tbody tr:hover { background: var(--border); }
+
+/* Numeric columns right-aligned */
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Yellow for estimates */
+.est { color: var(--yellow); }
+.act { color: var(--green); }
+
+/* ── Progress Bar ────────────────────────────────────────────────────────── */
+
+.progress-bar {
+  height: 6px;
+  background: var(--border2);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--green);
+  transition: width 0.3s;
+}
+
+.progress-fill.yellow { background: var(--yellow); }
+.progress-fill.red    { background: var(--red); }
+
+/* ── Modal Overlay ───────────────────────────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-title {
+  font-family: var(--font-big);
+  font-size: 20px;
+  letter-spacing: 0.04em;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.modal-close:hover { color: #fff; }
+
+.modal-body {
+  padding: 20px;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ── Controls Row (above tables) ─────────────────────────────────────────── */
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.controls-search {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 5px 10px;
+  outline: none;
+  min-width: 180px;
+}
+
+.controls-search:focus { border-color: var(--blue); }
+.controls-search::placeholder { color: var(--muted); }
