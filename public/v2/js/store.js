@@ -112,12 +112,23 @@ document.addEventListener('alpine:init', () => {
       const res = await fetch(`/api/airtable/${BASE_ID}/${TABLE_ID}/${recordId}`, {
         method:  'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ fields }),
+        body:    JSON.stringify({ fields, returnFieldsByFieldId: true }),
       });
       if (!res.ok) throw new Error(`Airtable update error ${res.status}`);
       const updated = await res.json();
       const idx = this.records.findIndex(r => r.id === recordId);
       if (idx !== -1) this.records[idx] = updated;
+    },
+
+    async createRecord(fields) {
+      const res = await fetch(`/api/airtable/${BASE_ID}/${TABLE_ID}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ fields, returnFieldsByFieldId: true }),
+      });
+      if (!res.ok) throw new Error(`Airtable create error ${res.status}`);
+      const created = await res.json();
+      this.records.push(created);
     },
 
   });

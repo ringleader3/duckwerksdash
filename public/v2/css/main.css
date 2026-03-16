@@ -1,5 +1,7 @@
 /* ── Duckwerks v2 — Design Tokens + Layout ───────────────────────────────── */
 
+[x-cloak] { display: none !important; }
+
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&display=swap');
 
 :root {
@@ -177,6 +179,8 @@ a:hover { text-decoration: underline; }
   cursor: pointer;
   border-radius: 4px;
 }
+
+.sidebar-img{height:100px;width:300px;object-fit:cover;object-position:center 30%;flex-shrink:1;opacity:0.85;}
 
 .sidebar-action:hover { background: var(--border); }
 

@@ -27,7 +27,8 @@ router.get('/*', async (req, res) => {
 
 // PATCH — update record fields
 router.patch('/*', async (req, res) => {
-  const url = `${AIRTABLE_API}/${req.params[0]}`;
+  const rawQuery = req.url.split('?').slice(1).join('?');
+  const url = `${AIRTABLE_API}/${req.params[0]}${rawQuery ? '?' + rawQuery : ''}`;
   try {
     const response = await fetch(url, {
       method: 'PATCH',
@@ -43,7 +44,8 @@ router.patch('/*', async (req, res) => {
 
 // POST — create record
 router.post('/*', async (req, res) => {
-  const url = `${AIRTABLE_API}/${req.params[0]}`;
+  const rawQuery = req.url.split('?').slice(1).join('?');
+  const url = `${AIRTABLE_API}/${req.params[0]}${rawQuery ? '?' + rawQuery : ''}`;
   try {
     const response = await fetch(url, {
       method: 'POST',

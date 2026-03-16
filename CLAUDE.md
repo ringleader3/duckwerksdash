@@ -231,10 +231,36 @@ Commit at every checkpoint.
 4. Grep before any file read. One edit per logical change. Commit when done.
 5. Update Session Log below before ending the session.
 
+### Debugging Alpine / V2 Issues
+- **Always ask for browser console output** when something doesn't work as expected.
+  Console errors (especially Alpine expression errors) give the exact expression and
+  element that failed — far faster than guessing from code review alone.
+- Alpine expression errors crash reactivity for that binding, which can cause cascading
+  symptoms (e.g. new records not appearing) that look unrelated to the real error.
+- Common Alpine pitfalls:
+  - `x-if="!someGetter"` renders when the getter returns false for null state — always
+    guard: `x-if="record && !someGetter"`
+  - Direct property access in templates (e.g. `record.fields[x]`) will throw if the
+    object is null; use `record?.fields?.[x]` or add an `x-show="record"` outer guard
+  - `x-show` hides elements but Alpine still evaluates all bound expressions inside —
+    only `x-if` prevents evaluation
+- For hard-to-reproduce bugs, add temporary `console.log` inside store methods or
+  Alpine `init()` hooks, then ask Geoff to trigger the action and share the output.
+
 ---
 
 ## Session Log
 _Most recent first. Update this at the end of every session._
+
+### 2026-03-15 (Phase 4)
+- Implemented `item-modal.js` — read view (status, classification, financials, EAF/profit/margin) + edit view (all fields, inline save)
+- Implemented `add-modal.js` — add new item form (name, status, category, platform, lot, list price, cost)
+- Added `createRecord()` to store, `updateRecord()` already existed from Phase 3
+- Added modal inner HTML to `index.html` for item and add modals
+- Added modal CSS to `components.css` (modal-row, modal-field, modal-val, modal-input, modal-select, modal-big-profit, etc.)
+- Added `[x-cloak]` rule to main.css to prevent flash-of-unstyled-modal
+- Row click → item modal already wired in Phase 3 items.js; ADD ITEM button already wired in Phase 2 sidebar
+- **Next:** Phase 5 — Lots view + Lot modal
 
 ### 2026-03-15 (Phase 3)
 - Implemented Items view (`items.js`) — status/site/name filters, full table

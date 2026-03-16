@@ -303,3 +303,110 @@
 
 .status-option:last-child { border-bottom: none; }
 .status-option:hover { background: var(--border2); color: #fff; }
+
+/* ── Modal Inner Elements ────────────────────────────────────────────────── */
+
+.modal-section-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+  margin-top: 4px;
+}
+
+.modal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-row:last-of-type { border-bottom: none; }
+
+.modal-field {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.modal-val {
+  font-size: 13px;
+  text-align: right;
+}
+
+.modal-val.green { color: var(--green); }
+.modal-val.red   { color: var(--red); }
+.modal-val.est   { color: var(--yellow); }
+.modal-val a     { color: var(--blue); text-decoration: none; }
+.modal-val a:hover { text-decoration: underline; }
+
+.modal-divider {
+  border: none;
+  border-top: 1px solid var(--border2);
+  margin: 12px 0;
+}
+
+.modal-big-profit {
+  font-family: var(--font-big);
+  font-size: 36px;
+  line-height: 1;
+}
+
+.modal-big-profit.green { color: var(--green); }
+.modal-big-profit.red   { color: var(--red); }
+.modal-big-profit.est   { color: var(--yellow); }
+
+.modal-input {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 5px 8px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.modal-input:focus { border-color: var(--blue); }
+
+.modal-select {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 5px 8px;
+  outline: none;
+  min-width: 120px;
+}
+
+.modal-select:focus { border-color: var(--blue); }
+
+.modal-save-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 0 4px;
+}
+
+.btn-save {
+  background: var(--green);
+  color: #000;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.save-msg {
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--green);
+}
+
+.save-msg.error { color: var(--red); }
