@@ -737,10 +737,14 @@
           </div>
 
           <div class="modal-row">
-            <span class="modal-field">WEIGHT (LB)</span>
-            <span class="modal-val">
-              <input x-model="parcel.weight" type="number" step="0.1" min="0.1" placeholder="e.g. 1.5"
-                style="width:100px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+            <span class="modal-field">WEIGHT</span>
+            <span class="modal-val" style="display:flex;gap:8px;align-items:center">
+              <input x-model="parcel.weightLbs" type="number" min="0" step="1" placeholder="0"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              <span style="color:var(--muted);font-size:11px">LBS</span>
+              <input x-model="parcel.weightOz" type="number" min="0" max="15" step="1" placeholder="0"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              <span style="color:var(--muted);font-size:11px">OZ</span>
             </span>
           </div>
 

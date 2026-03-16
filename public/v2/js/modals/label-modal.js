@@ -3,7 +3,7 @@ document.addEventListener('alpine:init', () => {
   Alpine.data('labelModal', () => ({
     step:           'form',   // 'form' | 'rates' | 'result'
     addrText:       '',
-    parcel:         { type: 'box', weight: '', length: '', width: '', height: '' },
+    parcel:         { type: 'box', weightLbs: '', weightOz: '', length: '', width: '', height: '' },
     rates:          [],
     purchaseResult: null,
     ratePrice:      0,
@@ -99,13 +99,14 @@ document.addEventListener('alpine:init', () => {
       this.errMsg = '';
       const addr = this._parseAddress(this.addrText);
       if (!addr)                { this.errMsg = 'Could not parse address — check format'; return; }
-      if (!this.parcel.weight)  { this.errMsg = 'Weight required'; return; }
+      const totalLbs = (parseFloat(this.parcel.weightLbs) || 0) + (parseFloat(this.parcel.weightOz) || 0) / 16;
+      if (!totalLbs)            { this.errMsg = 'Weight required'; return; }
       if (!this.parcel.length)  { this.errMsg = 'Length required'; return; }
       if (this.parcel.type === 'box' && (!this.parcel.width || !this.parcel.height)) {
         this.errMsg = 'Width and height required for boxes'; return;
       }
       const parcel = {
-        weight: this.parcel.weight,
+        weight: totalLbs,
         length: this.parcel.length,
         width:  this.parcel.type === 'box' ? this.parcel.width  : '1',
         height: this.parcel.type === 'box' ? this.parcel.height : '1',
@@ -150,6 +151,8 @@ document.addEventListener('alpine:init', () => {
         }
         this.purchaseResult = data;
         this.step = 'result';
+        // Auto mark shipped on Reverb if this order is linked
+        if (this.reverbLinks?.ship && data.trackingNumber) this.markShipped();
       } catch(e) {
         this.errMsg = e.message;
         this.step   = 'rates';
