@@ -2,6 +2,9 @@
 
 Personal resale inventory dashboard for **Duckwerks Music** — tracks music gear, comics, and gaming items sold on eBay and Reverb.
 
+Designed and planned by Geoff Goss.  Coded by Geoff Goss and Claude.ai via Claude Code and the Claude Code CLI.
+This was my first foray into working with Claude.  I created an initial dashboard in HTML in Claude desktop, eventually moving to VS Code and Claude Code CLI.   Utilizing Claude Desktop, CLI, VS Code extension, my project management skills, and my desire to not have to visit 3 websites to ship a piece of gear I sold, this is what we eventually built.   I understand the code, I know all the decisions made.  I can maintain it.  It's pretty amazing what 20 years of software developement and program management combined with productivity tools like Claude.ai can do in a few days.   This went through multiple iterations, and now seems like a good time to share it.
+
 ![Duckwerks](public/v2/duckwerksheader.jpeg)
 
 ---
