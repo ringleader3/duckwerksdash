@@ -37,7 +37,7 @@
           @keydown="navigate($event)"
           x-ref="searchInput"
         >
-        <div class="search-results" x-show="results.length > 0">
+        <div class="search-results" x-show="results.length > 0" x-ref="searchResults">
           <template x-for="(r, i) in results" :key="r.key">
             <div
               class="search-result-row"

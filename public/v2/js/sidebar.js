@@ -25,13 +25,20 @@ document.addEventListener('alpine:init', () => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+        this.$nextTick(() => this._scrollActiveIntoView());
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+        this.$nextTick(() => this._scrollActiveIntoView());
       } else if (e.key === 'Enter' && this.selectedIndex >= 0) {
         e.preventDefault();
         this.pick(this.results[this.selectedIndex]);
       }
+    },
+
+    _scrollActiveIntoView() {
+      const el = this.$refs.searchResults?.querySelector('.search-result-active');
+      if (el) el.scrollIntoView({ block: 'nearest' });
     },
 
     search() {
