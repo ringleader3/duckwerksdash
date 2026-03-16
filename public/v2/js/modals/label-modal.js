@@ -116,7 +116,7 @@ document.addEventListener('alpine:init', () => {
         const res  = await fetch('/api/label/rates', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ testMode: SHIPPO_TEST_MODE, toAddress: addr, parcel }),
+          body:    JSON.stringify({ toAddress: addr, parcel }),
         });
         const data = await res.json();
         if (!res.ok || !data.rates) {
@@ -141,7 +141,7 @@ document.addEventListener('alpine:init', () => {
         const res  = await fetch('/api/label/purchase', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ testMode: SHIPPO_TEST_MODE, rateObjectId: rateId }),
+          body:    JSON.stringify({ rateObjectId: rateId }),
         });
         const data = await res.json();
         if (!res.ok) {

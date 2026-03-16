@@ -4,9 +4,12 @@ const router = express.Router();
 const SHIPPO_API = 'https://api.goshippo.com';
 const SHIPPO_API_VERSION = '2018-02-08';
 
-function getShippoToken(testMode) {
-  const token = testMode ? process.env.SHIPPO_TEST_TOKEN : process.env.SHIPPO_LIVE_TOKEN;
-  if (!token) throw new Error(`Shippo ${testMode ? 'test' : 'live'} token not configured`);
+// testMode is controlled server-side via SHIPPO_TEST_MODE in .env — never trust the client
+const SHIPPO_TEST_MODE = process.env.SHIPPO_TEST_MODE === 'true';
+
+function getShippoToken() {
+  const token = SHIPPO_TEST_MODE ? process.env.SHIPPO_TEST_TOKEN : process.env.SHIPPO_LIVE_TOKEN;
+  if (!token) throw new Error(`Shippo ${SHIPPO_TEST_MODE ? 'test' : 'live'} token not configured`);
   return token;
 }
 
@@ -39,9 +42,9 @@ async function shippoPost(token, path, body) {
 // ── LABEL ENDPOINTS ───────────────────────────────────────────────────────────
 
 router.post('/rates', async (req, res) => {
-  const { testMode, toAddress, parcel } = req.body;
+  const { toAddress, parcel } = req.body;
   let token;
-  try { token = getShippoToken(testMode); } catch (e) { return res.status(500).json({ error: e.message }); }
+  try { token = getShippoToken(); } catch (e) { return res.status(500).json({ error: e.message }); }
 
   try {
     const { status, data } = await shippoPost(token, 'shipments/', {
@@ -76,9 +79,9 @@ router.post('/rates', async (req, res) => {
 });
 
 router.post('/purchase', async (req, res) => {
-  const { testMode, rateObjectId } = req.body;
+  const { rateObjectId } = req.body;
   let token;
-  try { token = getShippoToken(testMode); } catch (e) { return res.status(500).json({ error: e.message }); }
+  try { token = getShippoToken(); } catch (e) { return res.status(500).json({ error: e.message }); }
 
   try {
     const { status, data } = await shippoPost(token, 'transactions/', {
@@ -101,9 +104,9 @@ router.post('/purchase', async (req, res) => {
 // ── GENERIC SHIPPO PROXY ──────────────────────────────────────────────────────
 
 router.post('/:path(*)', async (req, res) => {
-  const { testMode, ...payload } = req.body;
+  const payload = req.body;
   let token;
-  try { token = getShippoToken(testMode); } catch (e) { return res.status(500).json({ error: e.message }); }
+  try { token = getShippoToken(); } catch (e) { return res.status(500).json({ error: e.message }); }
 
   const url = `${SHIPPO_API}/${req.params.path}`;
   try {
@@ -125,9 +128,8 @@ router.post('/:path(*)', async (req, res) => {
 });
 
 router.get('/:path(*)', async (req, res) => {
-  const testMode = req.query.testMode === 'true';
   let token;
-  try { token = getShippoToken(testMode); } catch (e) { return res.status(500).json({ error: e.message }); }
+  try { token = getShippoToken(); } catch (e) { return res.status(500).json({ error: e.message }); }
 
   const url = `${SHIPPO_API}/${req.params.path}`;
   try {
