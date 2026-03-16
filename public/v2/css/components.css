@@ -60,7 +60,7 @@
 }
 
 .badge-sold      { background: #1e3a2a; color: var(--green); }
-.badge-listed    { background: #1a2a3a; color: var(--blue); }
+.badge-listed    { background: var(--blue); color: #0a0a0a; }
 .badge-pending   { background: #2e2a18; color: var(--yellow); }
 .badge-prepping  { background: #2a1f2a; color: var(--purple); }
 .badge-other     { background: #252525; color: var(--muted); }
@@ -278,3 +278,28 @@
 
 .controls-search:focus { border-color: var(--blue); }
 .controls-search::placeholder { color: var(--muted); }
+
+/* ── Inline Status Dropdown ──────────────────────────────────────────────── */
+
+.status-dropdown {
+  position: absolute;
+  top: calc(100% - 4px);
+  left: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  z-index: 50;
+  min-width: 100px;
+  overflow: hidden;
+}
+
+.status-option {
+  padding: 6px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #ccc;
+  border-bottom: 1px solid var(--border);
+}
+
+.status-option:last-child { border-bottom: none; }
+.status-option:hover { background: var(--border2); color: #fff; }

@@ -236,6 +236,15 @@ Commit at every checkpoint.
 ## Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-15 (Phase 3)
+- Implemented Items view (`items.js`) — status/site/name filters, full table
+- Added Site and Status columns; inline status dropdown (no modal needed)
+- EAF payout + est. profit shown in yellow; shipping yellow if estimated
+- Added `updateRecord()` to store for inline status edits
+- Fixed listed badge color (solid blue) to distinguish from Music category badge
+- Added Site column (eBay/Reverb badge)
+- **Next:** Phase 4 — Item modal + Add modal
+
 ### 2026-03-15 (Phase 2)
 - Implemented Quick Find search in sidebar (`sidebar.js`) — items, lots, categories
 - Added `categoryFilter` state to store; nav pills reset it on click

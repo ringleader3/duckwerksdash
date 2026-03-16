@@ -90,8 +90,78 @@
       <div x-show="$store.dw.activeView === 'items'" x-data="itemsView">
         <div class="view-header">
           <div class="view-title">ITEMS</div>
+          <div x-show="$store.dw.categoryFilter" style="font-size:12px; color:var(--muted); margin-top:4px">
+            Filtered: <span x-text="$store.dw.categoryFilter" style="color:#ccc"></span>
+          </div>
         </div>
-        <div class="state-loading" style="color: var(--muted)">Items view — coming in Phase 3</div>
+
+        <!-- Controls -->
+        <div class="controls-row">
+          <div class="pill-row">
+            <template x-for="s in ['All','Listed','Pending','Sold','Prepping']" :key="s">
+              <button class="pill" :class="{ active: statusFilter === s }" @click="statusFilter = s" x-text="s"></button>
+            </template>
+          </div>
+          <div class="pill-row">
+            <template x-for="s in ['All','Reverb','eBay']" :key="s">
+              <button class="pill" :class="{ active: siteFilter === s }" @click="siteFilter = s" x-text="s"></button>
+            </template>
+          </div>
+          <input class="controls-search" type="text" placeholder="search name..." x-model="nameSearch">
+          <button class="btn btn-ghost" x-show="$store.dw.categoryFilter" @click="$store.dw.categoryFilter = null" style="font-size:11px; padding:4px 10px">✕ Category</button>
+        </div>
+
+        <!-- Table -->
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Lot</th>
+              <th>Cat</th>
+              <th>Site</th>
+              <th>Status</th>
+              <th class="num">List Price</th>
+              <th class="num">EAF Payout</th>
+              <th class="num">Est. Profit</th>
+              <th class="num">Shipping</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="r in rows" :key="r.id">
+              <tr @click="openItem(r)">
+                <td x-text="$store.dw.str(r, F.name)"></td>
+                <td style="color:var(--muted); font-size:11px" x-text="$store.dw.str(r, F.lot)"></td>
+                <td>
+                  <span class="badge" :class="catBadgeClass($store.dw.str(r, F.category))" x-text="$store.dw.str(r, F.category)"></span>
+                </td>
+                <td>
+                  <span class="badge" :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge-ebay' : 'badge-reverb'" x-text="$store.dw.siteLabel(r)"></span>
+                </td>
+                <td style="position:relative">
+                  <span class="badge" :class="badgeClass($store.dw.str(r, F.status))" x-text="$store.dw.str(r, F.status)" @click="toggleStatusMenu(r.id, $event)" style="cursor:pointer" title="Click to change status"></span>
+                  <div x-show="openStatusId === r.id" class="status-dropdown" @click.stop>
+                    <template x-for="s in ['Listed','Pending','Sold','Prepping']" :key="s">
+                      <div class="status-option" x-text="s" @click="changeStatus(r, s, $event)"></div>
+                    </template>
+                  </div>
+                </td>
+                <td class="num" x-text="$store.dw.num(r, F.listPrice) > 0 ? $store.dw.fmt0($store.dw.num(r, F.listPrice)) : '—'"></td>
+                <td class="num est" x-text="eafDisplay(r)"></td>
+                <td class="num est" x-text="profitDisplay(r)"></td>
+                <td class="num" :class="shipIsEst(r) ? 'est' : 'act'" x-text="shipDisplay(r)"></td>
+                <td @click.stop>
+                  <div style="display:flex; gap:6px">
+                    <button class="btn btn-ghost" style="padding:3px 8px; font-size:11px" @click="$store.dw.openModal('item', r.id)">Edit</button>
+                    <button class="btn btn-primary" style="padding:3px 8px; font-size:11px" @click="$store.dw.openModal('label', r.id)">Ship</button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+
+        <div x-show="rows.length === 0" style="padding:40px; text-align:center; color:var(--muted); font-size:13px">No items match your filters</div>
       </div>
 
       <!-- Lots -->
