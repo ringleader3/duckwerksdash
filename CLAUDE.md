@@ -28,6 +28,7 @@ Open: `http://localhost:3000/duckwerks-dashboard.html`
 ## Key Files
 - `duckwerks-dashboard.html` — the entire frontend
 - `server.js` — Express entry point: mounts routers, serves static files
+- `server/airtable.js` — Airtable proxy routes (`/api/airtable/*`) — used by v2
 - `server/shippo.js` — all Shippo routes (`/api/label/*`, `/api/shippo/*`)
 - `server/reverb.js` — all Reverb routes (`/api/reverb/*`)
 - `.env` — secrets (Shippo tokens, from-address)
@@ -76,9 +77,15 @@ FROM_PHONE=...
 
 ## Server API Endpoints
 
-**server.js** (entry point — thin, ~20 lines)
-- `GET /api/config` — returns `{ airtablePat }` from `.env`; used by frontend to auto-login on load
-- Static file serving: all files in project root served at `/`
+**server.js** (entry point — thin)
+- `GET /api/config` — returns `{ airtablePat }` from `.env`; used by v1 frontend only
+- `/v2` static route → `public/v2/`
+- Static file serving for project root at `/`
+
+**server/airtable.js** (mounted at `/api/airtable`) — v2 uses this; v1 calls Airtable directly
+- `GET /api/airtable/*` — proxies to `api.airtable.com/v0/*`, injects PAT server-side
+- `PATCH /api/airtable/*` — update record
+- `POST /api/airtable/*` — create record
 
 **server/shippo.js** (mounted at `/api/label` and `/api/shippo`)
 - `POST /api/label/rates` — create Shippo shipment, return sorted rates. Body: `{ testMode, toAddress, parcel }`
@@ -90,16 +97,16 @@ FROM_PHONE=...
 - `GET /api/reverb/*` — proxies to Reverb API with auth
 - `POST /api/reverb/*` — proxies to Reverb API with auth
 
-From-address is injected server-side from `.env` — never exposed to the browser.
+All credentials injected server-side from `.env` — never exposed to the browser.
 
 **Adding a new API integration:** create `server/yourapi.js`, add `app.use('/api/yourapi', require('./server/yourapi'))` in server.js.
 
 ---
 
 ## Airtable
-- Called directly from the browser (has CORS headers, unlike Shippo)
-- `BASE_ID` and `TABLE_ID` are in the HTML `<script>` block
-- `AIRTABLE_PAT` is now in `.env` — fetched via `/api/config` on load and used to auto-login
+- **v1:** called directly from browser; PAT fetched via `/api/config` on load (CORS allowed by Airtable)
+- **v2:** all Airtable calls go through `/api/airtable` proxy — PAT never leaves the server
+- `BASE_ID` and `TABLE_ID` in `public/v2/js/config.js` (v2) and HTML `<script>` block (v1)
 - Field IDs in the `F` object — always use field IDs, not names
 
 ---

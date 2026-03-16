@@ -15,9 +15,10 @@ app.get('/api/config', (_req, res) => {
 
 // ── API ROUTERS ───────────────────────────────────────────────────────────────
 
-app.use('/api/shippo', require('./server/shippo'));
-app.use('/api/label',  require('./server/shippo'));
-app.use('/api/reverb', require('./server/reverb'));
+app.use('/api/airtable', require('./server/airtable'));
+app.use('/api/shippo',   require('./server/shippo'));
+app.use('/api/label',    require('./server/shippo'));
+app.use('/api/reverb',   require('./server/reverb'));
 
 // ── START ─────────────────────────────────────────────────────────────────────
 

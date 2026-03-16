@@ -33,4 +33,4 @@ const CAT_BADGE = {
   Gaming:   'badge-gaming',
 };
 
-const AIRTABLE_API = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`;
+// Airtable is accessed via /api/airtable proxy — PAT never leaves the server

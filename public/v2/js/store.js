@@ -9,7 +9,6 @@ document.addEventListener('alpine:init', () => {
     records:       [],
     loading:       false,
     error:         null,
-    airtablePat:   null,
     activeView:    'dashboard',   // 'dashboard' | 'items' | 'lots'
     activeModal:   null,          // 'item' | 'add' | 'lot' | 'label' | 'reverb'
     activeRecordId: null,
@@ -18,8 +17,6 @@ document.addEventListener('alpine:init', () => {
     // ── Init ──────────────────────────────────────────────────────────────────
     async init() {
       try {
-        const cfg = await fetch('/api/config').then(r => r.json());
-        this.airtablePat = cfg.airtablePat;
         await this.fetchAll();
       } catch (e) {
         this.error = 'Failed to initialize: ' + e.message;
@@ -28,17 +25,14 @@ document.addEventListener('alpine:init', () => {
 
     // ── Data Fetch ────────────────────────────────────────────────────────────
     async fetchAll() {
-      if (!this.airtablePat) return;
       this.loading = true;
       this.error = null;
       try {
         const fields = Object.values(F).map(id => `fields[]=${id}`).join('&');
         let all = [], offset = null;
         do {
-          const url = `${AIRTABLE_API}?${fields}&returnFieldsByFieldId=true${offset ? '&offset=' + offset : ''}`;
-          const res = await fetch(url, {
-            headers: { Authorization: `Bearer ${this.airtablePat}` }
-          });
+          const params = `${fields}&returnFieldsByFieldId=true${offset ? '&offset=' + offset : ''}`;
+          const res = await fetch(`/api/airtable/${BASE_ID}/${TABLE_ID}?${params}`);
           if (!res.ok) throw new Error(`Airtable error ${res.status}`);
           const data = await res.json();
           all = all.concat(data.records);
