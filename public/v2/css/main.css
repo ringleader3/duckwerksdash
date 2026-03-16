@@ -75,12 +75,31 @@ a:hover { text-decoration: underline; }
 }
 
 .sidebar-logo {
-  font-family: var(--font-big);
-  font-size: 22px;
-  letter-spacing: 0.05em;
-  color: #fff;
-  padding-bottom: 12px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.sidebar-logo-mark {
+  font-size: 22px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.sidebar-logo-name {
+  font-family: var(--font-big);
+  font-size: 26px;
+  letter-spacing: 0.06em;
+  color: #fff;
+  line-height: 1;
+}
+.sidebar-logo-sub {
+  font-family: var(--font-body);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 3px;
 }
 
 .sidebar-section-label {
