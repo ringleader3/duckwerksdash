@@ -136,7 +136,7 @@ public/v2/
       add-modal.js        ← Alpine.data('addModal')
       lot-modal.js        ← Alpine.data('lotModal')
       label-modal.js      ← Alpine.data('labelModal') — Shippo flow
-      reverb-modal.js     ← Alpine.data('reverbModal') — Reverb sync
+      reverb-modal.js     ← Alpine.data('reverbModal') — Reverb sync (orders, link listings, listing details)
 ```
 
 ### Alpine Conventions
@@ -220,7 +220,8 @@ to the Lot detail modal directly.
 ### Design System
 - Dark theme, `Space Mono` body, `Bebas Neue` large numbers
 - CSS vars: `--green`, `--yellow`, `--red`, `--blue`, `--purple`, `--orange`,
-  `--muted`, `--surface`, `--border`, `--border2`, `--ebay`, `--reverb`
+  `--muted`, `--surface`, `--border`, `--border2`, `--ebay`, `--reverb`, `--white`
+- `--white: #f0f0f0` — primary text/high-contrast color; defined in `main.css :root`
 - Color semantics: yellow = estimate/pending, green = actual/positive,
   red = cost/negative, blue = action
 
@@ -230,6 +231,14 @@ to the Lot detail modal directly.
 - On label purchase: auto-fires saveShipping() + markShipped() immediately — do not wait for button click
 - saveShipping() writes shipping cost + status=Sold + dateSold + sale price in one Airtable update
 - Sale price uses `order.direct_checkout_payout` (post-fee payout) with fallback to `order.amount_product.amount`
+
+### Reverb Sync Modal — Sections
+- **Awaiting Shipment** — matches orders to records by `reverbListingId`; saves order numbers; SHIP button opens label modal
+- **Link Listings** — links unlinked Listed/Reverb records to their Reverb listing ID via dropdown
+- **Listing Details** — computes name/price diffs between fetched listings and Airtable; SYNC applies selected changes
+  - Listings fetched with full pagination (follows `_links.next.href`)
+  - Diffs computed in `_process()` from already-fetched `this.listings` — zero extra API calls
+  - `syncDetails()` calls `dw.fetchAll()` before `_process()` — **important pattern**: any modal write that updates fields visible in views/other modals must call `fetchAll()` first so the store is fresh before re-diffing. `saveMatches()`/`saveLinks()` skip `fetchAll()` because they only update fields the modal itself tracks.
 
 ### Reverb API `_links` Structure
 - `_links.ship.href` — direct href, POST to mark order shipped
@@ -291,6 +300,11 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 
 ## Session Log
 _Most recent first. Update this at the end of every session._
+
+### 2026-03-17 (Reverb Sync Details session)
+- **#14 enhancement (P1) — DONE:** Reverb Sync modal now has a "LISTING DETAILS" section. Fetches all listing pages (paginated via `_links.next.href`). Computes name/price diffs in `_process()` from already-fetched listings (zero extra API calls). SYNC button writes changed fields to Airtable, then `fetchAll()` + `_process()` to clear resolved diffs. Defined `--white: #f0f0f0` in `main.css :root` (was previously used but undefined). Spec + plan in `docs/superpowers/`.
+- **#15 enhancement (P1) — OPEN:** Per-item accept/decline for listing detail diffs. Currently bulk-only. Filed with full implementation notes (checkboxes per row, `detailSelections` state, filter in `syncDetails()`).
+- **#12 bug (P1) — still awaiting real-order validation**
 
 ### 2026-03-17 (Dashboard Charts session)
 - **#4 enhancement (P2):** Dashboard analytics charts — added 4-chart analytics section using Chart.js 4 CDN (no build step). New file `public/v2/js/charts.js` registers `Alpine.data('chartsSection')` with dual-path init pattern (`$watch` + immediate check). Charts: (1) Monthly Revenue + Profit (bar+line combo, YYYY-MM sort key), (2) Inventory Pipeline (horizontal stacked bar, Unlisted/Listed/Pending/Sold with EAF/cost annotations), (3) Lot ROI (horizontal bars, color-coded green/yellow/red, recomputed from store not dashView), (4) Near-term Upside by Category (vertical bars, category colors). HTML no-data overlays via `x-show` on each canvas. Charts section positioned above Lot Recovery. Spec + plan in `docs/superpowers/specs/` and `docs/superpowers/plans/`. `.superpowers/` added to `.gitignore`.
