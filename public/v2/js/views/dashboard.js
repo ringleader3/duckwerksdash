@@ -70,10 +70,24 @@ document.addEventListener('alpine:init', () => {
         .slice(0, 10);
     },
 
+    get recentlyListed() {
+      const dw = Alpine.store('dw');
+      return [...dw.listedRecords]
+        .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime))
+        .slice(0, 10);
+    },
+
+    listedDate(r) {
+      const d = new Date(r.createdTime);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    },
+
     soldDate(r) {
       const dw = Alpine.store('dw');
-      const d = dw.str(r, F.dateSold) || r.createdTime;
-      return d ? d.split('T')[0] : '—';
+      const raw = dw.str(r, F.dateSold) || r.createdTime;
+      if (!raw) return '—';
+      const d = new Date(raw);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     },
 
     itemProfit(r) {

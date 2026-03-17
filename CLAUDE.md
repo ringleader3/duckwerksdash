@@ -172,6 +172,16 @@ estProfit(r) {
 | Items | Status: Listed, Site: All | Daily driver — inline status edit, EAF payout column |
 | Lots | All lots | Click row → Lot Detail modal |
 
+### Items View — Sort Architecture
+All columns sortable. Sort state lives in `itemsView` local state (`sortKey`, `sortDir`). Applied at the end of the `rows` getter after filtering. Default: `createdTime DESC`.
+
+- `sortBy(key)` — toggles dir if same key, else sets new key + `'asc'`
+- `sortIndicator(key)` — returns `' ↑'`, `' ↓'`, or `''` for use in `<th>` templates
+- `<th class="sortable" :class="{'sort-active': sortKey==='x'}" @click="sortBy('x')">`
+- Same pattern used in `lotsView` for the Lots table
+
+**Date formatting convention** — compact date columns use `toLocaleDateString('en-US', { month: 'short', day: 'numeric' })` → `"Mar 15"`. Style: `color:var(--muted); white-space:nowrap`. Always placed as the first column.
+
 ### Items View — Filter Architecture
 Three independent filter axes, all applied in `itemsView.rows` getter:
 
@@ -276,6 +286,11 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 
 ## Session Log
 _Most recent first. Update this at the end of every session._
+
+### 2026-03-17 (P2 Enhancement session)
+- **#2 enhancement (P2):** Readability pass — body font 13→15px, table rows 12→14px, table headers 10→11px, badges 11→12px, uppercase labels 10→11px, `--muted` #888→#999. Note: table has its own `font-size` that must be updated separately from body.
+- **#5 enhancement (P2):** Sortable column headers on Items and Lots views. `sortBy`/`sortIndicator` pattern; default `createdTime DESC`. Added "Added" date column (first column, muted, `nowrap`) to Items table so `createdTime` sort is always accessible.
+- **#7 enhancement (P2):** "Recently Listed" full-width panel on Dashboard, below the lot recovery / recently sold 2-col grid. Same structure as Recently Sold: 10 items, clickable rows open item modal. Also standardized "Sold" date column in Recently Sold to match Added format (`Mon Day`, first column).
 
 ### 2026-03-17 (Bug & Enhancement session)
 - **#8 bug (P1):** Lot Detail Modal columns — renamed "List / EAF" header to "EAF"; added `white-space:nowrap` to non-name `<th>` elements so Name column gets full remaining width
