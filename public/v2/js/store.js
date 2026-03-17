@@ -13,9 +13,8 @@ document.addEventListener('alpine:init', () => {
     activeModal:   null,          // 'item' | 'add' | 'lot' | 'label' | 'reverb'
     activeRecordId: null,
     activeLotName:  null,
-    categoryFilter:      null,   // set by sidebar category pick; consumed by itemsView
-    pendingStatusFilter: null,   // consumed once by itemsView on next render
-    pendingSiteFilter:   null,   // consumed once by itemsView on next render
+    categoryFilter: null,    // set by sidebar category pick; consumed by itemsView
+    pendingFilters: null,    // { status, category, site } — set by navToItems, consumed by itemsView
 
     // ── Init ──────────────────────────────────────────────────────────────────
     async init() {
@@ -71,11 +70,13 @@ document.addEventListener('alpine:init', () => {
       this.activeLotName  = null;
     },
 
-    // Navigate to Items view with optional pre-set filters
+    // Navigate to Items view, resetting all filters then applying the specified ones
     navToItems(status, category, site) {
-      this.pendingStatusFilter = status   || null;
-      this.categoryFilter      = category || null;
-      this.pendingSiteFilter   = site     || null;
+      this.pendingFilters = {
+        status:   status   || 'All',
+        category: category || null,
+        site:     site     || 'All',
+      };
       this.activeView = 'items';
       this.closeModal();
     },

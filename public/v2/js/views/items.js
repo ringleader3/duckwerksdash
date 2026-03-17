@@ -8,16 +8,12 @@ document.addEventListener('alpine:init', () => {
 
     init() {
       document.addEventListener('click', () => { this.openStatusId = null; });
-      this.$watch('$store.dw.pendingStatusFilter', v => {
-        if (v !== null) {
-          this.statusFilter = v;
-          Alpine.store('dw').pendingStatusFilter = null;
-        }
-      });
-      this.$watch('$store.dw.pendingSiteFilter', v => {
-        if (v !== null) {
-          this.siteFilter = v;
-          Alpine.store('dw').pendingSiteFilter = null;
+      this.$watch('$store.dw.pendingFilters', v => {
+        if (v) {
+          this.statusFilter = v.status;
+          this.siteFilter   = v.site;
+          Alpine.store('dw').categoryFilter  = v.category;
+          Alpine.store('dw').pendingFilters  = null;
         }
       });
     },
