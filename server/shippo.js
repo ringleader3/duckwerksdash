@@ -39,6 +39,48 @@ async function shippoPost(token, path, body) {
   return { status: response.status, data: text ? JSON.parse(text) : {} };
 }
 
+// ── LABEL USAGE ───────────────────────────────────────────────────────────────
+
+// TODO: Confirm billing window dates with Shippo support before relying on this.
+// Set to 'calendar-month' (1st of current month) or 'rolling-30' (last 30 days).
+const BILLING_WINDOW = 'calendar-month';
+const LABEL_LIMIT    = 30;
+
+router.get('/usage', async (_req, res) => {
+  // Always use the live token — the 30-label limit applies to live labels only
+  const token = process.env.SHIPPO_LIVE_TOKEN;
+  if (!token) return res.status(500).json({ error: 'Live token not configured' });
+
+  let since;
+  if (BILLING_WINDOW === 'rolling-30') {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    since = d.toISOString();
+  } else {
+    const now = new Date();
+    since = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  }
+
+  try {
+    const url = new URL(`${SHIPPO_API}/transactions/`);
+    url.searchParams.set('results', '300');
+    url.searchParams.set('object_created_after', since);
+    url.searchParams.set('object_test', 'false');  // exclude test labels at the API level
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `ShippoToken ${token}`,
+        'SHIPPO-API-VERSION': SHIPPO_API_VERSION,
+      },
+    });
+    const data = await response.json();
+    // Filter to SUCCESS only — excludes WAITING, QUEUED, ERROR, REFUNDED (drafts/failures)
+    const purchased = (data.results || []).filter(t => t.status === 'SUCCESS');
+    res.json({ count: purchased.length, limit: LABEL_LIMIT, window: BILLING_WINDOW, since });
+  } catch (e) {
+    res.status(502).json({ error: 'Shippo request failed', detail: e.message });
+  }
+});
+
 // ── LABEL ENDPOINTS ───────────────────────────────────────────────────────────
 
 router.post('/rates', async (req, res) => {

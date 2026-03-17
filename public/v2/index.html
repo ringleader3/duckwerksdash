@@ -63,6 +63,7 @@
     <div class="sidebar-section">
       <div class="sidebar-section-label">Actions</div>
       <a class="sidebar-action" @click="$store.dw.openModal('reverb')">Sync Reverb</a>
+      <a class="sidebar-action" @click="$store.dw.openModal('shipping')">Shipping</a>
     </div>
 
     <div class="sidebar-spacer"></div>
@@ -1153,6 +1154,44 @@
     </div>
   </div>
 
+  <!-- ── Shipping Modal ──────────────────────────────────────────────────── -->
+  <div x-show="$store.dw.activeModal === 'shipping'" x-data="shippingModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">SHIPPING</div>
+        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section-label">LABEL USAGE</div>
+        <div class="modal-row" x-show="loading">
+          <span style="color:var(--muted);font-size:12px">Loading...</span>
+        </div>
+        <div class="modal-row" x-show="errMsg">
+          <span style="color:var(--red);font-size:12px" x-text="errMsg"></span>
+        </div>
+        <div x-show="usage && !loading">
+          <div class="modal-row">
+            <span class="modal-field">Labels This Period</span>
+            <span class="modal-val" style="font-size:22px;font-family:'Bebas Neue',sans-serif;letter-spacing:2px" :style="'color:' + usageColor">
+              <span x-text="usage?.count"></span><span style="font-size:14px;color:var(--muted)"> / <span x-text="usage?.limit"></span></span>
+            </span>
+          </div>
+          <div class="modal-row">
+            <span class="modal-field">Period</span>
+            <span class="modal-val" style="color:var(--muted);font-size:11px" x-text="periodLabel"></span>
+          </div>
+          <div class="modal-row" x-show="usage && (usage.limit - usage.count) <= 5">
+            <span style="color:var(--yellow);font-size:11px;letter-spacing:1px" x-text="'⚠ ' + (usage.limit - usage.count) + ' label' + ((usage.limit - usage.count) !== 1 ? 's' : '') + ' remaining'"></span>
+          </div>
+          <div class="modal-row" x-show="usage && usage.count >= usage.limit">
+            <span style="color:var(--red);font-size:11px;letter-spacing:1px">LIMIT REACHED — labels may fail</span>
+          </div>
+        </div>
+        <!-- TODO: Shipping status tracking will go here -->
+      </div>
+    </div>
+  </div>
+
 </div><!-- #app -->
 
 <!-- ── Scripts: load order matters ──────────────────────────────────────── -->
@@ -1172,6 +1211,7 @@
 <script src="js/modals/lot-modal.js"></script>
 <script src="js/modals/label-modal.js"></script>
 <script src="js/modals/reverb-modal.js"></script>
+<script src="js/modals/shipping-modal.js"></script>
 
 <!-- Chart.js — non-deferred, before charts.js and before Alpine -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
