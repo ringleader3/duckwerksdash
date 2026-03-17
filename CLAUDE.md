@@ -172,6 +172,27 @@ estProfit(r) {
 | Items | Status: Listed, Site: All | Daily driver — inline status edit, EAF payout column |
 | Lots | All lots | Click row → Lot Detail modal |
 
+### Items View — Filter Architecture
+Three independent filter axes, all applied in `itemsView.rows` getter:
+
+| Filter | Lives in | Default |
+|---|---|---|
+| `statusFilter` | `itemsView` local state | `'Listed'` |
+| `siteFilter` | `itemsView` local state | `'All'` |
+| `categoryFilter` | `$store.dw` | `null` (= no filter) |
+
+**Navigating to Items view with filters** — use `$store.dw.navToItems(status, category, site)`.
+This sets `pendingFilters` on the store (a single object so the watcher always fires),
+then `itemsView` consumes it on the next tick, setting all three axes at once. Unspecified
+args default to `'All'`/`null` so every navigation is a clean slate.
+
+**Rule:** clicking any status or site pill clears `categoryFilter`. Pills represent the
+complete filter state — they must never silently combine with a hidden category filter.
+
+**Item modal drill-down** — Status, Category, and Site badges in read view are clickable
+and call `navToItems()`. The Lot field calls `openModal('lot', null, lotName)` to switch
+to the Lot detail modal directly.
+
 ### Sidebar
 - **ADD ITEM** button → opens Add modal
 - **Quick Find** — live search against `$store.dw.records` in memory (no Airtable calls)
@@ -255,6 +276,10 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 
 ## Session Log
 _Most recent first. Update this at the end of every session._
+
+### 2026-03-17 (Bug & Enhancement session)
+- **#8 bug (P1):** Lot Detail Modal columns — renamed "List / EAF" header to "EAF"; added `white-space:nowrap` to non-name `<th>` elements so Name column gets full remaining width
+- **#6 enhancement (P1):** Item modal drill-down — Status, Category, Site badges now clickable; navigate to Items view with that filter applied (others reset to All). Lot field opens Lot detail modal. Added `navToItems(status, category, site)` to store + `pendingFilters` pattern for reliable cross-component filter handoff. Pill clicks clear `categoryFilter` to prevent silent filter stacking. Normalized all "Platform" labels to "Site".
 
 ### 2026-03-16 (Bug & Enhancement session)
 - **#1 bug (P1):** Search results scrollable dropdown — added `scrollIntoView` on active row during keyboard nav
