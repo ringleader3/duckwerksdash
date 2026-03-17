@@ -41,25 +41,22 @@ async function shippoPost(token, path, body) {
 
 // ── LABEL USAGE ───────────────────────────────────────────────────────────────
 
-// TODO: Confirm billing window dates with Shippo support before relying on this.
-// Set to 'calendar-month' (1st of current month) or 'rolling-30' (last 30 days).
-const BILLING_WINDOW = 'calendar-month';
-const LABEL_LIMIT    = 30;
+// TODO: Confirm exact reset day with Shippo support, then update BILLING_RESET_DAY.
+// Day of month the Shippo billing cycle resets (1 = 1st, 3 = 3rd, etc.)
+const BILLING_RESET_DAY = 1;
+const LABEL_LIMIT       = 30;
 
 router.get('/usage', async (_req, res) => {
   // Always use the live token — the 30-label limit applies to live labels only
   const token = process.env.SHIPPO_LIVE_TOKEN;
   if (!token) return res.status(500).json({ error: 'Live token not configured' });
 
-  let since;
-  if (BILLING_WINDOW === 'rolling-30') {
-    const d = new Date();
-    d.setDate(d.getDate() - 30);
-    since = d.toISOString();
-  } else {
-    const now = new Date();
-    since = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-  }
+  // If today is before the reset day, the current period started last month
+  const now = new Date();
+  const periodStart = now.getDate() >= BILLING_RESET_DAY
+    ? new Date(now.getFullYear(), now.getMonth(), BILLING_RESET_DAY)
+    : new Date(now.getFullYear(), now.getMonth() - 1, BILLING_RESET_DAY);
+  const since = periodStart.toISOString();
 
   try {
     const url = new URL(`${SHIPPO_API}/transactions/`);
@@ -75,7 +72,7 @@ router.get('/usage', async (_req, res) => {
     const data = await response.json();
     // Filter to SUCCESS only — excludes WAITING, QUEUED, ERROR, REFUNDED (drafts/failures)
     const purchased = (data.results || []).filter(t => t.status === 'SUCCESS');
-    res.json({ count: purchased.length, limit: LABEL_LIMIT, window: BILLING_WINDOW, since });
+    res.json({ count: purchased.length, limit: LABEL_LIMIT, resetDay: BILLING_RESET_DAY, since });
   } catch (e) {
     res.status(502).json({ error: 'Shippo request failed', detail: e.message });
   }

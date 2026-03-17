@@ -38,8 +38,7 @@ document.addEventListener('alpine:init', () => {
     get periodLabel() {
       if (!this.usage?.since) return '';
       const d = new Date(this.usage.since);
-      if (this.usage.window === 'rolling-30') return 'last 30 days';
-      return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     },
   }));
 });
