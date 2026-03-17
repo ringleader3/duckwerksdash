@@ -98,6 +98,25 @@ document.addEventListener('alpine:init', () => {
       const sel = {};
       for (const r of this.unlinkedRecs) sel[r.id] = '';
       this.linkSelections = sel;
+
+      // Compute listing detail diffs (name + price) for linked records
+      // dw is already declared at the top of _process() — do not add another const dw line
+      this.detailDiffs = dw.records
+        .filter(r => dw.str(r, F.reverbListingId))
+        .reduce((acc, r) => {
+          const listing = this.listings.find(
+            l => String(l.id) === dw.str(r, F.reverbListingId)
+          );
+          if (!listing) return acc;
+          const newName  = listing.title || '';
+          const newPrice = parseFloat(listing.price.amount);
+          const oldName  = dw.str(r, F.name);
+          const oldPrice = parseFloat(r.fields[F.listPrice]) || 0;
+          if (newName !== oldName || newPrice !== oldPrice) {
+            acc.push({ rec: r, listing, newName, newPrice, oldName, oldPrice });
+          }
+          return acc;
+        }, []);
     },
 
     async saveMatches() {
