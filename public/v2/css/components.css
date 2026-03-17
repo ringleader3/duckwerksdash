@@ -67,7 +67,7 @@
 
 .badge-music     { background: #2e2318; color: var(--orange); }
 .badge-comp      { background: #241f3a; color: var(--purple); }
-.badge-gaming    { background: #2e2318; color: var(--orange); }
+.badge-gaming    { background: #2e1a2a; color: #d070b0; }
 
 .badge-ebay      { background: #2e1a1a; color: var(--ebay); }
 .badge-reverb    { background: #1a2040; color: var(--reverb); }
