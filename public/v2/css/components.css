@@ -165,7 +165,7 @@
 .data-table tbody tr:hover { background: var(--border); }
 
 /* Sortable column headers */
-.data-table th.sortable { cursor: pointer; user-select: none; }
+.data-table th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
 .data-table th.sortable:hover { color: #ccc; }
 .data-table th.sort-active { color: #e0e0e0; }
 
