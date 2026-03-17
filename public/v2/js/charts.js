@@ -28,7 +28,72 @@ document.addEventListener('alpine:init', () => {
       this.buildUpsideChart();
     },
 
-    buildRevenueChart()  { /* Task 3 */ },
+    buildRevenueChart() {
+      const dw = Alpine.store('dw');
+      if (dw.soldRecords.length === 0) return;
+
+      // Group sold records by month.
+      // Use YYYY-MM as the sort key (parseable by Date), store display label separately.
+      const byMonth = {};
+      dw.soldRecords.forEach(r => {
+        const raw = dw.str(r, F.dateSold);
+        if (!raw) return;
+        const d    = new Date(raw);
+        const sortKey    = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const displayKey = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+        if (!byMonth[sortKey]) byMonth[sortKey] = { display: displayKey, revenue: 0, profit: 0 };
+        const sale     = dw.num(r, F.sale);
+        const cost     = dw.num(r, F.cost);
+        const shipping = dw.num(r, F.shipping);
+        byMonth[sortKey].revenue += sale;
+        byMonth[sortKey].profit  += sale - cost - shipping;
+      });
+
+      // Sort chronologically by YYYY-MM key, then use display labels for the chart
+      const sortedKeys = Object.keys(byMonth).sort();
+      const labels  = sortedKeys.map(k => byMonth[k].display);
+      const revenue = sortedKeys.map(k => byMonth[k].revenue);
+      const profit  = sortedKeys.map(k => byMonth[k].profit);
+
+      this.charts.revenue = new Chart(this.$refs.revenueCanvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Revenue',
+              data: revenue,
+              backgroundColor: 'rgba(66,153,225,0.6)',  // --blue
+              order: 2,
+            },
+            {
+              label: 'Profit',
+              data: profit,
+              type: 'line',
+              borderColor: 'rgba(72,187,120,0.9)',       // --green
+              backgroundColor: 'transparent',
+              pointRadius: 3,
+              order: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8 } },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` $${ctx.parsed.y.toFixed(2)}`,
+              },
+            },
+          },
+          scales: {
+            y: { ticks: { callback: v => '$' + v.toFixed(0) } },
+          },
+        },
+      });
+    },
     buildPipelineChart() { /* Task 4 */ },
     buildLotROIChart()   { /* Task 5 */ },
     buildUpsideChart()   { /* Task 6 */ },
