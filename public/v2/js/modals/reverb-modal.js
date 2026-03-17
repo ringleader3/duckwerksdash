@@ -109,7 +109,7 @@ document.addEventListener('alpine:init', () => {
           );
           if (!listing) return acc;
           const newName  = listing.title || '';
-          const newPrice = parseFloat(listing.price.amount);
+          const newPrice = parseFloat(listing.price?.amount) || 0;
           const oldName  = dw.str(r, F.name);
           const oldPrice = parseFloat(r.fields[F.listPrice]) || 0;
           if (newName !== oldName || newPrice !== oldPrice) {
