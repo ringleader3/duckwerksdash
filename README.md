@@ -59,6 +59,19 @@ public/v2/
     modals/             ← item, add, lot, label, reverb
 ```
 
+## Build Timeline
+
+| Date | Milestone |
+|---|---|
+| Mar 4 | First draft in Claude Desktop — single HTML file, proof of concept |
+| Mar 12 | First git commit (`v19`) — Airtable, Shippo labels, and Reverb API already working |
+| Mar 14 | Server polish — Express setup, Shippo token logging |
+| Mar 15 | v2 rebuild begins — full architectural reset in one day: modular server, Alpine store, design system, sidebar search, Items view, Item/Add modals (Phases 1–4) |
+| Mar 16 | Sprint day — Lots view, Dashboard KPIs, Label modal (full Shippo flow), Reverb Sync modal, v2 cutover, keyboard nav, GitHub Issues (Phases 5–8 + polish) |
+| Mar 17 | Refinement — sortable columns, readability pass, Recently Listed, item drill-down navigation |
+
+13 days from first idea to production-quality tool. The v2 rebuild — clean architecture, full modal/shipping/sync workflow — took 2 days.
+
 ## Design
 
 Dark theme · `Space Mono` body · `Bebas Neue` large numbers
