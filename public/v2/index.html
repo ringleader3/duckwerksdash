@@ -199,12 +199,12 @@
         <div class="controls-row">
           <div class="pill-row">
             <template x-for="s in ['All','Listed','Pending','Sold','Prepping']" :key="s">
-              <button class="pill" :class="{ active: statusFilter === s }" @click="statusFilter = s" x-text="s"></button>
+              <button class="pill" :class="{ active: statusFilter === s }" @click="statusFilter = s; $store.dw.categoryFilter = null" x-text="s"></button>
             </template>
           </div>
           <div class="pill-row">
             <template x-for="s in ['All','Reverb','eBay']" :key="s">
-              <button class="pill" :class="{ active: siteFilter === s }" @click="siteFilter = s" x-text="s"></button>
+              <button class="pill" :class="{ active: siteFilter === s }" @click="siteFilter = s; $store.dw.categoryFilter = null" x-text="s"></button>
             </template>
           </div>
           <input class="controls-search" type="text" placeholder="search name..." x-model="nameSearch">
