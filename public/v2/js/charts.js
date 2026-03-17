@@ -94,7 +94,65 @@ document.addEventListener('alpine:init', () => {
         },
       });
     },
-    buildPipelineChart() { /* Task 4 */ },
+    buildPipelineChart() {
+      const dw = Alpine.store('dw');
+
+      // Compute status counts and values fresh (do not reuse notListed getter — it doesn't exclude Pending)
+      const listedRecs   = dw.listedRecords;
+      const pendingRecs  = dw.pendingRecords;
+      const soldRecs     = dw.soldRecords;
+      const unlistedRecs = dw.records.filter(r => {
+        const s = dw.str(r, F.status);
+        return s !== 'Listed' && s !== 'Sold' && s !== 'Pending';
+      });
+
+      // Value annotations: EAF total for Listed, cost total for Unlisted
+      const listedEAF     = listedRecs.reduce((s, r) => s + dw.eaf(dw.num(r, F.listPrice)), 0);
+      const unlistedCost  = unlistedRecs.reduce((s, r) => s + dw.num(r, F.cost), 0);
+      const fmt = n => '$' + n.toFixed(0);
+
+      this.charts.pipeline = new Chart(this.$refs.pipelineCanvas, {
+        type: 'bar',
+        data: {
+          labels: ['Inventory'],
+          datasets: [
+            {
+              label: `Unlisted (${unlistedRecs.length} · ${fmt(unlistedCost)} cost)`,
+              data: [unlistedRecs.length],
+              backgroundColor: 'rgba(153,153,153,0.5)',  // --muted
+            },
+            {
+              label: `Listed (${listedRecs.length} · ${fmt(listedEAF)} EAF)`,
+              data: [listedRecs.length],
+              backgroundColor: 'rgba(236,201,75,0.7)',   // --yellow
+            },
+            {
+              label: `Pending (${pendingRecs.length})`,
+              data: [pendingRecs.length],
+              backgroundColor: 'rgba(66,153,225,0.7)',   // --blue
+            },
+            {
+              label: `Sold (${soldRecs.length})`,
+              data: [soldRecs.length],
+              backgroundColor: 'rgba(72,187,120,0.4)',   // --green dimmed
+            },
+          ],
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8 } },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}` } },
+          },
+          scales: {
+            x: { stacked: true, ticks: { display: false }, grid: { display: false } },
+            y: { stacked: true, ticks: { display: false } },
+          },
+        },
+      });
+    },
     buildLotROIChart()   { /* Task 5 */ },
     buildUpsideChart()   { /* Task 6 */ },
 
