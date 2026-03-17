@@ -192,7 +192,7 @@
               <tbody>
                 <template x-for="lot in lotRows" :key="lot.name">
                   <tr style="cursor:pointer" @click="$store.dw.openModal('lot', null, lot.name)">
-                    <td x-text="lot.name"></td>
+                    <td style="text-align:left" x-text="lot.name"></td>
                     <td class="num red" x-text="$store.dw.fmt0(lot.cost)"></td>
                     <td class="num green" x-text="$store.dw.fmt0(lot.recovered)"></td>
                     <td class="num">
@@ -228,7 +228,7 @@
                 <template x-for="r in recentlySold" :key="r.id">
                   <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
                     <td style="color:var(--muted); white-space:nowrap" x-text="soldDate(r)"></td>
-                    <td x-text="$store.dw.str(r, F.name)"></td>
+                    <td style="text-align:left" x-text="$store.dw.str(r, F.name)"></td>
                     <td><span :class="'badge ' + (CAT_BADGE[$store.dw.str(r, F.category)] || '')" x-text="$store.dw.str(r, F.category)"></span></td>
                     <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
                     <td class="num green" x-text="$store.dw.fmt0($store.dw.num(r, F.sale))"></td>
@@ -260,7 +260,7 @@
               <template x-for="r in recentlyListed" :key="r.id">
                 <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
                   <td style="color:var(--muted); white-space:nowrap" x-text="listedDate(r)"></td>
-                  <td x-text="$store.dw.str(r, F.name)"></td>
+                  <td style="text-align:left" x-text="$store.dw.str(r, F.name)"></td>
                   <td><span :class="'badge ' + (CAT_BADGE[$store.dw.str(r, F.category)] || '')" x-text="$store.dw.str(r, F.category)"></span></td>
                   <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
                   <td class="num" x-text="$store.dw.num(r, F.listPrice) > 0 ? $store.dw.fmt0($store.dw.num(r, F.listPrice)) : '—'"></td>
@@ -321,7 +321,7 @@
             <template x-for="r in rows" :key="r.id">
               <tr @click="openItem(r)">
                 <td style="color:var(--muted); white-space:nowrap" x-text="dateAdded(r)"></td>
-                <td>
+                <td style="text-align:left">
                   <span x-text="$store.dw.str(r, F.name)"></span>
                   <span x-show="needsAttention(r)" :title="daysListed(r) + ' days listed'" style="margin-left:6px; color:var(--orange); font-size:11px; cursor:default">⚑</span>
                 </td>
@@ -377,7 +377,7 @@
           <tbody>
             <template x-for="lot in rows" :key="lot.name">
               <tr class="clickable-row" @click="openLot(lot)">
-                <td x-text="lot.name"></td>
+                <td style="text-align:left" x-text="lot.name"></td>
                 <td class="num-col">
                   <span x-text="lot.items.length"></span>
                   <span class="muted-detail" x-text="'(' + countByStatus(lot,'Sold') + 's/' + countByStatus(lot,'Listed') + 'l)'"></span>
@@ -795,7 +795,7 @@
           <tbody>
             <template x-for="r in sortedItems" :key="r.id">
               <tr class="clickable-row" @click="openItem(r)">
-                <td x-text="$store.dw.str(r, F.name)"></td>
+                <td style="text-align:left" x-text="$store.dw.str(r, F.name)"></td>
                 <td><span class="badge" :class="badgeClass($store.dw.str(r, F.status))" x-text="$store.dw.str(r, F.status)"></span></td>
                 <td class="num-col red"    x-text="$store.dw.num(r, F.cost) ? $store.dw.fmt0($store.dw.num(r, F.cost)) : '—'"></td>
                 <td class="num-col"        x-text="listPriceDisplay(r)"></td>
