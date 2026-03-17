@@ -154,7 +154,57 @@ document.addEventListener('alpine:init', () => {
         },
       });
     },
-    buildLotROIChart()   { /* Task 5 */ },
+    buildLotROIChart() {
+      const dw = Alpine.store('dw');
+      if (dw.lots.length === 0) return;
+
+      // Recompute lot rows (can't access dashView.lotRows from here)
+      const rows = dw.lots.map(lot => {
+        const cost      = lot.items.reduce((s, r) => s + dw.num(r, F.cost), 0);
+        const recovered = lot.items
+          .filter(r => dw.str(r, F.status) === 'Sold')
+          .reduce((s, r) => s + dw.num(r, F.sale), 0);
+        const pct = cost > 0 ? Math.min(100, Math.round((recovered / cost) * 100)) : 0;
+        return { name: lot.name, pct };
+      }).sort((a, b) => b.pct - a.pct);
+
+      const labels = rows.map(r => r.name);
+      const data   = rows.map(r => r.pct);
+      const colors = rows.map(r =>
+        r.pct >= 100 ? 'rgba(72,187,120,0.7)'   :  // --green
+        r.pct >= 50  ? 'rgba(236,201,75,0.7)'   :  // --yellow
+                       'rgba(245,101,101,0.7)'     // --red
+      );
+
+      this.charts.lot = new Chart(this.$refs.lotCanvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Recovery %',
+            data,
+            backgroundColor: colors,
+            borderRadius: 2,
+          }],
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x}% recovered` } },
+          },
+          scales: {
+            x: {
+              min: 0,
+              max: 100,
+              ticks: { callback: v => v + '%' },
+            },
+          },
+        },
+      });
+    },
     buildUpsideChart()   { /* Task 6 */ },
 
   }));
