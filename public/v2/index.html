@@ -1103,6 +1103,49 @@
             </div>
           </div>
 
+          <!-- SECTION: Listing Details -->
+          <div class="modal-section-label" style="margin-top:20px">LISTING DETAILS</div>
+
+          <div x-show="!detailDiffs.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
+            ✓ All listing details match.
+          </div>
+
+          <div x-show="detailDiffs.length > 0">
+            <div style="font-size:11px;color:#666;padding:4px 0 10px;letter-spacing:1px">
+              Reverb changes pending. Review and sync to Airtable.
+            </div>
+            <template x-for="diff in detailDiffs" :key="diff.rec.id">
+              <div style="padding:10px 0;border-bottom:1px solid var(--border2)">
+                <div style="display:flex;gap:8px;align-items:baseline;margin-bottom:4px;flex-wrap:wrap">
+                  <span style="font-size:11px;color:var(--muted)" x-text="diff.oldName"></span>
+                  <span x-show="diff.newName !== diff.oldName"
+                    style="font-size:11px;color:#555">→</span>
+                  <span x-show="diff.newName !== diff.oldName"
+                    style="font-size:12px;color:var(--white)" x-text="diff.newName"></span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">
+                  <span x-show="diff.newPrice !== diff.oldPrice"
+                    style="font-size:11px;color:var(--muted)"
+                    x-text="'$' + (diff.oldPrice || 0).toFixed(2)"></span>
+                  <span x-show="diff.newPrice !== diff.oldPrice"
+                    style="font-size:11px;color:#555">→</span>
+                  <span x-show="diff.newPrice !== diff.oldPrice"
+                    style="font-size:12px;color:var(--green)"
+                    x-text="'$' + (diff.newPrice || 0).toFixed(2)"></span>
+                </div>
+              </div>
+            </template>
+            <div style="padding:14px 0 4px;display:flex;gap:12px;align-items:center">
+              <button @click="syncDetails()" :disabled="syncingDetails"
+                style="padding:10px 28px;background:var(--reverb);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer"
+                x-text="syncingDetails ? 'SYNCING...' : 'SYNC ' + detailDiffs.length + ' DETAIL' + (detailDiffs.length > 1 ? 'S' : '')">
+              </button>
+              <span x-show="detailsMsg" x-text="detailsMsg"
+                :style="detailsMsg.startsWith('✓') ? 'color:var(--green)' : 'color:var(--red)'"
+                style="font-size:11px;letter-spacing:1px"></span>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
