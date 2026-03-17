@@ -12,7 +12,7 @@
   --blue:    #5b9cf6;
   --purple:  #a87cf3;
   --orange:  #f0954a;
-  --muted:   #888;
+  --muted:   #999;
 
   /* Surfaces */
   --bg:       #0f0f0f;
@@ -41,7 +41,7 @@ body {
   background: var(--bg);
   color: #e0e0e0;
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.5;
   min-height: 100vh;
 }

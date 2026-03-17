@@ -53,7 +53,7 @@
   display: inline-block;
   padding: 2px 8px;
   border-radius: 3px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -89,7 +89,7 @@
 }
 
 .stat-card-label {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
@@ -103,7 +103,7 @@
 }
 
 .stat-card-sub {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 4px;
 }
@@ -126,7 +126,7 @@
 }
 
 .panel-title {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
@@ -138,22 +138,22 @@
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .data-table th {
   text-align: left;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
-  padding: 6px 10px;
+  padding: 7px 10px;
   border-bottom: 1px solid var(--border);
   font-weight: 400;
 }
 
 .data-table td {
-  padding: 8px 10px;
+  padding: 9px 10px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
@@ -325,7 +325,7 @@ span.red { color: var(--red); }
 /* ── Modal Inner Elements ────────────────────────────────────────────────── */
 
 .modal-section-label {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
@@ -344,7 +344,7 @@ span.red { color: var(--red); }
 .modal-row:last-of-type { border-bottom: none; }
 
 .modal-field {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
@@ -352,7 +352,7 @@ span.red { color: var(--red); }
 }
 
 .modal-val {
-  font-size: 13px;
+  font-size: 14px;
   text-align: right;
 }
 
