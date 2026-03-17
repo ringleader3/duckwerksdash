@@ -215,21 +215,23 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Lot</th>
-              <th>Cat</th>
-              <th>Site</th>
-              <th>Status</th>
-              <th class="num">List Price</th>
-              <th class="num">EAF Payout</th>
-              <th class="num">Est. Profit</th>
-              <th class="num">Shipping</th>
+              <th class="sortable" :class="{'sort-active': sortKey==='createdTime'}" @click="sortBy('createdTime')">Added<span x-text="sortIndicator('createdTime')"></span></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='name'}" @click="sortBy('name')">Name<span x-text="sortIndicator('name')"></span></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='lot'}" @click="sortBy('lot')">Lot<span x-text="sortIndicator('lot')"></span></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='category'}" @click="sortBy('category')">Cat<span x-text="sortIndicator('category')"></span></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='site'}" @click="sortBy('site')">Site<span x-text="sortIndicator('site')"></span></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='status'}" @click="sortBy('status')">Status<span x-text="sortIndicator('status')"></span></th>
+              <th class="num sortable" :class="{'sort-active': sortKey==='listPrice'}" @click="sortBy('listPrice')">List Price<span x-text="sortIndicator('listPrice')"></span></th>
+              <th class="num sortable" :class="{'sort-active': sortKey==='eaf'}" @click="sortBy('eaf')">EAF Payout<span x-text="sortIndicator('eaf')"></span></th>
+              <th class="num sortable" :class="{'sort-active': sortKey==='profit'}" @click="sortBy('profit')">Est. Profit<span x-text="sortIndicator('profit')"></span></th>
+              <th class="num sortable" :class="{'sort-active': sortKey==='shipping'}" @click="sortBy('shipping')">Shipping<span x-text="sortIndicator('shipping')"></span></th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <template x-for="r in rows" :key="r.id">
               <tr @click="openItem(r)">
+                <td style="color:var(--muted); white-space:nowrap" x-text="dateAdded(r)"></td>
                 <td>
                   <span x-text="$store.dw.str(r, F.name)"></span>
                   <span x-show="needsAttention(r)" :title="daysListed(r) + ' days listed'" style="margin-left:6px; color:var(--orange); font-size:11px; cursor:default">⚑</span>
@@ -275,12 +277,12 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Lot</th>
-              <th class="num-col">Items</th>
-              <th class="num-col">Cost</th>
-              <th class="num-col">Recovered</th>
-              <th style="min-width:120px">Recovery</th>
-              <th class="num-col">Est. Upside</th>
+              <th class="sortable" :class="{'sort-active': sortKey==='lotName'}" @click="sortBy('lotName')">Lot<span x-text="sortIndicator('lotName')"></span></th>
+              <th class="num-col sortable" :class="{'sort-active': sortKey==='items'}" @click="sortBy('items')">Items<span x-text="sortIndicator('items')"></span></th>
+              <th class="num-col sortable" :class="{'sort-active': sortKey==='cost'}" @click="sortBy('cost')">Cost<span x-text="sortIndicator('cost')"></span></th>
+              <th class="num-col sortable" :class="{'sort-active': sortKey==='recovered'}" @click="sortBy('recovered')">Recovered<span x-text="sortIndicator('recovered')"></span></th>
+              <th class="sortable" style="min-width:120px" :class="{'sort-active': sortKey==='recovery'}" @click="sortBy('recovery')">Recovery<span x-text="sortIndicator('recovery')"></span></th>
+              <th class="num-col sortable" :class="{'sort-active': sortKey==='estUpside'}" @click="sortBy('estUpside')">Est. Upside<span x-text="sortIndicator('estUpside')"></span></th>
             </tr>
           </thead>
           <tbody>

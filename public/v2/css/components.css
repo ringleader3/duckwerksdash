@@ -163,6 +163,11 @@
 .data-table tbody tr { cursor: pointer; transition: background 0.1s; }
 .data-table tbody tr:hover { background: var(--border); }
 
+/* Sortable column headers */
+.data-table th.sortable { cursor: pointer; user-select: none; }
+.data-table th.sortable:hover { color: #ccc; }
+.data-table th.sort-active { color: #e0e0e0; }
+
 /* Numeric columns right-aligned */
 .data-table .num    { text-align: right; font-variant-numeric: tabular-nums; }
 .data-table .num-col { text-align: right; font-variant-numeric: tabular-nums; }

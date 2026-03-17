@@ -5,6 +5,8 @@ document.addEventListener('alpine:init', () => {
     siteFilter:   'All',
     nameSearch:   '',
     openStatusId: null,
+    sortKey:      'createdTime',
+    sortDir:      'desc',
 
     init() {
       document.addEventListener('click', () => { this.openStatusId = null; });
@@ -35,7 +37,40 @@ document.addEventListener('alpine:init', () => {
       if (q) {
         recs = recs.filter(r => dw.str(r, F.name).toLowerCase().includes(q));
       }
+      const key = this.sortKey;
+      const dir = this.sortDir;
+      recs = [...recs].sort((a, b) => {
+        let av, bv;
+        if      (key === 'createdTime') { av = new Date(a.createdTime).getTime(); bv = new Date(b.createdTime).getTime(); }
+        else if (key === 'name')        { av = dw.str(a, F.name).toLowerCase();  bv = dw.str(b, F.name).toLowerCase(); }
+        else if (key === 'lot')         { av = dw.str(a, F.lot).toLowerCase();   bv = dw.str(b, F.lot).toLowerCase(); }
+        else if (key === 'category')    { av = dw.str(a, F.category).toLowerCase(); bv = dw.str(b, F.category).toLowerCase(); }
+        else if (key === 'site')        { av = dw.siteLabel(a).toLowerCase();    bv = dw.siteLabel(b).toLowerCase(); }
+        else if (key === 'status')      { av = dw.str(a, F.status).toLowerCase(); bv = dw.str(b, F.status).toLowerCase(); }
+        else if (key === 'listPrice')   { av = dw.num(a, F.listPrice);           bv = dw.num(b, F.listPrice); }
+        else if (key === 'eaf')         { av = dw.eaf(dw.num(a, F.listPrice));   bv = dw.eaf(dw.num(b, F.listPrice)); }
+        else if (key === 'profit')      { av = dw.estProfit(a);                  bv = dw.estProfit(b); }
+        else if (key === 'shipping')    { av = dw.num(a, F.shipping);            bv = dw.num(b, F.shipping); }
+        else return 0;
+        if (av < bv) return dir === 'asc' ? -1 : 1;
+        if (av > bv) return dir === 'asc' ? 1  : -1;
+        return 0;
+      });
       return recs;
+    },
+
+    sortBy(key) {
+      if (this.sortKey === key) {
+        this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        this.sortKey = key;
+        this.sortDir = 'asc';
+      }
+    },
+
+    sortIndicator(key) {
+      if (this.sortKey !== key) return '';
+      return this.sortDir === 'asc' ? ' ↑' : ' ↓';
     },
 
     badgeClass(status) {
@@ -83,6 +118,11 @@ document.addEventListener('alpine:init', () => {
       const fields = { [F.status]: status };
       if (status === 'Sold') fields[F.dateSold] = new Date().toISOString().split('T')[0];
       await Alpine.store('dw').updateRecord(r.id, fields);
+    },
+
+    dateAdded(r) {
+      const d = new Date(r.createdTime);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     },
 
     daysListed(r) {
