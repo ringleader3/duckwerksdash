@@ -96,6 +96,7 @@ document.addEventListener('alpine:init', () => {
     },
     buildPipelineChart() {
       const dw = Alpine.store('dw');
+      if (dw.records.length === 0) return;
 
       // Compute status counts and values fresh (do not reuse notListed getter — it doesn't exclude Pending)
       const listedRecs   = dw.listedRecords;
