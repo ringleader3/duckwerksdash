@@ -3,5 +3,6 @@ node_modules/
 .DS_Store
 *.log
 *.pdf
+*.docx
 test.html
 comic-reselling-project.md
