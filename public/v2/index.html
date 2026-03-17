@@ -334,13 +334,17 @@
           <div class="modal-row">
             <span class="modal-field">Status</span>
             <span class="modal-val">
-              <span class="badge" :class="badgeClass($store.dw.str(record, F.status))" x-text="$store.dw.str(record, F.status) || '—'"></span>
+              <span class="badge" :class="badgeClass($store.dw.str(record, F.status))" x-text="$store.dw.str(record, F.status) || '—'"
+                    style="cursor:pointer" title="View all with this status"
+                    @click="$store.dw.navToItems($store.dw.str(record, F.status), null)"></span>
             </span>
           </div>
           <div class="modal-row">
             <span class="modal-field">Category</span>
             <span class="modal-val">
-              <span class="badge" :class="catBadgeClass($store.dw.str(record, F.category))" x-text="$store.dw.str(record, F.category) || '—'"></span>
+              <span class="badge" :class="catBadgeClass($store.dw.str(record, F.category))" x-text="$store.dw.str(record, F.category) || '—'"
+                    style="cursor:pointer" title="View all in this category"
+                    @click="$store.dw.navToItems(null, $store.dw.str(record, F.category))"></span>
             </span>
           </div>
           <div class="modal-row" x-show="$store.dw.siteLabel(record)">
@@ -351,7 +355,9 @@
           </div>
           <div class="modal-row" x-show="$store.dw.str(record, F.lot)">
             <span class="modal-field">Lot</span>
-            <span class="modal-val" x-text="$store.dw.str(record, F.lot)"></span>
+            <span class="modal-val" x-text="$store.dw.str(record, F.lot)"
+                  style="cursor:pointer; color:var(--blue)" title="Open lot detail"
+                  @click="$store.dw.openModal('lot', null, $store.dw.str(record, F.lot))"></span>
           </div>
           <div class="modal-row" x-show="$store.dw.str(record, F.url)">
             <span class="modal-field">Listing</span>
@@ -671,10 +677,10 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th>Status</th>
-              <th class="num-col">Cost</th>
-              <th class="num-col">List / EAF</th>
-              <th class="num-col">Sale</th>
+              <th style="white-space:nowrap">Status</th>
+              <th class="num-col" style="white-space:nowrap">Cost</th>
+              <th class="num-col" style="white-space:nowrap">EAF</th>
+              <th class="num-col" style="white-space:nowrap">Sale</th>
             </tr>
           </thead>
           <tbody>

@@ -8,6 +8,12 @@ document.addEventListener('alpine:init', () => {
 
     init() {
       document.addEventListener('click', () => { this.openStatusId = null; });
+      this.$watch('$store.dw.pendingStatusFilter', v => {
+        if (v !== null) {
+          this.statusFilter = v;
+          Alpine.store('dw').pendingStatusFilter = null;
+        }
+      });
     },
 
     get rows() {
