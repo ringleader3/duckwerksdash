@@ -1,6 +1,8 @@
 // ── Lot Modal — Phase 5 ───────────────────────────────────────────────────────
 document.addEventListener('alpine:init', () => {
   Alpine.data('lotModal', () => ({
+    sortKey: 'name',
+    sortDir: 'asc',
 
     get lot() {
       const dw = Alpine.store('dw');
@@ -9,6 +11,34 @@ document.addEventListener('alpine:init', () => {
 
     get items() {
       return this.lot ? this.lot.items : [];
+    },
+
+    get sortedItems() {
+      const dw  = Alpine.store('dw');
+      const arr = [...this.items];
+      const k   = this.sortKey;
+      const dir = this.sortDir === 'asc' ? 1 : -1;
+      return arr.sort((a, b) => {
+        let av, bv;
+        if (k === 'name')      { return dir * dw.str(a, F.name).localeCompare(dw.str(b, F.name)); }
+        if (k === 'status')    { return dir * dw.str(a, F.status).localeCompare(dw.str(b, F.status)); }
+        if (k === 'cost')      { av = dw.num(a, F.cost);      bv = dw.num(b, F.cost); }
+        if (k === 'listPrice') { av = dw.num(a, F.listPrice); bv = dw.num(b, F.listPrice); }
+        if (k === 'eaf')       { av = dw.eaf(dw.num(a, F.listPrice)); bv = dw.eaf(dw.num(b, F.listPrice)); }
+        if (k === 'estProfit') { av = dw.estProfit(a); bv = dw.estProfit(b); }
+        if (k === 'sale')      { av = dw.num(a, F.sale); bv = dw.num(b, F.sale); }
+        return dir * ((av || 0) - (bv || 0));
+      });
+    },
+
+    sortBy(key) {
+      if (this.sortKey === key) { this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'; }
+      else { this.sortKey = key; this.sortDir = 'asc'; }
+    },
+
+    sortIndicator(key) {
+      if (this.sortKey !== key) return '';
+      return this.sortDir === 'asc' ? ' ↑' : ' ↓';
     },
 
     totalCost() {
@@ -69,6 +99,12 @@ document.addEventListener('alpine:init', () => {
       if (s === 'pending')  return 'badge-pending';
       if (s === 'prepping') return 'badge-prepping';
       return 'badge-other';
+    },
+
+    listPriceDisplay(r) {
+      const dw = Alpine.store('dw');
+      const lp = dw.num(r, F.listPrice);
+      return lp > 0 ? dw.fmt0(lp) : '—';
     },
 
     eafDisplay(r) {

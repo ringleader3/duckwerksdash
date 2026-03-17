@@ -404,8 +404,14 @@
           <div class="modal-row" x-show="$store.dw.str(record, F.reverbListingId) || $store.dw.str(record, F.reverbOrderNum)">
             <span class="modal-field">Reverb</span>
             <span class="modal-val" style="display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end">
-              <span x-show="$store.dw.str(record, F.reverbListingId)" style="font-size:11px; color:var(--muted)" x-text="'Listing #' + $store.dw.str(record, F.reverbListingId)"></span>
-              <span x-show="$store.dw.str(record, F.reverbOrderNum)"  style="font-size:11px; color:var(--reverb)" x-text="'Order #' + $store.dw.str(record, F.reverbOrderNum)"></span>
+              <a x-show="$store.dw.str(record, F.reverbListingId)" target="_blank"
+                 :href="'https://reverb.com/item/' + $store.dw.str(record, F.reverbListingId)"
+                 style="font-size:11px; color:var(--muted)"
+                 x-text="'↗ Listing #' + $store.dw.str(record, F.reverbListingId)"></a>
+              <a x-show="$store.dw.str(record, F.reverbOrderNum)" target="_blank"
+                 :href="'https://reverb.com/my/selling/orders/' + $store.dw.str(record, F.reverbOrderNum)"
+                 style="font-size:11px; color:var(--reverb)"
+                 x-text="'↗ Order #' + $store.dw.str(record, F.reverbOrderNum)"></a>
             </span>
           </div>
 
@@ -468,7 +474,15 @@
           </template>
 
           <hr class="modal-divider">
-          <div style="font-size:10px; color:#555; letter-spacing:2px" x-text="record ? 'ID: ' + record.id : ''"></div>
+          <div class="modal-row" style="padding:4px 0">
+            <span class="modal-field" style="font-size:11px">Date Added</span>
+            <span style="font-size:11px; color:var(--muted)" x-text="record ? new Date(record.createdTime).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '—'"></span>
+          </div>
+          <div class="modal-row" x-show="$store.dw.str(record, F.dateSold)" style="padding:4px 0">
+            <span class="modal-field" style="font-size:11px">Date Sold</span>
+            <span style="font-size:11px; color:var(--muted)" x-text="$store.dw.str(record, F.dateSold) ? new Date($store.dw.str(record, F.dateSold)).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : ''"></span>
+          </div>
+          <div style="font-size:10px; color:#555; letter-spacing:2px; margin-top:4px" x-text="record ? 'ID: ' + record.id : ''"></div>
         </div>
 
         <!-- EDIT VIEW -->
@@ -712,25 +726,29 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th style="white-space:nowrap">Status</th>
-              <th class="num-col" style="white-space:nowrap">Cost</th>
-              <th class="num-col" style="white-space:nowrap">EAF</th>
-              <th class="num-col" style="white-space:nowrap">Sale</th>
+              <th class="sortable" :class="{'sort-active': sortKey==='name'}"      @click="sortBy('name')"      x-text="'Name'       + sortIndicator('name')"></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='status'}"    @click="sortBy('status')"    style="white-space:nowrap" x-text="'Status'     + sortIndicator('status')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='cost'}"      @click="sortBy('cost')"      style="white-space:nowrap" x-text="'Cost'       + sortIndicator('cost')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='listPrice'}" @click="sortBy('listPrice')" style="white-space:nowrap" x-text="'List'       + sortIndicator('listPrice')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='eaf'}"       @click="sortBy('eaf')"       style="white-space:nowrap" x-text="'EAF'        + sortIndicator('eaf')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='estProfit'}" @click="sortBy('estProfit')" style="white-space:nowrap" x-text="'Est Profit' + sortIndicator('estProfit')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='sale'}"      @click="sortBy('sale')"      style="white-space:nowrap" x-text="'Sale'       + sortIndicator('sale')"></th>
             </tr>
           </thead>
           <tbody>
-            <template x-for="r in items" :key="r.id">
+            <template x-for="r in sortedItems" :key="r.id">
               <tr class="clickable-row" @click="openItem(r)">
                 <td x-text="$store.dw.str(r, F.name)"></td>
                 <td><span class="badge" :class="badgeClass($store.dw.str(r, F.status))" x-text="$store.dw.str(r, F.status)"></span></td>
-                <td class="num-col red" x-text="$store.dw.num(r, F.cost) ? $store.dw.fmt0($store.dw.num(r, F.cost)) : '—'"></td>
+                <td class="num-col red"    x-text="$store.dw.num(r, F.cost) ? $store.dw.fmt0($store.dw.num(r, F.cost)) : '—'"></td>
+                <td class="num-col"        x-text="listPriceDisplay(r)"></td>
                 <td class="num-col yellow" x-text="eafDisplay(r)"></td>
-                <td class="num-col green" x-text="$store.dw.num(r, F.sale) ? $store.dw.fmt0($store.dw.num(r, F.sale)) : '—'"></td>
+                <td class="num-col" :class="$store.dw.estProfit(r) >= 0 ? 'green' : 'red'" x-text="profitDisplay(r)"></td>
+                <td class="num-col green"  x-text="$store.dw.num(r, F.sale) ? $store.dw.fmt0($store.dw.num(r, F.sale)) : '—'"></td>
               </tr>
             </template>
             <tr x-show="items.length === 0">
-              <td colspan="5" style="color:var(--muted); text-align:center">No items in this lot</td>
+              <td colspan="7" style="color:var(--muted); text-align:center">No items in this lot</td>
             </tr>
           </tbody>
         </table>
