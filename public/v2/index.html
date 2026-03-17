@@ -117,6 +117,62 @@
           </div>
         </div>
 
+        <!-- Analytics Charts -->
+        <section x-data="chartsSection" style="margin-top:24px">
+          <div class="panel-title" style="margin-bottom:12px">ANALYTICS</div>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px">
+
+            <!-- Chart 1: Monthly Revenue + Profit -->
+            <div class="panel">
+              <div class="panel-title" style="font-size:10px;margin-bottom:8px">REVENUE & PROFIT</div>
+              <div style="position:relative;height:220px">
+                <canvas x-ref="revenueCanvas"></canvas>
+                <div x-show="$store.dw.soldRecords.length === 0"
+                     style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">
+                  No sales data yet
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart 2: Inventory Pipeline -->
+            <div class="panel">
+              <div class="panel-title" style="font-size:10px;margin-bottom:8px">INVENTORY PIPELINE</div>
+              <div style="position:relative;height:220px">
+                <canvas x-ref="pipelineCanvas"></canvas>
+                <div x-show="$store.dw.records.length === 0"
+                     style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">
+                  No inventory data yet
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart 3: Lot ROI -->
+            <div class="panel">
+              <div class="panel-title" style="font-size:10px;margin-bottom:8px">LOT ROI</div>
+              <div style="position:relative;height:220px">
+                <canvas x-ref="lotCanvas"></canvas>
+                <div x-show="$store.dw.lots.length === 0"
+                     style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">
+                  No lot data yet
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart 4: Near-term Upside -->
+            <div class="panel">
+              <div class="panel-title" style="font-size:10px;margin-bottom:8px">NEAR-TERM UPSIDE</div>
+              <div style="position:relative;height:220px">
+                <canvas x-ref="upsideCanvas"></canvas>
+                <div x-show="$store.dw.listedRecords.length === 0"
+                     style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">
+                  No listed items yet
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
         <!-- Panels: Lot Recovery + Recently Sold -->
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
 
@@ -216,61 +272,6 @@
           </table>
         </div>
 
-        <!-- Analytics Charts -->
-        <section x-data="chartsSection" style="margin-top:24px">
-          <div class="panel-title" style="margin-bottom:12px">ANALYTICS</div>
-          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px">
-
-            <!-- Chart 1: Monthly Revenue + Profit -->
-            <div class="panel">
-              <div class="panel-title" style="font-size:10px;margin-bottom:8px">REVENUE & PROFIT</div>
-              <div style="position:relative;height:220px">
-                <canvas x-ref="revenueCanvas"></canvas>
-                <div x-show="$store.dw.soldRecords.length === 0"
-                     style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">
-                  No sales data yet
-                </div>
-              </div>
-            </div>
-
-            <!-- Chart 2: Inventory Pipeline -->
-            <div class="panel">
-              <div class="panel-title" style="font-size:10px;margin-bottom:8px">INVENTORY PIPELINE</div>
-              <div style="position:relative;height:220px">
-                <canvas x-ref="pipelineCanvas"></canvas>
-                <div x-show="$store.dw.records.length === 0"
-                     style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">
-                  No inventory data yet
-                </div>
-              </div>
-            </div>
-
-            <!-- Chart 3: Lot ROI -->
-            <div class="panel">
-              <div class="panel-title" style="font-size:10px;margin-bottom:8px">LOT ROI</div>
-              <div style="position:relative;height:220px">
-                <canvas x-ref="lotCanvas"></canvas>
-                <div x-show="$store.dw.lots.length === 0"
-                     style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">
-                  No lot data yet
-                </div>
-              </div>
-            </div>
-
-            <!-- Chart 4: Near-term Upside -->
-            <div class="panel">
-              <div class="panel-title" style="font-size:10px;margin-bottom:8px">NEAR-TERM UPSIDE</div>
-              <div style="position:relative;height:220px">
-                <canvas x-ref="upsideCanvas"></canvas>
-                <div x-show="$store.dw.listedRecords.length === 0"
-                     style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">
-                  No listed items yet
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </section>
 
       </div>
 
