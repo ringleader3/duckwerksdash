@@ -20,6 +20,11 @@ Personal resale inventory dashboard for Geoff Goss (Duckwerks Music). Tracks mus
 npm start   # starts Express on http://localhost:3000
 ```
 
+## Specs & Plans
+- `docs/superpowers/specs/` — design specs written before implementation (source of truth for "why")
+- `docs/superpowers/plans/` — step-by-step implementation plans tied to each spec
+- `.superpowers/` — brainstorm session working files (gitignored)
+
 ## Version Control
 - GitHub: https://github.com/ringleader3/duckwerksdash (private)
 - Commit after any meaningful session of changes
