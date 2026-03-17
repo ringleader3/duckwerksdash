@@ -142,7 +142,7 @@ public/v2/
 - **Modals** (`Alpine.data('xyzModal', ...)`) — same rule. Modal open/close state
   is managed via `$store.dw.activeModal`, `activeRecordId`, `activeLotName`.
 - **No imports** — files are loaded via `<script src>` in order in index.html.
-  Load order: config.js → store.js → sidebar.js → views/* → modals/*
+  Load order: config.js → store.js → sidebar.js → views/* → modals/* → Chart.js CDN → charts.js
 
 ### Data Layer
 - `F{}` field map in `config.js` — single source of truth for Airtable field IDs
@@ -286,6 +286,10 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 
 ## Session Log
 _Most recent first. Update this at the end of every session._
+
+### 2026-03-17 (Dashboard Charts session)
+- **#4 enhancement (P2):** Dashboard analytics charts — added 4-chart analytics section using Chart.js 4 CDN (no build step). New file `public/v2/js/charts.js` registers `Alpine.data('chartsSection')` with dual-path init pattern (`$watch` + immediate check). Charts: (1) Monthly Revenue + Profit (bar+line combo, YYYY-MM sort key), (2) Inventory Pipeline (horizontal stacked bar, Unlisted/Listed/Pending/Sold with EAF/cost annotations), (3) Lot ROI (horizontal bars, color-coded green/yellow/red, recomputed from store not dashView), (4) Near-term Upside by Category (vertical bars, category colors). HTML no-data overlays via `x-show` on each canvas. Charts section positioned above Lot Recovery. Spec + plan in `docs/superpowers/specs/` and `docs/superpowers/plans/`. `.superpowers/` added to `.gitignore`.
+- **#12 bug (P1) — OPEN:** Item update/shipping flow still pushing Reverb listing price instead of actual earnings as sale price. To be fixed next session.
 
 ### 2026-03-17 (Decimal + cleanup session)
 - **#13 enhancement (P1):** Bring back decimals — updated `fmt0()` in `store.js` to use `toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })`. All price displays now show 2 decimal places (e.g. `$150.00`). One-line change, all views/modals updated automatically.
