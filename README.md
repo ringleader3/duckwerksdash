@@ -17,7 +17,9 @@ This was my first foray into working with Claude.  I created an initial dashboar
 - **Shipping** — Shippo integration: get rates, buy labels, auto-mark orders shipped on Reverb
 - **Reverb sync** — match open Reverb orders to inventory, ship directly from the dashboard
 - **Quick Find** — live search across items, lots, and categories (`/` or `⌘K`)
-- **Dashboard view** — KPIs (invested, revenue, profit, upside), lot recovery table, recently sold
+- **Dashboard view** — KPIs (invested, revenue, profit, upside), lot recovery table, recently sold, recently listed
+- **Sortable tables** — click any column header to sort ASC/DESC across Items and Lots views
+- **Item drill-down** — click status, category, or site badges to jump to a filtered Items view
 
 ## Stack
 
