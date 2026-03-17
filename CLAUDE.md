@@ -259,6 +259,25 @@ Edit → surgical str_replace
 
 ---
 
+## When to Use Superpowers Workflow
+
+Not every ticket needs brainstorm → spec → plan → subagents. Default to just reading the file and making the change.
+
+| Signal | Approach |
+|---|---|
+| Single file, obvious change | Just do it |
+| Known bug, root cause clear | Just do it |
+| UI tweak (font, color, layout) | Just do it |
+| Clear requirements, 2–3 files | Plan only (skip brainstorm) |
+| Ticket already has impl notes | Plan only (skip brainstorm) |
+| New data flow or API integration | Full workflow |
+| Multiple files with shared state | Full workflow |
+| Requirements fuzzy or design unclear | Full workflow |
+
+The brainstorm/spec/plan overhead is ~20–30 min. Worth it when it prevents debugging sessions. Not worth it for targeted single-concern changes.
+
+---
+
 ## Session Start Checklist
 1. Read `CLAUDE.md` (this file) — especially Session Log
 2. Run `gh issue list --state open` to see current bugs and enhancements
