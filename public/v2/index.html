@@ -348,9 +348,11 @@
             </span>
           </div>
           <div class="modal-row" x-show="$store.dw.siteLabel(record)">
-            <span class="modal-field">Platform</span>
+            <span class="modal-field">Site</span>
             <span class="modal-val">
-              <span class="badge" :class="$store.dw.siteLabel(record) === 'eBay' ? 'badge-ebay' : 'badge-reverb'" x-text="$store.dw.siteLabel(record)"></span>
+              <span class="badge" :class="$store.dw.siteLabel(record) === 'eBay' ? 'badge-ebay' : 'badge-reverb'" x-text="$store.dw.siteLabel(record)"
+                    style="cursor:pointer" title="View all on this site"
+                    @click="$store.dw.navToItems(null, null, $store.dw.siteLabel(record))"></span>
             </span>
           </div>
           <div class="modal-row" x-show="$store.dw.str(record, F.lot)">
@@ -467,7 +469,7 @@
             </span>
           </div>
           <div class="modal-row">
-            <span class="modal-field">Platform</span>
+            <span class="modal-field">Site</span>
             <span class="modal-val">
               <select class="modal-select" x-model="form.site">
                 <option value="">—</option>

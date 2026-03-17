@@ -15,6 +15,7 @@ document.addEventListener('alpine:init', () => {
     activeLotName:  null,
     categoryFilter:      null,   // set by sidebar category pick; consumed by itemsView
     pendingStatusFilter: null,   // consumed once by itemsView on next render
+    pendingSiteFilter:   null,   // consumed once by itemsView on next render
 
     // ── Init ──────────────────────────────────────────────────────────────────
     async init() {
@@ -71,9 +72,10 @@ document.addEventListener('alpine:init', () => {
     },
 
     // Navigate to Items view with optional pre-set filters
-    navToItems(status, category) {
-      this.pendingStatusFilter = status  || null;
+    navToItems(status, category, site) {
+      this.pendingStatusFilter = status   || null;
       this.categoryFilter      = category || null;
+      this.pendingSiteFilter   = site     || null;
       this.activeView = 'items';
       this.closeModal();
     },

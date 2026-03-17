@@ -14,6 +14,12 @@ document.addEventListener('alpine:init', () => {
           Alpine.store('dw').pendingStatusFilter = null;
         }
       });
+      this.$watch('$store.dw.pendingSiteFilter', v => {
+        if (v !== null) {
+          this.siteFilter = v;
+          Alpine.store('dw').pendingSiteFilter = null;
+        }
+      });
     },
 
     get rows() {
