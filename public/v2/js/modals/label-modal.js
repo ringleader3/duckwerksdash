@@ -47,7 +47,7 @@ document.addEventListener('alpine:init', () => {
             const order = await res.json();
             this.reverbLinks      = order._links || null;
             // direct_checkout_payout is post-fee seller payout; amount_product is pre-fee listing price
-            this.reverbSaleAmount = parseFloat(order.direct_checkout_payout) || parseFloat(order.amount_product?.amount) || null;
+            this.reverbSaleAmount = parseFloat(order.direct_checkout_payout?.amount) || parseFloat(order.amount_product?.amount) || null;
             console.log('[Reverb order] direct_checkout_payout:', order.direct_checkout_payout, '| amount_product:', order.amount_product?.amount);
             if (order.shipping_address) {
               this.addrText = this._addrToText(order.shipping_address);
