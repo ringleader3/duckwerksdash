@@ -205,7 +205,56 @@ document.addEventListener('alpine:init', () => {
         },
       });
     },
-    buildUpsideChart()   { /* Task 6 */ },
+    buildUpsideChart() {
+      const dw = Alpine.store('dw');
+      if (dw.listedRecords.length === 0) return;
+
+      const colorMap = {
+        Music:    'rgba(66,153,225,0.7)',    // --blue
+        Computer: 'rgba(159,122,234,0.7)',   // --purple
+        Gaming:   'rgba(237,137,54,0.7)',    // --orange
+        Other:    'rgba(153,153,153,0.5)',   // --muted
+      };
+
+      const byCategory = {};
+      dw.listedRecords.forEach(r => {
+        const cat = dw.str(r, F.category) || 'Other';
+        const key = colorMap[cat] ? cat : 'Other';
+        byCategory[key] = (byCategory[key] || 0) + dw.estProfit(r);
+      });
+
+      const labels = Object.keys(byCategory);
+      const data   = labels.map(l => byCategory[l]);
+      const colors = labels.map(l => colorMap[l] || colorMap.Other);
+
+      this.charts.upside = new Chart(this.$refs.upsideCanvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Est. Profit',
+            data,
+            backgroundColor: colors,
+            borderRadius: 2,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` $${ctx.parsed.y.toFixed(2)} est. profit`,
+              },
+            },
+          },
+          scales: {
+            y: { ticks: { callback: v => '$' + v.toFixed(0) } },
+          },
+        },
+      });
+    },
 
   }));
 });
