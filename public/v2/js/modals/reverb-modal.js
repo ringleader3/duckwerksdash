@@ -162,5 +162,28 @@ document.addEventListener('alpine:init', () => {
       this.savingLinks = false;
       setTimeout(() => this._process(), 800);
     },
+
+    async syncDetails() {
+      if (!this.detailDiffs.length) return;
+      this.syncingDetails = true;
+      this.detailsMsg     = '';
+      let saved = 0, errors = 0;
+      const dw = Alpine.store('dw');
+      for (const { rec, newName, newPrice } of this.detailDiffs) {
+        try {
+          await dw.updateRecord(rec.id, {
+            [F.name]:      newName,
+            [F.listPrice]: newPrice,
+          });
+          saved++;
+        } catch(e) {
+          console.error('syncDetails:', e);
+          errors++;
+        }
+      }
+      this.detailsMsg     = errors ? `${saved} synced, ${errors} failed` : `✓ ${saved} synced`;
+      this.syncingDetails = false;
+      setTimeout(async () => { await dw.fetchAll(); this._process(); }, 800);
+    },
   }));
 });
