@@ -37,8 +37,9 @@ document.addEventListener('alpine:init', () => {
 
     get periodLabel() {
       if (!this.usage?.since) return '';
+      // Parse as UTC to avoid local timezone shifting the date back a day
       const d = new Date(this.usage.since);
-      return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
     },
   }));
 });
