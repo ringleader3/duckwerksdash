@@ -14,9 +14,10 @@ document.addEventListener('alpine:init', () => {
     savingMatches: false,
     linksMsg:      '',
     savingLinks:   false,
-    detailDiffs:   [],
-    detailsMsg:    '',
-    syncingDetails: false,
+    detailDiffs:      [],
+    detailSelections: {},
+    detailsMsg:       '',
+    syncingDetails:   false,
 
     init() {
       this.$watch('$store.dw.activeModal', val => {
@@ -44,9 +45,10 @@ document.addEventListener('alpine:init', () => {
       this.unmatched     = [];
       this.toSave        = [];
       this.unlinkedRecs  = [];
-      this.linkSelections = {};
-      this.detailDiffs    = [];
-      this.detailsMsg     = '';
+      this.linkSelections  = {};
+      this.detailDiffs     = [];
+      this.detailSelections = {};
+      this.detailsMsg      = '';
       this.syncingDetails = false;
       try {
         const ordersRes = await fetch('/api/reverb/my/orders/selling/awaiting_shipment');
@@ -117,6 +119,9 @@ document.addEventListener('alpine:init', () => {
           }
           return acc;
         }, []);
+      const detailSel = {};
+      for (const d of this.detailDiffs) detailSel[d.rec.id] = true;
+      this.detailSelections = detailSel;
     },
 
     async saveMatches() {
@@ -164,12 +169,13 @@ document.addEventListener('alpine:init', () => {
     },
 
     async syncDetails() {
-      if (!this.detailDiffs.length) return;
+      const selected = this.detailDiffs.filter(d => this.detailSelections[d.rec.id]);
+      if (!selected.length) return;
       this.syncingDetails = true;
       this.detailsMsg     = '';
       let saved = 0, errors = 0;
       const dw = Alpine.store('dw');
-      for (const { rec, newName, newPrice } of this.detailDiffs) {
+      for (const { rec, newName, newPrice } of selected) {
         try {
           await dw.updateRecord(rec.id, {
             [F.name]:      newName,
