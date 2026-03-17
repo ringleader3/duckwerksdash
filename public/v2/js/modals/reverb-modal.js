@@ -14,6 +14,9 @@ document.addEventListener('alpine:init', () => {
     savingMatches: false,
     linksMsg:      '',
     savingLinks:   false,
+    detailDiffs:   [],
+    detailsMsg:    '',
+    syncingDetails: false,
 
     init() {
       this.$watch('$store.dw.activeModal', val => {
@@ -42,19 +45,29 @@ document.addEventListener('alpine:init', () => {
       this.toSave        = [];
       this.unlinkedRecs  = [];
       this.linkSelections = {};
+      this.detailDiffs    = [];
+      this.detailsMsg     = '';
+      this.syncingDetails = false;
       try {
-        const [ordersRes, listingsRes] = await Promise.all([
-          fetch('/api/reverb/my/orders/selling/awaiting_shipment'),
-          fetch('/api/reverb/my/listings'),
-        ]);
-        if (!ordersRes.ok)   throw new Error(`Orders HTTP ${ordersRes.status}`);
-        if (!listingsRes.ok) throw new Error(`Listings HTTP ${listingsRes.status}`);
-        const [ordersData, listingsData] = await Promise.all([
-          ordersRes.json(),
-          listingsRes.json(),
-        ]);
-        this.orders   = ordersData.orders   || [];
-        this.listings = listingsData.listings || [];
+        const ordersRes = await fetch('/api/reverb/my/orders/selling/awaiting_shipment');
+        if (!ordersRes.ok) throw new Error(`Orders HTTP ${ordersRes.status}`);
+        const ordersData = await ordersRes.json();
+        this.orders = ordersData.orders || [];
+
+        // Paginated listings fetch
+        let allListings = [];
+        let nextUrl = '/api/reverb/my/listings';
+        while (nextUrl) {
+          const res = await fetch(nextUrl);
+          if (!res.ok) throw new Error(`Listings HTTP ${res.status}`);
+          const data = await res.json();
+          allListings = allListings.concat(data.listings || []);
+          const nextHref = data._links?.next?.href;
+          nextUrl = nextHref
+            ? '/api/reverb/' + nextHref.replace('https://api.reverb.com/api/', '')
+            : null;
+        }
+        this.listings = allListings;
         this._process();
       } catch(e) {
         this.errMsg = e.message;
