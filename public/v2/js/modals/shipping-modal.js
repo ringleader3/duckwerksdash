@@ -58,8 +58,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     trackCarrier(r) {
-      const dw = Alpine.store('dw');
-      return this.trackingData[r.id]?.carrier || dw.str(r, F.trackingNumber) || '—';
+      return this.trackingData[r.id]?.carrier || '—';
     },
 
     trackEstDelivery(r) {
