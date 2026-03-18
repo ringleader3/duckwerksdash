@@ -348,6 +348,7 @@
               <th class="num sortable" :class="{'sort-active': sortKey==='eaf'}" @click="sortBy('eaf')">EAF Payout<span x-text="sortIndicator('eaf')"></span></th>
               <th class="num sortable" :class="{'sort-active': sortKey==='profit'}" @click="sortBy('profit')">Est. Profit<span x-text="sortIndicator('profit')"></span></th>
               <th class="num sortable" :class="{'sort-active': sortKey==='shipping'}" @click="sortBy('shipping')">Shipping<span x-text="sortIndicator('shipping')"></span></th>
+              <th x-show="statusFilter === 'Sold'" style="white-space:nowrap">Tracking</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -378,6 +379,13 @@
                 <td class="num est" x-text="eafDisplay(r)"></td>
                 <td class="num est" x-text="profitDisplay(r)"></td>
                 <td class="num" :class="shipIsEst(r) ? 'est' : 'act'" x-text="shipDisplay(r)"></td>
+                <td x-show="statusFilter === 'Sold'" class="num">
+                  <span x-show="$store.dw.str(r, F.trackingId)">
+                    <span x-show="trackingData[r.id]" :class="'badge ' + trackStatusBadge(trackingData[r.id]?.status)" x-text="trackStatusLabel(trackingData[r.id]?.status)"></span>
+                    <span x-show="!trackingData[r.id] && !trackingLoading" style="color:var(--muted);font-size:11px">—</span>
+                  </span>
+                  <span x-show="!$store.dw.str(r, F.trackingId)" style="color:var(--muted);font-size:11px">—</span>
+                </td>
                 <td @click.stop>
                   <div style="display:flex; gap:6px">
                     <button class="btn btn-ghost" style="padding:3px 8px; font-size:11px" @click="$store.dw.openModal('item', r.id)">Edit</button>

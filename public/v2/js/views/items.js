@@ -7,6 +7,8 @@ document.addEventListener('alpine:init', () => {
     openStatusId: null,
     sortKey:      'createdTime',
     sortDir:      'desc',
+    trackingData:    {},
+    trackingLoading: false,
 
     init() {
       document.addEventListener('click', () => { this.openStatusId = null; });
@@ -18,6 +20,12 @@ document.addEventListener('alpine:init', () => {
           Alpine.store('dw').pendingFilters  = null;
         }
       });
+      this.$watch('statusFilter', val => {
+        if (val === 'Sold') this._loadTracking();
+      });
+      // Load immediately if already on Sold filter (and store is ready)
+      const dw = Alpine.store('dw');
+      if (this.statusFilter === 'Sold' && !dw.loading && dw.records.length > 0) this._loadTracking();
     },
 
     get rows() {
@@ -138,6 +146,43 @@ document.addEventListener('alpine:init', () => {
 
     openItem(r) {
       Alpine.store('dw').openModal('item', r.id);
+    },
+
+    async _loadTracking() {
+      const dw = Alpine.store('dw');
+      // Guard: don't run before records are loaded
+      if (dw.loading || !dw.records.length) return;
+      const toFetch = dw.records.filter(r =>
+        dw.str(r, F.status) === 'Sold' && dw.str(r, F.trackingId)
+      );
+      if (!toFetch.length) return;
+      this.trackingLoading = true;
+      // Collect locally then assign once — avoids concurrent spread race
+      const results = await Promise.all(toFetch.map(async r => {
+        const tid  = dw.str(r, F.trackingId);
+        const data = await dw.fetchTracker(tid);
+        return { id: r.id, data };
+      }));
+      const merged = {};
+      results.forEach(({ id, data }) => { merged[id] = data; });
+      this.trackingData    = merged;
+      this.trackingLoading = false;
+    },
+
+    trackStatusBadge(status) {
+      switch (status) {
+        case 'delivered':        return 'badge-sold';
+        case 'out_for_delivery': return 'badge-pending';
+        case 'in_transit':       return 'badge-listed';
+        case 'return_to_sender':
+        case 'failure':          return 'badge-prepping';
+        default:                 return 'badge-other';
+      }
+    },
+
+    trackStatusLabel(status) {
+      if (!status) return '—';
+      return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     },
   }));
 });
