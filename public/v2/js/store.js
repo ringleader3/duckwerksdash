@@ -156,5 +156,24 @@ document.addEventListener('alpine:init', () => {
       this.records.push(created);
     },
 
+    async fetchTracker(trackingId) {
+      if (!trackingId) return null;
+      try {
+        const res  = await fetch(`/api/label/tracker/${trackingId}`);
+        const data = await res.json();
+        if (!res.ok || data.skipped) return null;
+        return {
+          status:      data.status,
+          carrier:     data.carrier,
+          estDelivery: data.est_delivery_date || null,
+          events:      data.tracking_details || [],
+          publicUrl:   data.public_url || null,
+        };
+      } catch (e) {
+        console.warn('fetchTracker failed:', e);
+        return null;
+      }
+    },
+
   });
 });
