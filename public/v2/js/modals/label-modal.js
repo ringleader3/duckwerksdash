@@ -178,6 +178,10 @@ document.addEventListener('alpine:init', () => {
       if (!dw.str(this.record, F.dateSold))           fields[F.dateSold] = new Date().toISOString().split('T')[0];
       // Pull in Reverb sale amount if we have it and it's not already set
       if (this.reverbSaleAmount && !dw.num(this.record, F.sale)) fields[F.sale] = this.reverbSaleAmount;
+      // Save tracking fields from purchase result
+      if (this.purchaseResult?.trackingNumber) fields[F.trackingNumber] = this.purchaseResult.trackingNumber;
+      if (this.purchaseResult?.trackingId)     fields[F.trackingId]     = this.purchaseResult.trackingId;
+      if (this.purchaseResult?.trackerUrl)     fields[F.trackerUrl]     = this.purchaseResult.trackerUrl;
       try {
         await dw.updateRecord(this.record.id, fields);
         this.saveMsg = '✓ saved';
