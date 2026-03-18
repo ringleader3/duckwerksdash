@@ -318,11 +318,12 @@ The brainstorm/spec/plan overhead is ~20–30 min. Worth it when it prevents deb
 ## Bug & Enhancement Tracking
 GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` at session start to see open items.
 - `gh` CLI: `brew install gh` + `gh auth login` (choose HTTPS — repo remote is HTTPS)
-- **Issue types:** `bug` or `enhancement` label
+- **Issue types:** `bug`, `enhancement`, or `test` label
 - **Priorities:** `P1` (do first) or `P2` (do after P1s) label
 - Work P1 bugs first, then P1 enhancements, then P2s
-- **Reference issues in commits** using `ref #N` (e.g. `ref #3: improve sidebar logo`) but **do not close issues** — only Geoff closes issues after confirming the fix looks right in the browser
+- **Reference issues in commits** using `ref #N` (e.g. `ref #3: improve sidebar logo`) but **do not close issues unilaterally** — only close when Geoff explicitly asks
 - Never use `fix #N` or `closes #N` in commit messages as GitHub auto-closes on push
+- **Test ticket workflow:** For larger features that need live/manual validation (e.g. requires a real order or label purchase), close the implementation ticket when Geoff confirms it's done and open a follow-up `test` ticket with an explicit validation checklist. Keeps impl tickets clean and gives testing a clear home.
 
 ---
 
