@@ -13,8 +13,9 @@ document.addEventListener('alpine:init', () => {
     activeModal:   null,          // 'item' | 'add' | 'lot' | 'label' | 'reverb'
     activeRecordId: null,
     activeLotName:  null,
-    categoryFilter: null,    // set by sidebar category pick; consumed by itemsView
-    pendingFilters: null,    // { status, category, site } — set by navToItems, consumed by itemsView
+    categoryFilter:   null,    // set by sidebar category pick; consumed by itemsView
+    pendingFilters:   null,    // { status, category, site } — set by navToItems, consumed by itemsView
+    shippingProvider: 'SHIPPO',
 
     // ── Init ──────────────────────────────────────────────────────────────────
     async init() {
@@ -29,6 +30,8 @@ document.addEventListener('alpine:init', () => {
       });
 
       try {
+        const cfg = await fetch('/api/config').then(r => r.json()).catch(() => ({}));
+        if (cfg.shippingProvider) this.shippingProvider = cfg.shippingProvider;
         await this.fetchAll();
       } catch (e) {
         this.error = 'Failed to initialize: ' + e.message;

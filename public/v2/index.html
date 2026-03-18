@@ -63,7 +63,7 @@
     <div class="sidebar-section">
       <div class="sidebar-section-label">Actions</div>
       <a class="sidebar-action" @click="$store.dw.openModal('reverb')">Sync Reverb</a>
-      <a class="sidebar-action" @click="$store.dw.openModal('shipping')">Shipping</a>
+      <a class="sidebar-action" x-show="$store.dw.shippingProvider === 'SHIPPO'" @click="$store.dw.openModal('shipping')">Shipping</a>
     </div>
 
     <div class="sidebar-spacer"></div>

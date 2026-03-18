@@ -11,14 +11,17 @@ app.use(express.static(__dirname));
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 
 app.get('/api/config', (_req, res) => {
-  res.json({ airtablePat: process.env.AIRTABLE_PAT || '' });
+  res.json({
+    airtablePat:      process.env.AIRTABLE_PAT || '',
+    shippingProvider: (process.env.SHIPPING_PROVIDER || 'SHIPPO').toUpperCase(),
+  });
 });
 
 // ── API ROUTERS ───────────────────────────────────────────────────────────────
 
 app.use('/api/airtable', require('./server/airtable'));
 app.use('/api/shippo',   require('./server/shippo'));
-app.use('/api/label',    require('./server/shippo'));
+app.use('/api/label',    require('./server/label'));
 app.use('/api/reverb',   require('./server/reverb'));
 
 // ── START ─────────────────────────────────────────────────────────────────────
@@ -26,7 +29,15 @@ app.use('/api/reverb',   require('./server/reverb'));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Duckwerks running at http://localhost:${PORT}`);
-  const testOk = !!process.env.SHIPPO_TEST_TOKEN, liveOk = !!process.env.SHIPPO_LIVE_TOKEN;
-  const shippoMode = process.env.SHIPPO_TEST_MODE === 'true' ? 'TEST' : 'LIVE';
-  console.log(`Shippo: mode=${shippoMode}, test=${testOk ? 'OK' : 'MISSING'}, live=${liveOk ? 'OK' : 'MISSING'}`);
+  const provider = (process.env.SHIPPING_PROVIDER || 'SHIPPO').toUpperCase();
+  console.log(`Shipping provider: ${provider}`);
+  if (provider === 'SHIPPO') {
+    const testOk = !!process.env.SHIPPO_TEST_TOKEN, liveOk = !!process.env.SHIPPO_LIVE_TOKEN;
+    const mode   = process.env.SHIPPO_TEST_MODE === 'true' ? 'TEST' : 'LIVE';
+    console.log(`  Shippo: mode=${mode}, test=${testOk ? 'OK' : 'MISSING'}, live=${liveOk ? 'OK' : 'MISSING'}`);
+  } else if (provider === 'EASYPOST') {
+    const testOk = !!process.env.EASYPOST_TEST_TOKEN, liveOk = !!process.env.EASYPOST_LIVE_TOKEN;
+    const mode   = process.env.EASYPOST_TEST_MODE === 'true' ? 'TEST' : 'LIVE';
+    console.log(`  EasyPost: mode=${mode}, test=${testOk ? 'OK' : 'MISSING'}, live=${liveOk ? 'OK' : 'MISSING'}`);
+  }
 });
