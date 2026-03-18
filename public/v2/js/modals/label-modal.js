@@ -1,4 +1,4 @@
-// ── Label Modal (Shippo) — Phase 7 ───────────────────────────────────────────
+// ── Label Modal — Phase 7 ────────────────────────────────────────────────────
 document.addEventListener('alpine:init', () => {
   Alpine.data('labelModal', () => ({
     step:           'form',   // 'form' | 'rates' | 'result'
