@@ -20,6 +20,9 @@ const F = {
   reverbListingId: 'fldMtW0wQEMcUG9X1',
   reverbOrderNum:  'fldman6gKCzhYPv8S',
   dateSold:        'fldcIJOUtePuaxAVH',
+  trackingId:      'fld83D6AubuZqZAQQ',
+  trackingNumber:  'fldWWo58dN1cFKiSl',
+  trackerUrl:      'fldTJ2Dm782UWe5dW',
 };
 
 const CAT_COLOR = {
