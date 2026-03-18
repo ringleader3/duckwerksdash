@@ -118,6 +118,39 @@
           </div>
         </div>
 
+        <!-- In Transit -->
+        <template x-if="inTransitRows.length > 0 || trackingLoading">
+          <div class="panel" style="margin-bottom:24px">
+            <div class="panel-title" style="margin-bottom:12px">IN TRANSIT</div>
+            <div x-show="trackingLoading" style="color:var(--muted);font-size:12px">Loading tracking data...</div>
+            <template x-if="!trackingLoading && inTransitRows.length > 0">
+              <table class="items-table" style="width:100%">
+                <thead>
+                  <tr>
+                    <th style="text-align:left">Item</th>
+                    <th>Status</th>
+                    <th>Carrier</th>
+                    <th>Est. Delivery</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="r in inTransitRows" :key="r.id">
+                    <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
+                      <td style="text-align:left" x-text="$store.dw.str(r, F.name).replace(/\n/g,'')"></td>
+                      <td class="num">
+                        <span x-show="trackStatus(r)" :class="'badge ' + trackStatusBadge(trackStatus(r))" x-text="trackStatusLabel(trackStatus(r))"></span>
+                        <span x-show="!trackStatus(r)" style="color:var(--muted);font-size:11px">—</span>
+                      </td>
+                      <td class="num" style="color:var(--muted);font-size:12px" x-text="trackCarrier(r)"></td>
+                      <td class="num" style="color:var(--muted);font-size:12px" x-text="trackEstDelivery(r)"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </template>
+          </div>
+        </template>
+
         <!-- Analytics Charts -->
         <section x-data="chartsSection" style="margin-top:24px">
           <div class="panel-title" style="margin-bottom:12px">ANALYTICS</div>

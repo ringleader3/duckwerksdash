@@ -2,6 +2,79 @@
 document.addEventListener('alpine:init', () => {
   Alpine.data('dashView', () => ({
 
+    // ── Tracking State ────────────────────────────────────────────────────────
+
+    trackingData: {},
+    trackingLoading: false,
+
+    init() {
+      // Dual-path: watch for records load, handle already-loaded case
+      this.$watch('$store.dw.loading', val => {
+        if (!val) this._loadTracking();
+      });
+      const dw = Alpine.store('dw');
+      if (!dw.loading && dw.records.length > 0) this._loadTracking();
+    },
+
+    get inTransitRows() {
+      const dw = Alpine.store('dw');
+      return dw.records.filter(r =>
+        dw.str(r, F.status) === 'Sold' && dw.str(r, F.trackingId)
+      ).filter(r => {
+        const td = this.trackingData[r.id];
+        return !td || td.status !== 'delivered';
+      });
+    },
+
+    async _loadTracking() {
+      const dw = Alpine.store('dw');
+      const toFetch = dw.records.filter(r =>
+        dw.str(r, F.status) === 'Sold' && dw.str(r, F.trackingId)
+      );
+      if (!toFetch.length) return;
+      this.trackingLoading = true;
+      // Collect locally then assign once — avoids concurrent spread race
+      const results = await Promise.all(toFetch.map(async r => {
+        const tid  = dw.str(r, F.trackingId);
+        const data = await dw.fetchTracker(tid);
+        return { id: r.id, data };
+      }));
+      const merged = {};
+      results.forEach(({ id, data }) => { merged[id] = data; });
+      this.trackingData    = merged;
+      this.trackingLoading = false;
+    },
+
+    trackStatus(r) {
+      return this.trackingData[r.id]?.status || null;
+    },
+
+    trackEstDelivery(r) {
+      const raw = this.trackingData[r.id]?.estDelivery;
+      if (!raw) return '—';
+      return new Date(raw).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    },
+
+    trackCarrier(r) {
+      return this.trackingData[r.id]?.carrier || '—';
+    },
+
+    trackStatusBadge(status) {
+      switch (status) {
+        case 'delivered':        return 'badge-sold';
+        case 'out_for_delivery': return 'badge-pending';
+        case 'in_transit':       return 'badge-listed';
+        case 'return_to_sender':
+        case 'failure':          return 'badge-prepping';
+        default:                 return 'badge-other';
+      }
+    },
+
+    trackStatusLabel(status) {
+      if (!status) return '—';
+      return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    },
+
     // ── KPI Stat Cards ────────────────────────────────────────────────────────
 
     get totalInvested() {
