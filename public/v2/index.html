@@ -581,6 +581,54 @@
             <span class="modal-field" style="font-size:11px">Date Sold</span>
             <span style="font-size:11px; color:var(--muted)" x-text="$store.dw.str(record, F.dateSold) ? new Date($store.dw.str(record, F.dateSold)).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : ''"></span>
           </div>
+          <template x-if="record && $store.dw.str(record, F.trackingId)">
+            <div>
+              <hr class="modal-divider">
+              <div class="modal-section-label">Shipment</div>
+              <div class="modal-row" x-show="trackingLoading">
+                <span style="color:var(--muted);font-size:12px">Loading tracking...</span>
+              </div>
+              <template x-if="trackingInfo && !trackingLoading">
+                <div>
+                  <div class="modal-row">
+                    <span class="modal-field">Status</span>
+                    <span class="modal-val">
+                      <span :class="'badge ' + trackStatusBadgeClass" x-text="trackStatusLabel"></span>
+                    </span>
+                  </div>
+                  <div class="modal-row" x-show="trackingInfo.carrier">
+                    <span class="modal-field">Carrier</span>
+                    <span class="modal-val" style="color:var(--muted)" x-text="trackingInfo.carrier"></span>
+                  </div>
+                  <div class="modal-row" x-show="trackEstDelivery">
+                    <span class="modal-field">Est. Delivery</span>
+                    <span class="modal-val" style="color:var(--muted)" x-text="trackEstDelivery"></span>
+                  </div>
+                  <div class="modal-row" x-show="trackingInfo.publicUrl">
+                    <span class="modal-field">Track</span>
+                    <span class="modal-val">
+                      <a :href="trackingInfo.publicUrl" target="_blank" style="font-size:11px">↗ View Tracker</a>
+                    </span>
+                  </div>
+                  <template x-if="trackingInfo.events && trackingInfo.events.length > 0">
+                    <div style="margin-top:8px">
+                      <div class="modal-field" style="margin-bottom:6px;font-size:10px">TIMELINE</div>
+                      <template x-for="(evt, i) in trackingInfo.events.slice().reverse()" :key="i">
+                        <div style="display:flex;gap:8px;align-items:flex-start;padding:4px 0;border-top:1px solid var(--border)">
+                          <div style="font-size:10px;color:var(--muted);white-space:nowrap;min-width:60px" x-text="evt.datetime ? new Date(evt.datetime).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : ''"></div>
+                          <div style="font-size:11px;color:var(--muted)" x-text="evt.message"></div>
+                        </div>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+              </template>
+              <div class="modal-row" x-show="!trackingInfo && !trackingLoading">
+                <a x-show="$store.dw.str(record, F.trackerUrl)" :href="$store.dw.str(record, F.trackerUrl)" target="_blank" style="font-size:11px">↗ View Tracker</a>
+                <span x-show="!$store.dw.str(record, F.trackerUrl)" style="color:var(--muted);font-size:11px">Tracking unavailable</span>
+              </div>
+            </div>
+          </template>
           <div style="font-size:10px; color:#555; letter-spacing:2px; margin-top:4px" x-text="record ? 'ID: ' + record.id : ''"></div>
         </div>
 

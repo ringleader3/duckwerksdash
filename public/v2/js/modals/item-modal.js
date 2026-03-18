@@ -1,18 +1,25 @@
 // ── Item Modal — Phase 4 ──────────────────────────────────────────────────────
 document.addEventListener('alpine:init', () => {
   Alpine.data('itemModal', () => ({
-    editMode: false,
-    saving:   false,
-    saveMsg:  '',
-    form:     {},
+    editMode:        false,
+    saving:          false,
+    saveMsg:         '',
+    form:            {},
+    trackingInfo:    null,
+    trackingLoading: false,
 
     // Reset edit state whenever a new record is opened
     init() {
       this.$watch('$store.dw.activeRecordId', () => {
-        this.editMode = false;
-        this.saveMsg  = '';
-        this.form     = {};
+        this.editMode        = false;
+        this.saveMsg         = '';
+        this.form            = {};
+        this.trackingInfo    = null;
+        this.trackingLoading = false;
+        this._loadTracking();
       });
+      // Dual-path: handle case where record is already set when modal opens
+      if (Alpine.store('dw').activeRecordId) this._loadTracking();
     },
 
     get record() {
@@ -94,6 +101,40 @@ document.addEventListener('alpine:init', () => {
 
     catBadgeClass(cat) {
       return CAT_BADGE[cat] || 'badge-other';
+    },
+
+    async _loadTracking() {
+      const r = this.record;
+      if (!r) return;
+      const tid = Alpine.store('dw').str(r, F.trackingId);
+      if (!tid) return;
+      this.trackingLoading = true;
+      this.trackingInfo    = await Alpine.store('dw').fetchTracker(tid);
+      this.trackingLoading = false;
+    },
+
+    get trackStatusBadgeClass() {
+      const s = this.trackingInfo?.status;
+      switch (s) {
+        case 'delivered':        return 'badge-sold';
+        case 'out_for_delivery': return 'badge-pending';
+        case 'in_transit':       return 'badge-listed';
+        case 'return_to_sender':
+        case 'failure':          return 'badge-prepping';
+        default:                 return 'badge-other';
+      }
+    },
+
+    get trackStatusLabel() {
+      const s = this.trackingInfo?.status;
+      if (!s) return '—';
+      return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    },
+
+    get trackEstDelivery() {
+      const raw = this.trackingInfo?.estDelivery;
+      if (!raw) return null;
+      return new Date(raw).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     },
   }));
 });
