@@ -12,7 +12,7 @@ Personal resale inventory dashboard for Geoff Goss (Duckwerks Music). Tracks mus
 - **Frontend:** `public/v2/` — Alpine.js, modular JS files, no build step
 - **Backend:** `server.js` — local Express server (Node 22), proxies all API calls
 - **Database:** Airtable (REST API via server proxy — PAT never leaves the server)
-- **Shipping:** Shippo API (proxied through Express)
+- **Shipping:** EasyPost API (active provider); Shippo retained but inactive. Provider set via `SHIPPING_PROVIDER` in `.env`
 - **Config:** `.env` file — never commit, never read client-side
 
 ## Running Locally
@@ -38,9 +38,10 @@ npm start   # starts Express on http://localhost:3000
 - `public/v2/css/` — main.css (layout/tokens) + components.css (badges, cards, modals)
 - `server.js` — Express entry point: mounts routers, serves static files, redirects `/` → `/v2`
 - `server/airtable.js` — Airtable proxy routes (`/api/airtable/*`)
-- `server/shippo.js` — all Shippo routes (`/api/label/*`, `/api/shippo/*`)
+- `server/label.js` — provider-agnostic label routes (`/api/label/*`) — delegates to Shippo or EasyPost based on `SHIPPING_PROVIDER`
+- `server/shippo.js` — Shippo generic proxy (`/api/shippo/*`); also contains Shippo implementation (kept for potential re-use)
 - `server/reverb.js` — all Reverb routes (`/api/reverb/*`)
-- `.env` — secrets (Shippo tokens, from-address, Airtable PAT)
+- `.env` — secrets (EasyPost + Shippo tokens, from-address, Airtable PAT)
 - `package.json` / `node_modules/` — Express + dotenv
 
 The old single-file dashboard (`duckwerks-dashboard.html`) remains in the repo as a fallback but is not the active frontend.
@@ -49,6 +50,11 @@ The old single-file dashboard (`duckwerks-dashboard.html`) remains in the repo a
 
 ## Environment Variables (.env)
 ```
+SHIPPING_PROVIDER=EASYPOST         # EASYPOST or SHIPPO
+EASYPOST_TEST_MODE=false
+EASYPOST_TEST_TOKEN=EZTK...
+EASYPOST_LIVE_TOKEN=EZAK...
+SHIPPO_TEST_MODE=false             # retained but inactive
 SHIPPO_TEST_TOKEN=shippo_test_...
 SHIPPO_LIVE_TOKEN=shippo_live_...
 AIRTABLE_PAT=pat...
@@ -61,11 +67,11 @@ FROM_COUNTRY=US
 FROM_PHONE=...
 ```
 
-## Shippo Test vs Live
-- `SHIPPO_TEST_MODE=true/false` in `.env` — server-side only, never client-controlled
-- Requires server restart to take effect — startup log shows `Shippo: mode=LIVE` or `mode=TEST`
-- Use test mode to buy free fake labels for end-to-end testing without spending money
-- Test transactions visible at goshippo.com under Test Mode toggle
+## Shipping Provider Test vs Live
+- `SHIPPING_PROVIDER=EASYPOST` or `SHIPPO` in `.env` — requires server restart
+- `EASYPOST_TEST_MODE=true/false` — test mode uses separate test API key; test labels don't count against quota (3000/month on live)
+- `SHIPPO_TEST_MODE=true/false` — retained but Shippo is inactive; test labels counted against the 30/month quota (Shippo limitation)
+- Startup log shows active provider + mode, e.g. `Shipping provider: EASYPOST` / `EasyPost: mode=LIVE`
 
 ---
 
@@ -81,9 +87,12 @@ FROM_PHONE=...
 - `PATCH /api/airtable/*` — update record
 - `POST /api/airtable/*` — create record
 
-**server/shippo.js** (mounted at `/api/label` and `/api/shippo`)
-- `POST /api/label/rates` — create Shippo shipment, return sorted rates. Body: `{ toAddress, parcel }` (parcel weight in decimal lbs)
-- `POST /api/label/purchase` — purchase a rate, return tracking + label URL. Body: `{ rateObjectId }`
+**server/label.js** (mounted at `/api/label`)
+- `POST /api/label/rates` — create shipment, return sorted rates. Body: `{ toAddress, parcel }` (parcel weight in decimal lbs). Active provider set by `SHIPPING_PROVIDER` in `.env`
+- `POST /api/label/purchase` — purchase a rate, return tracking + label URL. Body: `{ rateObjectId }`. EasyPost encodes `shipmentId|rateId` in `rateObjectId` — transparent to client
+- `GET /api/label/usage` — Shippo-only usage counter; returns `{ skipped: true }` when on EasyPost
+
+**server/shippo.js** (mounted at `/api/shippo` — generic proxy only)
 - `POST /api/shippo/:path` — generic Shippo proxy (POST)
 - `GET /api/shippo/:path` — generic Shippo proxy (GET)
 - Note: `testMode` is read from `.env` server-side — do not send it from client
@@ -319,6 +328,11 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 
 ## Session Log
 _Most recent first. Update this at the end of every session._
+
+### 2026-03-18 (EasyPost migration session)
+- **#18 bug (P2) — DONE:** Implemented EasyPost alongside Shippo with `SHIPPING_PROVIDER` env switch. New `server/label.js` handles `/api/label/*` for both providers. EasyPost weight conversion (lbs→oz), `shipmentId|rateId` encoding in `object_id` (transparent to client). Shippo usage counter preserved, gated to Shippo-only. Shipping sidebar button hidden when on EasyPost (returns for tracking feature). Live EasyPost confirmed working end-to-end in test mode then switched to live.
+- **#17 enhancement (P1) — DONE:** Resolved by EasyPost migration — 3000 labels/month, proper sandbox (test labels don't count against quota).
+- **#12 bug (P1) — still awaiting real-order validation**
 
 ### 2026-03-17 (Shipping modal + Shippo investigation session)
 - **#17 enhancement (P1) — DONE:** Added Shipping sidebar button and modal. `GET /api/label/usage` endpoint in `server/shippo.js` — always queries live token, filters `object_test=false` at API level, `status=SUCCESS` on response. Billing cycle uses epoch math from `BILLING_EPOCH = 2026-03-11` (confirmed by Shippo support) + 30-day rolling window. Color-coded usage display (green/yellow/red). Fixed UTC timezone display bug (March 11 was rendering as March 10 in Pacific).
