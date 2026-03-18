@@ -1,9 +1,10 @@
-// ── Shipping Modal ────────────────────────────────────────────────────────────
+// ── Shipping Modal — Tracking Panel ──────────────────────────────────────────
 document.addEventListener('alpine:init', () => {
   Alpine.data('shippingModal', () => ({
-    loading: false,
-    usage:   null,   // { count, limit, window, since }
-    errMsg:  '',
+    loading:      false,
+    refreshing:   false,
+    trackingData: {},  // { [recordId]: { status, carrier, estDelivery, publicUrl } | null }
+    errMsg:       '',
 
     init() {
       this.$watch('$store.dw.activeModal', val => {
@@ -12,34 +13,80 @@ document.addEventListener('alpine:init', () => {
     },
 
     async _open() {
-      this.loading = true;
-      this.errMsg  = '';
-      this.usage   = null;
-      try {
-        const res  = await fetch('/api/label/usage');
-        const data = await res.json();
-        if (!res.ok) { this.errMsg = data.error || 'Failed to load usage'; return; }
-        this.usage = data;
-      } catch (e) {
-        this.errMsg = e.message;
-      } finally {
-        this.loading = false;
+      this.loading      = true;
+      this.errMsg       = '';
+      this.trackingData = {};
+      await this._loadAll();
+      this.loading = false;
+    },
+
+    get inTransitRecords() {
+      const dw = Alpine.store('dw');
+      return dw.records.filter(r =>
+        dw.str(r, F.status) === 'Sold' && dw.str(r, F.trackingId)
+      );
+    },
+
+    async _loadAll() {
+      const dw = Alpine.store('dw');
+      // Guard: if store hasn't loaded yet, nothing to fetch
+      if (dw.loading || !dw.records.length) { this.loading = false; return; }
+      // Collect all results locally first — concurrent spread writes would race
+      const results = await Promise.all(this.inTransitRecords.map(async r => {
+        const tid  = dw.str(r, F.trackingId);
+        const data = await dw.fetchTracker(tid);
+        return { id: r.id, data };
+      }));
+      const merged = {};
+      results.forEach(({ id, data }) => { merged[id] = data; });
+      this.trackingData = merged;
+    },
+
+    async refreshAll() {
+      this.refreshing   = true;
+      this.trackingData = {};
+      await this._loadAll();
+      this.refreshing = false;
+    },
+
+    openItem(r) {
+      Alpine.store('dw').openModal('item', r.id);
+    },
+
+    trackStatus(r) {
+      return this.trackingData[r.id]?.status || null;
+    },
+
+    trackCarrier(r) {
+      const dw = Alpine.store('dw');
+      return this.trackingData[r.id]?.carrier || dw.str(r, F.trackingNumber) || '—';
+    },
+
+    trackEstDelivery(r) {
+      const raw = this.trackingData[r.id]?.estDelivery;
+      if (!raw) return null;
+      return new Date(raw).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    },
+
+    trackPublicUrl(r) {
+      const dw = Alpine.store('dw');
+      return this.trackingData[r.id]?.publicUrl || dw.str(r, F.trackerUrl) || null;
+    },
+
+    statusBadgeClass(status) {
+      switch (status) {
+        case 'delivered':        return 'badge-sold';       // green
+        case 'out_for_delivery': return 'badge-pending';    // yellow
+        case 'in_transit':       return 'badge-listed';     // blue
+        case 'return_to_sender':
+        case 'failure':          return 'badge-prepping';   // red
+        default:                 return 'badge-other';      // muted
       }
     },
 
-    get usageColor() {
-      if (!this.usage) return 'var(--muted)';
-      const remaining = this.usage.limit - this.usage.count;
-      if (remaining <= 2)  return 'var(--red)';
-      if (remaining <= 5)  return 'var(--yellow)';
-      return 'var(--green)';
-    },
-
-    get periodLabel() {
-      if (!this.usage?.since) return '';
-      // Parse as UTC to avoid local timezone shifting the date back a day
-      const d = new Date(this.usage.since);
-      return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+    statusLabel(status) {
+      if (!status) return 'Unknown';
+      return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     },
   }));
 });

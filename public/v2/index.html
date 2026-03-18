@@ -63,7 +63,7 @@
     <div class="sidebar-section">
       <div class="sidebar-section-label">Actions</div>
       <a class="sidebar-action" @click="$store.dw.openModal('reverb')">Sync Reverb</a>
-      <a class="sidebar-action" x-show="$store.dw.shippingProvider === 'SHIPPO'" @click="$store.dw.openModal('shipping')">Shipping</a>
+      <a class="sidebar-action" @click="$store.dw.openModal('shipping')">Shipping</a>
     </div>
 
     <div class="sidebar-spacer"></div>
@@ -1156,38 +1156,47 @@
 
   <!-- ── Shipping Modal ──────────────────────────────────────────────────── -->
   <div x-show="$store.dw.activeModal === 'shipping'" x-data="shippingModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
-    <div class="modal-box">
+    <div class="modal-box" style="max-width:540px">
       <div class="modal-header">
-        <div class="modal-title">SHIPPING</div>
-        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+        <div class="modal-title">IN TRANSIT</div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <button class="btn-sm" @click="refreshAll()" :disabled="refreshing" style="font-size:11px;letter-spacing:1px">
+            <span x-text="refreshing ? 'REFRESHING...' : '↺ REFRESH ALL'"></span>
+          </button>
+          <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+        </div>
       </div>
       <div class="modal-body">
-        <div class="modal-section-label">LABEL USAGE</div>
-        <div class="modal-row" x-show="loading">
-          <span style="color:var(--muted);font-size:12px">Loading...</span>
+        <div x-show="loading" style="color:var(--muted);font-size:12px;padding:16px 0">Loading...</div>
+        <div x-show="errMsg" style="color:var(--red);font-size:12px" x-text="errMsg"></div>
+        <div x-show="!loading && inTransitRecords.length === 0" style="color:var(--muted);font-size:12px;padding:16px 0">
+          No shipments with tracking data.
         </div>
-        <div class="modal-row" x-show="errMsg">
-          <span style="color:var(--red);font-size:12px" x-text="errMsg"></span>
-        </div>
-        <div x-show="usage && !loading">
-          <div class="modal-row">
-            <span class="modal-field">Labels This Period</span>
-            <span class="modal-val" style="font-size:22px;font-family:'Bebas Neue',sans-serif;letter-spacing:2px" :style="'color:' + usageColor">
-              <span x-text="usage?.count"></span><span style="font-size:14px;color:var(--muted)"> / <span x-text="usage?.limit"></span></span>
-            </span>
-          </div>
-          <div class="modal-row">
-            <span class="modal-field">Period</span>
-            <span class="modal-val" style="color:var(--muted);font-size:11px" x-text="periodLabel"></span>
-          </div>
-          <div class="modal-row" x-show="usage && (usage.limit - usage.count) <= 5">
-            <span style="color:var(--yellow);font-size:11px;letter-spacing:1px" x-text="'⚠ ' + (usage.limit - usage.count) + ' label' + ((usage.limit - usage.count) !== 1 ? 's' : '') + ' remaining'"></span>
-          </div>
-          <div class="modal-row" x-show="usage && usage.count >= usage.limit">
-            <span style="color:var(--red);font-size:11px;letter-spacing:1px">LIMIT REACHED — labels may fail</span>
-          </div>
-        </div>
-        <!-- TODO: Shipping status tracking will go here -->
+        <template x-if="!loading && inTransitRecords.length > 0">
+          <table class="items-table" style="width:100%">
+            <thead>
+              <tr>
+                <th style="text-align:left">Item</th>
+                <th>Status</th>
+                <th>Carrier</th>
+                <th>Est. Delivery</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="r in inTransitRecords" :key="r.id">
+                <tr style="cursor:pointer" @click="openItem(r)">
+                  <td style="text-align:left" x-text="$store.dw.str(r, F.name).replace(/\n/g,'')"></td>
+                  <td class="num">
+                    <span x-show="trackStatus(r)" :class="'badge ' + statusBadgeClass(trackStatus(r))" x-text="statusLabel(trackStatus(r))"></span>
+                    <span x-show="!trackStatus(r)" style="color:var(--muted);font-size:11px">—</span>
+                  </td>
+                  <td class="num" style="color:var(--muted);font-size:12px" x-text="trackCarrier(r)"></td>
+                  <td class="num" style="color:var(--muted);font-size:12px" x-text="trackEstDelivery(r) || '—'"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </template>
       </div>
     </div>
   </div>
