@@ -153,6 +153,8 @@ async function easypostPurchase(rateObjectId) {
     trackingNumber: data.tracking_code,
     labelUrl:       data.postage_label?.label_url,
     trackingUrl:    data.tracker?.public_url,
+    trackingId:     data.tracker?.id   || null,
+    trackerUrl:     data.tracker?.public_url || null,
   };
 }
 
@@ -181,6 +183,21 @@ router.post('/purchase', async (req, res) => {
   } catch (e) {
     const status = e.status || 502;
     res.status(status).json(e.data || { error: e.message, messages: e.messages });
+  }
+});
+
+router.get('/tracker/:id', async (req, res) => {
+  if (PROVIDER !== 'EASYPOST') return res.json({ skipped: true });
+  const token = easypostToken();
+  try {
+    const r    = await fetch(`${EASYPOST_API}/trackers/${req.params.id}`, {
+      headers: easypostHeaders(token),
+    });
+    const data = await r.json();
+    if (!r.ok) return res.status(r.status).json(data);
+    res.json(data);
+  } catch (e) {
+    res.status(502).json({ error: 'EasyPost request failed', detail: e.message });
   }
 });
 
