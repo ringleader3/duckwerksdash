@@ -627,6 +627,9 @@
                 <a x-show="$store.dw.str(record, F.trackerUrl)" :href="$store.dw.str(record, F.trackerUrl)" target="_blank" style="font-size:11px">↗ View Tracker</a>
                 <span x-show="!$store.dw.str(record, F.trackerUrl)" style="color:var(--muted);font-size:11px">Tracking unavailable</span>
               </div>
+              <div style="margin-top:12px">
+                <button @click="clearTracking()" style="padding:4px 10px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer">CLEAR TRACKING</button>
+              </div>
             </div>
           </template>
           <div style="font-size:10px; color:#555; letter-spacing:2px; margin-top:4px" x-text="record ? 'ID: ' + record.id : ''"></div>

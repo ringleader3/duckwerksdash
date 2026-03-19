@@ -103,6 +103,15 @@ document.addEventListener('alpine:init', () => {
       return CAT_BADGE[cat] || 'badge-other';
     },
 
+    async clearTracking() {
+      const dw = Alpine.store('dw');
+      const r  = this.record;
+      if (!r) return;
+      await dw.updateRecord(r.id, { [F.trackingId]: null, [F.trackingNumber]: null, [F.trackerUrl]: null });
+      this.trackingInfo = null;
+      await dw.fetchAll();
+    },
+
     async _loadTracking() {
       const r = this.record;
       if (!r) return;
