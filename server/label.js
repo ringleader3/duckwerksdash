@@ -3,6 +3,12 @@ const router  = express.Router();
 
 const PROVIDER = (process.env.SHIPPING_PROVIDER || 'SHIPPO').toUpperCase();
 
+// ── CARRIER NAME MAP ──────────────────────────────────────────────────────────
+const CARRIER_NAMES = { UPSDAP: 'UPS', UPS: 'UPS', USPS: 'USPS',
+                        FedEx: 'FedEx', FedExDefault: 'FedEx',
+                        DHLExpress: 'DHL Express', DHL: 'DHL' };
+function carrierName(raw) { return CARRIER_NAMES[raw] || raw || ''; }
+
 // ── FROM ADDRESS ──────────────────────────────────────────────────────────────
 
 function fromAddress() {
@@ -130,7 +136,7 @@ async function easypostRates(toAddress, parcel) {
     .sort((a, b) => parseFloat(a.rate) - parseFloat(b.rate))
     .map(r => ({
       object_id: `${r.shipment_id}|${r.id}`,  // encoded for purchase
-      carrier:   r.carrier,
+      carrier:   carrierName(r.carrier),
       service:   r.service,
       price:     parseFloat(r.rate),
       currency:  r.currency,
