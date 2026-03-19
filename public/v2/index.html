@@ -1073,9 +1073,8 @@
               style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
               PACKING SLIP
             </button>
-            <span x-show="saveMsg" x-text="saveMsg"
-              :style="saveMsg.startsWith('✓') ? 'color:var(--green)' : 'color:var(--red)'"
-              style="font-size:12px;letter-spacing:1px"></span>
+            <span x-show="saveMsg && !saveMsg.startsWith('✓')" x-text="saveMsg"
+              style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
           </div>
         </div>
 
