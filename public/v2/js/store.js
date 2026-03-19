@@ -178,11 +178,14 @@ document.addEventListener('alpine:init', () => {
         const res  = await fetch(`/api/label/tracker/${trackingId}`);
         const data = await res.json();
         if (!res.ok || data.skipped) return null;
+        const events      = data.tracking_details || [];
+        const deliveryEvt = events.find(e => e.status === 'delivered');
         return {
           status:      data.status,
           carrier:     this._carrierName(data.carrier),
           estDelivery: data.est_delivery_date || null,
-          events:      data.tracking_details || [],
+          deliveredAt: deliveryEvt?.datetime || null,
+          events,
           publicUrl:   data.public_url || null,
         };
       } catch (e) {
