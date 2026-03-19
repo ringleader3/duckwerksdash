@@ -90,6 +90,7 @@ FROM_PHONE=...
 **server/label.js** (mounted at `/api/label`)
 - `POST /api/label/rates` — create shipment, return sorted rates. Body: `{ toAddress, parcel }` (parcel weight in decimal lbs). Active provider set by `SHIPPING_PROVIDER` in `.env`
 - `POST /api/label/purchase` — purchase a rate, return tracking + label URL. Body: `{ rateObjectId }`. EasyPost encodes `shipmentId|rateId` in `rateObjectId` — transparent to client
+- `GET /api/label/tracker/:id` — proxies EasyPost tracker by ID; returns tracker object with status, carrier, tracking_details, etc.
 - `GET /api/label/usage` — Shippo-only usage counter; returns `{ skipped: true }` when on EasyPost
 
 **server/shippo.js** (mounted at `/api/shippo` — generic proxy only)
@@ -238,8 +239,22 @@ to the Lot detail modal directly.
 - Weight input is lbs + oz (combined as `lbs + oz/16` for Shippo API)
 - On open: fetches Reverb order (if `reverbOrderNum` set) to auto-fill shipping address
 - On label purchase: auto-fires saveShipping() + markShipped() immediately — do not wait for button click
-- saveShipping() writes shipping cost + status=Sold + dateSold + sale price in one Airtable update
+- saveShipping() writes shipping cost + status=Sold + dateSold + sale price + tracking fields, then calls `fetchAll()` so dashboard tracking panels update immediately
 - Sale price uses `order.direct_checkout_payout` (post-fee payout) with fallback to `order.amount_product.amount`
+- Carrier/service name maps live in `server/label.js` (`CARRIER_NAMES`, `SERVICE_NAMES`) — add entries there when new raw codes appear
+
+### Shipping Modal — In Transit
+- Shows sold+tracked items that are not yet delivered, or delivered within last 3 days
+- Filter logic is `store.isInTransit(r, trackingData)` — update the window there, not in each view
+- `deliveredAt` extracted from EasyPost `tracking_details` event with `status === 'delivered'`
+- EasyPost test mode uses historical fake delivery dates — items may disappear immediately after delivery in test; this is expected, not a bug
+
+### Modal Back-Navigation
+- `store.previousModal` — stashes `{ type, recordId, lotName }` before opening a child modal
+- `closeModal()` restores previous modal if set, then clears it
+- Currently used by lot modal's `openItem()` so Close returns to the lot
+- `navToItems()` clears `previousModal` before closing to prevent unintended restores
+- Lot modal escape handler guarded with `activeModal === 'lot'` check to prevent double-fire from window-level listeners
 
 ### Reverb Sync Modal — Sections
 - **Awaiting Shipment** — matches orders to records by `reverbListingId`; saves order numbers; SHIP button opens label modal
@@ -331,9 +346,10 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 _Most recent first. Update this at the end of every session._
 
 ### 2026-03-19 (Tracking polish + lot modal bug fixes session)
-- **#21 enhancement (P2) — DONE (awaiting test validation):** Added CLEAR TRACKING button to item modal Shipment section. Clears `trackingId`, `trackingNumber`, `trackerUrl` from Airtable and refreshes store.
-- **#25 bug (P2) — DONE (awaiting test validation):** Carrier + service name mapping for rate selection (UPSDAP→UPS, FedExDefault→FedEx, UPSGroundsaverGreaterThan1lb→Ground Saver, etc.) in `server/label.js`. Same carrier map applied to `fetchTracker` in store. Hyphen separator in rate display. In Transit tables switched from undefined `items-table` to `data-table` with fixed column widths and centered data cells. Delivered items stay visible for 3 days using EasyPost delivery event timestamp; filter logic centralized in `store.isInTransit(r, trackingData)`.
-- **#26 bug (P2) — DONE:** `saveShipping()` now calls `fetchAll()` after the Airtable write, triggering the dashboard's `$watch` on loading and firing `_loadTracking()` so tracking columns populate immediately after label purchase.
+- **#21 enhancement (P2) — DONE:** CLEAR TRACKING button in item modal Shipment section. Clears `trackingId`, `trackingNumber`, `trackerUrl` from Airtable and refreshes store. Validated with test label.
+- **#25 bug (P2) — DONE:** Carrier + service name maps in `server/label.js` (`CARRIER_NAMES`, `SERVICE_NAMES`) applied to rates response and `fetchTracker`. In Transit tables fixed: `items-table` (no CSS) → `data-table`, fixed column widths, centered data cells. Delivered items stay visible 3 days via EasyPost delivery event datetime; logic centralized in `store.isInTransit(r, trackingData)`. Note: EasyPost test mode uses historical fake delivery dates so delivered items disappear immediately in test — expected behavior, not a bug.
+- **#26 bug (P2) — DONE:** `saveShipping()` now calls `fetchAll()` after the Airtable write so dashboard `_loadTracking()` fires via `$watch` on loading immediately after label purchase.
+- **#27 bug (P2) — DONE:** Label modal result screen showed duplicate saved state — button already shows `✓ SAVED`, so `saveMsg` span now only renders on errors.
 
 ### 2026-03-19 (Lot modal bug fixes session)
 - **#22 bug (P1) — DONE:** Lot modal profit column now shows actual `F.profit` for sold items instead of `estProfit()` (which used list price). Renamed column from "Est Profit" to "Profit". Color class updated to use same value.
