@@ -124,13 +124,13 @@
             <div class="panel-title" style="margin-bottom:12px">IN TRANSIT</div>
             <div x-show="trackingLoading" style="color:var(--muted);font-size:12px">Loading tracking data...</div>
             <template x-if="!trackingLoading && inTransitRows.length > 0">
-              <table class="items-table" style="width:100%">
+              <table class="data-table" style="width:100%">
                 <thead>
                   <tr>
                     <th style="text-align:left">Item</th>
-                    <th>Status</th>
-                    <th>Carrier</th>
-                    <th>Est. Delivery</th>
+                    <th style="white-space:nowrap">Status</th>
+                    <th style="white-space:nowrap">Carrier</th>
+                    <th style="white-space:nowrap">Est. Delivery</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1265,13 +1265,13 @@
           No shipments with tracking data.
         </div>
         <template x-if="!loading && inTransitRecords.length > 0">
-          <table class="items-table" style="width:100%">
+          <table class="data-table" style="width:100%">
             <thead>
               <tr>
                 <th style="text-align:left">Item</th>
-                <th>Status</th>
-                <th>Carrier</th>
-                <th>Est. Delivery</th>
+                <th style="white-space:nowrap">Status</th>
+                <th style="white-space:nowrap">Carrier</th>
+                <th style="white-space:nowrap">Est. Delivery</th>
               </tr>
             </thead>
             <tbody>
