@@ -194,5 +194,15 @@ document.addEventListener('alpine:init', () => {
       }
     },
 
+    // Returns true if a record should appear in In Transit panels.
+    // Sold+tracked items stay visible until 3 days after delivery.
+    isInTransit(r, trackingData) {
+      if (this.str(r, F.status) !== 'Sold' || !this.str(r, F.trackingId)) return false;
+      const td = trackingData[r.id];
+      if (!td || td.status !== 'delivered') return true;
+      if (!td.deliveredAt) return false;
+      return (Date.now() - new Date(td.deliveredAt).getTime()) < 3 * 24 * 60 * 60 * 1000;
+    },
+
   });
 });

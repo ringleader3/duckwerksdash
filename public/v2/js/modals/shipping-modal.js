@@ -21,16 +21,8 @@ document.addEventListener('alpine:init', () => {
     },
 
     get inTransitRecords() {
-      const dw        = Alpine.store('dw');
-      const threeDays = 3 * 24 * 60 * 60 * 1000;
-      return dw.records.filter(r =>
-        dw.str(r, F.status) === 'Sold' && dw.str(r, F.trackingId)
-      ).filter(r => {
-        const td = this.trackingData[r.id];
-        if (!td || td.status !== 'delivered') return true;
-        if (!td.deliveredAt) return false;
-        return (Date.now() - new Date(td.deliveredAt).getTime()) < threeDays;
-      });
+      const dw = Alpine.store('dw');
+      return dw.records.filter(r => dw.isInTransit(r, this.trackingData));
     },
 
     async _loadAll() {
