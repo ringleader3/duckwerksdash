@@ -3,11 +3,40 @@ const router  = express.Router();
 
 const PROVIDER = (process.env.SHIPPING_PROVIDER || 'SHIPPO').toUpperCase();
 
-// ── CARRIER NAME MAP ──────────────────────────────────────────────────────────
+// ── CARRIER + SERVICE NAME MAPS ───────────────────────────────────────────────
 const CARRIER_NAMES = { UPSDAP: 'UPS', UPS: 'UPS', USPS: 'USPS',
                         FedEx: 'FedEx', FedExDefault: 'FedEx',
                         DHLExpress: 'DHL Express', DHL: 'DHL' };
 function carrierName(raw) { return CARRIER_NAMES[raw] || raw || ''; }
+
+const SERVICE_NAMES = {
+  // UPS
+  UPSGroundsaverGreaterThan1lb: 'Ground Saver (>1lb)',
+  Ground:             'Ground',
+  '3DaySelect':       '3 Day Select',
+  '2ndDayAir':        '2nd Day Air',
+  '2ndDayAirAM':      '2nd Day Air AM',
+  NextDayAir:         'Next Day Air',
+  NextDayAirSaver:    'Next Day Air Saver',
+  NextDayAirEarlyAM:  'Next Day Air Early AM',
+  // USPS
+  GroundAdvantage:    'Ground Advantage',
+  First:              'First Class',
+  Priority:           'Priority Mail',
+  Express:            'Express Mail',
+  ParcelSelect:       'Parcel Select',
+  LibraryMail:        'Library Mail',
+  // FedEx
+  SMART_POST:         'Smart Post',
+  FEDEX_GROUND:       'Ground',
+  FEDEX_EXPRESS_SAVER:'Express Saver',
+  FEDEX_2_DAY:        '2 Day',
+  FEDEX_2_DAY_AM:     '2 Day AM',
+  STANDARD_OVERNIGHT: 'Standard Overnight',
+  PRIORITY_OVERNIGHT: 'Priority Overnight',
+  FIRST_OVERNIGHT:    'First Overnight',
+};
+function serviceName(raw) { return SERVICE_NAMES[raw] || raw || ''; }
 
 // ── FROM ADDRESS ──────────────────────────────────────────────────────────────
 
@@ -137,7 +166,7 @@ async function easypostRates(toAddress, parcel) {
     .map(r => ({
       object_id: `${r.shipment_id}|${r.id}`,  // encoded for purchase
       carrier:   carrierName(r.carrier),
-      service:   r.service,
+      service:   serviceName(r.service),
       price:     parseFloat(r.rate),
       currency:  r.currency,
       days:      r.delivery_days,
