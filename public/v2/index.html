@@ -1005,7 +1005,7 @@
                 style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border:1px solid var(--border2);cursor:pointer;transition:border-color .15s"
                 @mouseover="$el.style.borderColor='var(--blue)'" @mouseout="$el.style.borderColor='var(--border2)'">
                 <div>
-                  <div style="font-size:13px;color:var(--white);letter-spacing:1px" x-text="r.carrier + ' — ' + r.service"></div>
+                  <div style="font-size:13px;color:var(--white);letter-spacing:1px" x-text="r.carrier + ' - ' + r.service"></div>
                   <div x-show="r.days" style="font-size:11px;color:#888;margin-top:3px;letter-spacing:1px"
                     x-text="r.days + ' BUSINESS DAY' + (r.days !== 1 ? 'S' : '')"></div>
                 </div>
