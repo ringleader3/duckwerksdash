@@ -166,6 +166,12 @@ document.addEventListener('alpine:init', () => {
       this.records.push(created);
     },
 
+    _carrierName(raw) {
+      const map = { UPSDAP: 'UPS', UPS: 'UPS', USPS: 'USPS', FedEx: 'FedEx',
+                    DHLExpress: 'DHL Express', DHL: 'DHL' };
+      return map[raw] || raw || null;
+    },
+
     async fetchTracker(trackingId) {
       if (!trackingId) return null;
       try {
@@ -174,7 +180,7 @@ document.addEventListener('alpine:init', () => {
         if (!res.ok || data.skipped) return null;
         return {
           status:      data.status,
-          carrier:     data.carrier,
+          carrier:     this._carrierName(data.carrier),
           estDelivery: data.est_delivery_date || null,
           events:      data.tracking_details || [],
           publicUrl:   data.public_url || null,

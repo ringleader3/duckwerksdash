@@ -184,6 +184,7 @@ document.addEventListener('alpine:init', () => {
       if (this.purchaseResult?.trackerUrl)     fields[F.trackerUrl]     = this.purchaseResult.trackerUrl;
       try {
         await dw.updateRecord(this.record.id, fields);
+        await dw.fetchAll();
         this.saveMsg = '✓ saved';
       } catch(e) {
         this.saveMsg = 'ERROR: ' + e.message;
