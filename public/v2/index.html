@@ -137,12 +137,12 @@
                   <template x-for="r in inTransitRows" :key="r.id">
                     <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
                       <td style="text-align:left" x-text="$store.dw.str(r, F.name).replace(/\n/g,'')"></td>
-                      <td class="num">
+                      <td>
                         <span x-show="trackStatus(r)" :class="'badge ' + trackStatusBadge(trackStatus(r))" x-text="trackStatusLabel(trackStatus(r))"></span>
                         <span x-show="!trackStatus(r)" style="color:var(--muted);font-size:11px">—</span>
                       </td>
-                      <td class="num" style="color:var(--muted);font-size:12px" x-text="trackCarrier(r)"></td>
-                      <td class="num" style="color:var(--muted);font-size:12px" x-text="trackEstDelivery(r)"></td>
+                      <td style="color:var(--muted);font-size:12px" x-text="trackCarrier(r)"></td>
+                      <td style="color:var(--muted);font-size:12px" x-text="trackEstDelivery(r)"></td>
                     </tr>
                   </template>
                 </tbody>
@@ -1278,12 +1278,12 @@
               <template x-for="r in inTransitRecords" :key="r.id">
                 <tr style="cursor:pointer" @click="openItem(r)">
                   <td style="text-align:left" x-text="$store.dw.str(r, F.name).replace(/\n/g,'')"></td>
-                  <td class="num">
+                  <td>
                     <span x-show="trackStatus(r)" :class="'badge ' + statusBadgeClass(trackStatus(r))" x-text="statusLabel(trackStatus(r))"></span>
                     <span x-show="!trackStatus(r)" style="color:var(--muted);font-size:11px">—</span>
                   </td>
-                  <td class="num" style="color:var(--muted);font-size:12px" x-text="trackCarrier(r)"></td>
-                  <td class="num" style="color:var(--muted);font-size:12px" x-text="trackEstDelivery(r) || '—'"></td>
+                  <td style="color:var(--muted);font-size:12px" x-text="trackCarrier(r)"></td>
+                  <td style="color:var(--muted);font-size:12px" x-text="trackEstDelivery(r) || '—'"></td>
                 </tr>
               </template>
             </tbody>
