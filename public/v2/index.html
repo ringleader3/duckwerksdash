@@ -822,7 +822,7 @@
   </template>
   <!-- Lot Modal -->
   <div x-show="$store.dw.activeModal === 'lot'" x-data="lotModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
-    <div class="modal-box modal-box-wide" x-show="lot" @keydown.escape.window="$store.dw.closeModal()">
+    <div class="modal-box modal-box-wide" x-show="lot" @keydown.escape.window="$store.dw.activeModal === 'lot' && $store.dw.closeModal()">
 
       <div class="modal-header">
         <div class="modal-title" x-text="lot ? lot.name : ''"></div>
@@ -878,7 +878,7 @@
               <th class="sortable num-col" :class="{'sort-active': sortKey==='cost'}"      @click="sortBy('cost')"      style="white-space:nowrap" x-text="'Cost'       + sortIndicator('cost')"></th>
               <th class="sortable num-col" :class="{'sort-active': sortKey==='listPrice'}" @click="sortBy('listPrice')" style="white-space:nowrap" x-text="'List'       + sortIndicator('listPrice')"></th>
               <th class="sortable num-col" :class="{'sort-active': sortKey==='eaf'}"       @click="sortBy('eaf')"       style="white-space:nowrap" x-text="'EAF'        + sortIndicator('eaf')"></th>
-              <th class="sortable num-col" :class="{'sort-active': sortKey==='estProfit'}" @click="sortBy('estProfit')" style="white-space:nowrap" x-text="'Est Profit' + sortIndicator('estProfit')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='estProfit'}" @click="sortBy('estProfit')" style="white-space:nowrap" x-text="'Profit'     + sortIndicator('estProfit')"></th>
               <th class="sortable num-col" :class="{'sort-active': sortKey==='sale'}"      @click="sortBy('sale')"      style="white-space:nowrap" x-text="'Sale'       + sortIndicator('sale')"></th>
             </tr>
           </thead>
@@ -890,7 +890,7 @@
                 <td class="num-col red"    x-text="$store.dw.num(r, F.cost) ? $store.dw.fmt0($store.dw.num(r, F.cost)) : '—'"></td>
                 <td class="num-col"        x-text="listPriceDisplay(r)"></td>
                 <td class="num-col yellow" x-text="eafDisplay(r)"></td>
-                <td class="num-col" :class="$store.dw.estProfit(r) >= 0 ? 'green' : 'red'" x-text="profitDisplay(r)"></td>
+                <td class="num-col" :class="profitValue(r) >= 0 ? 'green' : 'red'" x-text="profitDisplay(r)"></td>
                 <td class="num-col green"  x-text="$store.dw.num(r, F.sale) ? $store.dw.fmt0($store.dw.num(r, F.sale)) : '—'"></td>
               </tr>
             </template>

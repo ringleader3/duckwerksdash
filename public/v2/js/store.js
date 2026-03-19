@@ -13,6 +13,7 @@ document.addEventListener('alpine:init', () => {
     activeModal:   null,          // 'item' | 'add' | 'lot' | 'label' | 'reverb'
     activeRecordId: null,
     activeLotName:  null,
+    previousModal:  null,         // { type, recordId, lotName } — restored on closeModal if set
     categoryFilter:   null,    // set by sidebar category pick; consumed by itemsView
     pendingFilters:   null,    // { status, category, site } — set by navToItems, consumed by itemsView
     shippingProvider: 'SHIPPO',
@@ -68,6 +69,14 @@ document.addEventListener('alpine:init', () => {
       this.activeLotName  = lotName;
     },
     closeModal() {
+      if (this.previousModal) {
+        const prev = this.previousModal;
+        this.previousModal  = null;
+        this.activeModal    = prev.type;
+        this.activeRecordId = prev.recordId;
+        this.activeLotName  = prev.lotName;
+        return;
+      }
       this.activeModal    = null;
       this.activeRecordId = null;
       this.activeLotName  = null;
@@ -80,6 +89,7 @@ document.addEventListener('alpine:init', () => {
         category: category || null,
         site:     site     || 'All',
       };
+      this.previousModal = null;
       this.activeView = 'items';
       this.closeModal();
     },

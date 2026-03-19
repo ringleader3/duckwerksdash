@@ -109,18 +109,25 @@ document.addEventListener('alpine:init', () => {
 
     eafDisplay(r) {
       const dw = Alpine.store('dw');
+      if (dw.str(r, F.status) === 'Sold') return '—';
       const lp = dw.num(r, F.listPrice);
       return lp > 0 ? dw.fmt0(dw.eaf(lp)) : '—';
     },
 
-    profitDisplay(r) {
+    profitValue(r) {
       const dw = Alpine.store('dw');
-      const p  = dw.estProfit(r);
-      return (p >= 0 ? '+' : '') + dw.fmt0(p);
+      return dw.str(r, F.status) === 'Sold' ? dw.num(r, F.profit) : dw.estProfit(r);
+    },
+
+    profitDisplay(r) {
+      const p = this.profitValue(r);
+      return (p >= 0 ? '+' : '') + Alpine.store('dw').fmt0(p);
     },
 
     openItem(r) {
-      Alpine.store('dw').openModal('item', r.id);
+      const dw = Alpine.store('dw');
+      dw.previousModal = { type: 'lot', recordId: null, lotName: dw.activeLotName };
+      dw.openModal('item', r.id);
     },
   }));
 });
