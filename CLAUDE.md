@@ -330,6 +330,11 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 ## Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-19 (Tracking polish + lot modal bug fixes session)
+- **#21 enhancement (P2) — DONE (awaiting test validation):** Added CLEAR TRACKING button to item modal Shipment section. Clears `trackingId`, `trackingNumber`, `trackerUrl` from Airtable and refreshes store.
+- **#25 bug (P2) — DONE (awaiting test validation):** Carrier + service name mapping for rate selection (UPSDAP→UPS, FedExDefault→FedEx, UPSGroundsaverGreaterThan1lb→Ground Saver, etc.) in `server/label.js`. Same carrier map applied to `fetchTracker` in store. Hyphen separator in rate display. In Transit tables switched from undefined `items-table` to `data-table` with fixed column widths and centered data cells. Delivered items stay visible for 3 days using EasyPost delivery event timestamp; filter logic centralized in `store.isInTransit(r, trackingData)`.
+- **#26 bug (P2) — DONE:** `saveShipping()` now calls `fetchAll()` after the Airtable write, triggering the dashboard's `$watch` on loading and firing `_loadTracking()` so tracking columns populate immediately after label purchase.
+
 ### 2026-03-19 (Lot modal bug fixes session)
 - **#22 bug (P1) — DONE:** Lot modal profit column now shows actual `F.profit` for sold items instead of `estProfit()` (which used list price). Renamed column from "Est Profit" to "Profit". Color class updated to use same value.
 - **#24 bug (P2) — DONE:** EAF column in lot modal now shows `—` for sold items — EAF is only meaningful for listed items.
