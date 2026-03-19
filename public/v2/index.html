@@ -124,13 +124,13 @@
             <div class="panel-title" style="margin-bottom:12px">IN TRANSIT</div>
             <div x-show="trackingLoading" style="color:var(--muted);font-size:12px">Loading tracking data...</div>
             <template x-if="!trackingLoading && inTransitRows.length > 0">
-              <table class="data-table" style="width:100%">
+              <table class="data-table" style="width:100%;table-layout:fixed">
                 <thead>
                   <tr>
                     <th style="text-align:left">Item</th>
-                    <th style="white-space:nowrap">Status</th>
-                    <th style="white-space:nowrap">Carrier</th>
-                    <th style="white-space:nowrap">Est. Delivery</th>
+                    <th style="white-space:nowrap;width:130px">Status</th>
+                    <th style="white-space:nowrap;width:80px">Carrier</th>
+                    <th style="white-space:nowrap;width:110px">Est. Delivery</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1265,13 +1265,13 @@
           No shipments with tracking data.
         </div>
         <template x-if="!loading && inTransitRecords.length > 0">
-          <table class="data-table" style="width:100%">
+          <table class="data-table" style="width:100%;table-layout:fixed">
             <thead>
               <tr>
                 <th style="text-align:left">Item</th>
-                <th style="white-space:nowrap">Status</th>
-                <th style="white-space:nowrap">Carrier</th>
-                <th style="white-space:nowrap">Est. Delivery</th>
+                <th style="white-space:nowrap;width:130px">Status</th>
+                <th style="white-space:nowrap;width:80px">Carrier</th>
+                <th style="white-space:nowrap;width:110px">Est. Delivery</th>
               </tr>
             </thead>
             <tbody>
