@@ -330,6 +330,11 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 ## Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-19 (Lot modal bug fixes session)
+- **#22 bug (P1) — DONE:** Lot modal profit column now shows actual `F.profit` for sold items instead of `estProfit()` (which used list price). Renamed column from "Est Profit" to "Profit". Color class updated to use same value.
+- **#24 bug (P2) — DONE:** EAF column in lot modal now shows `—` for sold items — EAF is only meaningful for listed items.
+- **#23 bug (P1) — DONE:** Added `previousModal` state to store. Opening an item from lot modal stashes the lot state; close/escape/click-outside on item modal restores lot modal. Guarded lot modal escape handler with `activeModal === 'lot'` check to prevent double-fire.
+
 ### 2026-03-18 (Shipment tracking session)
 - **#19 enhancement (P1) — DONE (awaiting live label validation):** Full EasyPost tracking feature. New Airtable fields: `trackingId`, `trackingNumber`, `trackerUrl`. New `GET /api/label/tracker/:id` server proxy. `store.fetchTracker(id)` shared helper. `saveShipping()` now saves all 3 tracking fields at purchase. Shipping sidebar button restored (always visible); modal repurposed as "In Transit" panel showing all sold+tracked items with live status badges + Refresh All. Dashboard "In Transit" panel (appears only when items have tracking, hides when all delivered). Items view Sold filter gets a Tracking column. Item modal read view gets a Shipment section with status, carrier, est. delivery, timeline, public tracker link. All 4 surfaces use collect-then-assign pattern to avoid concurrent spread race. Cannot fully validate until next live label purchase populates `trackingId`.
 
