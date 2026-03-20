@@ -14,6 +14,7 @@ document.addEventListener('alpine:init', () => {
     errMsg:         '',
     saveMsg:        '',
     savingShip:     false,
+    reverbShipMsg:  '',   // separate from saveMsg so it isn't overwritten by saveShipping()
 
     init() {
       this.$watch('$store.dw.activeModal', val => {
@@ -34,6 +35,7 @@ document.addEventListener('alpine:init', () => {
       this.errMsg         = '';
       this.saveMsg        = '';
       this.savingShip     = false;
+      this.reverbShipMsg  = '';
 
       const dw = Alpine.store('dw');
       const r  = dw.records.find(x => x.id === dw.activeRecordId);
@@ -195,6 +197,7 @@ document.addEventListener('alpine:init', () => {
 
     async markShipped() {
       if (!this.reverbLinks?.ship?.href || !this.purchaseResult?.trackingNumber) return;
+      this.reverbShipMsg = 'Notifying Reverb...';
       const apiPath = this.reverbLinks.ship.href
         .replace(/^https?:\/\/api\.reverb\.com\/api\//, '');
       const carrierMap = { USPS: 'USPS', UPS: 'UPS', FedEx: 'FedEx', DHL: 'DHL', DHLExpress: 'DHLExpress' };
@@ -210,12 +213,13 @@ document.addEventListener('alpine:init', () => {
           }),
         });
         if (!res.ok) {
-          const d = await res.json();
+          const d = await res.json().catch(() => ({}));
           throw new Error(d.message || `HTTP ${res.status}`);
         }
-        this.saveMsg = '✓ buyer notified on Reverb';
+        this.reverbShipMsg = '✓ buyer notified';
       } catch(e) {
-        this.saveMsg = 'Reverb error: ' + e.message;
+        this.reverbShipMsg = 'Reverb error: ' + e.message;
+        console.error('[markShipped] error:', e);
       }
     },
   }));

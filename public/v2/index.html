@@ -1065,8 +1065,10 @@
             </button>
             <button x-show="reverbLinks?.ship && purchaseResult?.trackingNumber"
               @click="markShipped()"
-              style="padding:10px 24px;background:transparent;border:1px solid var(--reverb);color:var(--reverb);font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer">
-              MARK SHIPPED ON REVERB
+              :disabled="reverbShipMsg === 'Notifying Reverb...' || reverbShipMsg === '✓ buyer notified'"
+              :style="reverbShipMsg === '✓ buyer notified' ? 'background:var(--surface);border:1px solid var(--reverb);color:var(--reverb);cursor:default;opacity:.6' : 'background:transparent;border:1px solid var(--reverb);color:var(--reverb);cursor:pointer'"
+              x-text="reverbShipMsg === 'Notifying Reverb...' ? 'NOTIFYING...' : reverbShipMsg === '✓ buyer notified' ? '✓ SHIPPED ON REVERB' : 'MARK SHIPPED ON REVERB'"
+              style="padding:10px 24px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px">
             </button>
             <button x-show="reverbLinks?.packing_slip"
               @click="window.open(reverbLinks.packing_slip.web.href, '_blank')"
@@ -1075,6 +1077,8 @@
             </button>
             <span x-show="saveMsg && !saveMsg.startsWith('✓')" x-text="saveMsg"
               style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
+            <span x-show="reverbShipMsg && reverbShipMsg !== 'Notifying Reverb...' && reverbShipMsg !== '✓ buyer notified'"
+              x-text="reverbShipMsg" style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
           </div>
         </div>
 
