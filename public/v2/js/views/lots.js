@@ -76,7 +76,7 @@ document.addEventListener('alpine:init', () => {
     estUpside(lot) {
       const dw = Alpine.store('dw');
       return lot.items
-        .filter(r => dw.str(r, F.status) === 'Listed')
+        .filter(r => dw.str(r, F.status) !== 'Sold')
         .reduce((sum, r) => sum + dw.eaf(dw.num(r, F.listPrice)), 0);
     },
 
