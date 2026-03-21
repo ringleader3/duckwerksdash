@@ -91,7 +91,9 @@ document.addEventListener('alpine:init', () => {
 
     get pipeline() {
       const dw = Alpine.store('dw');
-      return dw.listedRecords.reduce((sum, r) => sum + dw.eaf(dw.num(r, F.listPrice)), 0);
+      return dw.records
+        .filter(r => dw.str(r, F.status) !== 'Sold')
+        .reduce((sum, r) => sum + dw.eaf(dw.num(r, F.listPrice)), 0);
     },
 
     get notListed() {

@@ -109,7 +109,7 @@
           <div class="stat-card yellow">
             <div class="stat-card-label">Upside Pending</div>
             <div class="stat-card-value" x-text="$store.dw.fmtK(pipeline)"></div>
-            <div class="stat-card-sub" x-text="$store.dw.listedRecords.length + ' listed · after fees'"></div>
+            <div class="stat-card-sub" x-text="($store.dw.records.length - $store.dw.soldRecords.length) + ' active · after fees'"></div>
           </div>
           <div class="stat-card">
             <div class="stat-card-label">Inventory</div>
