@@ -93,7 +93,7 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       return dw.records
         .filter(r => dw.str(r, F.status) !== 'Sold')
-        .reduce((sum, r) => sum + dw.eaf(dw.num(r, F.listPrice)), 0);
+        .reduce((sum, r) => sum + dw.payout(r), 0);
     },
 
     get notListed() {
@@ -116,7 +116,7 @@ document.addEventListener('alpine:init', () => {
         const pct    = cost > 0 ? Math.min(100, Math.round((recovered / cost) * 100)) : 0;
         const upside = lot.items
           .filter(r => dw.str(r, F.status) === 'Listed')
-          .reduce((s, r) => s + dw.eaf(dw.num(r, F.listPrice)), 0);
+          .reduce((s, r) => s + dw.payout(r), 0);
         return { name: lot.name, cost, recovered, pct, upside };
       }).sort((a, b) => b.cost - a.cost);
     },

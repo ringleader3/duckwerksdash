@@ -56,7 +56,7 @@ document.addEventListener('alpine:init', () => {
         else if (key === 'site')        { av = dw.siteLabel(a).toLowerCase();    bv = dw.siteLabel(b).toLowerCase(); }
         else if (key === 'status')      { av = dw.str(a, F.status).toLowerCase(); bv = dw.str(b, F.status).toLowerCase(); }
         else if (key === 'listPrice')   { av = dw.num(a, F.listPrice);           bv = dw.num(b, F.listPrice); }
-        else if (key === 'eaf')         { av = dw.eaf(dw.num(a, F.listPrice));   bv = dw.eaf(dw.num(b, F.listPrice)); }
+        else if (key === 'eaf')         { av = dw.payout(a);   bv = dw.payout(b); }
         else if (key === 'profit')      { av = dw.estProfit(a);                  bv = dw.estProfit(b); }
         else if (key === 'shipping')    { av = dw.num(a, F.shipping);            bv = dw.num(b, F.shipping); }
         else return 0;
@@ -97,7 +97,7 @@ document.addEventListener('alpine:init', () => {
     eafDisplay(r) {
       const dw = Alpine.store('dw');
       const lp = dw.num(r, F.listPrice);
-      return lp > 0 ? dw.fmt0(dw.eaf(lp)) : '—';
+      return lp > 0 ? dw.fmt0(dw.payout(r)) : '—';
     },
 
     profitDisplay(r) {

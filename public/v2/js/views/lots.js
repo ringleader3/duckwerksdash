@@ -41,8 +41,8 @@ document.addEventListener('alpine:init', () => {
           const rB = b.items.filter(r => dw.str(r, F.status) === 'Sold').reduce((s, r) => s + dw.num(r, F.sale), 0);
           av = cA > 0 ? rA / cA : 0; bv = cB > 0 ? rB / cB : 0;
         } else if (key === 'estUpside') {
-          av = a.items.filter(r => dw.str(r, F.status) === 'Listed').reduce((s, r) => s + dw.eaf(dw.num(r, F.listPrice)), 0);
-          bv = b.items.filter(r => dw.str(r, F.status) === 'Listed').reduce((s, r) => s + dw.eaf(dw.num(r, F.listPrice)), 0);
+          av = a.items.filter(r => dw.str(r, F.status) === 'Listed').reduce((s, r) => s + dw.payout(r), 0);
+          bv = b.items.filter(r => dw.str(r, F.status) === 'Listed').reduce((s, r) => s + dw.payout(r), 0);
         } else return 0;
         if (av < bv) return dir === 'asc' ? -1 : 1;
         if (av > bv) return dir === 'asc' ? 1  : -1;
@@ -77,7 +77,7 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       return lot.items
         .filter(r => dw.str(r, F.status) !== 'Sold')
-        .reduce((sum, r) => sum + dw.eaf(dw.num(r, F.listPrice)), 0);
+        .reduce((sum, r) => sum + dw.payout(r), 0);
     },
 
     recoveryBarClass(pct) {

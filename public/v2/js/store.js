@@ -131,14 +131,20 @@ document.addEventListener('alpine:init', () => {
       'Facebook': ()     => 0,
     },
 
-    // Est. profit for a listed item. Use $10 shipping placeholder if not set (show yellow)
-    estProfit(r) {
+    // Post-fee payout for a record — site-aware via SITE_FEES
+    payout(r) {
       const site  = this.siteLabel(r);
       const lp    = this.num(r, F.listPrice);
-      const cost  = this.num(r, F.cost);
       const ship  = r.fields[F.shipping] != null ? this.num(r, F.shipping) : 10;
       const feeFn = this.SITE_FEES[site] || (() => 0);
-      return lp - cost - ship - feeFn(lp, ship);
+      return lp - feeFn(lp, ship);
+    },
+
+    // Est. profit for a listed item. Use $10 shipping placeholder if not set (show yellow)
+    estProfit(r) {
+      const cost = this.num(r, F.cost);
+      const ship = r.fields[F.shipping] != null ? this.num(r, F.shipping) : 10;
+      return this.payout(r) - cost - ship;
     },
 
     fmt0(n)  { return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },

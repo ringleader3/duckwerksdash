@@ -298,7 +298,7 @@
                   <td><span :class="'badge ' + (CAT_BADGE[$store.dw.str(r, F.category)] || '')" x-text="$store.dw.str(r, F.category)"></span></td>
                   <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
                   <td class="num" x-text="$store.dw.num(r, F.listPrice) > 0 ? $store.dw.fmt0($store.dw.num(r, F.listPrice)) : '—'"></td>
-                  <td class="num est" x-text="$store.dw.num(r, F.listPrice) > 0 ? $store.dw.fmt0($store.dw.eaf($store.dw.num(r, F.listPrice))) : '—'"></td>
+                  <td class="num est" x-text="$store.dw.num(r, F.listPrice) > 0 ? $store.dw.fmt0($store.dw.payout(r)) : '—'"></td>
                   <td class="num est" x-text="$store.dw.fmt0($store.dw.estProfit(r))"></td>
                 </tr>
               </template>
@@ -523,7 +523,7 @@
           </div>
           <div class="modal-row" x-show="$store.dw.num(record, F.listPrice) > 0 && !isSold">
             <span class="modal-field">Earnings After Fees</span>
-            <span class="modal-val est" x-text="$store.dw.fmt0($store.dw.eaf($store.dw.num(record, F.listPrice)))"></span>
+            <span class="modal-val est" x-text="$store.dw.fmt0($store.dw.payout(record))"></span>
           </div>
           <div class="modal-row">
             <span class="modal-field">Cost Basis</span>

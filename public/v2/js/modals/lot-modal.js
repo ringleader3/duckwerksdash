@@ -24,7 +24,7 @@ document.addEventListener('alpine:init', () => {
         if (k === 'status')    { return dir * dw.str(a, F.status).localeCompare(dw.str(b, F.status)); }
         if (k === 'cost')      { av = dw.num(a, F.cost);      bv = dw.num(b, F.cost); }
         if (k === 'listPrice') { av = dw.num(a, F.listPrice); bv = dw.num(b, F.listPrice); }
-        if (k === 'eaf')       { av = dw.eaf(dw.num(a, F.listPrice)); bv = dw.eaf(dw.num(b, F.listPrice)); }
+        if (k === 'eaf')       { av = dw.payout(a); bv = dw.payout(b); }
         if (k === 'estProfit') { av = dw.estProfit(a); bv = dw.estProfit(b); }
         if (k === 'sale')      { av = dw.num(a, F.sale); bv = dw.num(b, F.sale); }
         return dir * ((av || 0) - (bv || 0));
@@ -63,7 +63,7 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       return this.items
         .filter(r => dw.str(r, F.status) !== 'Sold')
-        .reduce((sum, r) => sum + dw.eaf(dw.num(r, F.listPrice)), 0);
+        .reduce((sum, r) => sum + dw.payout(r), 0);
     },
 
     // Est profit if all listed items sell
@@ -111,7 +111,7 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       if (dw.str(r, F.status) === 'Sold') return '—';
       const lp = dw.num(r, F.listPrice);
-      return lp > 0 ? dw.fmt0(dw.eaf(lp)) : '—';
+      return lp > 0 ? dw.fmt0(dw.payout(r)) : '—';
     },
 
     profitValue(r) {

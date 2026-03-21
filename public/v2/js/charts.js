@@ -106,7 +106,7 @@ document.addEventListener('alpine:init', () => {
       });
 
       // Value annotations: EAF total for Listed, cost total for Unlisted
-      const listedEAF     = listedRecs.reduce((s, r) => s + dw.eaf(dw.num(r, F.listPrice)), 0);
+      const listedEAF     = listedRecs.reduce((s, r) => s + dw.payout(r), 0);
       const unlistedCost  = unlistedRecs.reduce((s, r) => s + dw.num(r, F.cost), 0);
       const fmt = n => '$' + n.toFixed(0);
 
