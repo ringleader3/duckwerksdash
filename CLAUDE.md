@@ -350,7 +350,7 @@ _Most recent first. Update this at the end of every session._
 - **EasyPost label size:** Added `label_format: 'PDF', label_size: '4X6'` to shipment options in `server/label.js`. Must be set at shipment creation (rates step), not purchase.
 - **#29 enhancement (P2) — FILED:** Persist `labelUrl` to Airtable so labels can be reprinted from item modal after the label modal closes.
 - **Pending status removed:** "Pending" was never an Airtable status option (actual statuses: Listed, Sold, Prepping). Removed from all status dropdowns, filter pills, `store.pendingRecords` getter, and pipeline chart.
-- **EST UPSIDE fixes:** Lot modal `estUpside()` and dashboard `pipeline` now include all non-Sold items (Prepping + Listed) instead of Listed-only.
+- **EST UPSIDE fixes:** Lot modal `estUpside()`, lots view `estUpside()`, and dashboard `pipeline` now include all non-Sold items (Prepping + Listed) instead of Listed-only.
 
 ### 2026-03-19 (Tracking polish + lot modal bug fixes session)
 - **#21 enhancement (P2) — DONE:** CLEAR TRACKING button in item modal Shipment section. Clears `trackingId`, `trackingNumber`, `trackerUrl` from Airtable and refreshes store. Validated with test label.
