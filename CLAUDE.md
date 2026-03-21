@@ -345,6 +345,13 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 ## Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-20 (First real order + upside/status cleanup session)
+- **#28 bug (P1) — DONE:** MARK SHIPPED ON REVERB button was unresponsive — success set `saveMsg = '✓ buyer notified'` which was filtered out by the error-only span. Also, concurrent `saveShipping()` could overwrite any Reverb error. Fixed by introducing `reverbShipMsg` state separate from `saveMsg`. Button now shows NOTIFYING... → ✓ SHIPPED ON REVERB and disables after success. Errors display in their own span.
+- **EasyPost label size:** Added `label_format: 'PDF', label_size: '4X6'` to shipment options in `server/label.js`. Must be set at shipment creation (rates step), not purchase.
+- **#29 enhancement (P2) — FILED:** Persist `labelUrl` to Airtable so labels can be reprinted from item modal after the label modal closes.
+- **Pending status removed:** "Pending" was never an Airtable status option (actual statuses: Listed, Sold, Prepping). Removed from all status dropdowns, filter pills, `store.pendingRecords` getter, and pipeline chart.
+- **EST UPSIDE fixes:** Lot modal `estUpside()` and dashboard `pipeline` now include all non-Sold items (Prepping + Listed) instead of Listed-only.
+
 ### 2026-03-19 (Tracking polish + lot modal bug fixes session)
 - **#21 enhancement (P2) — DONE:** CLEAR TRACKING button in item modal Shipment section. Clears `trackingId`, `trackingNumber`, `trackerUrl` from Airtable and refreshes store. Validated with test label.
 - **#25 bug (P2) — DONE:** Carrier + service name maps in `server/label.js` (`CARRIER_NAMES`, `SERVICE_NAMES`) applied to rates response and `fetchTracker`. In Transit tables fixed: `items-table` (no CSS) → `data-table`, fixed column widths, centered data cells. Delivered items stay visible 3 days via EasyPost delivery event datetime; logic centralized in `store.isInTransit(r, trackingData)`. Note: EasyPost test mode uses historical fake delivery dates so delivered items disappear immediately in test — expected behavior, not a bug.
