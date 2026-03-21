@@ -118,10 +118,6 @@ document.addEventListener('alpine:init', () => {
     },
     num(r, field) { return parseFloat(r?.fields?.[field]) || 0; },
 
-    // Earnings after Reverb fees: 5% selling + 3.19% processing + $0.49 flat
-    // Apply to listPrice only — F.sale already stores post-fee payout
-    eaf(p) { return p > 0 ? Math.max(0, p * 0.9181 - 0.49) : 0; },
-
     // Platform fee lookup — returns the fee amount given (listPrice, shipping)
     // eBay: 13.25% on total (item+ship) + $0.40 flat (consumer electronics rate)
     // Facebook: no fees (in-person cash sales)

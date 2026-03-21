@@ -167,10 +167,6 @@ public/v2/
 
 ### Key Computed Values (do not change formula)
 ```js
-// Earnings after fees (Reverb: 5% selling + 3.19% processing + $0.49 flat)
-// Used as a display metric in many places — Reverb-specific, leave alone
-eaf(p) { return p > 0 ? Math.max(0, p * 0.9181 - 0.49) : 0; }
-
 // Platform fee lookup — returns the fee amount given (listPrice, shipping)
 // eBay: 13.25% on total (item+ship) + $0.40 flat (consumer electronics rate — update after first AV sale)
 // Facebook: no fees (in-person cash sales)
