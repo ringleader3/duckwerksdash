@@ -168,15 +168,28 @@ public/v2/
 ### Key Computed Values (do not change formula)
 ```js
 // Earnings after fees (Reverb: 5% selling + 3.19% processing + $0.49 flat)
+// Used as a display metric in many places — Reverb-specific, leave alone
 eaf(p) { return p > 0 ? Math.max(0, p * 0.9181 - 0.49) : 0; }
 
-// Estimated profit for listed items
-// shipEst: use actual shipping if set, else $10 placeholder (show in yellow)
+// Platform fee lookup — returns the fee amount given (listPrice, shipping)
+// eBay: 13.25% on total (item+ship) + $0.40 flat (consumer electronics rate — update after first AV sale)
+// Facebook: no fees (in-person cash sales)
+SITE_FEES: {
+  'Reverb':   (p)    => p * 0.0819 + 0.49,
+  'eBay':     (p, s) => (p + s) * 0.1325 + 0.40,
+  'Facebook': ()     => 0,
+}
+
+// Estimated profit for listed items — site-aware via SITE_FEES lookup
+// ship: use actual if set (incl. est. shipping from add modal), else $10 placeholder (shown yellow)
+// Unknown sites fall back to no fees
 estProfit(r) {
-  const lp   = this.num(r, F.listPrice);
-  const cost = this.num(r, F.cost);
-  const ship = r.fields[F.shipping] != null ? this.num(r, F.shipping) : 10;
-  return this.eaf(lp) - cost - ship;
+  const site  = this.siteLabel(r);
+  const lp    = this.num(r, F.listPrice);
+  const cost  = this.num(r, F.cost);
+  const ship  = r.fields[F.shipping] != null ? this.num(r, F.shipping) : 10;
+  const feeFn = this.SITE_FEES[site] || (() => 0);
+  return lp - cost - ship - feeFn(lp, ship);
 }
 ```
 
@@ -344,6 +357,11 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 
 ## Session Log
 _Most recent first. Update this at the end of every session._
+
+### 2026-03-20 (Site-aware fees + add modal shipping session)
+- **Site-aware fee lookup:** Added `SITE_FEES` table to `store.js` — fee functions keyed by site label. Reverb: 5% + 3.19% + $0.49 (item price only). eBay: 13.25% on total (item + shipping) + $0.40 flat (consumer electronics rate — verify after first AV sale). Facebook: no fees. Unknown sites fall back to no fees.
+- **`estProfit()` updated:** Now uses `SITE_FEES[siteLabel(r)]` instead of always applying Reverb fees. `eaf()` left untouched — still used as a Reverb-specific display metric across views/modals.
+- **Est. Shipping in Add modal:** Optional number field added to add-modal form, HTML, and save logic. Saved to `F.shipping` if filled in — `estProfit()` uses it immediately; blank fields still fall back to $10 placeholder.
 
 ### 2026-03-20 (First real order + upside/status cleanup session)
 - **#28 bug (P1) — DONE:** MARK SHIPPED ON REVERB button was unresponsive — success set `saveMsg = '✓ buyer notified'` which was filtered out by the error-only span. Also, concurrent `saveShipping()` could overwrite any Reverb error. Fixed by introducing `reverbShipMsg` state separate from `saveMsg`. Button now shows NOTIFYING... → ✓ SHIPPED ON REVERB and disables after success. Errors display in their own span.

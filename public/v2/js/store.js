@@ -122,12 +122,23 @@ document.addEventListener('alpine:init', () => {
     // Apply to listPrice only — F.sale already stores post-fee payout
     eaf(p) { return p > 0 ? Math.max(0, p * 0.9181 - 0.49) : 0; },
 
+    // Platform fee lookup — returns the fee amount given (listPrice, shipping)
+    // eBay: 13.25% on total (item+ship) + $0.40 flat (consumer electronics rate)
+    // Facebook: no fees (in-person cash sales)
+    SITE_FEES: {
+      'Reverb':   (p)    => p * 0.0819 + 0.49,
+      'eBay':     (p, s) => (p + s) * 0.1325 + 0.40,
+      'Facebook': ()     => 0,
+    },
+
     // Est. profit for a listed item. Use $10 shipping placeholder if not set (show yellow)
     estProfit(r) {
-      const lp   = this.num(r, F.listPrice);
-      const cost = this.num(r, F.cost);
-      const ship = r.fields[F.shipping] != null ? this.num(r, F.shipping) : 10;
-      return this.eaf(lp) - cost - ship;
+      const site  = this.siteLabel(r);
+      const lp    = this.num(r, F.listPrice);
+      const cost  = this.num(r, F.cost);
+      const ship  = r.fields[F.shipping] != null ? this.num(r, F.shipping) : 10;
+      const feeFn = this.SITE_FEES[site] || (() => 0);
+      return lp - cost - ship - feeFn(lp, ship);
     },
 
     fmt0(n)  { return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },

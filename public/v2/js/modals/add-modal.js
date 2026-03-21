@@ -12,10 +12,11 @@ document.addEventListener('alpine:init', () => {
       newLot:    '',
       listPrice: '',
       cost:      '',
+      shipping:  '',
     },
 
     reset() {
-      this.form    = { name: '', status: 'Prepping', category: '', site: '', lot: '', newLot: '', listPrice: '', cost: '' };
+      this.form    = { name: '', status: 'Prepping', category: '', site: '', lot: '', newLot: '', listPrice: '', cost: '', shipping: '' };
       this.saveMsg = '';
       this.saving  = false;
     },
@@ -32,6 +33,7 @@ document.addEventListener('alpine:init', () => {
       if (lotVal) fields[F.lot] = lotVal;
       if (this.form.listPrice !== '') fields[F.listPrice] = parseFloat(this.form.listPrice);
       if (this.form.cost      !== '') fields[F.cost]      = parseFloat(this.form.cost);
+      if (this.form.shipping  !== '') fields[F.shipping]  = parseFloat(this.form.shipping);
 
       this.saving  = true;
       this.saveMsg = '';

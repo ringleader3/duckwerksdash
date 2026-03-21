@@ -781,7 +781,7 @@
           <span class="modal-val">
             <select class="modal-select" x-model="form.site">
               <option value="">—</option>
-              <template x-for="s in ['Reverb','eBay']" :key="s">
+              <template x-for="s in ['Reverb','eBay','Marketplace']" :key="s">
                 <option :value="s" x-text="s"></option>
               </template>
             </select>
@@ -811,6 +811,10 @@
         <div class="modal-row">
           <span class="modal-field">Cost Basis</span>
           <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.cost" style="width:120px"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Est. Shipping</span>
+          <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.shipping" style="width:120px" placeholder="optional"></span>
         </div>
 
         <div class="modal-save-row">
