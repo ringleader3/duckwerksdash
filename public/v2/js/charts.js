@@ -98,13 +98,11 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       if (dw.records.length === 0) return;
 
-      // Compute status counts and values fresh (do not reuse notListed getter — it doesn't exclude Pending)
       const listedRecs   = dw.listedRecords;
-      const pendingRecs  = dw.pendingRecords;
       const soldRecs     = dw.soldRecords;
       const unlistedRecs = dw.records.filter(r => {
         const s = dw.str(r, F.status);
-        return s !== 'Listed' && s !== 'Sold' && s !== 'Pending';
+        return s !== 'Listed' && s !== 'Sold';
       });
 
       // Value annotations: EAF total for Listed, cost total for Unlisted
@@ -126,11 +124,6 @@ document.addEventListener('alpine:init', () => {
               label: `Listed (${listedRecs.length} · ${fmt(listedEAF)} EAF)`,
               data: [listedRecs.length],
               backgroundColor: 'rgba(236,201,75,0.7)',   // --yellow
-            },
-            {
-              label: `Pending (${pendingRecs.length})`,
-              data: [pendingRecs.length],
-              backgroundColor: 'rgba(66,153,225,0.7)',   // --blue
             },
             {
               label: `Sold (${soldRecs.length})`,

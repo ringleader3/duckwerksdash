@@ -321,7 +321,7 @@
         <!-- Controls -->
         <div class="controls-row">
           <div class="pill-row">
-            <template x-for="s in ['All','Listed','Pending','Sold','Prepping']" :key="s">
+            <template x-for="s in ['All','Listed','Sold','Prepping']" :key="s">
               <button class="pill" :class="{ active: statusFilter === s }" @click="statusFilter = s; $store.dw.categoryFilter = null" x-text="s"></button>
             </template>
           </div>
@@ -370,7 +370,7 @@
                 <td style="position:relative">
                   <span class="badge" :class="badgeClass($store.dw.str(r, F.status))" x-text="$store.dw.str(r, F.status)" @click="toggleStatusMenu(r.id, $event)" style="cursor:pointer" title="Click to change status"></span>
                   <div x-show="openStatusId === r.id" class="status-dropdown" @click.stop>
-                    <template x-for="s in ['Listed','Pending','Sold','Prepping']" :key="s">
+                    <template x-for="s in ['Listed','Sold','Prepping']" :key="s">
                       <div class="status-option" x-text="s" @click="changeStatus(r, s, $event)"></div>
                     </template>
                   </div>
@@ -649,7 +649,7 @@
             <span class="modal-field">Status</span>
             <span class="modal-val">
               <select class="modal-select" x-model="form.status">
-                <template x-for="s in ['Prepping','Listed','Pending','Sold']" :key="s">
+                <template x-for="s in ['Prepping','Listed','Sold']" :key="s">
                   <option :value="s" x-text="s"></option>
                 </template>
               </select>
@@ -759,7 +759,7 @@
           <span class="modal-field">Status</span>
           <span class="modal-val">
             <select class="modal-select" x-model="form.status">
-              <template x-for="s in ['Prepping','Listed','Pending','Sold']" :key="s">
+              <template x-for="s in ['Prepping','Listed','Sold']" :key="s">
                 <option :value="s" x-text="s"></option>
               </template>
             </select>

@@ -97,7 +97,6 @@ document.addEventListener('alpine:init', () => {
     // ── Computed: filtered record sets ────────────────────────────────────────
     get listedRecords()  { return this.records.filter(r => this.str(r, F.status) === 'Listed'); },
     get soldRecords()    { return this.records.filter(r => this.str(r, F.status) === 'Sold'); },
-    get pendingRecords() { return this.records.filter(r => this.str(r, F.status) === 'Pending'); },
 
     // Unique lot names derived from records
     get lots() {
