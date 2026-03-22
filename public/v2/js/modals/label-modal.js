@@ -184,6 +184,7 @@ document.addEventListener('alpine:init', () => {
       if (this.purchaseResult?.trackingNumber) fields[F.trackingNumber] = this.purchaseResult.trackingNumber;
       if (this.purchaseResult?.trackingId)     fields[F.trackingId]     = this.purchaseResult.trackingId;
       if (this.purchaseResult?.trackerUrl)     fields[F.trackerUrl]     = this.purchaseResult.trackerUrl;
+      if (this.purchaseResult?.labelUrl)       fields[F.labelUrl]       = this.purchaseResult.labelUrl;
       try {
         await dw.updateRecord(this.record.id, fields);
         this.saveMsg = '✓ saved';

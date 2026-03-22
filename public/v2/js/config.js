@@ -23,6 +23,7 @@ const F = {
   trackingId:      'fld83D6AubuZqZAQQ',
   trackingNumber:  'fldWWo58dN1cFKiSl',
   trackerUrl:      'fldTJ2Dm782UWe5dW',
+  labelUrl:        'fld6gsm3lU2L1cK4V',
 };
 
 const CAT_COLOR = {
