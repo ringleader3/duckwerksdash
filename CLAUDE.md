@@ -357,6 +357,7 @@ _Most recent first. Update this at the end of every session._
 ### 2026-03-22 (API + label printing session)
 - **#30 enhancement (P2) — DONE:** Removed redundant `fetchAll()` calls in `label-modal.js` (`saveShipping()`) and `item-modal.js` (`clearTracking()`). `updateRecord()` already updates the local store in-place from the PATCH response — a full refetch was unnecessary. Reduces Airtable API usage on every label purchase and item save.
 - **EasyPost label size:** Changed `label_size` from `'4X6'` to `'letter'` in `server/label.js` — EasyPost's letter format generates an 8.5x11 PDF with the label pre-positioned in the upper-left corner, matching what Pirate Ship/Shippo produce. Print at 100% actual size, no custom paper settings needed.
+- **#29 enhancement (P2) — awaiting validation:** Persist `labelUrl` to Airtable on label purchase (`F.labelUrl = fld6gsm3lU2L1cK4V`). Saved in `saveShipping()` alongside tracking fields. Item modal Shipment section shows "↗ Reprint Label" link when field is populated. Validate on next live label purchase.
 
 ### 2026-03-20 (Site-aware fees + add modal shipping session)
 - **Site-aware fee lookup:** Added `SITE_FEES` table to `store.js` — fee functions keyed by site label. Reverb: 5% + 3.19% + $0.49 (item price only). eBay: 13.25% on total (item + shipping) + $0.40 flat (consumer electronics rate — verify after first AV sale). Facebook: no fees. Unknown sites fall back to no fees.
