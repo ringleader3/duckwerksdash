@@ -354,9 +354,14 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 ## Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-22 (UPS rates fix session)
+- **UPS rates missing — FIXED:** `label_size: 'letter'` (set last session) is not a valid EasyPost enum for UPS — UPS requires `'4X6'`, `'4X8'`, `'4X4'`, `'6X4'`, or `'8.5X11'`. Switched to `'8.5X11'` which is cross-carrier and produces the same 8.5x11 PDF output. The regression source was the 2026-03-22 label printing session where 'letter' was introduced.
+- **UPSDAP carrier account not auto-included:** EasyPost doesn't automatically include user-linked carrier accounts (like UPSDAP) in rate requests — only its own managed accounts (USPS, FedEx Wallet). Added `EASYPOST_CARRIER_ACCOUNTS` env var (comma-separated carrier account IDs) to `server/label.js`. When set, these are passed explicitly in shipment creation. Add all three account IDs to `.env`: USPS (`ca_9427850d276d43f893164cbf616f2a3a`), FedEx (`ca_f175f49d4587438b9f6ce4a690fd864d`), UPS (`ca_090146eb4dac4e27b77e8ff7d9fcb803`).
+- **Debugging tip:** EasyPost returns a `messages` array in the shipment response with per-carrier rate errors. Log `data.messages` to diagnose missing carriers.
+
 ### 2026-03-22 (API + label printing session)
 - **#30 enhancement (P2) — DONE:** Removed redundant `fetchAll()` calls in `label-modal.js` (`saveShipping()`) and `item-modal.js` (`clearTracking()`). `updateRecord()` already updates the local store in-place from the PATCH response — a full refetch was unnecessary. Reduces Airtable API usage on every label purchase and item save.
-- **EasyPost label size:** Changed `label_size` from `'4X6'` to `'letter'` in `server/label.js` — EasyPost's letter format generates an 8.5x11 PDF with the label pre-positioned in the upper-left corner, matching what Pirate Ship/Shippo produce. Print at 100% actual size, no custom paper settings needed.
+- **EasyPost label size:** Changed `label_size` from `'4X6'` to `'letter'` in `server/label.js` — later corrected to `'8.5X11'` (see next session) because `'letter'` is not a valid UPS enum value and silently blocked UPS rates.
 - **#29 enhancement (P2) — awaiting validation:** Persist `labelUrl` to Airtable on label purchase (`F.labelUrl = fld6gsm3lU2L1cK4V`). Saved in `saveShipping()` alongside tracking fields. Item modal Shipment section shows "↗ Reprint Label" link when field is populated. Validate on next live label purchase.
 
 ### 2026-03-20 (Site-aware fees + add modal shipping session)
