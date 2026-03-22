@@ -109,7 +109,6 @@ document.addEventListener('alpine:init', () => {
       if (!r) return;
       await dw.updateRecord(r.id, { [F.trackingId]: null, [F.trackingNumber]: null, [F.trackerUrl]: null });
       this.trackingInfo = null;
-      await dw.fetchAll();
     },
 
     async _loadTracking() {
