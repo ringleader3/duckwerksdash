@@ -355,9 +355,8 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 _Most recent first. Update this at the end of every session._
 
 ### 2026-03-22 (UPS rates fix session)
-- **UPS rates missing — FIXED:** `label_size: 'letter'` (set last session) is not a valid EasyPost enum for UPS — UPS requires `'4X6'`, `'4X8'`, `'4X4'`, `'6X4'`, or `'8.5X11'`. Switched to `'8.5X11'` which is cross-carrier and produces the same 8.5x11 PDF output. The regression source was the 2026-03-22 label printing session where 'letter' was introduced.
-- **UPSDAP carrier account not auto-included:** EasyPost doesn't automatically include user-linked carrier accounts (like UPSDAP) in rate requests — only its own managed accounts (USPS, FedEx Wallet). Added `EASYPOST_CARRIER_ACCOUNTS` env var (comma-separated carrier account IDs) to `server/label.js`. When set, these are passed explicitly in shipment creation. Add all three account IDs to `.env`: USPS (`ca_9427850d276d43f893164cbf616f2a3a`), FedEx (`ca_f175f49d4587438b9f6ce4a690fd864d`), UPS (`ca_090146eb4dac4e27b77e8ff7d9fcb803`).
-- **Debugging tip:** EasyPost returns a `messages` array in the shipment response with per-carrier rate errors. Log `data.messages` to diagnose missing carriers.
+- **UPS rates missing — FIXED:** `label_size: 'letter'` (set last session) is not a valid EasyPost enum for UPS — UPS silently drops from the rates response when it can't honor the label_size option. Switched to `'8.5X11'` which is cross-carrier and produces the same 8.5x11 PDF output.
+- **Debugging tip:** EasyPost returns a `messages` array in the shipment response with per-carrier rate errors. Log `data.messages` to diagnose missing carriers — the UPS error was `"label_size: value is not a valid enumeration member; permitted: '4X6', '4X8', '4X4', '6X4', '8.5X11'"`. EasyPost auto-includes all linked carrier accounts; no need to specify them explicitly.
 
 ### 2026-03-22 (API + label printing session)
 - **#30 enhancement (P2) — DONE:** Removed redundant `fetchAll()` calls in `label-modal.js` (`saveShipping()`) and `item-modal.js` (`clearTracking()`). `updateRecord()` already updates the local store in-place from the PATCH response — a full refetch was unnecessary. Reduces Airtable API usage on every label purchase and item save.

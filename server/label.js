@@ -143,23 +143,19 @@ function easypostHeaders(token) {
 
 async function easypostRates(toAddress, parcel) {
   const token = easypostToken();
-  const carrierAccountIds = process.env.EASYPOST_CARRIER_ACCOUNTS
-    ? process.env.EASYPOST_CARRIER_ACCOUNTS.split(',').map(id => id.trim())
-    : undefined;
   const res   = await fetch(`${EASYPOST_API}/shipments`, {
     method:  'POST',
     headers: easypostHeaders(token),
     body: JSON.stringify({
       shipment: {
-        from_address:     fromAddress(),
-        to_address:       toAddress,
+        from_address: fromAddress(),
+        to_address:   toAddress,
         parcel: {
           weight: parcel.weight * 16,   // EasyPost expects oz
           length: parcel.length,
           width:  parcel.width,
           height: parcel.height,
         },
-        carrier_accounts: carrierAccountIds,
         options: {
           label_format: 'PDF',
           label_size:   '8.5X11',
