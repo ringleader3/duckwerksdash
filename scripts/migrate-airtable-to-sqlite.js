@@ -96,7 +96,7 @@ async function migrate() {
   // ── Insert items ──────────────────────────────────────────────────────────
   const insertItem = db.prepare(`
     INSERT INTO items (name, lot_id, category_id, cost, notes, status, created_at)
-    VALUES (?, ?, ?, ?, NULL, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
   const itemIdMap = {}; // airtable record id → sqlite item id
 
