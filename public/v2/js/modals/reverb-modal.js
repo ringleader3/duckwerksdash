@@ -164,7 +164,7 @@ document.addEventListener('alpine:init', () => {
       }
       this.matchesMsg    = errors ? `${saved} saved, ${errors} failed` : `✓ ${saved} saved`;
       this.savingMatches = false;
-      setTimeout(() => this._process(), 800);
+      setTimeout(async () => { await Alpine.store('dw').fetchAll(); this._process(); }, 800);
     },
 
     async saveLinks() {
@@ -194,7 +194,7 @@ document.addEventListener('alpine:init', () => {
       }
       this.linksMsg    = errors ? `${saved} saved, ${errors} failed` : `✓ ${saved} saved`;
       this.savingLinks = false;
-      setTimeout(() => this._process(), 800);
+      setTimeout(async () => { await Alpine.store('dw').fetchAll(); this._process(); }, 800);
     },
 
     async syncDetails() {
