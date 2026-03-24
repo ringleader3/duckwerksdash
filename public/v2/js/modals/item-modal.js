@@ -80,11 +80,7 @@ document.addEventListener('alpine:init', () => {
           if (f.list_price         !== '') listingFields.list_price        = parseFloat(f.list_price);
           if (f.shipping_estimate  !== '') listingFields.shipping_estimate = parseFloat(f.shipping_estimate);
           if (Object.keys(listingFields).length) {
-            await fetch(`/api/listings/${f.listing_id}`, {
-              method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(listingFields),
-            });
-            await dw.fetchAll();
+            await dw.updateListing(f.listing_id, listingFields);
           }
         }
 
