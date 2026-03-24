@@ -1,4 +1,4 @@
-// ── Label Modal — Phase 7 ────────────────────────────────────────────────────
+// ── Label Modal — SQLite version ─────────────────────────────────────────────
 document.addEventListener('alpine:init', () => {
   Alpine.data('labelModal', () => ({
     step:           'form',   // 'form' | 'rates' | 'result'
@@ -10,6 +10,7 @@ document.addEventListener('alpine:init', () => {
     carrier:        null,
     reverbLinks:       null,
     reverbSaleAmount:  null,
+    reverbOrderNum:    null,
     loading:        false,
     errMsg:         '',
     saveMsg:        '',
@@ -23,26 +24,31 @@ document.addEventListener('alpine:init', () => {
     },
 
     async _open() {
-      this.step           = 'form';
-      this.addrText       = '';
-      this.rates          = [];
-      this.purchaseResult = null;
-      this.ratePrice      = 0;
+      this.step              = 'form';
+      this.addrText          = '';
+      this.rates             = [];
+      this.purchaseResult    = null;
+      this.ratePrice         = 0;
       this.carrier           = null;
       this.reverbLinks       = null;
       this.reverbSaleAmount  = null;
+      this.reverbOrderNum    = null;
       this.loading           = false;
-      this.errMsg         = '';
-      this.saveMsg        = '';
-      this.savingShip     = false;
-      this.reverbShipMsg  = '';
+      this.errMsg            = '';
+      this.saveMsg           = '';
+      this.savingShip        = false;
+      this.reverbShipMsg     = '';
 
-      const dw = Alpine.store('dw');
-      const r  = dw.records.find(x => x.id === dw.activeRecordId);
+      const dw      = Alpine.store('dw');
+      const r       = dw.records.find(x => x.id === dw.activeRecordId);
       if (!r) return;
 
-      const orderNum = dw.str(r, F.reverbOrderNum);
+      const listing = dw.activeListing(r);
+      const isReverb = listing?.site?.name === 'Reverb';
+      const orderNum = isReverb ? listing?.platform_listing_id : null;
+
       if (orderNum) {
+        this.reverbOrderNum = orderNum;
         try {
           const res = await fetch(`/api/reverb/my/orders/selling/${orderNum}`);
           if (res.ok) {
@@ -50,6 +56,7 @@ document.addEventListener('alpine:init', () => {
             this.reverbLinks      = order._links || null;
             // direct_checkout_payout is post-fee seller payout; amount_product is pre-fee listing price
             this.reverbSaleAmount = parseFloat(order.direct_checkout_payout?.amount) || parseFloat(order.amount_product?.amount) || null;
+            this.reverbOrderNum   = order.order_number || orderNum;
             console.log('[Reverb order] direct_checkout_payout:', order.direct_checkout_payout, '| amount_product:', order.amount_product?.amount);
             if (order.shipping_address) {
               this.addrText = this._addrToText(order.shipping_address);
@@ -65,9 +72,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     get itemName() {
-      return this.record
-        ? Alpine.store('dw').str(this.record, F.name).replace(/\n/g, '')
-        : '—';
+      return this.record ? this.record.name || '—' : '—';
     },
 
     setType(type) {
@@ -170,23 +175,51 @@ document.addEventListener('alpine:init', () => {
     },
 
     async saveShipping() {
-      if (!this.record) return;
+      const r = this.record;
+      if (!r) return;
       this.savingShip = true;
       this.saveMsg    = '';
-      const dw     = Alpine.store('dw');
-      const fields = { [F.shipping]: this.ratePrice };
-      // Mark sold + stamp date if not already set
-      if (dw.str(this.record, F.status) !== 'Sold')  fields[F.status]   = 'Sold';
-      if (!dw.str(this.record, F.dateSold))           fields[F.dateSold] = new Date().toISOString().split('T')[0];
-      // Pull in Reverb sale amount if we have it and it's not already set
-      if (this.reverbSaleAmount && !dw.num(this.record, F.sale)) fields[F.sale] = this.reverbSaleAmount;
-      // Save tracking fields from purchase result
-      if (this.purchaseResult?.trackingNumber) fields[F.trackingNumber] = this.purchaseResult.trackingNumber;
-      if (this.purchaseResult?.trackingId)     fields[F.trackingId]     = this.purchaseResult.trackingId;
-      if (this.purchaseResult?.trackerUrl)     fields[F.trackerUrl]     = this.purchaseResult.trackerUrl;
-      if (this.purchaseResult?.labelUrl)       fields[F.labelUrl]       = this.purchaseResult.labelUrl;
+      const dw      = Alpine.store('dw');
+      const listing = dw.activeListing(r);
+
       try {
-        await dw.updateRecord(this.record.id, fields);
+        // ── 1. Create or update the order ──────────────────────────────────────
+        const dateSold         = new Date().toISOString().split('T')[0];
+        const sale_price       = this.reverbSaleAmount || null;
+        const platform_order_num = this.reverbOrderNum || null;
+
+        let orderId;
+        if (r.order) {
+          await dw.updateOrder(r.order.id, { sale_price, date_sold: dateSold, platform_order_num });
+          orderId = r.order.id;
+        } else {
+          const newOrder = await dw.createOrder({
+            listing_id:          listing?.id || null,
+            sale_price,
+            date_sold:           dateSold,
+            platform_order_num,
+          });
+          orderId = newOrder.id;
+        }
+
+        // ── 2. Mark item sold ──────────────────────────────────────────────────
+        if (r.status !== 'Sold') {
+          await dw.updateItem(r.id, { status: 'Sold' });
+        }
+
+        // ── 3. Create the shipment ─────────────────────────────────────────────
+        await dw.createShipment({
+          order_id:        orderId,
+          carrier:         this.carrier || null,
+          service:         this.purchaseResult?.service || null,
+          tracking_id:     this.purchaseResult?.trackingId     || null,
+          tracking_number: this.purchaseResult?.trackingNumber || null,
+          tracker_url:     this.purchaseResult?.trackerUrl     || null,
+          label_url:       this.purchaseResult?.labelUrl       || null,
+          shipping_cost:   this.ratePrice,
+        });
+
+        // createShipment calls fetchAll internally — store is fresh
         this.saveMsg = '✓ saved';
       } catch(e) {
         this.saveMsg = 'ERROR: ' + e.message;
