@@ -451,7 +451,7 @@
   <!-- ── Modal Containers ──────────────────────────────────────────────────── -->
   <!-- Item Modal -->
   <div x-show="$store.dw.activeModal === 'item'" x-data="itemModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
-    <div class="modal-box" x-show="record" @keydown.escape.window="$store.dw.closeModal()">
+    <div class="modal-box" x-if="record" @keydown.escape.window="$store.dw.closeModal()">
 
       <div class="modal-header">
         <div class="modal-title" x-text="record.name"></div>
@@ -494,19 +494,19 @@
                   style="cursor:pointer; color:var(--blue)" title="Open lot detail"
                   @click="$store.dw.openModal('lot', null, record.lot?.name)"></span>
           </div>
-          <div class="modal-row" x-show="activeListing?.url">
+          <div class="modal-row" x-show="$store.dw.activeListing(record)?.url">
             <span class="modal-field">Listing</span>
             <span class="modal-val">
-              <a :href="activeListing.url" target="_blank">↗ Open Listing</a>
+              <a :href="$store.dw.activeListing(record).url" target="_blank">↗ Open Listing</a>
             </span>
           </div>
-          <div class="modal-row" x-show="activeListing?.platform_listing_id || record.order?.platform_order_num">
+          <div class="modal-row" x-show="$store.dw.activeListing(record)?.platform_listing_id || record.order?.platform_order_num">
             <span class="modal-field">Reverb</span>
             <span class="modal-val" style="display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end">
-              <a x-show="activeListing?.platform_listing_id" target="_blank"
-                 :href="'https://reverb.com/item/' + activeListing?.platform_listing_id"
+              <a x-show="$store.dw.activeListing(record)?.platform_listing_id" target="_blank"
+                 :href="'https://reverb.com/item/' + $store.dw.activeListing(record)?.platform_listing_id"
                  style="font-size:11px; color:var(--muted)"
-                 x-text="'↗ Listing #' + activeListing?.platform_listing_id"></a>
+                 x-text="'↗ Listing #' + $store.dw.activeListing(record)?.platform_listing_id"></a>
               <a x-show="record.order?.platform_order_num" target="_blank"
                  :href="'https://reverb.com/my/selling/orders/' + record.order?.platform_order_num"
                  style="font-size:11px; color:var(--reverb)"
@@ -519,9 +519,9 @@
 
           <div class="modal-row">
             <span class="modal-field">List Price</span>
-            <span class="modal-val" x-text="activeListing?.list_price > 0 ? $store.dw.fmt0(activeListing.list_price) : '—'"></span>
+            <span class="modal-val" x-text="$store.dw.activeListing(record)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(record).list_price) : '—'"></span>
           </div>
-          <div class="modal-row" x-show="activeListing?.list_price > 0 && !isSold">
+          <div class="modal-row" x-show="$store.dw.activeListing(record)?.list_price > 0 && !isSold">
             <span class="modal-field">Earnings After Fees</span>
             <span class="modal-val est" x-text="$store.dw.fmt0($store.dw.payout(record))"></span>
           </div>
@@ -559,13 +559,13 @@
           <!-- LISTED/PENDING state -->
           <template x-if="record && !isSold">
             <div>
-              <hr class="modal-divider" x-show="activeListing?.list_price > 0">
-              <div class="modal-row" x-show="activeListing?.list_price > 0">
+              <hr class="modal-divider" x-show="$store.dw.activeListing(record)?.list_price > 0">
+              <div class="modal-row" x-show="$store.dw.activeListing(record)?.list_price > 0">
                 <span class="modal-field">Shipping</span>
-                <span class="modal-val" :class="activeListing?.shipping_estimate != null ? 'red' : 'est'"
-                      x-text="activeListing?.shipping_estimate != null ? $store.dw.fmt0(activeListing.shipping_estimate) : '($10 est)'"></span>
+                <span class="modal-val" :class="$store.dw.activeListing(record)?.shipping_estimate != null ? 'red' : 'est'"
+                      x-text="$store.dw.activeListing(record)?.shipping_estimate != null ? $store.dw.fmt0($store.dw.activeListing(record).shipping_estimate) : '($10 est)'"></span>
               </div>
-              <div style="padding:8px 0" x-show="activeListing?.list_price > 0">
+              <div style="padding:8px 0" x-show="$store.dw.activeListing(record)?.list_price > 0">
                 <div class="modal-field" style="margin-bottom:6px">Est. Profit</div>
                 <div class="modal-big-profit est" x-text="$store.dw.fmt0($store.dw.estProfit(record))"></div>
               </div>
