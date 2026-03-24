@@ -23,6 +23,7 @@ app.use('/api/airtable', require('./server/airtable'));
 app.use('/api/shippo',   require('./server/shippo'));
 app.use('/api/label',    require('./server/label'));
 app.use('/api/reverb',   require('./server/reverb'));
+app.use('/api/lots',     require('./server/lots'));
 app.use('/api',          require('./server/catalog'));
 
 // ── START ─────────────────────────────────────────────────────────────────────
