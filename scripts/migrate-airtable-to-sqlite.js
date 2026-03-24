@@ -99,6 +99,7 @@ async function migrate() {
         lotMap[str(r, F.lot)] || null,
         catMap[str(r, F.category)] || null,
         num(r, F.cost),
+        null,
         status,
         r.createdTime || new Date().toISOString()
       );
