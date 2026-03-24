@@ -54,8 +54,6 @@ document.addEventListener('alpine:init', () => {
 
       if (f.name)     itemFields.name     = f.name;
       if (f.status)   itemFields.status   = f.status;
-      if (f.status === 'Sold' && !r.order?.date_sold)
-        itemFields.date_sold = new Date().toISOString().split('T')[0]; // handled server-side via order
       if (f.cost !== '') itemFields.cost = parseFloat(f.cost);
 
       // Resolve category_id and lot_id
