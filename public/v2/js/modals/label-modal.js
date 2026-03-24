@@ -207,9 +207,8 @@ document.addEventListener('alpine:init', () => {
           await dw.updateItem(r.id, { status: 'Sold' });
         }
 
-        // ── 3. Create the shipment ─────────────────────────────────────────────
-        await dw.createShipment({
-          order_id:        orderId,
+        // ── 3. Create or update the shipment ──────────────────────────────────
+        const shipmentFields = {
           carrier:         this.carrier || null,
           service:         this.purchaseResult?.service || null,
           tracking_id:     this.purchaseResult?.trackingId     || null,
@@ -217,7 +216,12 @@ document.addEventListener('alpine:init', () => {
           tracker_url:     this.purchaseResult?.trackerUrl     || null,
           label_url:       this.purchaseResult?.labelUrl       || null,
           shipping_cost:   this.ratePrice,
-        });
+        };
+        if (r.shipment) {
+          await dw.updateShipment(r.shipment.id, shipmentFields);
+        } else {
+          await dw.createShipment({ order_id: orderId, ...shipmentFields });
+        }
 
         // createShipment calls fetchAll internally — store is fresh
         this.saveMsg = '✓ saved';
