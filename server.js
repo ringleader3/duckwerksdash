@@ -24,6 +24,7 @@ app.use('/api/shippo',   require('./server/shippo'));
 app.use('/api/label',    require('./server/label'));
 app.use('/api/reverb',   require('./server/reverb'));
 app.use('/api/lots',     require('./server/lots'));
+app.use('/api/items',    require('./server/items'));
 app.use('/api',          require('./server/catalog'));
 
 // ── START ─────────────────────────────────────────────────────────────────────

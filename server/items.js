@@ -1,0 +1,116 @@
+// server/items.js — GET/POST/PATCH /api/items
+const express = require('express');
+const router  = express.Router();
+const db      = require('./db');
+
+// Build the full nested item response shape
+function buildItem(row) {
+  const category = row.category_id ? {
+    id: row.category_id, name: row.cat_name,
+    color: row.cat_color, badge_class: row.cat_badge
+  } : null;
+
+  const lot = row.lot_id ? { id: row.lot_id, name: row.lot_name } : null;
+
+  // Fetch all listings for this item with site data
+  const listingRows = db.prepare(`
+    SELECT li.*, s.name as site_name, s.fee_rate, s.fee_flat, s.fee_on_shipping
+    FROM listings li
+    JOIN sites s ON s.id = li.site_id
+    WHERE li.item_id = ?
+    ORDER BY li.listed_at DESC
+  `).all(row.id);
+
+  const listings = listingRows.map(l => {
+    const order = db.prepare('SELECT * FROM orders WHERE listing_id = ?').get(l.id);
+    let orderObj = null;
+    if (order) {
+      const shipment = db.prepare('SELECT * FROM shipments WHERE order_id = ?').get(order.id);
+      orderObj = {
+        ...order,
+        profit: order.sale_price - row.cost - (shipment?.shipping_cost || 0),
+        shipment: shipment || null,
+      };
+    }
+    return {
+      id:                  l.id,
+      item_id:             l.item_id,
+      platform_listing_id: l.platform_listing_id,
+      list_price:          l.list_price,
+      shipping_estimate:   l.shipping_estimate,
+      url:                 l.url,
+      status:              l.status,
+      listed_at:           l.listed_at,
+      ended_at:            l.ended_at,
+      site: {
+        id:             l.site_id,
+        name:           l.site_name,
+        fee_rate:       l.fee_rate,
+        fee_flat:       l.fee_flat,
+        fee_on_shipping: l.fee_on_shipping,
+      },
+      order: orderObj,
+    };
+  });
+
+  // Convenience top-level order/shipment (from the sold/active listing)
+  const soldListing = listings.find(l => l.order);
+  const order   = soldListing?.order   || null;
+  const shipment = order?.shipment     || null;
+
+  return {
+    id: row.id, name: row.name, cost: row.cost,
+    notes: row.notes, status: row.status, created_at: row.created_at,
+    category, lot, listings, order, shipment,
+  };
+}
+
+// GET all items
+router.get('/', (_req, res) => {
+  const rows = db.prepare(`
+    SELECT i.*,
+      c.name as cat_name, c.color as cat_color, c.badge_class as cat_badge,
+      l.name as lot_name
+    FROM items i
+    LEFT JOIN categories c ON c.id = i.category_id
+    LEFT JOIN lots l ON l.id = i.lot_id
+    ORDER BY i.created_at DESC
+  `).all();
+  res.json(rows.map(buildItem));
+});
+
+// POST create item
+router.post('/', (req, res) => {
+  const { name, category_id, lot_id, cost, notes } = req.body;
+  if (!name) return res.status(400).json({ error: 'name is required' });
+  const result = db.prepare(
+    'INSERT INTO items (name, category_id, lot_id, cost, notes) VALUES (?, ?, ?, ?, ?)'
+  ).run(name, category_id || null, lot_id || null, cost || 0, notes || null);
+  const row = db.prepare(`
+    SELECT i.*, c.name as cat_name, c.color as cat_color, c.badge_class as cat_badge, l.name as lot_name
+    FROM items i LEFT JOIN categories c ON c.id = i.category_id LEFT JOIN lots l ON l.id = i.lot_id
+    WHERE i.id = ?
+  `).get(result.lastInsertRowid);
+  res.status(201).json(buildItem(row));
+});
+
+// PATCH update item fields
+router.patch('/:id', (req, res) => {
+  const allowed = ['name', 'status', 'category_id', 'lot_id', 'cost', 'notes'];
+  const sets = [], vals = [];
+  allowed.forEach(f => {
+    if (req.body[f] !== undefined) { sets.push(`${f} = ?`); vals.push(req.body[f]); }
+  });
+  if (!sets.length) return res.status(400).json({ error: 'no fields to update' });
+  vals.push(req.params.id);
+  db.prepare(`UPDATE items SET ${sets.join(', ')} WHERE id = ?`).run(...vals);
+  const row = db.prepare(`
+    SELECT i.*, c.name as cat_name, c.color as cat_color, c.badge_class as cat_badge, l.name as lot_name
+    FROM items i LEFT JOIN categories c ON c.id = i.category_id LEFT JOIN lots l ON l.id = i.lot_id
+    WHERE i.id = ?
+  `).get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'not found' });
+  res.json(buildItem(row));
+});
+
+module.exports = router;
