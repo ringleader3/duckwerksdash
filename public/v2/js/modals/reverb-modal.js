@@ -91,7 +91,10 @@ document.addEventListener('alpine:init', () => {
       for (const order of this.orders) {
         const listingId = String(order.product_id);
         const rec = dw.records.find(r =>
-          (r.listings || []).some(l => l.platform_listing_id === listingId)
+          (r.listings || []).some(l =>
+            l.site?.name === 'Reverb' && l.status === 'active' &&
+            l.platform_listing_id === listingId
+          )
         );
         if (rec) this.matched.push({ order, rec });
         else     this.unmatched.push(order);
