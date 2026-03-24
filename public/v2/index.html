@@ -326,8 +326,9 @@
             </template>
           </div>
           <div class="pill-row">
-            <template x-for="s in ['All','Reverb','eBay']" :key="s">
-              <button class="pill" :class="{ active: siteFilter === s }" @click="siteFilter = s; $store.dw.categoryFilter = null" x-text="s"></button>
+            <button class="pill" :class="{ active: siteFilter === 'All' }" @click="siteFilter = 'All'; $store.dw.categoryFilter = null">All</button>
+            <template x-for="s in $store.dw.sites" :key="s.id">
+              <button class="pill" :class="{ active: siteFilter === s.name }" @click="siteFilter = s.name; $store.dw.categoryFilter = null" x-text="s.name"></button>
             </template>
           </div>
           <input class="controls-search" type="text" placeholder="search name..." x-model="nameSearch">
@@ -672,8 +673,8 @@
             <span class="modal-val">
               <select class="modal-select" x-model="form.site">
                 <option value="">—</option>
-                <template x-for="s in ['Reverb','eBay']" :key="s">
-                  <option :value="s" x-text="s"></option>
+                <template x-for="s in $store.dw.sites" :key="s.id">
+                  <option :value="s.name" x-text="s.name"></option>
                 </template>
               </select>
             </span>
@@ -782,8 +783,8 @@
           <span class="modal-val">
             <select class="modal-select" x-model="form.site">
               <option value="">—</option>
-              <template x-for="s in ['Reverb','eBay','Marketplace']" :key="s">
-                <option :value="s" x-text="s"></option>
+              <template x-for="s in $store.dw.sites" :key="s.id">
+                <option :value="s.name" x-text="s.name"></option>
               </template>
             </select>
           </span>
