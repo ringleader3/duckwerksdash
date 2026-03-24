@@ -1,34 +1,31 @@
 // ── Duckwerks v2 — Alpine Store ───────────────────────────────────────────────
-// Single source of truth. All Airtable calls happen here.
-// Views and modals read $store.dw.* — they never call Airtable directly.
+// Single source of truth. All API calls happen here.
+// Views and modals read $store.dw.* — they never call the API directly.
 
 document.addEventListener('alpine:init', () => {
   Alpine.store('dw', {
 
     // ── State ─────────────────────────────────────────────────────────────────
-    records:       [],
-    loading:       false,
-    error:         null,
-    activeView:    'dashboard',   // 'dashboard' | 'items' | 'lots'
-    activeModal:   null,          // 'item' | 'add' | 'lot' | 'label' | 'reverb'
-    activeRecordId: null,
-    activeLotName:  null,
-    previousModal:  null,         // { type, recordId, lotName } — restored on closeModal if set
-    categoryFilter:   null,    // set by sidebar category pick; consumed by itemsView
-    pendingFilters:   null,    // { status, category, site } — set by navToItems, consumed by itemsView
-    shippingProvider: 'SHIPPO',
+    records:          [],
+    _lots:            [],        // raw lot rows from /api/lots
+    loading:          false,
+    error:            null,
+    activeView:       'dashboard',
+    activeModal:      null,
+    activeRecordId:   null,
+    activeLotName:    null,
+    previousModal:    null,
+    categoryFilter:   null,
+    pendingFilters:   null,
+    shippingProvider: 'EASYPOST',
 
     // ── Init ──────────────────────────────────────────────────────────────────
     async init() {
-      // Restore last active view from localStorage
       const saved = localStorage.getItem('dw-view');
       if (saved && ['dashboard', 'items', 'lots'].includes(saved)) {
         this.activeView = saved;
       }
-      // Persist view changes automatically
-      Alpine.effect(() => {
-        localStorage.setItem('dw-view', this.activeView);
-      });
+      Alpine.effect(() => { localStorage.setItem('dw-view', this.activeView); });
 
       try {
         const cfg = await fetch('/api/config').then(r => r.json()).catch(() => ({}));
@@ -42,19 +39,14 @@ document.addEventListener('alpine:init', () => {
     // ── Data Fetch ────────────────────────────────────────────────────────────
     async fetchAll() {
       this.loading = true;
-      this.error = null;
+      this.error   = null;
       try {
-        const fields = Object.values(F).map(id => `fields[]=${id}`).join('&');
-        let all = [], offset = null;
-        do {
-          const params = `${fields}&returnFieldsByFieldId=true${offset ? '&offset=' + offset : ''}`;
-          const res = await fetch(`/api/airtable/${BASE_ID}/${TABLE_ID}?${params}`);
-          if (!res.ok) throw new Error(`Airtable error ${res.status}`);
-          const data = await res.json();
-          all = all.concat(data.records);
-          offset = data.offset || null;
-        } while (offset);
-        this.records = all;
+        const [items, lots] = await Promise.all([
+          fetch('/api/items').then(r => { if (!r.ok) throw new Error('items fetch failed'); return r.json(); }),
+          fetch('/api/lots').then(r => { if (!r.ok) throw new Error('lots fetch failed'); return r.json(); }),
+        ]);
+        this.records = items;
+        this._lots   = lots;
       } catch (e) {
         this.error = 'Failed to load records: ' + e.message;
       } finally {
@@ -82,7 +74,6 @@ document.addEventListener('alpine:init', () => {
       this.activeLotName  = null;
     },
 
-    // Navigate to Items view, resetting all filters then applying the specified ones
     navToItems(status, category, site) {
       this.pendingFilters = {
         status:   status   || 'All',
@@ -94,90 +85,167 @@ document.addEventListener('alpine:init', () => {
       this.closeModal();
     },
 
-    // ── Computed: filtered record sets ────────────────────────────────────────
-    get listedRecords()  { return this.records.filter(r => this.str(r, F.status) === 'Listed'); },
-    get soldRecords()    { return this.records.filter(r => this.str(r, F.status) === 'Sold'); },
+    // ── Computed record sets ──────────────────────────────────────────────────
+    get listedRecords() { return this.records.filter(r => r.status === 'Listed'); },
+    get soldRecords()   { return this.records.filter(r => r.status === 'Sold'); },
 
-    // Unique lot names derived from records
+    // Lots: _lots from API enriched with their items array
     get lots() {
-      const names = [...new Set(
-        this.records.map(r => this.str(r, F.lot)).filter(Boolean)
-      )].sort();
-      return names.map(name => ({
-        name,
-        items: this.records.filter(r => this.str(r, F.lot) === name),
+      return this._lots.map(lot => ({
+        ...lot,
+        items: this.records.filter(r => r.lot?.id === lot.id),
       }));
     },
 
-    // ── Data Helpers (same as v1) ─────────────────────────────────────────────
-    str(r, field) {
-      const v = r?.fields?.[field];
-      if (v == null) return '';
-      if (typeof v === 'object' && v.name) return v.name;
-      return String(v).trim();
-    },
-    num(r, field) { return parseFloat(r?.fields?.[field]) || 0; },
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
-    // Platform fee lookup — returns the fee amount given (listPrice, shipping)
-    // eBay: 13.25% on total (item+ship) + $0.40 flat (consumer electronics rate)
-    // Facebook: no fees (in-person cash sales)
-    SITE_FEES: {
-      'Reverb':   (p)    => p * 0.0819 + 0.49,
-      'eBay':     (p, s) => (p + s) * 0.1325 + 0.40,
-      'Facebook': ()     => 0,
+    // Best active listing for display (highest list_price among active listings)
+    activeListing(r) {
+      const active = (r.listings || []).filter(l => l.status === 'active');
+      if (!active.length) return r.listings?.[0] || null;
+      return active.reduce((best, l) => (l.list_price || 0) > (best.list_price || 0) ? l : best, active[0]);
     },
 
-    // Post-fee payout for a record — site-aware via SITE_FEES
-    payout(r) {
-      const site  = this.siteLabel(r);
-      const lp    = this.num(r, F.listPrice);
-      const ship  = r.fields[F.shipping] != null ? this.num(r, F.shipping) : 10;
-      const feeFn = this.SITE_FEES[site] || (() => 0);
-      return lp - feeFn(lp, ship);
+    // Site label from best active listing
+    siteLabel(r) {
+      return this.activeListing(r)?.site?.name || '';
     },
 
-    // Est. profit for a listed item. Use $10 shipping placeholder if not set (show yellow)
+    // Est. profit for a listed item.
+    // Uses shipment cost if shipped, else listing shipping_estimate, else $10 placeholder.
+    // Fees come from listing.site.
     estProfit(r) {
-      const cost = this.num(r, F.cost);
-      const ship = r.fields[F.shipping] != null ? this.num(r, F.shipping) : 10;
-      return this.payout(r) - cost - ship;
+      const listing = this.activeListing(r);
+      const lp      = listing?.list_price || 0;
+      const cost    = r.cost || 0;
+
+      let ship;
+      if (r.shipment?.shipping_cost != null) {
+        ship = r.shipment.shipping_cost;
+      } else if (listing?.shipping_estimate != null) {
+        ship = listing.shipping_estimate;
+      } else {
+        ship = 10; // placeholder
+      }
+
+      let fee = 0;
+      if (listing?.site) {
+        const s = listing.site;
+        fee = s.fee_on_shipping ? (lp + ship) * s.fee_rate + s.fee_flat
+                                :  lp         * s.fee_rate + s.fee_flat;
+      }
+      return lp - cost - ship - fee;
+    },
+
+    // Post-fee payout for a listed item (est.)
+    payout(r) {
+      const listing = this.activeListing(r);
+      const lp      = listing?.list_price || 0;
+      const ship    = listing?.shipping_estimate ?? 10;
+      let fee = 0;
+      if (listing?.site) {
+        const s = listing.site;
+        fee = s.fee_on_shipping ? (lp + ship) * s.fee_rate + s.fee_flat
+                                :  lp         * s.fee_rate + s.fee_flat;
+      }
+      return lp - fee;
     },
 
     fmt0(n)  { return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
     fmtK(n)  { return Math.abs(n) >= 1000 ? (n < 0 ? '-' : '') + '$' + (Math.abs(n) / 1000).toFixed(1) + 'K' : this.fmt0(n); },
     pct(a, b){ return b > 0 ? Math.round((a / b) * 100) : 0; },
 
-    siteLabel(r) {
-      const s = this.str(r, F.site).toLowerCase();
-      if (s.includes('ebay'))   return 'eBay';
-      if (s.includes('reverb')) return 'Reverb';
-      return this.str(r, F.site);
-    },
-
     // ── Writes ────────────────────────────────────────────────────────────────
-    async updateRecord(recordId, fields) {
-      const res = await fetch(`/api/airtable/${BASE_ID}/${TABLE_ID}/${recordId}`, {
+    async updateItem(id, fields) {
+      const res = await fetch(`/api/items/${id}`, {
         method:  'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ fields, returnFieldsByFieldId: true }),
+        body:    JSON.stringify(fields),
       });
-      if (!res.ok) throw new Error(`Airtable update error ${res.status}`);
+      if (!res.ok) throw new Error(`Update failed: ${res.status}`);
       const updated = await res.json();
-      const idx = this.records.findIndex(r => r.id === recordId);
+      const idx = this.records.findIndex(r => r.id === id);
       if (idx !== -1) this.records[idx] = updated;
     },
 
-    async createRecord(fields) {
-      const res = await fetch(`/api/airtable/${BASE_ID}/${TABLE_ID}`, {
+    async createItem(fields) {
+      const res = await fetch('/api/items', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ fields, returnFieldsByFieldId: true }),
+        body:    JSON.stringify(fields),
       });
-      if (!res.ok) throw new Error(`Airtable create error ${res.status}`);
+      if (!res.ok) throw new Error(`Create failed: ${res.status}`);
       const created = await res.json();
       this.records.push(created);
+      return created;
     },
 
+    async createListing(fields) {
+      const res = await fetch('/api/listings', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(fields),
+      });
+      if (!res.ok) throw new Error(`Create listing failed: ${res.status}`);
+      // Refresh item in store (status changed to Listed)
+      const itemRes = await fetch(`/api/items`).then(r => r.json());
+      this.records = itemRes;
+      return await res.json();
+    },
+
+    async updateListing(id, fields) {
+      const res = await fetch(`/api/listings/${id}`, {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(fields),
+      });
+      if (!res.ok) throw new Error(`Update listing failed: ${res.status}`);
+      await this.fetchAll(); // listings are nested in items — full refresh needed
+    },
+
+    async createOrder(fields) {
+      const res = await fetch('/api/orders', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(fields),
+      });
+      if (!res.ok) throw new Error(`Create order failed: ${res.status}`);
+      const created = await res.json(); // capture before fetchAll — body stream can only be read once
+      await this.fetchAll();
+      return created;
+    },
+
+    async updateOrder(id, fields) {
+      const res = await fetch(`/api/orders/${id}`, {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(fields),
+      });
+      if (!res.ok) throw new Error(`Update order failed: ${res.status}`);
+    },
+
+    async createShipment(fields) {
+      const res = await fetch('/api/shipments', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(fields),
+      });
+      if (!res.ok) throw new Error(`Create shipment failed: ${res.status}`);
+      const created = await res.json(); // capture before fetchAll — body stream can only be read once
+      await this.fetchAll();
+      return created;
+    },
+
+    async updateShipment(id, fields) {
+      const res = await fetch(`/api/shipments/${id}`, {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(fields),
+      });
+      if (!res.ok) throw new Error(`Update shipment failed: ${res.status}`);
+    },
+
+    // ── Tracking ──────────────────────────────────────────────────────────────
     _carrierName(raw) {
       const map = { UPSDAP: 'UPS', UPS: 'UPS', USPS: 'USPS', FedEx: 'FedEx',
                     DHLExpress: 'DHL Express', DHL: 'DHL' };
@@ -206,10 +274,8 @@ document.addEventListener('alpine:init', () => {
       }
     },
 
-    // Returns true if a record should appear in In Transit panels.
-    // Sold+tracked items stay visible until 3 days after delivery.
     isInTransit(r, trackingData) {
-      if (this.str(r, F.status) !== 'Sold' || !this.str(r, F.trackingId)) return false;
+      if (r.status !== 'Sold' || !r.shipment?.tracking_id) return false;
       const td = trackingData[r.id];
       if (!td || td.status !== 'delivered') return true;
       if (!td.deliveredAt) return false;
