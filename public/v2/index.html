@@ -539,7 +539,7 @@
               </div>
               <div class="modal-row">
                 <span class="modal-field">Shipping Cost</span>
-                <span class="modal-val red" x-text="record.shipment?.shipping_cost > 0 ? $store.dw.fmt0(record.shipment.shipping_cost) : '—'"></span>
+                <span class="modal-val red" x-text="$store.dw.fmt0(record.shipment?.shipping_cost || record.listings?.find(l => l.status === 'sold')?.shipping_estimate) || '—'"></span>
               </div>
               <hr class="modal-divider">
               <div style="display:flex; justify-content:space-between; align-items:flex-end; padding:8px 0">
