@@ -1,6 +1,15 @@
 // scripts/migrate-airtable-to-sqlite.js
 // Migrates all Airtable records to the SQLite DB.
-// Requires server running at localhost:3000 (for Airtable proxy).
+//
+// PREREQUISITE: Run this script against the MAIN BRANCH server (still has Airtable proxy).
+// Start main branch server on :3000 before running this script:
+//   git stash (or switch to main in another terminal)
+//   npm start
+//   node scripts/migrate-airtable-to-sqlite.js
+//
+// The SQLite database is written to ./data/duckwerks.db (relative to project root).
+// This script can be run multiple times — it drops and recreates the data tables.
+//
 // Safe to re-run: clears and rebuilds lots, items, listings, orders, shipments each time.
 // Does NOT reseed sites/categories (they're already in the DB from db.js).
 
