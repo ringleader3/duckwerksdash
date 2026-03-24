@@ -8,6 +8,7 @@ document.addEventListener('alpine:init', () => {
     // ── State ─────────────────────────────────────────────────────────────────
     records:          [],
     _lots:            [],        // raw lot rows from /api/lots
+    categories:       [],        // from /api/categories
     loading:          false,
     error:            null,
     activeView:       'dashboard',
@@ -41,12 +42,14 @@ document.addEventListener('alpine:init', () => {
       this.loading = true;
       this.error   = null;
       try {
-        const [items, lots] = await Promise.all([
+        const [items, lots, cats] = await Promise.all([
           fetch('/api/items').then(r => { if (!r.ok) throw new Error('items fetch failed'); return r.json(); }),
           fetch('/api/lots').then(r => { if (!r.ok) throw new Error('lots fetch failed'); return r.json(); }),
+          fetch('/api/categories').then(r => r.json()).catch(() => []),
         ]);
-        this.records = items;
-        this._lots   = lots;
+        this.records    = items;
+        this._lots      = lots;
+        this.categories = cats;
       } catch (e) {
         this.error = 'Failed to load records: ' + e.message;
       } finally {

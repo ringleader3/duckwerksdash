@@ -661,8 +661,8 @@
             <span class="modal-val">
               <select class="modal-select" x-model="form.category">
                 <option value="">—</option>
-                <template x-for="c in ['Music','Computer','Gaming','house']" :key="c">
-                  <option :value="c" x-text="c"></option>
+                <template x-for="c in $store.dw.categories" :key="c.id">
+                  <option :value="c.name" x-text="c.name"></option>
                 </template>
               </select>
             </span>
