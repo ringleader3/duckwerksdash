@@ -1,22 +1,19 @@
-// ── Add Modal — Phase 4 ───────────────────────────────────────────────────────
+// ── Add Modal ─────────────────────────────────────────────────────────────────
 document.addEventListener('alpine:init', () => {
   Alpine.data('addModal', () => ({
     saving:  false,
     saveMsg: '',
     form: {
-      name:      '',
-      status:    'Prepping',
-      category:  '',
-      site:      '',
-      lot:       '',
-      newLot:    '',
-      listPrice: '',
-      cost:      '',
-      shipping:  '',
+      name:     '',
+      category: '',
+      lot:      '',
+      newLot:   '',
+      cost:     '',
+      notes:    '',
     },
 
     reset() {
-      this.form    = { name: '', status: 'Prepping', category: '', site: '', lot: '', newLot: '', listPrice: '', cost: '', shipping: '' };
+      this.form    = { name: '', category: '', lot: '', newLot: '', cost: '', notes: '' };
       this.saveMsg = '';
       this.saving  = false;
     },
@@ -24,29 +21,46 @@ document.addEventListener('alpine:init', () => {
     async save(keepOpen = false) {
       if (!this.form.name.trim()) { this.saveMsg = 'Name is required'; return; }
 
-      const fields = {};
-      fields[F.name]   = this.form.name.trim();
-      fields[F.status] = this.form.status;
-      if (this.form.category)       fields[F.category]  = this.form.category;
-      if (this.form.site)           fields[F.site]       = this.form.site;
-      const lotVal = this.form.newLot.trim() || this.form.lot;
-      if (lotVal) fields[F.lot] = lotVal;
-      if (this.form.listPrice !== '') fields[F.listPrice] = parseFloat(this.form.listPrice);
-      if (this.form.cost      !== '') fields[F.cost]      = parseFloat(this.form.cost);
-      if (this.form.shipping  !== '') fields[F.shipping]  = parseFloat(this.form.shipping);
+      const dw   = Alpine.store('dw');
+      const body = { name: this.form.name.trim() };
 
-      this.saving  = true;
-      this.saveMsg = '';
+      if (this.form.cost !== '') body.cost = parseFloat(this.form.cost);
+      if (this.form.notes)       body.notes = this.form.notes.trim() || null;
+
+      // Resolve category_id
+      if (this.form.category) {
+        const cats = await fetch('/api/categories').then(r => r.json());
+        const cat  = cats.find(c => c.name === this.form.category);
+        if (cat) body.category_id = cat.id;
+      }
+
+      // Resolve lot_id (create new lot if needed)
+      const lotName = this.form.newLot.trim() || this.form.lot;
+      if (lotName) {
+        let lot = dw.lots.find(l => l.name === lotName);
+        if (!lot) {
+          const res = await fetch('/api/lots', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: lotName }),
+          });
+          lot = await res.json();
+          await fetch('/api/lots').then(r => r.json()).then(lots => { dw._lots = lots; });
+        }
+        body.lot_id = lot.id;
+      }
+
+      this.saving = true; this.saveMsg = '';
       try {
-        await Alpine.store('dw').createRecord(fields);
+        const created = await dw.createItem(body);
         if (keepOpen) {
-          const sticky = { status: this.form.status, category: this.form.category, site: this.form.site, lot: this.form.lot, newLot: this.form.newLot };
+          const sticky = { category: this.form.category, lot: this.form.lot, newLot: this.form.newLot };
           this.reset();
           Object.assign(this.form, sticky);
           this.saveMsg = 'Saved!';
         } else {
           this.reset();
-          Alpine.store('dw').closeModal();
+          // Transition to item detail modal for the newly created item
+          dw.openModal('item', created.id);
         }
       } catch (e) {
         this.saveMsg = 'ERROR: ' + e.message;
