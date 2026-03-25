@@ -27,12 +27,15 @@ app.use('/api/shipments', require('./server/shipments'));
 app.use('/api/shippo',    require('./server/shippo'));
 app.use('/api/label',     require('./server/label'));
 app.use('/api/reverb',    require('./server/reverb'));
+app.use('/api/ebay',      require('./server/ebay'));
 
 // ── START ─────────────────────────────────────────────────────────────────────
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Duckwerks running at http://localhost:${PORT}`);
+  const ebayAuth = require('./server/ebay-auth');
+  console.log(`eBay auth: ${ebayAuth.readTokens() ? 'tokens present' : 'NOT AUTHORIZED — visit /api/ebay/auth'}`);
   const provider = (process.env.SHIPPING_PROVIDER || 'EASYPOST').toUpperCase();
   console.log(`Shipping provider: ${provider}`);
   if (provider === 'EASYPOST') {
