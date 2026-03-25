@@ -47,6 +47,9 @@ npm start   # starts Express on http://localhost:3000
 - `server/label.js` — provider-agnostic label routes (`/api/label/*`) — delegates to Shippo or EasyPost based on `SHIPPING_PROVIDER`
 - `server/shippo.js` — Shippo generic proxy (`/api/shippo/*`); also contains Shippo implementation (kept for potential re-use)
 - `server/reverb.js` — all Reverb routes (`/api/reverb/*`)
+- `server/ebay-auth.js` — eBay OAuth token management (one-time setup + auto-refresh)
+- `server/ebay.js` — eBay Sell Fulfillment routes (`/api/ebay/*`) — orders, tracking push, OAuth flow
+- `data/ebay-tokens.json` — eBay OAuth tokens (never commit — gitignored)
 - `data/duckwerks.db` — SQLite database (never commit)
 - `.env` — secrets (EasyPost + Shippo tokens, from-address)
 - `package.json` / `node_modules/` — Express + dotenv
@@ -64,6 +67,9 @@ EASYPOST_LIVE_TOKEN=EZAK...
 SHIPPO_TEST_MODE=false             # retained but inactive
 SHIPPO_TEST_TOKEN=shippo_test_...
 SHIPPO_LIVE_TOKEN=shippo_live_...
+EBAY_CLIENT_ID=GeoffGos-duckwerk-PRD-...
+EBAY_CLIENT_SECRET=PRD-...
+EBAY_RUNAME=Geoff_Goss-GeoffGos-duckwe-qevlykrb
 FROM_NAME=Geoff Goss, Duckwerks Music
 FROM_STREET1=...
 FROM_CITY=San Francisco
@@ -127,6 +133,19 @@ FROM_PHONE=...
 - `GET /api/reverb/*` — proxies to Reverb API with auth
 - `POST /api/reverb/*` — proxies to Reverb API with auth
 
+**server/ebay.js** (mounted at `/api/ebay`)
+- `GET /api/ebay/auth` — redirects to eBay OAuth consent page (one-time setup)
+- `POST /api/ebay/auth/exchange` — exchanges auth code for tokens; called after duckwerks.com/ebay-oauth-callback.php displays the code
+- `GET /api/ebay/orders` — orders awaiting fulfillment (`NOT_STARTED|IN_PROGRESS`)
+- `GET /api/ebay/orders/:id` — single order (buyer address + `pricingSummary.totalDueSeller` payout)
+- `POST /api/ebay/orders/:id/tracking` — push tracking; marks order shipped, triggers payout flow
+
+**eBay OAuth notes:**
+- Tokens stored in `data/ebay-tokens.json` (gitignored). Access token auto-refreshes every 2hr; refresh token lasts 18 months.
+- Re-auth: visit `/api/ebay/auth`, complete eBay sign-in, land on `duckwerks.com/ebay-oauth-callback.php`, copy code, run the displayed curl command.
+- eBay carrier codes: `USPS`, `UPS`, `FEDEX`, `DHL` (mapped from EasyPost names in `server/ebay.js`)
+- `totalDueSeller` = post-fee seller payout (equivalent to Reverb's `direct_checkout_payout`)
+
 All credentials injected server-side from `.env` — never exposed to the browser.
 
 **Adding a new API integration:** create `server/yourapi.js`, add `app.use('/api/yourapi', require('./server/yourapi'))` in server.js.
@@ -178,6 +197,7 @@ public/v2/
       lot-modal.js        ← Alpine.data('lotModal')
       label-modal.js      ← Alpine.data('labelModal') — Shippo flow
       reverb-modal.js     ← Alpine.data('reverbModal') — Reverb sync (orders, link listings, listing details)
+      ebay-modal.js       ← Alpine.data('ebayModal') — eBay sync (orders awaiting shipment, link listings)
 ```
 
 ### Alpine Conventions
@@ -384,6 +404,12 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 
 ## Session Log
 _Most recent first. Update this at the end of every session._
+
+### 2026-03-24 (eBay integration session)
+- **#31 — IN PROGRESS:** eBay Sell Fulfillment API integration. OAuth setup complete (tokens in `data/ebay-tokens.json`). Server routes: GET orders, GET single order, POST tracking. Frontend: Sync eBay sidebar button + `ebayModal` component — Awaiting Shipment (matched by `legacyItemId` ↔ `platform_listing_id`) + Link Listings sections. Label modal updated to fetch eBay buyer address via `activeEbayOrderId` store field and use `totalDueSeller` as payout. Awaiting first real eBay order to validate end-to-end.
+- **eBay OAuth callback:** Deployed `duckwerks.com/ebay-oauth-callback.php` to receive auth code (eBay Production requires HTTPS; localhost not allowed). One-time flow: visit `/api/ebay/auth` → sign in → code displayed on duckwerks.com → run curl to `/api/ebay/auth/exchange`. Re-auth needed in ~18 months.
+- **eBay listing sync:** Deferred — requires Sell Inventory API (managed inventory) or Trading API (legacy). Unclear which applies to this account. File follow-up after confirming.
+- **duckwerks.com:** Added `ebay-callback.php` (account deletion webhook) and `ebay-oauth-callback.php`. Both deployed. SSH known_hosts issue fixed (`ssh-keygen -R gator3314.hostgator.com`). Fixed rsync wiping `ebay-deletion-log.txt` — added `--filter='protect ebay-deletion-log.txt'` to `deploy.sh`. Added `fetch-ebay-log.sh` helper.
 
 ### 2026-03-25 (SQLite validation + cutover session)
 - **#36 — CLOSED:** Full audit and fix of SQLite branch — hardcoded category list in addModal, stale function names in lotsView/lotModal, item modal `x-if` on div → `<template x-if>` (caused all record.* errors on page load), add modal missing `form.site`/`form.listPrice`/`form.shipping`/`form.status` from save logic, edit modal field name mismatches (`list_price`→`listPrice` etc.) and missing site handling, `site_id` not in listings PATCH allowed list.
