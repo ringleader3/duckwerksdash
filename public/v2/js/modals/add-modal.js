@@ -4,17 +4,19 @@ document.addEventListener('alpine:init', () => {
     saving:  false,
     saveMsg: '',
     form: {
-      name:     '',
-      category: '',
-      site:     '',
-      lot:      '',
-      newLot:   '',
-      cost:     '',
-      notes:    '',
+      name:      '',
+      category:  '',
+      site:      '',
+      lot:       '',
+      newLot:    '',
+      cost:      '',
+      listPrice: '',
+      shipping:  '',
+      notes:     '',
     },
 
     reset() {
-      this.form    = { name: '', category: '', site: '', lot: '', newLot: '', cost: '', notes: '' };
+      this.form    = { name: '', category: '', site: '', lot: '', newLot: '', cost: '', listPrice: '', shipping: '', notes: '' };
       this.saveMsg = '';
       this.saving  = false;
     },
@@ -61,7 +63,12 @@ document.addEventListener('alpine:init', () => {
       this.saving = true; this.saveMsg = '';
       try {
         const created = await dw.createItem(body);
-        if (siteId) await dw.createListing({ item_id: created.id, site_id: siteId });
+        if (siteId) {
+          const listing = { item_id: created.id, site_id: siteId };
+          if (this.form.listPrice !== '') listing.list_price       = parseFloat(this.form.listPrice);
+          if (this.form.shipping  !== '') listing.shipping_estimate = parseFloat(this.form.shipping);
+          await dw.createListing(listing);
+        }
         if (keepOpen) {
           const sticky = { category: this.form.category, lot: this.form.lot, newLot: this.form.newLot };
           this.reset();
