@@ -630,11 +630,11 @@
               <div class="modal-row" x-show="!trackingInfo && !trackingLoading">
                 <a x-show="record.shipment?.tracker_url" :href="record.shipment?.tracker_url" target="_blank" style="font-size:11px">↗ View Tracker</a>
                 <span x-show="!record.shipment?.tracker_url" style="color:var(--muted);font-size:11px">Tracking unavailable</span>
-                <button x-show="record.shipment?.label_url" @click="$store.dw.printLabel(record.shipment.label_url)"
-                  style="font-size:11px;margin-left:12px;background:none;border:none;color:var(--blue);cursor:pointer;font-family:'Space Mono',monospace;padding:0">↗ Reprint Label</button>
               </div>
-              <div style="margin-top:12px">
+              <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
                 <button @click="clearTracking()" style="padding:4px 10px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer">CLEAR TRACKING</button>
+                <button x-show="record.shipment?.label_url" @click="$store.dw.printLabel(record.shipment.label_url)"
+                  style="font-size:11px;background:none;border:none;color:var(--blue);cursor:pointer;font-family:'Space Mono',monospace;padding:0">↗ Reprint Label</button>
               </div>
             </div>
           </template>
