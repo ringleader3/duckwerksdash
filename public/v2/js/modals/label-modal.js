@@ -43,8 +43,10 @@ document.addEventListener('alpine:init', () => {
       const r       = dw.records.find(x => x.id === dw.activeRecordId);
       if (!r) return;
 
-      const listing = dw.activeListing(r);
-      const isReverb = listing?.site?.name === 'Reverb';
+      const listing  = dw.activeListing(r);
+      const siteName = listing?.site?.name;
+      const isReverb = siteName === 'Reverb';
+      const isEbay   = siteName === 'eBay';
       const orderNum = isReverb ? listing?.platform_listing_id : null;
 
       if (orderNum) {
@@ -63,6 +65,36 @@ document.addEventListener('alpine:init', () => {
             }
           }
         } catch(e) { console.warn('Reverb order fetch failed:', e); }
+      }
+
+      // eBay: activeEbayOrderId is set by ebayModal before opening label modal
+      if (isEbay) {
+        const ebayOrderId = dw.activeEbayOrderId;
+        dw.activeEbayOrderId = null; // clear so it doesn't leak to subsequent opens
+        if (ebayOrderId) {
+          try {
+            const res = await fetch(`/api/ebay/orders/${encodeURIComponent(ebayOrderId)}`);
+            if (res.ok) {
+              const order = await res.json();
+              // totalDueSeller is post-fee payout (equivalent to Reverb's direct_checkout_payout)
+              const payout = order.pricingSummary?.totalDueSeller?.value;
+              if (payout) this.reverbSaleAmount = parseFloat(payout);
+              const addr = order.buyer?.buyerRegistrationAddress;
+              if (addr) {
+                const c = addr.contactAddress || {};
+                this.addrText = this._addrToText({
+                  name:             addr.fullName || '',
+                  street_address:   c.addressLine1 || '',
+                  extended_address: c.addressLine2 || '',
+                  locality:         c.city || '',
+                  region:           c.stateOrProvince || '',
+                  postal_code:      c.postalCode || '',
+                  country_code:     c.countryCode || 'US',
+                });
+              }
+            }
+          } catch(e) { console.warn('eBay order fetch failed:', e); }
+        }
       }
     },
 

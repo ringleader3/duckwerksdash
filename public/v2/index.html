@@ -64,6 +64,7 @@
     <div class="sidebar-section">
       <div class="sidebar-section-label">Actions</div>
       <a class="sidebar-action" @click="$store.dw.openModal('reverb')">Sync Reverb</a>
+      <a class="sidebar-action" @click="$store.dw.openModal('ebay')">Sync eBay</a>
       <a class="sidebar-action" @click="$store.dw.openModal('shipping')">Shipping</a>
     </div>
 
@@ -1305,6 +1306,101 @@
     </div>
   </div>
 
+  <!-- ── EBAY SYNC MODAL ───────────────────────────────────────────────────── -->
+  <div x-show="$store.dw.activeModal === 'ebay'" x-data="ebayModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
+    <div class="modal-box modal-box-wide">
+      <div class="modal-header">
+        <div class="modal-title">SYNC EBAY ORDERS</div>
+        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Loading -->
+        <div x-show="loading" style="padding:40px 0;text-align:center">
+          <div class="spinner"></div>
+          <div style="color:#aaa;letter-spacing:2px;font-size:13px;margin-top:12px">FETCHING FROM EBAY...</div>
+        </div>
+
+        <!-- Error -->
+        <div x-show="!loading && errMsg" x-text="'ERROR: ' + errMsg"
+          style="padding:24px;color:var(--red);font-size:12px"></div>
+
+        <!-- Results -->
+        <div x-show="!loading && !errMsg">
+
+          <!-- SECTION: Awaiting Shipment -->
+          <div class="modal-section-label">AWAITING SHIPMENT</div>
+
+          <div x-show="!orders.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
+            No orders awaiting shipment.
+          </div>
+
+          <template x-for="item in matched" :key="item.order.orderId">
+            <div style="padding:10px 0;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+              <div style="flex:1;min-width:0">
+                <div style="font-size:12px;color:var(--white);margin-bottom:3px" x-text="lineItemTitle(item.order)"></div>
+                <div style="font-size:11px;color:var(--muted)" x-text="buyerName(item.order)"></div>
+                <div style="font-size:10px;color:#555;margin-top:2px" x-text="'Order: ' + item.order.orderId"></div>
+              </div>
+              <div style="flex-shrink:0;margin-top:2px">
+                <button @click="openShip(item.rec, item.order)"
+                  style="padding:5px 14px;background:var(--blue);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:10px;letter-spacing:2px;cursor:pointer">
+                  SHIP
+                </button>
+              </div>
+            </div>
+          </template>
+
+          <template x-for="order in unmatched" :key="order.orderId">
+            <div style="padding:10px 0;border-bottom:1px solid var(--border2)">
+              <div style="font-size:12px;color:var(--muted);margin-bottom:3px" x-text="lineItemTitle(order)"></div>
+              <div style="font-size:10px;color:#444;margin-top:2px" x-text="'Listing ID: ' + lineItemId(order) + ' · Order: ' + order.orderId"></div>
+            </div>
+          </template>
+
+          <!-- SECTION: Link Listings -->
+          <div class="modal-section-label" style="margin-top:20px">LINK LISTINGS</div>
+
+          <div x-show="!unlinkedRecs.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
+            All Listed/eBay items already have a listing ID.
+          </div>
+
+          <div x-show="unlinkedRecs.length > 0 && !linkableOrders.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
+            No unmatched eBay orders to link.
+          </div>
+
+          <div x-show="unlinkedRecs.length > 0 && linkableOrders.length > 0">
+            <div style="font-size:11px;color:#666;padding:4px 0 10px;letter-spacing:1px">
+              Match your unlinked items to their eBay listing IDs.
+            </div>
+            <template x-for="rec in unlinkedRecs" :key="rec.id">
+              <div style="padding:10px 0;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                <div style="font-size:12px;color:var(--white);min-width:160px;flex:1" x-text="rec.name"></div>
+                <select x-model="linkSelections[rec.id]"
+                  style="flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:11px;padding:6px 8px">
+                  <option value="">— pick order —</option>
+                  <template x-for="o in linkableOrders" :key="o.orderId">
+                    <option :value="lineItemId(o)" x-text="lineItemTitle(o) + ' (' + lineItemId(o) + ')'"></option>
+                  </template>
+                </select>
+              </div>
+            </template>
+            <div style="padding:14px 0 4px;display:flex;gap:12px;align-items:center">
+              <button @click="saveLinks()" :disabled="savingLinks"
+                style="padding:10px 28px;background:var(--ebay);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer"
+                x-text="savingLinks ? 'SAVING...' : 'SAVE LINKS'">
+              </button>
+              <span x-show="linksMsg" x-text="linksMsg"
+                :style="linksMsg.startsWith('✓') ? 'color:var(--green)' : 'color:var(--red)'"
+                style="font-size:11px;letter-spacing:1px"></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div><!-- #app -->
 
 <!-- ── Scripts: load order matters ──────────────────────────────────────── -->
@@ -1324,6 +1420,7 @@
 <script src="js/modals/lot-modal.js"></script>
 <script src="js/modals/label-modal.js"></script>
 <script src="js/modals/reverb-modal.js"></script>
+<script src="js/modals/ebay-modal.js"></script>
 <script src="js/modals/shipping-modal.js"></script>
 
 <!-- Chart.js — non-deferred, before charts.js and before Alpine -->

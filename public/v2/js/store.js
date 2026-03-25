@@ -15,6 +15,7 @@ document.addEventListener('alpine:init', () => {
     activeView:       'dashboard',
     activeModal:      null,
     activeRecordId:   null,
+    activeEbayOrderId: null,
     activeLotName:    null,
     previousModal:    null,
     categoryFilter:   null,
