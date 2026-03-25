@@ -64,6 +64,10 @@ document.addEventListener('alpine:init', () => {
         .reduce((sum, r) => sum + dw.payout(r), 0);
     },
 
+    estTotalProfit() {
+      return this.recovered() + this.estUpside() - this.totalCost();
+    },
+
     totalRecovered() {
       return this.recovered() - (this.lot?.total_cost || this.totalCost());
     },

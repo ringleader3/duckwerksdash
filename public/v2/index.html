@@ -426,7 +426,7 @@
                   <span class="muted-detail" x-text="'(' + countByStatus(lot,'Sold') + 's/' + countByStatus(lot,'Listed') + 'l)'"></span>
                 </td>
                 <td class="num-col red" x-text="$store.dw.fmt0(totalCost(lot))"></td>
-                <td class="num-col green" x-text="$store.dw.fmt0(recovered(lot))"></td>
+                <td class="num-col green" x-text="$store.dw.fmt0(totalRecovered(lot))"></td>
                 <td>
                   <div style="display:flex; align-items:center; gap:8px">
                     <div class="progress-bar" style="flex:1">
@@ -772,8 +772,8 @@
           <span class="modal-val">
             <select class="modal-select" x-model="form.category">
               <option value="">—</option>
-              <template x-for="c in ['Music','Computer','Gaming','house']" :key="c">
-                <option :value="c" x-text="c"></option>
+              <template x-for="c in $store.dw.categories" :key="c.id">
+                <option :value="c.name" x-text="c.name"></option>
               </template>
             </select>
           </span>

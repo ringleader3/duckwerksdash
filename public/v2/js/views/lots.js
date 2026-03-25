@@ -46,6 +46,16 @@ document.addEventListener('alpine:init', () => {
     countByStatus(lot, status) { return lot.items.filter(r => r.status === status).length; },
     totalCost(lot)      { return lot.items.reduce((s, r) => s + (r.cost || 0), 0); },
     totalRecovered(lot) { return lot.items.filter(r => r.status==='Sold').reduce((s,r)=>s+(r.order?.sale_price||0),0); },
+    recoveryPct(lot) {
+      const cost = this.totalCost(lot);
+      const rec  = this.totalRecovered(lot);
+      return cost > 0 ? Math.min(100, Math.round((rec / cost) * 100)) : 0;
+    },
+    recoveryBarClass(pct) {
+      if (pct >= 100) return 'green';
+      if (pct >= 50)  return 'yellow';
+      return 'red';
+    },
     estUpside(lot) {
       const dw = Alpine.store('dw');
       return lot.items.filter(r => r.status !== 'Sold').reduce((s, r) => s + dw.payout(r), 0);
