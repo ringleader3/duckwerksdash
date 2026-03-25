@@ -25,9 +25,14 @@ document.addEventListener('alpine:init', () => {
       });
     },
 
+    // Set of platform_listing_ids already linked to a record
     get usedListingIds() {
       const dw = Alpine.store('dw');
-      return new Set(dw.records.map(r => dw.str(r, F.reverbListingId)).filter(Boolean));
+      return new Set(
+        dw.records.flatMap(r => r.listings || [])
+          .map(l => l.platform_listing_id)
+          .filter(Boolean)
+      );
     },
 
     get sortedListings() {
@@ -82,43 +87,58 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       this.matched   = [];
       this.unmatched = [];
+
       for (const order of this.orders) {
         const listingId = String(order.product_id);
-        const rec = dw.records.find(r => dw.str(r, F.reverbListingId) === listingId);
+        const rec = dw.records.find(r =>
+          (r.listings || []).some(l =>
+            l.site?.name === 'Reverb' && l.status === 'active' &&
+            l.platform_listing_id === listingId
+          )
+        );
         if (rec) this.matched.push({ order, rec });
         else     this.unmatched.push(order);
       }
-      this.toSave = this.matched.filter(
-        m => dw.str(m.rec, F.reverbOrderNum) !== String(m.order.order_number)
-      );
-      this.unlinkedRecs = dw.records.filter(r =>
-        dw.str(r, F.status) === 'Listed' &&
-        dw.siteLabel(r) === 'Reverb' &&
-        !dw.str(r, F.reverbListingId)
-      );
+
+      // toSave: matched items where order_number differs from stored platform_order_num
+      this.toSave = this.matched.filter(m => {
+        const existingOrderNum = m.rec.order?.platform_order_num;
+        return existingOrderNum !== String(m.order.order_number);
+      });
+
+      // Unlinked: Listed Reverb items with no platform_listing_id
+      this.unlinkedRecs = dw.records.filter(r => {
+        if (r.status !== 'Listed') return false;
+        return (r.listings || []).some(
+          l => l.site?.name === 'Reverb' && l.status === 'active' && !l.platform_listing_id
+        );
+      });
+
       // Initialize selections map
       const sel = {};
       for (const r of this.unlinkedRecs) sel[r.id] = '';
       this.linkSelections = sel;
 
       // Compute listing detail diffs (name + price) for linked records
-      // dw is already declared at the top of _process() — do not add another const dw line
-      this.detailDiffs = dw.records
-        .filter(r => dw.str(r, F.reverbListingId))
-        .reduce((acc, r) => {
-          const listing = this.listings.find(
-            l => String(l.id) === dw.str(r, F.reverbListingId)
-          );
-          if (!listing) return acc;
-          const newName  = listing.title || '';
-          const newPrice = parseFloat(listing.price?.amount) || 0;
-          const oldName  = dw.str(r, F.name);
-          const oldPrice = parseFloat(r.fields[F.listPrice]) || 0;
-          if (newName !== oldName || newPrice !== oldPrice) {
-            acc.push({ rec: r, listing, newName, newPrice, oldName, oldPrice });
-          }
-          return acc;
-        }, []);
+      this.detailDiffs = dw.records.reduce((acc, r) => {
+        const reverbListing = (r.listings || []).find(
+          l => l.site?.name === 'Reverb' && l.platform_listing_id
+        );
+        if (!reverbListing) return acc;
+        const listing = this.listings.find(
+          l => String(l.id) === reverbListing.platform_listing_id
+        );
+        if (!listing) return acc;
+        const newName  = listing.title || '';
+        const newPrice = parseFloat(listing.price?.amount) || 0;
+        const oldName  = r.name || '';
+        const oldPrice = reverbListing.list_price || 0;
+        if (newName !== oldName || newPrice !== oldPrice) {
+          acc.push({ rec: r, listing: reverbListing, newName, newPrice, oldName, oldPrice });
+        }
+        return acc;
+      }, []);
+
       const detailSel = {};
       for (const d of this.detailDiffs) detailSel[d.rec.id] = true;
       this.detailSelections = detailSel;
@@ -132,7 +152,10 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       for (const { order, rec } of this.toSave) {
         try {
-          await dw.updateRecord(rec.id, { [F.reverbOrderNum]: String(order.order_number) });
+          if (rec.order?.id) {
+            await dw.updateOrder(rec.order.id, { platform_order_num: String(order.order_number) });
+          }
+          // If no order exists yet, the label modal will create it — skip silently
           saved++;
         } catch(e) {
           console.error('saveMatches:', e);
@@ -141,22 +164,28 @@ document.addEventListener('alpine:init', () => {
       }
       this.matchesMsg    = errors ? `${saved} saved, ${errors} failed` : `✓ ${saved} saved`;
       this.savingMatches = false;
-      setTimeout(() => this._process(), 800);
+      setTimeout(async () => { await Alpine.store('dw').fetchAll(); this._process(); }, 800);
     },
 
     async saveLinks() {
       const toLink = this.unlinkedRecs
         .filter(r => this.linkSelections[r.id])
-        .map(r   => ({ rec: r, listingId: this.linkSelections[r.id] }));
+        .map(r => {
+          const listing = (r.listings || []).find(
+            l => l.site?.name === 'Reverb' && l.status === 'active' && !l.platform_listing_id
+          );
+          return { rec: r, listing, listingId: this.linkSelections[r.id] };
+        })
+        .filter(({ listing }) => listing);
       if (!toLink.length) { this.linksMsg = 'nothing selected'; return; }
 
       this.savingLinks = true;
       this.linksMsg    = '';
       let saved = 0, errors = 0;
       const dw = Alpine.store('dw');
-      for (const { rec, listingId } of toLink) {
+      for (const { listing, listingId } of toLink) {
         try {
-          await dw.updateRecord(rec.id, { [F.reverbListingId]: listingId });
+          await dw.updateListing(listing.id, { platform_listing_id: listingId });
           saved++;
         } catch(e) {
           console.error('saveLinks:', e);
@@ -165,7 +194,7 @@ document.addEventListener('alpine:init', () => {
       }
       this.linksMsg    = errors ? `${saved} saved, ${errors} failed` : `✓ ${saved} saved`;
       this.savingLinks = false;
-      setTimeout(() => this._process(), 800);
+      setTimeout(async () => { await Alpine.store('dw').fetchAll(); this._process(); }, 800);
     },
 
     async syncDetails() {
@@ -175,12 +204,10 @@ document.addEventListener('alpine:init', () => {
       this.detailsMsg     = '';
       let saved = 0, errors = 0;
       const dw = Alpine.store('dw');
-      for (const { rec, newName, newPrice } of selected) {
+      for (const { rec, listing, newName, newPrice } of selected) {
         try {
-          await dw.updateRecord(rec.id, {
-            [F.name]:      newName,
-            [F.listPrice]: newPrice,
-          });
+          await dw.updateListing(listing.id, { list_price: newPrice });
+          await dw.updateItem(rec.id, { name: newName });
           saved++;
         } catch(e) {
           console.error('syncDetails:', e);

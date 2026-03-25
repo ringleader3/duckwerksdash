@@ -36,15 +36,15 @@ document.addEventListener('alpine:init', () => {
       // Use YYYY-MM as the sort key (parseable by Date), store display label separately.
       const byMonth = {};
       dw.soldRecords.forEach(r => {
-        const raw = dw.str(r, F.dateSold);
+        const raw = r.order?.date_sold;
         if (!raw) return;
         const d    = new Date(raw);
         const sortKey    = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
         const displayKey = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
         if (!byMonth[sortKey]) byMonth[sortKey] = { display: displayKey, revenue: 0, profit: 0 };
-        const sale     = dw.num(r, F.sale);
-        const cost     = dw.num(r, F.cost);
-        const shipping = dw.num(r, F.shipping);
+        const sale     = r.order?.sale_price || 0;
+        const cost     = r.cost || 0;
+        const shipping = r.shipment?.shipping_cost || 0;
         byMonth[sortKey].revenue += sale;
         byMonth[sortKey].profit  += sale - cost - shipping;
       });
@@ -100,14 +100,11 @@ document.addEventListener('alpine:init', () => {
 
       const listedRecs   = dw.listedRecords;
       const soldRecs     = dw.soldRecords;
-      const unlistedRecs = dw.records.filter(r => {
-        const s = dw.str(r, F.status);
-        return s !== 'Listed' && s !== 'Sold';
-      });
+      const unlistedRecs = dw.records.filter(r => r.status !== 'Listed' && r.status !== 'Sold');
 
       // Value annotations: EAF total for Listed, cost total for Unlisted
       const listedEAF     = listedRecs.reduce((s, r) => s + dw.payout(r), 0);
-      const unlistedCost  = unlistedRecs.reduce((s, r) => s + dw.num(r, F.cost), 0);
+      const unlistedCost  = unlistedRecs.reduce((s, r) => s + (r.cost || 0), 0);
       const fmt = n => '$' + n.toFixed(0);
 
       this.charts.pipeline = new Chart(this.$refs.pipelineCanvas, {
@@ -153,10 +150,10 @@ document.addEventListener('alpine:init', () => {
 
       // Recompute lot rows (can't access dashView.lotRows from here)
       const rows = dw.lots.map(lot => {
-        const cost      = lot.items.reduce((s, r) => s + dw.num(r, F.cost), 0);
+        const cost      = lot.items.reduce((s, r) => s + (r.cost || 0), 0);
         const recovered = lot.items
-          .filter(r => dw.str(r, F.status) === 'Sold')
-          .reduce((s, r) => s + dw.num(r, F.sale), 0);
+          .filter(r => r.status === 'Sold')
+          .reduce((s, r) => s + (r.order?.sale_price || 0), 0);
         const pct = cost > 0 ? Math.min(100, Math.round((recovered / cost) * 100)) : 0;
         return { name: lot.name, pct };
       }).sort((a, b) => b.pct - a.pct);
@@ -211,7 +208,7 @@ document.addEventListener('alpine:init', () => {
 
       const byCategory = {};
       dw.listedRecords.forEach(r => {
-        const cat = dw.str(r, F.category) || 'Other';
+        const cat = r.category?.name || 'Other';
         const key = colorMap[cat] ? cat : 'Other';
         byCategory[key] = (byCategory[key] || 0) + dw.estProfit(r);
       });

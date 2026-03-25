@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Duckwerks v2</title>
+  <link rel="icon" type="image/svg+xml" href="/v2/favicon.svg">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/components.css">
 </head>
@@ -136,7 +137,7 @@
                 <tbody>
                   <template x-for="r in inTransitRows" :key="r.id">
                     <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
-                      <td style="text-align:left" x-text="$store.dw.str(r, F.name).replace(/\n/g,'')"></td>
+                      <td style="text-align:left" x-text="r.name"></td>
                       <td>
                         <span x-show="trackStatus(r)" :class="'badge ' + trackStatusBadge(trackStatus(r))" x-text="trackStatusLabel(trackStatus(r))"></span>
                         <span x-show="!trackStatus(r)" style="color:var(--muted);font-size:11px">—</span>
@@ -262,10 +263,10 @@
                 <template x-for="r in recentlySold" :key="r.id">
                   <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
                     <td style="color:var(--muted); white-space:nowrap" x-text="soldDate(r)"></td>
-                    <td style="text-align:left" x-text="$store.dw.str(r, F.name)"></td>
-                    <td><span :class="'badge ' + (CAT_BADGE[$store.dw.str(r, F.category)] || '')" x-text="$store.dw.str(r, F.category)"></span></td>
+                    <td style="text-align:left" x-text="r.name"></td>
+                    <td><span :class="'badge ' + (r.category?.badge_class || '')" x-text="r.category?.name"></span></td>
                     <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
-                    <td class="num green" x-text="$store.dw.fmt0($store.dw.num(r, F.sale))"></td>
+                    <td class="num green" x-text="$store.dw.fmt0(r.order?.sale_price)"></td>
                     <td class="num" :class="itemProfit(r) >= 0 ? 'green' : 'red'" x-text="$store.dw.fmt0(itemProfit(r))"></td>
                   </tr>
                 </template>
@@ -294,11 +295,11 @@
               <template x-for="r in recentlyListed" :key="r.id">
                 <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
                   <td style="color:var(--muted); white-space:nowrap" x-text="listedDate(r)"></td>
-                  <td style="text-align:left" x-text="$store.dw.str(r, F.name)"></td>
-                  <td><span :class="'badge ' + (CAT_BADGE[$store.dw.str(r, F.category)] || '')" x-text="$store.dw.str(r, F.category)"></span></td>
+                  <td style="text-align:left" x-text="r.name"></td>
+                  <td><span :class="'badge ' + (r.category?.badge_class || '')" x-text="r.category?.name"></span></td>
                   <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
-                  <td class="num" x-text="$store.dw.num(r, F.listPrice) > 0 ? $store.dw.fmt0($store.dw.num(r, F.listPrice)) : '—'"></td>
-                  <td class="num est" x-text="$store.dw.num(r, F.listPrice) > 0 ? $store.dw.fmt0($store.dw.payout(r)) : '—'"></td>
+                  <td class="num" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : '—'"></td>
+                  <td class="num est" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.payout(r)) : '—'"></td>
                   <td class="num est" x-text="$store.dw.fmt0($store.dw.estProfit(r))"></td>
                 </tr>
               </template>
@@ -326,8 +327,9 @@
             </template>
           </div>
           <div class="pill-row">
-            <template x-for="s in ['All','Reverb','eBay']" :key="s">
-              <button class="pill" :class="{ active: siteFilter === s }" @click="siteFilter = s; $store.dw.categoryFilter = null" x-text="s"></button>
+            <button class="pill" :class="{ active: siteFilter === 'All' }" @click="siteFilter = 'All'; $store.dw.categoryFilter = null">All</button>
+            <template x-for="s in $store.dw.sites" :key="s.id">
+              <button class="pill" :class="{ active: siteFilter === s.name }" @click="siteFilter = s.name; $store.dw.categoryFilter = null" x-text="s.name"></button>
             </template>
           </div>
           <input class="controls-search" type="text" placeholder="search name..." x-model="nameSearch">
@@ -357,34 +359,34 @@
               <tr @click="openItem(r)">
                 <td style="color:var(--muted); white-space:nowrap" x-text="dateAdded(r)"></td>
                 <td style="text-align:left">
-                  <span x-text="$store.dw.str(r, F.name)"></span>
+                  <span x-text="r.name"></span>
                   <span x-show="needsAttention(r)" :title="daysListed(r) + ' days listed'" style="margin-left:6px; color:var(--orange); font-size:11px; cursor:default">⚑</span>
                 </td>
-                <td style="color:var(--muted); font-size:11px" x-text="$store.dw.str(r, F.lot)"></td>
+                <td style="color:var(--muted); font-size:11px" x-text="r.lot?.name"></td>
                 <td>
-                  <span class="badge" :class="catBadgeClass($store.dw.str(r, F.category))" x-text="$store.dw.str(r, F.category)"></span>
+                  <span class="badge" :class="r.category?.badge_class" x-text="r.category?.name"></span>
                 </td>
                 <td>
                   <span class="badge" :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge-ebay' : 'badge-reverb'" x-text="$store.dw.siteLabel(r)"></span>
                 </td>
                 <td style="position:relative">
-                  <span class="badge" :class="badgeClass($store.dw.str(r, F.status))" x-text="$store.dw.str(r, F.status)" @click="toggleStatusMenu(r.id, $event)" style="cursor:pointer" title="Click to change status"></span>
+                  <span class="badge" :class="badgeClass(r.status)" x-text="r.status" @click="toggleStatusMenu(r.id, $event)" style="cursor:pointer" title="Click to change status"></span>
                   <div x-show="openStatusId === r.id" class="status-dropdown" @click.stop>
                     <template x-for="s in ['Listed','Sold','Prepping']" :key="s">
                       <div class="status-option" x-text="s" @click="changeStatus(r, s, $event)"></div>
                     </template>
                   </div>
                 </td>
-                <td class="num" x-text="$store.dw.num(r, F.listPrice) > 0 ? $store.dw.fmt0($store.dw.num(r, F.listPrice)) : '—'"></td>
+                <td class="num" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : '—'"></td>
                 <td class="num est" x-text="eafDisplay(r)"></td>
                 <td class="num est" x-text="profitDisplay(r)"></td>
                 <td class="num" :class="shipIsEst(r) ? 'est' : 'act'" x-text="shipDisplay(r)"></td>
                 <td x-show="statusFilter === 'Sold'" class="num">
-                  <span x-show="$store.dw.str(r, F.trackingId)">
+                  <span x-show="r.shipment?.tracking_id">
                     <span x-show="trackingData[r.id]" :class="'badge ' + trackStatusBadge(trackingData[r.id]?.status)" x-text="trackStatusLabel(trackingData[r.id]?.status)"></span>
                     <span x-show="!trackingData[r.id] && !trackingLoading" style="color:var(--muted);font-size:11px">—</span>
                   </span>
-                  <span x-show="!$store.dw.str(r, F.trackingId)" style="color:var(--muted);font-size:11px">—</span>
+                  <span x-show="!r.shipment?.tracking_id" style="color:var(--muted);font-size:11px">—</span>
                 </td>
                 <td @click.stop>
                   <div style="display:flex; gap:6px">
@@ -425,7 +427,7 @@
                   <span class="muted-detail" x-text="'(' + countByStatus(lot,'Sold') + 's/' + countByStatus(lot,'Listed') + 'l)'"></span>
                 </td>
                 <td class="num-col red" x-text="$store.dw.fmt0(totalCost(lot))"></td>
-                <td class="num-col green" x-text="$store.dw.fmt0(recovered(lot))"></td>
+                <td class="num-col green" x-text="$store.dw.fmt0(totalRecovered(lot))"></td>
                 <td>
                   <div style="display:flex; align-items:center; gap:8px">
                     <div class="progress-bar" style="flex:1">
@@ -451,10 +453,11 @@
   <!-- ── Modal Containers ──────────────────────────────────────────────────── -->
   <!-- Item Modal -->
   <div x-show="$store.dw.activeModal === 'item'" x-data="itemModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
-    <div class="modal-box" x-show="record" @keydown.escape.window="$store.dw.closeModal()">
+    <template x-if="record">
+    <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()">
 
       <div class="modal-header">
-        <div class="modal-title" x-text="$store.dw.str(record, F.name)"></div>
+        <div class="modal-title" x-text="record.name"></div>
         <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
       </div>
 
@@ -467,17 +470,17 @@
           <div class="modal-row">
             <span class="modal-field">Status</span>
             <span class="modal-val">
-              <span class="badge" :class="badgeClass($store.dw.str(record, F.status))" x-text="$store.dw.str(record, F.status) || '—'"
+              <span class="badge" :class="badgeClass(record.status)" x-text="record.status || '—'"
                     style="cursor:pointer" title="View all with this status"
-                    @click="$store.dw.navToItems($store.dw.str(record, F.status), null)"></span>
+                    @click="$store.dw.navToItems(record.status, null)"></span>
             </span>
           </div>
           <div class="modal-row">
             <span class="modal-field">Category</span>
             <span class="modal-val">
-              <span class="badge" :class="catBadgeClass($store.dw.str(record, F.category))" x-text="$store.dw.str(record, F.category) || '—'"
+              <span class="badge" :class="record.category?.badge_class" x-text="record.category?.name || '—'"
                     style="cursor:pointer" title="View all in this category"
-                    @click="$store.dw.navToItems(null, $store.dw.str(record, F.category))"></span>
+                    @click="$store.dw.navToItems(null, record.category?.name)"></span>
             </span>
           </div>
           <div class="modal-row" x-show="$store.dw.siteLabel(record)">
@@ -488,29 +491,29 @@
                     @click="$store.dw.navToItems(null, null, $store.dw.siteLabel(record))"></span>
             </span>
           </div>
-          <div class="modal-row" x-show="$store.dw.str(record, F.lot)">
+          <div class="modal-row" x-show="record.lot?.name">
             <span class="modal-field">Lot</span>
-            <span class="modal-val" x-text="$store.dw.str(record, F.lot)"
+            <span class="modal-val" x-text="record.lot?.name"
                   style="cursor:pointer; color:var(--blue)" title="Open lot detail"
-                  @click="$store.dw.openModal('lot', null, $store.dw.str(record, F.lot))"></span>
+                  @click="$store.dw.openModal('lot', null, record.lot?.name)"></span>
           </div>
-          <div class="modal-row" x-show="$store.dw.str(record, F.url)">
+          <div class="modal-row" x-show="$store.dw.activeListing(record)?.url">
             <span class="modal-field">Listing</span>
             <span class="modal-val">
-              <a :href="$store.dw.str(record, F.url)" target="_blank">↗ Open Listing</a>
+              <a :href="$store.dw.activeListing(record).url" target="_blank">↗ Open Listing</a>
             </span>
           </div>
-          <div class="modal-row" x-show="$store.dw.str(record, F.reverbListingId) || $store.dw.str(record, F.reverbOrderNum)">
+          <div class="modal-row" x-show="$store.dw.activeListing(record)?.platform_listing_id || record.order?.platform_order_num">
             <span class="modal-field">Reverb</span>
             <span class="modal-val" style="display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end">
-              <a x-show="$store.dw.str(record, F.reverbListingId)" target="_blank"
-                 :href="'https://reverb.com/item/' + $store.dw.str(record, F.reverbListingId)"
+              <a x-show="$store.dw.activeListing(record)?.platform_listing_id" target="_blank"
+                 :href="'https://reverb.com/item/' + $store.dw.activeListing(record)?.platform_listing_id"
                  style="font-size:11px; color:var(--muted)"
-                 x-text="'↗ Listing #' + $store.dw.str(record, F.reverbListingId)"></a>
-              <a x-show="$store.dw.str(record, F.reverbOrderNum)" target="_blank"
-                 :href="'https://reverb.com/my/selling/orders/' + $store.dw.str(record, F.reverbOrderNum)"
+                 x-text="'↗ Listing #' + $store.dw.activeListing(record)?.platform_listing_id"></a>
+              <a x-show="record.order?.platform_order_num" target="_blank"
+                 :href="'https://reverb.com/my/selling/orders/' + record.order?.platform_order_num"
                  style="font-size:11px; color:var(--reverb)"
-                 x-text="'↗ Order #' + $store.dw.str(record, F.reverbOrderNum)"></a>
+                 x-text="'↗ Order #' + record.order?.platform_order_num"></a>
             </span>
           </div>
 
@@ -519,15 +522,15 @@
 
           <div class="modal-row">
             <span class="modal-field">List Price</span>
-            <span class="modal-val" x-text="$store.dw.num(record, F.listPrice) > 0 ? $store.dw.fmt0($store.dw.num(record, F.listPrice)) : '—'"></span>
+            <span class="modal-val" x-text="$store.dw.activeListing(record)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(record).list_price) : '—'"></span>
           </div>
-          <div class="modal-row" x-show="$store.dw.num(record, F.listPrice) > 0 && !isSold">
+          <div class="modal-row" x-show="$store.dw.activeListing(record)?.list_price > 0 && !isSold">
             <span class="modal-field">Earnings After Fees</span>
             <span class="modal-val est" x-text="$store.dw.fmt0($store.dw.payout(record))"></span>
           </div>
           <div class="modal-row">
             <span class="modal-field">Cost Basis</span>
-            <span class="modal-val red" x-text="$store.dw.num(record, F.cost) > 0 ? $store.dw.fmt0($store.dw.num(record, F.cost)) : '—'"></span>
+            <span class="modal-val red" x-text="record.cost > 0 ? $store.dw.fmt0(record.cost) : '—'"></span>
           </div>
 
           <!-- SOLD state -->
@@ -535,22 +538,22 @@
             <div>
               <div class="modal-row">
                 <span class="modal-field">Actual Payout</span>
-                <span class="modal-val green" x-text="$store.dw.fmt0($store.dw.num(record, F.sale))"></span>
+                <span class="modal-val green" x-text="$store.dw.fmt0(record.order?.sale_price)"></span>
               </div>
               <div class="modal-row">
                 <span class="modal-field">Shipping Cost</span>
-                <span class="modal-val red" x-text="$store.dw.num(record, F.shipping) > 0 ? $store.dw.fmt0($store.dw.num(record, F.shipping)) : '—'"></span>
+                <span class="modal-val red" x-text="$store.dw.fmt0(record.shipment?.shipping_cost || record.listings?.find(l => l.status === 'sold')?.shipping_estimate) || '—'"></span>
               </div>
               <hr class="modal-divider">
               <div style="display:flex; justify-content:space-between; align-items:flex-end; padding:8px 0">
                 <div>
                   <div class="modal-field" style="margin-bottom:6px">Net Profit</div>
-                  <div class="modal-big-profit" :class="$store.dw.num(record, F.profit) >= 0 ? 'green' : 'red'" x-text="($store.dw.num(record, F.profit) >= 0 ? '+' : '') + $store.dw.fmt0($store.dw.num(record, F.profit))"></div>
+                  <div class="modal-big-profit" :class="record.order?.profit >= 0 ? 'green' : 'red'" x-text="(record.order?.profit >= 0 ? '+' : '') + $store.dw.fmt0(record.order?.profit)"></div>
                 </div>
                 <div style="text-align:right">
                   <div class="modal-field" style="margin-bottom:6px">Margin</div>
                   <div style="font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--muted)"
-                       x-text="$store.dw.num(record, F.cost) > 0 ? Math.round(($store.dw.num(record, F.profit) / $store.dw.num(record, F.cost)) * 100) + '%' : '—'"></div>
+                       x-text="record.cost > 0 ? Math.round((record.order?.profit / record.cost) * 100) + '%' : '—'"></div>
                 </div>
               </div>
             </div>
@@ -559,13 +562,13 @@
           <!-- LISTED/PENDING state -->
           <template x-if="record && !isSold">
             <div>
-              <hr class="modal-divider" x-show="$store.dw.num(record, F.listPrice) > 0">
-              <div class="modal-row" x-show="$store.dw.num(record, F.listPrice) > 0">
+              <hr class="modal-divider" x-show="$store.dw.activeListing(record)?.list_price > 0">
+              <div class="modal-row" x-show="$store.dw.activeListing(record)?.list_price > 0">
                 <span class="modal-field">Shipping</span>
-                <span class="modal-val" :class="record?.fields?.[F.shipping] == null ? 'est' : 'red'"
-                      x-text="record?.fields?.[F.shipping] != null ? $store.dw.fmt0($store.dw.num(record, F.shipping)) : '($10 est)'"></span>
+                <span class="modal-val" :class="$store.dw.activeListing(record)?.shipping_estimate != null ? 'red' : 'est'"
+                      x-text="$store.dw.activeListing(record)?.shipping_estimate != null ? $store.dw.fmt0($store.dw.activeListing(record).shipping_estimate) : '($10 est)'"></span>
               </div>
-              <div style="padding:8px 0" x-show="$store.dw.num(record, F.listPrice) > 0">
+              <div style="padding:8px 0" x-show="$store.dw.activeListing(record)?.list_price > 0">
                 <div class="modal-field" style="margin-bottom:6px">Est. Profit</div>
                 <div class="modal-big-profit est" x-text="$store.dw.fmt0($store.dw.estProfit(record))"></div>
               </div>
@@ -575,13 +578,13 @@
           <hr class="modal-divider">
           <div class="modal-row" style="padding:4px 0">
             <span class="modal-field" style="font-size:11px">Date Added</span>
-            <span style="font-size:11px; color:var(--muted)" x-text="record ? new Date(record.createdTime).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '—'"></span>
+            <span style="font-size:11px; color:var(--muted)" x-text="record ? new Date(record.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '—'"></span>
           </div>
-          <div class="modal-row" x-show="$store.dw.str(record, F.dateSold)" style="padding:4px 0">
+          <div class="modal-row" x-show="record.order?.date_sold" style="padding:4px 0">
             <span class="modal-field" style="font-size:11px">Date Sold</span>
-            <span style="font-size:11px; color:var(--muted)" x-text="$store.dw.str(record, F.dateSold) ? new Date($store.dw.str(record, F.dateSold)).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : ''"></span>
+            <span style="font-size:11px; color:var(--muted)" x-text="record.order?.date_sold ? new Date(record.order.date_sold).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : ''"></span>
           </div>
-          <template x-if="record && $store.dw.str(record, F.trackingId)">
+          <template x-if="record && record.shipment?.tracking_id">
             <div>
               <hr class="modal-divider">
               <div class="modal-section-label">Shipment</div>
@@ -624,9 +627,9 @@
                 </div>
               </template>
               <div class="modal-row" x-show="!trackingInfo && !trackingLoading">
-                <a x-show="$store.dw.str(record, F.trackerUrl)" :href="$store.dw.str(record, F.trackerUrl)" target="_blank" style="font-size:11px">↗ View Tracker</a>
-                <span x-show="!$store.dw.str(record, F.trackerUrl)" style="color:var(--muted);font-size:11px">Tracking unavailable</span>
-                <a x-show="$store.dw.str(record, F.labelUrl)" :href="$store.dw.str(record, F.labelUrl)" target="_blank" style="font-size:11px;margin-left:12px">↗ Reprint Label</a>
+                <a x-show="record.shipment?.tracker_url" :href="record.shipment?.tracker_url" target="_blank" style="font-size:11px">↗ View Tracker</a>
+                <span x-show="!record.shipment?.tracker_url" style="color:var(--muted);font-size:11px">Tracking unavailable</span>
+                <a x-show="record.shipment?.label_url" :href="record.shipment?.label_url" target="_blank" style="font-size:11px;margin-left:12px">↗ Reprint Label</a>
               </div>
               <div style="margin-top:12px">
                 <button @click="clearTracking()" style="padding:4px 10px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer">CLEAR TRACKING</button>
@@ -661,8 +664,8 @@
             <span class="modal-val">
               <select class="modal-select" x-model="form.category">
                 <option value="">—</option>
-                <template x-for="c in ['Music','Computer','Gaming','house']" :key="c">
-                  <option :value="c" x-text="c"></option>
+                <template x-for="c in $store.dw.categories" :key="c.id">
+                  <option :value="c.name" x-text="c.name"></option>
                 </template>
               </select>
             </span>
@@ -672,8 +675,8 @@
             <span class="modal-val">
               <select class="modal-select" x-model="form.site">
                 <option value="">—</option>
-                <template x-for="s in ['Reverb','eBay']" :key="s">
-                  <option :value="s" x-text="s"></option>
+                <template x-for="s in $store.dw.sites" :key="s.id">
+                  <option :value="s.name" x-text="s.name"></option>
                 </template>
               </select>
             </span>
@@ -737,6 +740,7 @@
       </div>
 
     </div>
+    </template>
   </div>
 
   <!-- Add Modal -->
@@ -771,8 +775,8 @@
           <span class="modal-val">
             <select class="modal-select" x-model="form.category">
               <option value="">—</option>
-              <template x-for="c in ['Music','Computer','Gaming','house']" :key="c">
-                <option :value="c" x-text="c"></option>
+              <template x-for="c in $store.dw.categories" :key="c.id">
+                <option :value="c.name" x-text="c.name"></option>
               </template>
             </select>
           </span>
@@ -782,8 +786,8 @@
           <span class="modal-val">
             <select class="modal-select" x-model="form.site">
               <option value="">—</option>
-              <template x-for="s in ['Reverb','eBay','Marketplace']" :key="s">
-                <option :value="s" x-text="s"></option>
+              <template x-for="s in $store.dw.sites" :key="s.id">
+                <option :value="s.name" x-text="s.name"></option>
               </template>
             </select>
           </span>
@@ -893,13 +897,13 @@
           <tbody>
             <template x-for="r in sortedItems" :key="r.id">
               <tr class="clickable-row" @click="openItem(r)">
-                <td style="text-align:left" x-text="$store.dw.str(r, F.name)"></td>
-                <td><span class="badge" :class="badgeClass($store.dw.str(r, F.status))" x-text="$store.dw.str(r, F.status)"></span></td>
-                <td class="num-col red"    x-text="$store.dw.num(r, F.cost) ? $store.dw.fmt0($store.dw.num(r, F.cost)) : '—'"></td>
+                <td style="text-align:left" x-text="r.name"></td>
+                <td><span class="badge" :class="badgeClass(r.status)" x-text="r.status"></span></td>
+                <td class="num-col red"    x-text="r.cost ? $store.dw.fmt0(r.cost) : '—'"></td>
                 <td class="num-col"        x-text="listPriceDisplay(r)"></td>
                 <td class="num-col yellow" x-text="eafDisplay(r)"></td>
                 <td class="num-col" :class="profitValue(r) >= 0 ? 'green' : 'red'" x-text="profitDisplay(r)"></td>
-                <td class="num-col green"  x-text="$store.dw.num(r, F.sale) ? $store.dw.fmt0($store.dw.num(r, F.sale)) : '—'"></td>
+                <td class="num-col green"  x-text="r.order?.sale_price ? $store.dw.fmt0(r.order.sale_price) : '—'"></td>
               </tr>
             </template>
             <tr x-show="items.length === 0">
@@ -1129,12 +1133,12 @@
                 <div style="font-size:10px;color:#555;margin-top:2px" x-text="'Order #' + item.order.order_number"></div>
               </div>
               <div style="flex-shrink:0;margin-top:2px">
-                <button x-show="$store.dw.str(item.rec, F.reverbOrderNum) === String(item.order.order_number)"
+                <button x-show="item.rec.order?.platform_order_num === String(item.order.order_number)"
                   @click="$store.dw.openModal('label', item.rec.id)"
                   style="padding:5px 14px;background:var(--blue);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:10px;letter-spacing:2px;cursor:pointer">
                   SHIP
                 </button>
-                <span x-show="$store.dw.str(item.rec, F.reverbOrderNum) !== String(item.order.order_number)"
+                <span x-show="item.rec.order?.platform_order_num !== String(item.order.order_number)"
                   style="font-size:10px;letter-spacing:1px;color:var(--yellow)">PENDING</span>
               </div>
             </div>
@@ -1180,7 +1184,7 @@
             </div>
             <template x-for="rec in unlinkedRecs" :key="rec.id">
               <div style="padding:10px 0;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-                <div style="font-size:12px;color:var(--white);min-width:160px;flex:1" x-text="$store.dw.str(rec, F.name)"></div>
+                <div style="font-size:12px;color:var(--white);min-width:160px;flex:1" x-text="rec.name"></div>
                 <select x-model="linkSelections[rec.id]"
                   style="flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:11px;padding:6px 8px">
                   <option value="">— pick listing —</option>
@@ -1285,7 +1289,7 @@
             <tbody>
               <template x-for="r in inTransitRecords" :key="r.id">
                 <tr style="cursor:pointer" @click="openItem(r)">
-                  <td style="text-align:left" x-text="$store.dw.str(r, F.name).replace(/\n/g,'')"></td>
+                  <td style="text-align:left" x-text="r.name"></td>
                   <td>
                     <span x-show="trackStatus(r)" :class="'badge ' + statusBadgeClass(trackStatus(r))" x-text="statusLabel(trackStatus(r))"></span>
                     <span x-show="!trackStatus(r)" style="color:var(--muted);font-size:11px">—</span>

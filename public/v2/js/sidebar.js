@@ -51,12 +51,12 @@ document.addEventListener('alpine:init', () => {
       const seenCats = new Set();
 
       for (const r of dw.records) {
-        const name   = dw.str(r, F.name).toLowerCase();
-        const lot    = dw.str(r, F.lot);
+        const name   = (r.name || '').toLowerCase();
+        const lot    = r.lot?.name || '';
         const lotKey = lot.toLowerCase();
-        const cat    = dw.str(r, F.category);
+        const cat    = r.category?.name || '';
         const catKey = cat.toLowerCase();
-        const status = dw.str(r, F.status);
+        const status = r.status;
 
         // Item match on name
         if (name.includes(q)) {
@@ -64,7 +64,7 @@ document.addEventListener('alpine:init', () => {
             key:        r.id,
             type:       'item',
             typeIcon:   '◈',
-            label:      dw.str(r, F.name),
+            label:      r.name,
             badge:      status,
             badgeClass: 'badge-' + status.toLowerCase(),
             dimmed:     status === 'Sold',
@@ -75,11 +75,11 @@ document.addEventListener('alpine:init', () => {
         // Lot match (deduplicated)
         if (lotKey && lotKey.includes(q) && !seenLots.has(lotKey)) {
           seenLots.add(lotKey);
-          const lotItems  = dw.records.filter(x => dw.str(x, F.lot).toLowerCase() === lotKey);
-          const cost      = lotItems.reduce((s, x) => s + dw.num(x, F.cost), 0);
+          const lotItems  = dw.records.filter(x => (x.lot?.name || '').toLowerCase() === lotKey);
+          const cost      = lotItems.reduce((s, x) => s + (x.cost || 0), 0);
           const recovered = lotItems
-            .filter(x => dw.str(x, F.status) === 'Sold')
-            .reduce((s, x) => s + dw.num(x, F.sale), 0);
+            .filter(x => x.status === 'Sold')
+            .reduce((s, x) => s + (x.order?.sale_price || 0), 0);
           const pct = dw.pct(recovered, cost);
           out.push({
             key:        'lot-' + lotKey,
@@ -97,7 +97,7 @@ document.addEventListener('alpine:init', () => {
         if (catKey && catKey.includes(q) && !seenCats.has(catKey)) {
           seenCats.add(catKey);
           const listedCount = dw.records.filter(
-            x => dw.str(x, F.category).toLowerCase() === catKey && dw.str(x, F.status) === 'Listed'
+            x => (x.category?.name || '').toLowerCase() === catKey && x.status === 'Listed'
           ).length;
           out.push({
             key:        'cat-' + catKey,

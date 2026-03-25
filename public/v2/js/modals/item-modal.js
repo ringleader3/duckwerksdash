@@ -1,4 +1,4 @@
-// ── Item Modal — Phase 4 ──────────────────────────────────────────────────────
+// ── Item Modal ────────────────────────────────────────────────────────────────
 document.addEventListener('alpine:init', () => {
   Alpine.data('itemModal', () => ({
     editMode:        false,
@@ -8,17 +8,12 @@ document.addEventListener('alpine:init', () => {
     trackingInfo:    null,
     trackingLoading: false,
 
-    // Reset edit state whenever a new record is opened
     init() {
       this.$watch('$store.dw.activeRecordId', () => {
-        this.editMode        = false;
-        this.saveMsg         = '';
-        this.form            = {};
-        this.trackingInfo    = null;
-        this.trackingLoading = false;
+        this.editMode = false; this.saveMsg = ''; this.form = {};
+        this.trackingInfo = null; this.trackingLoading = false;
         this._loadTracking();
       });
-      // Dual-path: handle case where record is already set when modal opens
       if (Alpine.store('dw').activeRecordId) this._loadTracking();
     },
 
@@ -27,59 +22,84 @@ document.addEventListener('alpine:init', () => {
       return dw.records.find(r => r.id === dw.activeRecordId) || null;
     },
 
-    get isSold() {
-      return this.record ? Alpine.store('dw').str(this.record, F.status) === 'Sold' : false;
-    },
+    get isSold() { return this.record?.status === 'Sold'; },
 
-    // Kick off edit — snapshot record fields into form
     startEdit() {
-      const dw = Alpine.store('dw');
-      const r  = this.record;
+      const r = this.record;
       if (!r) return;
+      const listing = Alpine.store('dw').activeListing(r);
       this.form = {
-        name:            dw.str(r, F.name),
-        status:          dw.str(r, F.status),
-        category:        dw.str(r, F.category),
-        site:            dw.siteLabel(r),
-        lot:             dw.str(r, F.lot),
-        url:             dw.str(r, F.url),
-        reverbListingId: dw.str(r, F.reverbListingId),
-        listPrice:       r.fields[F.listPrice] != null ? r.fields[F.listPrice] : '',
-        cost:            r.fields[F.cost]      != null ? r.fields[F.cost]      : '',
-        sale:            r.fields[F.sale]      != null ? r.fields[F.sale]      : '',
-        shipping:        r.fields[F.shipping]  != null ? r.fields[F.shipping]  : '',
+        name:           r.name,
+        status:         r.status,
+        category:       r.category?.name || '',
+        site:           listing?.site?.name || '',
+        lot:            r.lot?.name || '',
+        url:            listing?.url || '',
+        reverbListingId: listing?.platform_listing_id || '',
+        listPrice:      listing?.list_price ?? '',
+        cost:           r.cost ?? '',
+        sale:           r.order?.sale_price ?? '',
+        shipping:       listing?.shipping_estimate ?? '',
+        listing_id:     listing?.id || null,
       };
-      this.editMode = true;
-      this.saveMsg  = '';
+      this.editMode = true; this.saveMsg = '';
     },
 
-    cancelEdit() {
-      this.editMode = false;
-      this.saveMsg  = '';
-    },
+    cancelEdit() { this.editMode = false; this.saveMsg = ''; },
 
     async save() {
-      const f      = this.form;
-      const fields = {};
+      const dw = Alpine.store('dw');
+      const f  = this.form;
+      const r  = this.record;
+      const itemFields = {};
 
-      if (f.name)     fields[F.name]     = f.name;
-      if (f.status)   fields[F.status]   = f.status;
-      if (f.status === 'Sold' && !Alpine.store('dw').str(this.record, F.dateSold))
-        fields[F.dateSold] = new Date().toISOString().split('T')[0];
-      if (f.category) fields[F.category] = f.category;
-      if (f.site)     fields[F.site]     = f.site;
-      fields[F.lot]             = f.lot             || '';
-      fields[F.url]             = f.url             || '';
-      fields[F.reverbListingId] = f.reverbListingId || '';
-      if (f.listPrice !== '') fields[F.listPrice] = parseFloat(f.listPrice);
-      if (f.cost      !== '') fields[F.cost]      = parseFloat(f.cost);
-      if (f.sale      !== '') fields[F.sale]      = parseFloat(f.sale);
-      if (f.shipping  !== '') fields[F.shipping]  = parseFloat(f.shipping);
+      if (f.name)     itemFields.name     = f.name;
+      if (f.status)   itemFields.status   = f.status;
+      if (f.cost !== '') itemFields.cost = parseFloat(f.cost);
 
-      this.saving  = true;
-      this.saveMsg = '';
+      // Resolve category_id and lot_id
+      if (f.category) {
+        const cat = (await fetch('/api/categories').then(r=>r.json())).find(c=>c.name===f.category);
+        if (cat) itemFields.category_id = cat.id;
+      }
+      if (f.lot !== undefined) {
+        const lot = dw.lots.find(l => l.name === f.lot);
+        itemFields.lot_id = lot?.id || null;
+      }
+
+      // Resolve site_id if site set
+      let siteId = null;
+      if (f.site) {
+        const sites = await fetch('/api/sites').then(r => r.json());
+        const site  = sites.find(s => s.name === f.site);
+        if (site) siteId = site.id;
+      }
+
+      this.saving = true; this.saveMsg = '';
       try {
-        await Alpine.store('dw').updateRecord(this.record.id, fields);
+        await dw.updateItem(r.id, itemFields);
+
+        if (f.listing_id) {
+          // Update existing listing
+          const listingFields = {};
+          if (siteId)              listingFields.site_id              = siteId;
+          if (f.url !== undefined) listingFields.url                  = f.url || null;
+          if (f.reverbListingId !== undefined) listingFields.platform_listing_id = f.reverbListingId || null;
+          if (f.listPrice !== '')  listingFields.list_price           = parseFloat(f.listPrice);
+          if (f.shipping  !== '')  listingFields.shipping_estimate    = parseFloat(f.shipping);
+          if (Object.keys(listingFields).length) await dw.updateListing(f.listing_id, listingFields);
+        } else if (siteId) {
+          // No listing yet — create one
+          const listing = { item_id: r.id, site_id: siteId };
+          if (f.listPrice !== '') listing.list_price        = parseFloat(f.listPrice);
+          if (f.shipping  !== '') listing.shipping_estimate = parseFloat(f.shipping);
+          if (f.url)              listing.url               = f.url;
+          if (f.reverbListingId)  listing.platform_listing_id = f.reverbListingId;
+          await dw.createListing(listing);
+          // createListing auto-sets Listed; restore status if user chose differently
+          if (f.status && f.status !== 'Listed') await dw.updateItem(r.id, { status: f.status });
+        }
+
         this.saveMsg = 'saved';
         setTimeout(() => { this.editMode = false; this.saveMsg = ''; }, 900);
       } catch (e) {
@@ -89,35 +109,29 @@ document.addEventListener('alpine:init', () => {
       }
     },
 
-    // Badge helpers (same as itemsView)
     badgeClass(status) {
       const s = (status || '').toLowerCase();
       if (s === 'listed')   return 'badge-listed';
       if (s === 'sold')     return 'badge-sold';
-      if (s === 'pending')  return 'badge-pending';
       if (s === 'prepping') return 'badge-prepping';
       return 'badge-other';
     },
-
-    catBadgeClass(cat) {
-      return CAT_BADGE[cat] || 'badge-other';
-    },
+    catBadgeClass(cat) { return CAT_BADGE[cat] || 'badge-other'; },
 
     async clearTracking() {
-      const dw = Alpine.store('dw');
-      const r  = this.record;
-      if (!r) return;
-      await dw.updateRecord(r.id, { [F.trackingId]: null, [F.trackingNumber]: null, [F.trackerUrl]: null });
+      const r = this.record;
+      if (!r?.shipment?.id) return;
+      await Alpine.store('dw').updateShipment(r.shipment.id, {
+        tracking_id: null, tracking_number: null, tracker_url: null
+      });
       this.trackingInfo = null;
     },
 
     async _loadTracking() {
       const r = this.record;
-      if (!r) return;
-      const tid = Alpine.store('dw').str(r, F.trackingId);
-      if (!tid) return;
+      if (!r?.shipment?.tracking_id) return;
       this.trackingLoading = true;
-      this.trackingInfo    = await Alpine.store('dw').fetchTracker(tid);
+      this.trackingInfo    = await Alpine.store('dw').fetchTracker(r.shipment.tracking_id);
       this.trackingLoading = false;
     },
 
@@ -132,13 +146,11 @@ document.addEventListener('alpine:init', () => {
         default:                 return 'badge-other';
       }
     },
-
     get trackStatusLabel() {
       const s = this.trackingInfo?.status;
       if (!s) return '—';
       return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     },
-
     get trackEstDelivery() {
       const raw = this.trackingInfo?.estDelivery;
       if (!raw) return null;

@@ -10,7 +10,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     get items() {
-      return this.lot ? this.lot.items : [];
+      return this.lot?.items || [];
     },
 
     get sortedItems() {
@@ -20,13 +20,13 @@ document.addEventListener('alpine:init', () => {
       const dir = this.sortDir === 'asc' ? 1 : -1;
       return arr.sort((a, b) => {
         let av, bv;
-        if (k === 'name')      { return dir * dw.str(a, F.name).localeCompare(dw.str(b, F.name)); }
-        if (k === 'status')    { return dir * dw.str(a, F.status).localeCompare(dw.str(b, F.status)); }
-        if (k === 'cost')      { av = dw.num(a, F.cost);      bv = dw.num(b, F.cost); }
-        if (k === 'listPrice') { av = dw.num(a, F.listPrice); bv = dw.num(b, F.listPrice); }
-        if (k === 'eaf')       { av = dw.payout(a); bv = dw.payout(b); }
-        if (k === 'estProfit') { av = dw.estProfit(a); bv = dw.estProfit(b); }
-        if (k === 'sale')      { av = dw.num(a, F.sale); bv = dw.num(b, F.sale); }
+        if (k === 'name')      { return dir * (a.name || '').localeCompare(b.name || ''); }
+        if (k === 'status')    { return dir * (a.status || '').localeCompare(b.status || ''); }
+        if (k === 'cost')      { av = a.cost || 0;                              bv = b.cost || 0; }
+        if (k === 'listPrice') { av = dw.activeListing(a)?.list_price || 0;    bv = dw.activeListing(b)?.list_price || 0; }
+        if (k === 'eaf')       { av = dw.payout(a);                            bv = dw.payout(b); }
+        if (k === 'profit')    { av = a.order?.profit || 0;                    bv = b.order?.profit || 0; }
+        if (k === 'sale')      { av = a.order?.sale_price || 0;                bv = b.order?.sale_price || 0; }
         return dir * ((av || 0) - (bv || 0));
       });
     },
@@ -42,15 +42,13 @@ document.addEventListener('alpine:init', () => {
     },
 
     totalCost() {
-      const dw = Alpine.store('dw');
-      return this.items.reduce((sum, r) => sum + dw.num(r, F.cost), 0);
+      return this.items.reduce((sum, r) => sum + (r.cost || 0), 0);
     },
 
     recovered() {
-      const dw = Alpine.store('dw');
       return this.items
-        .filter(r => dw.str(r, F.status) === 'Sold')
-        .reduce((sum, r) => sum + dw.num(r, F.sale), 0);
+        .filter(r => r.status === 'Sold')
+        .reduce((sum, r) => sum + (r.order?.sale_price || 0), 0);
     },
 
     recoveryPct() {
@@ -62,27 +60,20 @@ document.addEventListener('alpine:init', () => {
     estUpside() {
       const dw = Alpine.store('dw');
       return this.items
-        .filter(r => dw.str(r, F.status) !== 'Sold')
+        .filter(r => r.status !== 'Sold')
         .reduce((sum, r) => sum + dw.payout(r), 0);
     },
 
-    // Est profit if all listed items sell
     estTotalProfit() {
-      const dw   = Alpine.store('dw');
-      const sold = this.recovered();
-      const soldCost = this.items
-        .filter(r => dw.str(r, F.status) === 'Sold')
-        .reduce((sum, r) => sum + dw.num(r, F.cost), 0);
-      const listedProfit = this.items
-        .filter(r => dw.str(r, F.status) === 'Listed')
-        .reduce((sum, r) => sum + dw.estProfit(r), 0);
-      return (sold - soldCost) + listedProfit;
+      return this.recovered() + this.estUpside() - this.totalCost();
     },
 
+    totalRecovered() {
+      return this.recovered() - (this.lot?.total_cost || this.totalCost());
+    },
 
     countByStatus(status) {
-      const dw = Alpine.store('dw');
-      return this.items.filter(r => dw.str(r, F.status) === status).length;
+      return this.items.filter(r => r.status === status).length;
     },
 
     recoveryBarClass() {
@@ -103,20 +94,19 @@ document.addEventListener('alpine:init', () => {
 
     listPriceDisplay(r) {
       const dw = Alpine.store('dw');
-      const lp = dw.num(r, F.listPrice);
+      const lp = dw.activeListing(r)?.list_price || 0;
       return lp > 0 ? dw.fmt0(lp) : '—';
     },
 
     eafDisplay(r) {
       const dw = Alpine.store('dw');
-      if (dw.str(r, F.status) === 'Sold') return '—';
-      const lp = dw.num(r, F.listPrice);
+      if (r.status === 'Sold') return '—';
+      const lp = dw.activeListing(r)?.list_price || 0;
       return lp > 0 ? dw.fmt0(dw.payout(r)) : '—';
     },
 
     profitValue(r) {
-      const dw = Alpine.store('dw');
-      return dw.str(r, F.status) === 'Sold' ? dw.num(r, F.profit) : dw.estProfit(r);
+      return r.status === 'Sold' ? (r.order?.profit || 0) : Alpine.store('dw').estProfit(r);
     },
 
     profitDisplay(r) {

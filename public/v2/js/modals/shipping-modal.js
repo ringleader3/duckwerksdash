@@ -31,7 +31,7 @@ document.addEventListener('alpine:init', () => {
       if (dw.loading || !dw.records.length) { this.loading = false; return; }
       // Collect all results locally first — concurrent spread writes would race
       const results = await Promise.all(this.inTransitRecords.map(async r => {
-        const tid  = dw.str(r, F.trackingId);
+        const tid  = r.shipment?.tracking_id;
         const data = await dw.fetchTracker(tid);
         return { id: r.id, data };
       }));
@@ -66,8 +66,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     trackPublicUrl(r) {
-      const dw = Alpine.store('dw');
-      return this.trackingData[r.id]?.publicUrl || dw.str(r, F.trackerUrl) || null;
+      return this.trackingData[r.id]?.publicUrl || r.shipment?.tracker_url || null;
     },
 
     statusBadgeClass(status) {

@@ -1,11 +1,11 @@
-// ── Items View — Phase 3 ──────────────────────────────────────────────────────
+// ── Items View ────────────────────────────────────────────────────────────────
 document.addEventListener('alpine:init', () => {
   Alpine.data('itemsView', () => ({
     statusFilter: 'Listed',
     siteFilter:   'All',
     nameSearch:   '',
     openStatusId: null,
-    sortKey:      'createdTime',
+    sortKey:      'created_at',
     sortDir:      'desc',
     trackingData:    {},
     trackingLoading: false,
@@ -16,14 +16,13 @@ document.addEventListener('alpine:init', () => {
         if (v) {
           this.statusFilter = v.status;
           this.siteFilter   = v.site;
-          Alpine.store('dw').categoryFilter  = v.category;
-          Alpine.store('dw').pendingFilters  = null;
+          Alpine.store('dw').categoryFilter = v.category;
+          Alpine.store('dw').pendingFilters = null;
         }
       });
       this.$watch('statusFilter', val => {
         if (val === 'Sold') this._loadTracking();
       });
-      // Load immediately if already on Sold filter (and store is ready)
       const dw = Alpine.store('dw');
       if (this.statusFilter === 'Sold' && !dw.loading && dw.records.length > 0) this._loadTracking();
     },
@@ -33,49 +32,42 @@ document.addEventListener('alpine:init', () => {
       let recs = dw.records;
 
       if (dw.categoryFilter) {
-        recs = recs.filter(r => dw.str(r, F.category) === dw.categoryFilter);
+        recs = recs.filter(r => r.category?.name === dw.categoryFilter);
       }
       if (this.statusFilter !== 'All') {
-        recs = recs.filter(r => dw.str(r, F.status) === this.statusFilter);
+        recs = recs.filter(r => r.status === this.statusFilter);
       }
       if (this.siteFilter !== 'All') {
         recs = recs.filter(r => dw.siteLabel(r) === this.siteFilter);
       }
       const q = this.nameSearch.trim().toLowerCase();
-      if (q) {
-        recs = recs.filter(r => dw.str(r, F.name).toLowerCase().includes(q));
-      }
-      const key = this.sortKey;
-      const dir = this.sortDir;
+      if (q) recs = recs.filter(r => r.name.toLowerCase().includes(q));
+
+      const key = this.sortKey, dir = this.sortDir;
       recs = [...recs].sort((a, b) => {
         let av, bv;
-        if      (key === 'createdTime') { av = new Date(a.createdTime).getTime(); bv = new Date(b.createdTime).getTime(); }
-        else if (key === 'name')        { av = dw.str(a, F.name).toLowerCase();  bv = dw.str(b, F.name).toLowerCase(); }
-        else if (key === 'lot')         { av = dw.str(a, F.lot).toLowerCase();   bv = dw.str(b, F.lot).toLowerCase(); }
-        else if (key === 'category')    { av = dw.str(a, F.category).toLowerCase(); bv = dw.str(b, F.category).toLowerCase(); }
-        else if (key === 'site')        { av = dw.siteLabel(a).toLowerCase();    bv = dw.siteLabel(b).toLowerCase(); }
-        else if (key === 'status')      { av = dw.str(a, F.status).toLowerCase(); bv = dw.str(b, F.status).toLowerCase(); }
-        else if (key === 'listPrice')   { av = dw.num(a, F.listPrice);           bv = dw.num(b, F.listPrice); }
-        else if (key === 'eaf')         { av = dw.payout(a);   bv = dw.payout(b); }
-        else if (key === 'profit')      { av = dw.estProfit(a);                  bv = dw.estProfit(b); }
-        else if (key === 'shipping')    { av = dw.num(a, F.shipping);            bv = dw.num(b, F.shipping); }
+        if      (key === 'created_at') { av = new Date(a.created_at).getTime(); bv = new Date(b.created_at).getTime(); }
+        else if (key === 'name')       { av = a.name.toLowerCase();             bv = b.name.toLowerCase(); }
+        else if (key === 'lot')        { av = (a.lot?.name||'').toLowerCase();  bv = (b.lot?.name||'').toLowerCase(); }
+        else if (key === 'category')   { av = (a.category?.name||'').toLowerCase(); bv = (b.category?.name||'').toLowerCase(); }
+        else if (key === 'site')       { av = dw.siteLabel(a).toLowerCase();   bv = dw.siteLabel(b).toLowerCase(); }
+        else if (key === 'status')     { av = a.status.toLowerCase();          bv = b.status.toLowerCase(); }
+        else if (key === 'listPrice')  { av = dw.activeListing(a)?.list_price || 0; bv = dw.activeListing(b)?.list_price || 0; }
+        else if (key === 'eaf')        { av = dw.payout(a);  bv = dw.payout(b); }
+        else if (key === 'profit')     { av = dw.estProfit(a); bv = dw.estProfit(b); }
+        else if (key === 'shipping')   { av = dw.activeListing(a)?.shipping_estimate || 0; bv = dw.activeListing(b)?.shipping_estimate || 0; }
         else return 0;
         if (av < bv) return dir === 'asc' ? -1 : 1;
-        if (av > bv) return dir === 'asc' ? 1  : -1;
+        if (av > bv) return dir === 'asc' ?  1 : -1;
         return 0;
       });
       return recs;
     },
 
     sortBy(key) {
-      if (this.sortKey === key) {
-        this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
-      } else {
-        this.sortKey = key;
-        this.sortDir = 'asc';
-      }
+      if (this.sortKey === key) { this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'; }
+      else { this.sortKey = key; this.sortDir = 'asc'; }
     },
-
     sortIndicator(key) {
       if (this.sortKey !== key) return '';
       return this.sortDir === 'asc' ? ' ↑' : ' ↓';
@@ -85,84 +77,56 @@ document.addEventListener('alpine:init', () => {
       const s = (status || '').toLowerCase();
       if (s === 'listed')   return 'badge-listed';
       if (s === 'sold')     return 'badge-sold';
-      if (s === 'pending')  return 'badge-pending';
       if (s === 'prepping') return 'badge-prepping';
       return 'badge-other';
     },
+    catBadgeClass(cat) { return CAT_BADGE[cat] || 'badge-other'; },
 
-    catBadgeClass(cat) {
-      return CAT_BADGE[cat] || 'badge-other';
-    },
-
-    eafDisplay(r) {
+    eafDisplay(r)  {
       const dw = Alpine.store('dw');
-      const lp = dw.num(r, F.listPrice);
+      const lp = dw.activeListing(r)?.list_price || 0;
       return lp > 0 ? dw.fmt0(dw.payout(r)) : '—';
     },
-
     profitDisplay(r) {
       const dw = Alpine.store('dw');
       const p  = dw.estProfit(r);
       return (p >= 0 ? '+' : '') + dw.fmt0(p);
     },
-
     shipDisplay(r) {
       const dw = Alpine.store('dw');
-      return r.fields[F.shipping] != null ? dw.fmt0(dw.num(r, F.shipping)) : '~$10';
+      const l  = dw.activeListing(r);
+      return l?.shipping_estimate != null ? dw.fmt0(l.shipping_estimate) : '~$10';
     },
+    shipIsEst(r) { return Alpine.store('dw').activeListing(r)?.shipping_estimate == null; },
 
-    shipIsEst(r) {
-      return r.fields[F.shipping] == null;
-    },
-
-    toggleStatusMenu(id, e) {
-      e.stopPropagation();
-      this.openStatusId = this.openStatusId === id ? null : id;
-    },
+    toggleStatusMenu(id, e) { e.stopPropagation(); this.openStatusId = this.openStatusId === id ? null : id; },
 
     async changeStatus(r, status, e) {
       e.stopPropagation();
       this.openStatusId = null;
-      const fields = { [F.status]: status };
-      if (status === 'Sold') fields[F.dateSold] = new Date().toISOString().split('T')[0];
-      await Alpine.store('dw').updateRecord(r.id, fields);
+      const fields = { status };
+      if (status === 'Sold' && !r.order?.date_sold) fields.date_sold = new Date().toISOString().split('T')[0];
+      await Alpine.store('dw').updateItem(r.id, fields);
     },
 
     dateAdded(r) {
-      const d = new Date(r.createdTime);
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     },
-
     daysListed(r) {
-      const created = new Date(r.createdTime);
-      const now     = new Date();
-      return Math.floor((now - created) / (1000 * 60 * 60 * 24));
+      return Math.floor((Date.now() - new Date(r.created_at).getTime()) / (1000 * 60 * 60 * 24));
     },
-
-    needsAttention(r) {
-      const dw = Alpine.store('dw');
-      return dw.str(r, F.status) === 'Listed' && this.daysListed(r) >= 20;
-    },
-
-    openItem(r) {
-      Alpine.store('dw').openModal('item', r.id);
-    },
+    needsAttention(r) { return r.status === 'Listed' && this.daysListed(r) >= 20; },
+    openItem(r) { Alpine.store('dw').openModal('item', r.id); },
 
     async _loadTracking() {
       const dw = Alpine.store('dw');
-      // Guard: don't run before records are loaded
       if (dw.loading || !dw.records.length) return;
-      const toFetch = dw.records.filter(r =>
-        dw.str(r, F.status) === 'Sold' && dw.str(r, F.trackingId)
-      );
+      const toFetch = dw.records.filter(r => r.status === 'Sold' && r.shipment?.tracking_id);
       if (!toFetch.length) return;
       this.trackingLoading = true;
-      // Collect locally then assign once — avoids concurrent spread race
-      const results = await Promise.all(toFetch.map(async r => {
-        const tid  = dw.str(r, F.trackingId);
-        const data = await dw.fetchTracker(tid);
-        return { id: r.id, data };
-      }));
+      const results = await Promise.all(toFetch.map(async r => ({
+        id: r.id, data: await dw.fetchTracker(r.shipment.tracking_id)
+      })));
       const merged = {};
       results.forEach(({ id, data }) => { merged[id] = data; });
       this.trackingData    = merged;
@@ -179,7 +143,6 @@ document.addEventListener('alpine:init', () => {
         default:                 return 'badge-other';
       }
     },
-
     trackStatusLabel(status) {
       if (!status) return '—';
       return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());

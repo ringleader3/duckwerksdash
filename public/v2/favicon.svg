@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#0f0f0f"/>
+
+  <!-- Devil horns -->
+  <polygon points="10,10 8,4 13,9" fill="#c0392b"/>
+  <polygon points="22,10 24,4 19,9" fill="#c0392b"/>
+
+  <!-- Duck body -->
+  <ellipse cx="16" cy="21" rx="9" ry="7" fill="#f5a623"/>
+
+  <!-- Duck head -->
+  <circle cx="16" cy="13" r="5.5" fill="#f5a623"/>
+
+  <!-- Eye -->
+  <circle cx="18" cy="12" r="1.2" fill="#0f0f0f"/>
+  <circle cx="18.4" cy="11.6" r="0.4" fill="white"/>
+
+  <!-- Beak -->
+  <ellipse cx="21.5" cy="14" rx="2.2" ry="1.1" fill="#e67e22" transform="rotate(-10 21.5 14)"/>
+
+  <!-- Wing hint -->
+  <ellipse cx="12" cy="21" rx="3.5" ry="2" fill="#e09420" opacity="0.6"/>
+
+  <!-- Tiny devil tail -->
+  <path d="M25,22 Q28,20 27,17 Q26,19 24,20Z" fill="#c0392b"/>
+</svg>

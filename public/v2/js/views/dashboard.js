@@ -1,17 +1,12 @@
-// ── Dashboard View — Phase 6 ──────────────────────────────────────────────────
+// ── Dashboard View ────────────────────────────────────────────────────────────
 document.addEventListener('alpine:init', () => {
   Alpine.data('dashView', () => ({
 
-    // ── Tracking State ────────────────────────────────────────────────────────
-
-    trackingData: {},
+    trackingData:    {},
     trackingLoading: false,
 
     init() {
-      // Dual-path: watch for records load, handle already-loaded case
-      this.$watch('$store.dw.loading', val => {
-        if (!val) this._loadTracking();
-      });
+      this.$watch('$store.dw.loading', val => { if (!val) this._loadTracking(); });
       const dw = Alpine.store('dw');
       if (!dw.loading && dw.records.length > 0) this._loadTracking();
     },
@@ -23,35 +18,23 @@ document.addEventListener('alpine:init', () => {
 
     async _loadTracking() {
       const dw = Alpine.store('dw');
-      const toFetch = dw.records.filter(r =>
-        dw.str(r, F.status) === 'Sold' && dw.str(r, F.trackingId)
-      );
+      const toFetch = dw.records.filter(r => r.status === 'Sold' && r.shipment?.tracking_id);
       if (!toFetch.length) return;
       this.trackingLoading = true;
-      // Collect locally then assign once — avoids concurrent spread race
-      const results = await Promise.all(toFetch.map(async r => {
-        const tid  = dw.str(r, F.trackingId);
-        const data = await dw.fetchTracker(tid);
-        return { id: r.id, data };
-      }));
+      const results = await Promise.all(toFetch.map(async r => ({
+        id: r.id, data: await dw.fetchTracker(r.shipment.tracking_id)
+      })));
       const merged = {};
       results.forEach(({ id, data }) => { merged[id] = data; });
       this.trackingData    = merged;
       this.trackingLoading = false;
     },
 
-    trackStatus(r) {
-      return this.trackingData[r.id]?.status || null;
-    },
-
+    trackStatus(r)      { return this.trackingData[r.id]?.status || null; },
+    trackCarrier(r)     { return this.trackingData[r.id]?.carrier || '—'; },
     trackEstDelivery(r) {
       const raw = this.trackingData[r.id]?.estDelivery;
-      if (!raw) return '—';
-      return new Date(raw).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    },
-
-    trackCarrier(r) {
-      return this.trackingData[r.id]?.carrier || '—';
+      return raw ? new Date(raw).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
     },
 
     trackStatusBadge(status) {
@@ -64,59 +47,37 @@ document.addEventListener('alpine:init', () => {
         default:                 return 'badge-other';
       }
     },
-
     trackStatusLabel(status) {
       if (!status) return '—';
       return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     },
 
-    // ── KPI Stat Cards ────────────────────────────────────────────────────────
-
     get totalInvested() {
-      const dw = Alpine.store('dw');
-      return dw.records.reduce((sum, r) => sum + dw.num(r, F.cost), 0);
+      return Alpine.store('dw').records.reduce((s, r) => s + (r.cost || 0), 0);
     },
-
     get revenue() {
-      const dw = Alpine.store('dw');
-      return dw.soldRecords.reduce((sum, r) => sum + dw.num(r, F.sale), 0);
+      return Alpine.store('dw').soldRecords.reduce((s, r) => s + (r.order?.sale_price || 0), 0);
     },
-
     get profit() {
-      const dw = Alpine.store('dw');
-      return dw.soldRecords.reduce((sum, r) => {
-        return sum + dw.num(r, F.sale) - dw.num(r, F.cost) - dw.num(r, F.shipping);
-      }, 0);
+      return Alpine.store('dw').soldRecords.reduce((s, r) => s + (r.order?.profit || 0), 0);
     },
-
     get pipeline() {
       const dw = Alpine.store('dw');
-      return dw.records
-        .filter(r => dw.str(r, F.status) !== 'Sold')
-        .reduce((sum, r) => sum + dw.payout(r), 0);
+      return dw.records.filter(r => r.status !== 'Sold').reduce((s, r) => s + dw.payout(r), 0);
     },
-
     get notListed() {
-      const dw = Alpine.store('dw');
-      return dw.records.filter(r => {
-        const s = dw.str(r, F.status);
-        return s !== 'Listed' && s !== 'Sold';
-      }).length;
+      return Alpine.store('dw').records.filter(r => r.status !== 'Listed' && r.status !== 'Sold').length;
     },
-
-    // ── Lot Recovery Table ────────────────────────────────────────────────────
 
     get lotRows() {
       const dw = Alpine.store('dw');
       return dw.lots.map(lot => {
-        const cost      = lot.items.reduce((s, r) => s + dw.num(r, F.cost), 0);
-        const recovered = lot.items
-          .filter(r => dw.str(r, F.status) === 'Sold')
-          .reduce((s, r) => s + dw.num(r, F.sale), 0);
+        const cost      = lot.items.reduce((s, r) => s + (r.cost || 0), 0);
+        const recovered = lot.items.filter(r => r.status === 'Sold')
+                            .reduce((s, r) => s + (r.order?.sale_price || 0), 0);
         const pct    = cost > 0 ? Math.min(100, Math.round((recovered / cost) * 100)) : 0;
-        const upside = lot.items
-          .filter(r => dw.str(r, F.status) === 'Listed')
-          .reduce((s, r) => s + dw.payout(r), 0);
+        const upside = lot.items.filter(r => r.status === 'Listed')
+                         .reduce((s, r) => s + dw.payout(r), 0);
         return { name: lot.name, cost, recovered, pct, upside };
       }).sort((a, b) => b.cost - a.cost);
     },
@@ -127,43 +88,25 @@ document.addEventListener('alpine:init', () => {
       return 'red';
     },
 
-    // ── Recently Sold ─────────────────────────────────────────────────────────
-
     get recentlySold() {
-      const dw = Alpine.store('dw');
-      return [...dw.soldRecords]
-        .sort((a, b) => {
-          const da = dw.str(a, F.dateSold) || a.createdTime;
-          const db = dw.str(b, F.dateSold) || b.createdTime;
-          return new Date(db) - new Date(da);
-        })
+      return [...Alpine.store('dw').soldRecords]
+        .sort((a, b) => new Date(b.order?.date_sold || b.created_at) - new Date(a.order?.date_sold || a.created_at))
         .slice(0, 10);
     },
-
     get recentlyListed() {
-      const dw = Alpine.store('dw');
-      return [...dw.listedRecords]
-        .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime))
+      return [...Alpine.store('dw').listedRecords]
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         .slice(0, 10);
     },
 
     listedDate(r) {
-      const d = new Date(r.createdTime);
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     },
-
     soldDate(r) {
-      const dw = Alpine.store('dw');
-      const raw = dw.str(r, F.dateSold) || r.createdTime;
-      if (!raw) return '—';
-      const d = new Date(raw);
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const raw = r.order?.date_sold || r.created_at;
+      return raw ? new Date(raw).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
     },
-
-    itemProfit(r) {
-      const dw = Alpine.store('dw');
-      return dw.num(r, F.sale) - dw.num(r, F.cost) - dw.num(r, F.shipping);
-    },
+    itemProfit(r) { return r.order?.profit || 0; },
 
   }));
 });
