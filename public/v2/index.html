@@ -452,7 +452,7 @@
   <!-- ── Modal Containers ──────────────────────────────────────────────────── -->
   <!-- Item Modal -->
   <div x-show="$store.dw.activeModal === 'item'" x-data="itemModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
-    <div class="modal-box" x-if="record" @keydown.escape.window="$store.dw.closeModal()">
+    <div class="modal-box" x-show="record" @keydown.escape.window="$store.dw.closeModal()">
 
       <div class="modal-header">
         <div class="modal-title" x-text="record.name"></div>

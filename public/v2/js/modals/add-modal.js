@@ -6,6 +6,7 @@ document.addEventListener('alpine:init', () => {
     form: {
       name:     '',
       category: '',
+      site:     '',
       lot:      '',
       newLot:   '',
       cost:     '',
@@ -13,7 +14,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     reset() {
-      this.form    = { name: '', category: '', lot: '', newLot: '', cost: '', notes: '' };
+      this.form    = { name: '', category: '', site: '', lot: '', newLot: '', cost: '', notes: '' };
       this.saveMsg = '';
       this.saving  = false;
     },
@@ -34,6 +35,14 @@ document.addEventListener('alpine:init', () => {
         if (cat) body.category_id = cat.id;
       }
 
+      // Resolve site_id for listing creation after item save
+      let siteId = null;
+      if (this.form.site) {
+        const sites = await fetch('/api/sites').then(r => r.json());
+        const site  = sites.find(s => s.name === this.form.site);
+        if (site) siteId = site.id;
+      }
+
       // Resolve lot_id (create new lot if needed)
       const lotName = this.form.newLot.trim() || this.form.lot;
       if (lotName) {
@@ -52,6 +61,7 @@ document.addEventListener('alpine:init', () => {
       this.saving = true; this.saveMsg = '';
       try {
         const created = await dw.createItem(body);
+        if (siteId) await dw.createListing({ item_id: created.id, site_id: siteId });
         if (keepOpen) {
           const sticky = { category: this.form.category, lot: this.form.lot, newLot: this.form.newLot };
           this.reset();
