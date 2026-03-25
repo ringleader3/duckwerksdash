@@ -4,14 +4,14 @@
 > Update it at the end of every session with any structural changes made.
 
 ## Project Overview
-Personal resale inventory dashboard for Geoff Goss (Duckwerks Music). Tracks music gear, comics, and gaming items sold on eBay and Reverb. Built with Alpine.js, served by a local Express server, backed by Airtable.
+Personal resale inventory dashboard for Geoff Goss (Duckwerks Music). Tracks music gear, comics, and gaming items sold on eBay and Reverb. Built with Alpine.js, served by a local Express server, backed by SQLite.
 
 ---
 
 ## Stack
 - **Frontend:** `public/v2/` — Alpine.js, modular JS files, no build step
 - **Backend:** `server.js` — local Express server (Node 22), proxies all API calls
-- **Database:** Airtable (REST API via server proxy — PAT never leaves the server)
+- **Database:** SQLite via `better-sqlite3` — `data/duckwerks.db`. All reads/writes through Express routes in `server/`
 - **Shipping:** EasyPost API (active provider); Shippo retained but inactive. Provider set via `SHIPPING_PROVIDER` in `.env`
 - **Config:** `.env` file — never commit, never read client-side
 
@@ -28,7 +28,7 @@ npm start   # starts Express on http://localhost:3000
 ## Version Control
 - GitHub: https://github.com/ringleader3/duckwerksdash (private)
 - Commit after any meaningful session of changes
-- Never commit `.env`, `node_modules/`, `*.pdf`, `test.html`, `comic-reselling-project.md`
+- Never commit `.env`, `node_modules/`, `*.pdf`, `test.html`, `comic-reselling-project.md`, `data/duckwerks.db`
 
 ---
 
@@ -37,11 +37,18 @@ npm start   # starts Express on http://localhost:3000
 - `public/v2/js/` — all frontend logic (config, store, sidebar, views, modals)
 - `public/v2/css/` — main.css (layout/tokens) + components.css (badges, cards, modals)
 - `server.js` — Express entry point: mounts routers, serves static files, redirects `/` → `/v2`
-- `server/airtable.js` — Airtable proxy routes (`/api/airtable/*`)
+- `server/db.js` — opens `data/duckwerks.db` via better-sqlite3; shared across all routers
+- `server/catalog.js` — `/api/sites`, `/api/categories`
+- `server/items.js` — `/api/items` (GET all, POST create, PATCH update) — returns items with nested listings/order/shipment
+- `server/lots.js` — `/api/lots` (GET all with items, POST create)
+- `server/listings.js` — `/api/listings` (POST create, PATCH update)
+- `server/orders.js` — `/api/orders` (POST create, PATCH update)
+- `server/shipments.js` — `/api/shipments` (POST create, PATCH update)
 - `server/label.js` — provider-agnostic label routes (`/api/label/*`) — delegates to Shippo or EasyPost based on `SHIPPING_PROVIDER`
 - `server/shippo.js` — Shippo generic proxy (`/api/shippo/*`); also contains Shippo implementation (kept for potential re-use)
 - `server/reverb.js` — all Reverb routes (`/api/reverb/*`)
-- `.env` — secrets (EasyPost + Shippo tokens, from-address, Airtable PAT)
+- `data/duckwerks.db` — SQLite database (never commit)
+- `.env` — secrets (EasyPost + Shippo tokens, from-address)
 - `package.json` / `node_modules/` — Express + dotenv
 
 The old single-file dashboard (`duckwerks-dashboard.html`) remains in the repo as a fallback but is not the active frontend.
@@ -57,7 +64,6 @@ EASYPOST_LIVE_TOKEN=EZAK...
 SHIPPO_TEST_MODE=false             # retained but inactive
 SHIPPO_TEST_TOKEN=shippo_test_...
 SHIPPO_LIVE_TOKEN=shippo_live_...
-AIRTABLE_PAT=pat...
 FROM_NAME=Geoff Goss, Duckwerks Music
 FROM_STREET1=...
 FROM_CITY=San Francisco
@@ -79,13 +85,32 @@ FROM_PHONE=...
 
 **server.js** (entry point — thin)
 - `GET /` — redirects to `/v2`
-- `GET /api/config` — returns `{ airtablePat }` from `.env`
 - `/v2` static route → `public/v2/`
 
-**server/airtable.js** (mounted at `/api/airtable`)
-- `GET /api/airtable/*` — proxies to `api.airtable.com/v0/*`, injects PAT server-side
-- `PATCH /api/airtable/*` — update record
-- `POST /api/airtable/*` — create record
+**server/catalog.js** (mounted at `/api`)
+- `GET /api/sites` — all sites
+- `GET /api/categories` — all categories
+
+**server/items.js** (mounted at `/api/items`)
+- `GET /api/items` — all items with nested listings, order, shipment, category, lot
+- `POST /api/items` — create item. Body: `{ name, category_id, lot_id, cost, notes }`
+- `PATCH /api/items/:id` — update item fields (`name`, `status`, `category_id`, `lot_id`, `cost`, `notes`)
+
+**server/lots.js** (mounted at `/api/lots`)
+- `GET /api/lots` — all lots with nested items
+- `POST /api/lots` — create lot. Body: `{ name }`
+
+**server/listings.js** (mounted at `/api/listings`)
+- `POST /api/listings` — create listing; auto-sets item status=Listed. Body: `{ item_id, site_id, list_price, shipping_estimate, url, platform_listing_id }`
+- `PATCH /api/listings/:id` — update listing fields (`site_id`, `platform_listing_id`, `list_price`, `shipping_estimate`, `url`, `status`, `ended_at`)
+
+**server/orders.js** (mounted at `/api/orders`)
+- `POST /api/orders` — create order; auto-sets item status=Sold
+- `PATCH /api/orders/:id` — update order fields
+
+**server/shipments.js** (mounted at `/api/shipments`)
+- `POST /api/shipments` — create shipment record
+- `PATCH /api/shipments/:id` — update shipment fields (tracking_id, tracking_number, tracker_url, shipping_cost, label_url)
 
 **server/label.js** (mounted at `/api/label`)
 - `POST /api/label/rates` — create shipment, return sorted rates. Body: `{ toAddress, parcel }` (parcel weight in decimal lbs). Active provider set by `SHIPPING_PROVIDER` in `.env`
@@ -108,10 +133,16 @@ All credentials injected server-side from `.env` — never exposed to the browse
 
 ---
 
-## Airtable
-- All Airtable calls go through `/api/airtable` proxy — PAT never leaves the server
-- `BASE_ID` and `TABLE_ID` in `public/v2/js/config.js`
-- Field IDs in the `F` object in `config.js` — always use field IDs, not names
+## SQLite Schema
+- `items` — core inventory: name, status, cost, category_id, lot_id
+- `listings` — platform listings per item: site_id, list_price, shipping_estimate, url, platform_listing_id
+- `orders` — sale data: listing_id, sale_price, profit, date_sold, platform_order_num
+- `shipments` — shipping data: item_id, tracking_id, tracking_number, label_url, shipping_cost
+- `sites` — platform lookup: name, fee_rate, fee_flat, fee_on_shipping
+- `categories` — category lookup: name, color, badge_class
+- `lots` — lot groupings: name
+
+DB location: `data/duckwerks.db`. Re-run migration: `node scripts/migrate-airtable-to-sqlite.js` (requires old Airtable server on :3000 first).
 
 ---
 
@@ -134,7 +165,7 @@ public/v2/
     main.css              ← design tokens, sidebar, layout grid
     components.css        ← badges, pills, stat cards, tables, modal overlays
   js/
-    config.js             ← F{} field map, BASE_ID, TABLE_ID, constants
+    config.js             ← constants (CAT_BADGE, CAT_COLOR, SITE_FEES)
     store.js              ← Alpine.store('dw') — all data, helpers, modal state
     sidebar.js            ← Alpine.data('sidebar') — search + nav state
     views/
@@ -353,6 +384,13 @@ GitHub Issues on `ringleader3/duckwerksdash`. Run `gh issue list --state open` a
 
 ## Session Log
 _Most recent first. Update this at the end of every session._
+
+### 2026-03-25 (SQLite validation + cutover session)
+- **#36 — CLOSED:** Full audit and fix of SQLite branch — hardcoded category list in addModal, stale function names in lotsView/lotModal, item modal `x-if` on div → `<template x-if>` (caused all record.* errors on page load), add modal missing `form.site`/`form.listPrice`/`form.shipping`/`form.status` from save logic, edit modal field name mismatches (`list_price`→`listPrice` etc.) and missing site handling, `site_id` not in listings PATCH allowed list.
+- **#33 — CLOSED:** SQLite implementation was complete; closed on merge.
+- **#34 — CLOSED:** Validation passed. Merged `feature/sqlite-migration` → `main`. Airtable base kept online read-only as backup.
+- **Add/Edit flow:** Items, listings, and lots all create correctly. Site resolves to listing (not item field). Status respected even when listing auto-sets Listed. Devil duck favicon added.
+- **Key debugging note:** `x-show` evaluates all bindings inside even when hidden — use `<template x-if>` to prevent null-record crashes in modals.
 
 ### 2026-03-22 (UPS rates fix session)
 - **UPS rates missing — FIXED:** `label_size: 'letter'` (set last session) is not a valid EasyPost enum for UPS — UPS silently drops from the rates response when it can't honor the label_size option. Switched to `'8.5X11'` which is cross-carrier and produces the same 8.5x11 PDF output.
