@@ -105,7 +105,9 @@ document.addEventListener('alpine:init', () => {
     },
     soldDate(r) {
       const raw = r.order?.date_sold;
-      return raw ? new Date(raw).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+      if (!raw) return '—';
+      const [y, m, d] = raw.split('T')[0].split('-');
+      return new Date(+y, +m - 1, +d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     },
     itemProfit(r) { return r.order?.profit || 0; },
 
