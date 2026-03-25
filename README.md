@@ -2,8 +2,7 @@
 
 Personal resale inventory dashboard for **Duckwerks Music** — tracks music gear, comics, and gaming items sold on eBay and Reverb.
 
-Designed and planned by Geoff Goss.  Coded by Geoff Goss and Claude.ai via Claude Code and the Claude Code CLI.
-This was my first foray into working with Claude.  I created an initial dashboard in HTML in Claude desktop, eventually moving to VS Code and Claude Code CLI.   Utilizing Claude Desktop, CLI, VS Code extension, my project management skills, and my desire to not have to visit 3 websites to ship a piece of gear I sold, this is what we eventually built.   I understand the code, I know all the decisions made.  I can maintain it.  It's pretty amazing what 20 years of software developement and program management combined with productivity tools like Claude.ai can do in a few days.   This went through multiple iterations, and now seems like a good time to share it.
+Designed and built by Geoff Goss with Claude.ai via Claude Code CLI and VS Code extension. This started as a single HTML file in Claude Desktop and evolved into a full-stack local web app over a few weeks of iterative development. I understand every decision made, can maintain it, and use it daily to run the business. It's a demonstration of what 20 years of software development and program management experience, combined with AI-assisted development tools, can produce quickly.
 
 ![Duckwerks](public/v2/duckwerksheader.jpeg)
 
@@ -11,15 +10,21 @@ This was my first foray into working with Claude.  I created an initial dashboar
 
 ## Features
 
-- **Inventory tracking** — list price, cost, status (Listed / Sold / In a Lot), site
-- **Profit math** — EAF (earnings after fees) calculated per item for Reverb's fee structure
-- **Lots** — bundle low-value items into lots, track recovery across the lot
-- **Shipping** — Shippo integration: get rates, buy labels, auto-mark orders shipped on Reverb
-- **Reverb sync** — match open Reverb orders to inventory, ship directly from the dashboard
-- **Quick Find** — live search across items, lots, and categories (`/` or `⌘K`)
-- **Dashboard view** — KPIs (invested, revenue, profit, upside), lot recovery table, recently sold, recently listed
+- **Inventory tracking** — items with cost, status (Listed / Sold / Prepping), category, site, and lot
+- **Profit math** — site-aware fee calculation for Reverb, eBay, and Facebook; EAF (earnings after fees) per item; estimated vs. actual profit throughout
+- **Lots** — bundle low-value items into lots, track cost recovery across the lot
+- **Shipping** — EasyPost integration: get carrier rates (USPS, UPS, FedEx), buy labels, auto-save tracking, auto-mark orders shipped
+- **Label printing** — server-side PDF generation via pdfkit; opens directly in browser print dialog at correct orientation
+- **Shipment tracking** — in-transit panel on dashboard and items view; live carrier status, estimated delivery, public tracker link; items auto-clear 3 days after delivery
+- **Reverb sync** — match open orders to inventory, ship directly from dashboard; link listings; diff and sync listing name/price changes with per-item accept/skip
+- **eBay integration** — OAuth 2.0 with auto token refresh; orders awaiting shipment; push tracking to eBay to trigger payout; link eBay listings to inventory records
+- **Analytics** — 4-chart dashboard section: monthly revenue + profit, inventory pipeline, lot ROI, near-term upside by category
+- **Quick Find** — live search across items, lots, and categories (`/` or `⌘K`); keyboard navigation
 - **Sortable tables** — click any column header to sort ASC/DESC across Items and Lots views
-- **Item drill-down** — click status, category, or site badges to jump to a filtered Items view
+- **Item drill-down** — click status, category, or site badges to jump to a filtered view; lot badge opens Lot detail modal
+- **Modal back-navigation** — opening an item from a lot modal returns to the lot on close
+
+---
 
 ## Stack
 
@@ -27,9 +32,11 @@ This was my first foray into working with Claude.  I created an initial dashboar
 |---|---|
 | Frontend | Alpine.js, no build step |
 | Backend | Node 22 + Express (local server) |
-| Database | Airtable (REST API) |
-| Shipping | Shippo API |
-| Marketplace | Reverb API |
+| Database | SQLite via `better-sqlite3` |
+| Shipping | EasyPost API |
+| Marketplaces | Reverb API, eBay Sell Fulfillment + Inventory API |
+
+---
 
 ## Running Locally
 
@@ -38,26 +45,50 @@ npm install
 npm start    # http://localhost:3000
 ```
 
-Requires a `.env` file with Shippo tokens, Airtable PAT, and a from-address. See `CLAUDE.md` for the full env var list.
+Requires a `.env` file with EasyPost tokens, eBay OAuth credentials, and a from-address. See `CLAUDE.md` for the full env var list.
+
+---
 
 ## Project Structure
 
 ```
 server.js               ← Express entry point
 server/
-  airtable.js           ← Airtable proxy routes
-  shippo.js             ← Shippo / label routes
+  db.js                 ← SQLite connection (better-sqlite3)
+  catalog.js            ← Sites + categories
+  items.js              ← Inventory CRUD
+  listings.js           ← Platform listing records
+  orders.js             ← Order records
+  shipments.js          ← Shipment records
+  label.js              ← EasyPost: rates, purchase, tracking, PDF print
   reverb.js             ← Reverb API proxy
+  ebay.js               ← eBay Sell Fulfillment routes + OAuth flow
+  ebay-auth.js          ← eBay token management + auto-refresh
+  shippo.js             ← Shippo proxy (retained, inactive)
 public/v2/
   index.html            ← App shell
-  css/                  ← main.css + components.css
+  css/
+    main.css            ← Design tokens, layout
+    components.css      ← Badges, cards, modals, tables
   js/
-    config.js           ← Airtable field map + constants
-    store.js            ← Alpine global store (all data)
+    config.js           ← Constants, fee tables
+    store.js            ← Alpine global store (all data + helpers)
     sidebar.js          ← Search + nav
-    views/              ← dashboard, items, lots
-    modals/             ← item, add, lot, label, reverb
+    charts.js           ← Chart.js analytics section
+    views/
+      dashboard.js
+      items.js
+      lots.js
+    modals/
+      item-modal.js
+      add-modal.js
+      lot-modal.js
+      label-modal.js    ← Full shipping flow
+      reverb-modal.js   ← Reverb sync (orders, listings, details)
+      ebay-modal.js     ← eBay sync (orders, link listings)
 ```
+
+---
 
 ## Build Timeline
 
@@ -65,12 +96,18 @@ public/v2/
 |---|---|
 | Mar 4 | First draft in Claude Desktop — single HTML file, proof of concept |
 | Mar 12 | First git commit (`v19`) — Airtable, Shippo labels, and Reverb API already working |
-| Mar 14 | Server polish — Express setup, Shippo token logging |
-| Mar 15 | v2 rebuild begins — full architectural reset in one day: modular server, Alpine store, design system, sidebar search, Items view, Item/Add modals (Phases 1–4) |
-| Mar 16 | Sprint day — Lots view, Dashboard KPIs, Label modal (full Shippo flow), Reverb Sync modal, v2 cutover, keyboard nav, GitHub Issues (Phases 5–8 + polish) |
-| Mar 17 | Refinement — sortable columns, readability pass, Recently Listed, item drill-down navigation |
+| Mar 15 | v2 rebuild begins — full architectural reset in one day: modular Express server, Alpine store, design system, sidebar search, Items view, Item/Add modals |
+| Mar 16 | Sprint day — Lots view, Dashboard KPIs, Label modal (full Shippo flow), Reverb Sync modal, v2 cutover, keyboard nav, GitHub Issues |
+| Mar 17 | Refinement — sortable columns, readability pass, analytics charts (Chart.js), Recently Listed panel, item drill-down navigation, Reverb listing detail sync |
+| Mar 18 | Migrated shipping to EasyPost — 3000 labels/month, proper sandbox; added full shipment tracking across dashboard, items view, and item modal |
+| Mar 19–20 | Lot modal polish, site-aware fee math (Reverb/eBay/Facebook), first real order end-to-end |
+| Mar 22 | UPS rates fix (EasyPost label size enum); server-side PDF label printing via pdfkit |
+| Mar 24 | eBay integration — OAuth 2.0, orders awaiting shipment, push tracking, link listings |
+| Mar 25 | Migrated database from Airtable to SQLite (`better-sqlite3`); full validation and cutover |
 
-13 days from first idea to production-quality tool. The v2 rebuild — clean architecture, full modal/shipping/sync workflow — took 2 days.
+~3 weeks from first idea to production tool with dual-marketplace integration, shipping automation, and analytics. The v2 rebuild — clean architecture, full modal/shipping/sync workflow — took 2 days.
+
+---
 
 ## Design
 

@@ -6,5 +6,6 @@ node_modules/
 *.docx
 test.html
 comic-reselling-project.md
+claude-personal.md
 .superpowers/
 data/
