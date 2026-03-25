@@ -1,6 +1,9 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-25 (Recently Sold bug fix)
+- **#41 — CLOSED:** Recently Sold showed 12 old eBay items with a fake sold date of Mar 24. Three compounding bugs: (1) migration fallback used today's date when Airtable had no `dateSold`; (2) dashboard `recentlySold` getter fell back to `created_at` for items with no `date_sold`; (3) `soldDate()` parsed date-only strings as UTC midnight, shifting display back one day in Pacific time. Fix: filter `recentlySold` to items with a real `date_sold`, fix timezone parse, null out the 12 bad DB rows (confirmed no dates in Airtable either).
+
 ### 2026-03-25 (Label print + reprint session)
 - **#35 — CLOSED:** Fixed label printing after a long debugging session. Root cause: `document.write` into a popup doesn't reliably apply CSS, and `@page` size/landscape hints are ignored by Chrome's print dialog. Solution: server-side PDF generation via `pdfkit`. New route `GET /api/label/print-pdf?url=<encodedUrl>` fetches EasyPost PNG, wraps it in an 11×8.5 landscape PDF. Chrome PDF viewer respects embedded page size → dialog defaults to landscape. Label positioned at 0.5in left, 1.25in top to center on 2-up 4×6 label sheet. `printLabel()` in store.js now just calls `window.open('/api/label/print-pdf?url=...')`.
 - **Label print debugging notes:** CSS `@page { size: landscape }` is unreliable in Chrome for blob/popup windows. Blob URL approach works better than `document.write` but still can't force print dialog orientation. Only a natively landscape PDF (via pdfkit or similar) reliably sets the dialog. For UI bugs involving print/layout, a screen recording or side-by-side PDF preview comparison is far more useful than text descriptions.
