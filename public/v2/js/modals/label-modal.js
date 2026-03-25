@@ -47,7 +47,7 @@ document.addEventListener('alpine:init', () => {
       const siteName = listing?.site?.name;
       const isReverb = siteName === 'Reverb';
       const isEbay   = siteName === 'eBay';
-      const orderNum = isReverb ? listing?.platform_listing_id : null;
+      const orderNum = isReverb ? (r.order?.platform_order_num || listing?.platform_listing_id) : null;
 
       if (orderNum) {
         this.reverbOrderNum = orderNum;
