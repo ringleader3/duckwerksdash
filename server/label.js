@@ -157,8 +157,8 @@ async function easypostRates(toAddress, parcel) {
           height: parcel.height,
         },
         options: {
-          label_format: 'PDF',
-          label_size:   '8.5X11',
+          label_format: 'PNG',
+          label_size:   '4X6',
         },
       },
     }),

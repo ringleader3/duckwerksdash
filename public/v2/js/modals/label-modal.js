@@ -264,6 +264,10 @@ document.addEventListener('alpine:init', () => {
       }
     },
 
+    printLabel() {
+      Alpine.store('dw').printLabel(this.purchaseResult?.labelUrl);
+    },
+
     async markShipped() {
       if (!this.reverbLinks?.ship?.href || !this.purchaseResult?.trackingNumber) return;
       this.reverbShipMsg = 'Notifying Reverb...';

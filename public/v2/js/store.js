@@ -62,6 +62,19 @@ document.addEventListener('alpine:init', () => {
     },
 
     // ── Modal Helpers ─────────────────────────────────────────────────────────
+    printLabel(url) {
+      const win = window.open('', '_blank');
+      win.document.write(`<!DOCTYPE html>
+<html><head><style>
+  @page { size: 8.5in 11in; margin: 0; }
+  body  { margin: 0; padding: 0; background: white; }
+  img   { display: block; width: 4in; height: 6in; }
+</style></head>
+<body onload="window.print()">
+  <img src="${url}">
+</body></html>`);
+      win.document.close();
+    },
     openModal(type, recordId = null, lotName = null) {
       this.activeModal    = type;
       this.activeRecordId = recordId;

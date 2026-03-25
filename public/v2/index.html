@@ -630,7 +630,8 @@
               <div class="modal-row" x-show="!trackingInfo && !trackingLoading">
                 <a x-show="record.shipment?.tracker_url" :href="record.shipment?.tracker_url" target="_blank" style="font-size:11px">↗ View Tracker</a>
                 <span x-show="!record.shipment?.tracker_url" style="color:var(--muted);font-size:11px">Tracking unavailable</span>
-                <a x-show="record.shipment?.label_url" :href="record.shipment?.label_url" target="_blank" style="font-size:11px;margin-left:12px">↗ Reprint Label</a>
+                <button x-show="record.shipment?.label_url" @click="$store.dw.printLabel(record.shipment.label_url)"
+                  style="font-size:11px;margin-left:12px;background:none;border:none;color:var(--blue);cursor:pointer;font-family:'Space Mono',monospace;padding:0">↗ Reprint Label</button>
               </div>
               <div style="margin-top:12px">
                 <button @click="clearTracking()" style="padding:4px 10px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer">CLEAR TRACKING</button>
@@ -1051,11 +1052,13 @@
 
           <div class="modal-row">
             <span class="modal-field">LABEL</span>
-            <span class="modal-val">
+            <span class="modal-val" style="display:flex;gap:10px;align-items:center">
+              <button @click="printLabel()"
+                style="padding:6px 16px;background:var(--blue);color:#fff;border:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer">
+                PRINT LABEL
+              </button>
               <a :href="purchaseResult?.labelUrl" target="_blank"
-                style="padding:6px 16px;background:var(--blue);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-decoration:none">
-                ↗ OPEN LABEL
-              </a>
+                style="font-size:11px;color:var(--muted)">↗ raw</a>
             </span>
           </div>
 
