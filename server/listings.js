@@ -18,7 +18,7 @@ router.post('/', (req, res) => {
 
 // PATCH update listing
 router.patch('/:id', (req, res) => {
-  const allowed = ['platform_listing_id', 'list_price', 'shipping_estimate', 'url', 'status', 'ended_at'];
+  const allowed = ['site_id', 'platform_listing_id', 'list_price', 'shipping_estimate', 'url', 'status', 'ended_at'];
   const sets = [], vals = [];
   allowed.forEach(f => {
     if (req.body[f] !== undefined) { sets.push(`${f} = ?`); vals.push(req.body[f]); }
