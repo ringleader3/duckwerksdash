@@ -90,7 +90,8 @@ document.addEventListener('alpine:init', () => {
 
     get recentlySold() {
       return [...Alpine.store('dw').soldRecords]
-        .sort((a, b) => new Date(b.order?.date_sold || b.created_at) - new Date(a.order?.date_sold || a.created_at))
+        .filter(r => r.order?.date_sold)
+        .sort((a, b) => new Date(b.order.date_sold) - new Date(a.order.date_sold))
         .slice(0, 10);
     },
     get recentlyListed() {
@@ -103,7 +104,7 @@ document.addEventListener('alpine:init', () => {
       return new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     },
     soldDate(r) {
-      const raw = r.order?.date_sold || r.created_at;
+      const raw = r.order?.date_sold;
       return raw ? new Date(raw).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
     },
     itemProfit(r) { return r.order?.profit || 0; },
