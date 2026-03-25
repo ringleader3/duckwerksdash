@@ -11,6 +11,7 @@ document.addEventListener('alpine:init', () => {
     reverbLinks:       null,
     reverbSaleAmount:  null,
     reverbOrderNum:    null,
+    platformSaleDate:  null,  // date_sold from Reverb/eBay; falls back to today in saveShipping
     loading:        false,
     errMsg:         '',
     saveMsg:        '',
@@ -33,6 +34,7 @@ document.addEventListener('alpine:init', () => {
       this.reverbLinks       = null;
       this.reverbSaleAmount  = null;
       this.reverbOrderNum    = null;
+      this.platformSaleDate  = null;
       this.loading           = false;
       this.errMsg            = '';
       this.saveMsg           = '';
@@ -47,7 +49,10 @@ document.addEventListener('alpine:init', () => {
       const siteName = listing?.site?.name;
       const isReverb = siteName === 'Reverb';
       const isEbay   = siteName === 'eBay';
-      const orderNum = isReverb ? (r.order?.platform_order_num || listing?.platform_listing_id) : null;
+      // activeReverbOrderNum is set by reverbModal SHIP button for items without a local order yet
+      const pendingOrderNum = dw.activeReverbOrderNum;
+      dw.activeReverbOrderNum = null; // clear so it doesn't leak to subsequent opens
+      const orderNum = isReverb ? (r.order?.platform_order_num || pendingOrderNum) : null;
 
       if (orderNum) {
         this.reverbOrderNum = orderNum;
@@ -59,6 +64,7 @@ document.addEventListener('alpine:init', () => {
             // direct_checkout_payout is post-fee seller payout; amount_product is pre-fee listing price
             this.reverbSaleAmount = parseFloat(order.direct_checkout_payout?.amount) || parseFloat(order.amount_product?.amount) || null;
             this.reverbOrderNum   = order.order_number || orderNum;
+            if (order.created_at) this.platformSaleDate = order.created_at.split('T')[0];
             console.log('[Reverb order] direct_checkout_payout:', order.direct_checkout_payout, '| amount_product:', order.amount_product?.amount);
             if (order.shipping_address) {
               this.addrText = this._addrToText(order.shipping_address);
@@ -79,6 +85,7 @@ document.addEventListener('alpine:init', () => {
               // totalDueSeller is post-fee payout (equivalent to Reverb's direct_checkout_payout)
               const payout = order.pricingSummary?.totalDueSeller?.value;
               if (payout) this.reverbSaleAmount = parseFloat(payout);
+              if (order.creationDate) this.platformSaleDate = order.creationDate.split('T')[0];
               const addr = order.buyer?.buyerRegistrationAddress;
               if (addr) {
                 const c = addr.contactAddress || {};
@@ -216,7 +223,7 @@ document.addEventListener('alpine:init', () => {
 
       try {
         // ── 1. Create or update the order ──────────────────────────────────────
-        const dateSold         = new Date().toISOString().split('T')[0];
+        const dateSold         = this.platformSaleDate || new Date().toISOString().split('T')[0];
         const sale_price       = this.reverbSaleAmount || null;
         const platform_order_num = this.reverbOrderNum || null;
 

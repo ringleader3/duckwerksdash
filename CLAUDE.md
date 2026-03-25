@@ -301,6 +301,8 @@ to the Lot detail modal directly.
 - On label purchase: auto-fires saveShipping() + markShipped() immediately — do not wait for button click
 - saveShipping() writes shipping cost + status=Sold + dateSold + sale price + tracking fields, then calls `fetchAll()` so dashboard tracking panels update immediately
 - Sale price uses `order.direct_checkout_payout` (post-fee payout) with fallback to `order.amount_product.amount`
+- `date_sold` uses `platformSaleDate` (pulled from Reverb `created_at` / eBay `creationDate`) with fallback to today — ensures correct date when there's a lag between sale and shipping
+- `activeReverbOrderNum` — store field set by Reverb modal SHIP button before opening label modal; used when no local order exists yet (same pattern as `activeEbayOrderId` for eBay). Cleared on read in `_open()`.
 - Carrier/service name maps live in `server/label.js` (`CARRIER_NAMES`, `SERVICE_NAMES`) — add entries there when new raw codes appear
 
 ### Shipping Modal — In Transit

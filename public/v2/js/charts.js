@@ -19,13 +19,18 @@ document.addEventListener('alpine:init', () => {
     },
 
     buildCharts() {
-      // Destroy any existing instances before recreating
-      Object.values(this.charts).forEach(c => c.destroy());
-      this.charts = {};
-      this.buildRevenueChart();
-      this.buildPipelineChart();
-      this.buildLotROIChart();
-      this.buildUpsideChart();
+      // Debounce: rapid fetchAll() calls (e.g. syncDetails loop) each toggle loading,
+      // triggering this watch multiple times. Without debouncing, the rapid
+      // destroy+create cycle leaves Chart.js RAF callbacks firing on null ctx.
+      clearTimeout(this._buildTimer);
+      this._buildTimer = setTimeout(() => {
+        Object.values(this.charts).forEach(c => c.destroy());
+        this.charts = {};
+        this.buildRevenueChart();
+        this.buildPipelineChart();
+        this.buildLotROIChart();
+        this.buildUpsideChart();
+      }, 50);
     },
 
     buildRevenueChart() {
