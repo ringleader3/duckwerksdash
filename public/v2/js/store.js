@@ -63,19 +63,7 @@ document.addEventListener('alpine:init', () => {
 
     // ── Modal Helpers ─────────────────────────────────────────────────────────
     printLabel(url) {
-      const html = `<!DOCTYPE html>
-<html><head><style>
-  * { margin: 0; padding: 0; }
-  @page { size: 8.5in 11in; margin: 0; }
-  html, body { background: white; }
-  img { display: block; width: 8.5in; height: 11in; object-fit: contain; object-position: top left; }
-</style></head>
-<body>
-  <img src="${url}" onload="window.print()">
-</body></html>`;
-      const blob    = new Blob([html], { type: 'text/html' });
-      const blobUrl = URL.createObjectURL(blob);
-      window.open(blobUrl, '_blank');
+      window.open(`/api/label/print-pdf?url=${encodeURIComponent(url)}`, '_blank');
     },
     openModal(type, recordId = null, lotName = null) {
       this.activeModal    = type;
