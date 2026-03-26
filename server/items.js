@@ -113,4 +113,11 @@ router.patch('/:id', (req, res) => {
   res.json(buildItem(row));
 });
 
+// DELETE item — cascades to listings, orders, shipments
+router.delete('/:id', (req, res) => {
+  const result = db.prepare('DELETE FROM items WHERE id = ?').run(req.params.id);
+  if (result.changes === 0) return res.status(404).json({ error: 'not found' });
+  res.status(204).end();
+});
+
 module.exports = router;

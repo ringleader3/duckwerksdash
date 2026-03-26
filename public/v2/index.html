@@ -740,6 +740,11 @@
         <button class="btn btn-ghost" @click="editMode ? cancelEdit() : startEdit()" x-text="editMode ? 'CANCEL' : 'EDIT'"></button>
         <button class="btn btn-primary" x-show="!editMode" @click="$store.dw.openModal('label', record.id)">SHIP</button>
         <button class="btn btn-ghost"   x-show="!editMode" @click="$store.dw.closeModal()">CLOSE</button>
+        <button class="btn btn-ghost" x-show="!editMode"
+          style="margin-left:auto;color:var(--red);border-color:var(--red)"
+          @click="if(confirm('Delete this item and all associated listings/orders/shipments?')) { $store.dw.deleteItem(record.id); $store.dw.closeModal(); }">
+          DELETE
+        </button>
       </div>
 
     </div>

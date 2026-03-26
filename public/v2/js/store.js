@@ -191,6 +191,12 @@ document.addEventListener('alpine:init', () => {
       if (idx !== -1) this.records[idx] = updated;
     },
 
+    async deleteItem(id) {
+      const res = await fetch(`/api/items/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+      this.records = this.records.filter(r => r.id !== id);
+    },
+
     async createItem(fields) {
       const res = await fetch('/api/items', {
         method:  'POST',
