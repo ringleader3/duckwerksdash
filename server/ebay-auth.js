@@ -4,7 +4,7 @@ const path = require('path');
 const TOKEN_FILE = path.join(__dirname, '../data/ebay-tokens.json');
 const TOKEN_URL  = 'https://api.ebay.com/identity/v1/oauth2/token';
 const AUTH_URL   = 'https://auth.ebay.com/oauth2/authorize';
-const SCOPES     = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment';
+const SCOPES     = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment https://api.ebay.com/oauth/api_scope/sell.inventory';
 
 function clientCredentials() {
   const id     = process.env.EBAY_CLIENT_ID;

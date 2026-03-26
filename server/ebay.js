@@ -77,6 +77,55 @@ router.get('/orders/:id', async (req, res) => {
   }
 });
 
+// GET /api/ebay/listings — all active listings with title + price via Inventory API
+router.get('/listings', async (req, res) => {
+  try {
+    const headers = await ebayHeaders();
+    const limit   = 100;
+
+    // Fetch all offers (paginated by offset)
+    let allOffers = [];
+    let offset = 0;
+    while (true) {
+      const r    = await fetch(`${EBAY_API}/sell/inventory/v1/offer?limit=${limit}&offset=${offset}`, { headers });
+      const data = await r.json();
+      if (!r.ok) throw new Error(`eBay offers HTTP ${r.status}: ${JSON.stringify(data)}`);
+      allOffers = allOffers.concat(data.offers || []);
+      if (allOffers.length >= (data.total || 0)) break;
+      offset += limit;
+    }
+
+    // Fetch all inventory items for titles (paginated)
+    let allItems = [];
+    offset = 0;
+    while (true) {
+      const r    = await fetch(`${EBAY_API}/sell/inventory/v1/inventory_item?limit=${limit}&offset=${offset}`, { headers });
+      const data = await r.json();
+      if (!r.ok) throw new Error(`eBay inventory HTTP ${r.status}: ${JSON.stringify(data)}`);
+      allItems = allItems.concat(data.inventoryItems || []);
+      if (allItems.length >= (data.total || 0)) break;
+      offset += limit;
+    }
+
+    const titleBySku = {};
+    for (const item of allItems) titleBySku[item.sku] = item.product?.title || item.sku;
+
+    const listings = allOffers
+      .filter(o => o.listing?.listingStatus === 'ACTIVE')
+      .map(o => ({
+        offerId:      o.offerId,
+        sku:          o.sku,
+        legacyItemId: String(o.listing?.listingId || ''),
+        title:        titleBySku[o.sku] || o.sku,
+        price:        parseFloat(o.pricingSummary?.price?.value) || 0,
+      }));
+
+    res.json({ listings });
+  } catch (e) {
+    res.status(502).json({ error: 'eBay listings request failed', detail: e.message });
+  }
+});
+
 // POST /api/ebay/orders/:id/tracking — push tracking, marks order shipped
 router.post('/orders/:id/tracking', async (req, res) => {
   const { id } = req.params;
