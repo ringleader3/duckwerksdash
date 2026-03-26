@@ -124,7 +124,12 @@ document.addEventListener('alpine:init', () => {
             .map(l => l.platform_listing_id)
         )
       );
-      this.newListings = this.listings.filter(l => !linkedIds.has(l.legacyItemId));
+      const seen = new Set();
+      this.newListings = this.listings.filter(l => {
+        if (linkedIds.has(l.legacyItemId) || seen.has(l.legacyItemId)) return false;
+        seen.add(l.legacyItemId);
+        return true;
+      });
       const newSel = {};
       for (const l of this.newListings) newSel[l.legacyItemId] = true;
       this.newSelections = newSel;
