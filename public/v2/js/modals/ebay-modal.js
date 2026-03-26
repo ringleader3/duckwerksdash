@@ -15,6 +15,10 @@ document.addEventListener('alpine:init', () => {
     listingSelections:{},
     syncingDetails:   false,
     detailsMsg:       '',
+    newListings:      [],
+    newSelections:    {},
+    importingNew:     false,
+    importMsg:        '',
 
     init() {
       this.$watch('$store.dw.activeModal', val => {
@@ -35,6 +39,10 @@ document.addEventListener('alpine:init', () => {
       this.listingDiffs      = [];
       this.listingSelections = {};
       this.detailsMsg        = '';
+      this.newListings       = [];
+      this.newSelections     = {};
+      this.importingNew      = false;
+      this.importMsg         = '';
       try {
         const [ordersRes, listingsRes] = await Promise.all([
           fetch('/api/ebay/orders'),
@@ -107,6 +115,19 @@ document.addEventListener('alpine:init', () => {
       const detailSel = {};
       for (const d of this.listingDiffs) detailSel[d.rec.id] = true;
       this.listingSelections = detailSel;
+
+      // New on eBay: live listings with no matching local record
+      const linkedIds = new Set(
+        dw.records.flatMap(r =>
+          (r.listings || [])
+            .filter(l => l.site?.name === 'eBay' && l.platform_listing_id)
+            .map(l => l.platform_listing_id)
+        )
+      );
+      this.newListings = this.listings.filter(l => !linkedIds.has(l.legacyItemId));
+      const newSel = {};
+      for (const l of this.newListings) newSel[l.legacyItemId] = true;
+      this.newSelections = newSel;
     },
 
     async syncDetails() {
@@ -165,6 +186,36 @@ document.addEventListener('alpine:init', () => {
       }
       this.linksMsg    = errors ? `${saved} saved, ${errors} failed` : `✓ ${saved} saved`;
       this.savingLinks = false;
+      setTimeout(async () => { await dw.fetchAll(); this._process(); }, 800);
+    },
+
+    async importNew() {
+      const selected = this.newListings.filter(l => this.newSelections[l.legacyItemId]);
+      if (!selected.length) return;
+      this.importingNew = true;
+      this.importMsg    = '';
+      let saved = 0, errors = 0;
+      const dw = Alpine.store('dw');
+      const ebaySite = dw.sites.find(s => s.name === 'eBay');
+      if (!ebaySite) { this.importMsg = 'eBay site not found'; this.importingNew = false; return; }
+      for (const listing of selected) {
+        try {
+          const item = await dw.createItem({ name: listing.title || 'Untitled', cost: 0 });
+          await dw.createListing({
+            item_id:             item.id,
+            site_id:             ebaySite.id,
+            list_price:          parseFloat(listing.price) || 0,
+            platform_listing_id: listing.legacyItemId,
+            url:                 `https://www.ebay.com/itm/${listing.legacyItemId}`,
+          });
+          saved++;
+        } catch(e) {
+          console.error('eBay importNew:', e);
+          errors++;
+        }
+      }
+      this.importMsg    = errors ? `${saved} imported, ${errors} failed` : `✓ ${saved} imported`;
+      this.importingNew = false;
       setTimeout(async () => { await dw.fetchAll(); this._process(); }, 800);
     },
 
