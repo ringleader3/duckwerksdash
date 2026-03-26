@@ -60,12 +60,15 @@ document.addEventListener('alpine:init', () => {
     estUpside() {
       const dw = Alpine.store('dw');
       return this.items
-        .filter(r => r.status !== 'Sold')
+        .filter(r => r.status === 'Listed')
         .reduce((sum, r) => sum + dw.estProfit(r), 0);
     },
 
     estTotalProfit() {
-      return this.recovered() + this.estUpside() - this.totalCost();
+      const soldProfit = this.items
+        .filter(r => r.status === 'Sold')
+        .reduce((sum, r) => sum + (r.order?.profit || 0), 0);
+      return soldProfit + this.estUpside();
     },
 
     totalRecovered() {
