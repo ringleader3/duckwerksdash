@@ -122,6 +122,18 @@ document.addEventListener('alpine:init', () => {
       return this.activeListing(r)?.site?.name || '';
     },
 
+    // Listing URL — constructed from site + platform_listing_id; falls back to stored url
+    listingUrl(r) {
+      const l = this.activeListing(r);
+      if (!l) return null;
+      if (l.platform_listing_id) {
+        const site = l.site?.name;
+        if (site === 'eBay')   return `https://www.ebay.com/itm/${l.platform_listing_id}`;
+        if (site === 'Reverb') return `https://reverb.com/item/${l.platform_listing_id}`;
+      }
+      return l.url || null;
+    },
+
     // Est. profit for a listed item.
     // Uses shipment cost if shipped, else listing shipping_estimate, else $10 placeholder.
     // Fees come from listing.site.

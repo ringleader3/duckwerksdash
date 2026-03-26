@@ -1,16 +1,20 @@
 // ── eBay Sync Modal ───────────────────────────────────────────────────────────
 document.addEventListener('alpine:init', () => {
   Alpine.data('ebayModal', () => ({
-    loading:        false,
-    errMsg:         '',
-    orders:         [],
-    listings:       [],
-    matched:        [],
-    unmatched:      [],
-    unlinkedRecs:   [],
-    linkSelections: {},
-    savingLinks:    false,
-    linksMsg:       '',
+    loading:          false,
+    errMsg:           '',
+    orders:           [],
+    listings:         [],
+    matched:          [],
+    unmatched:        [],
+    unlinkedRecs:     [],
+    linkSelections:   {},
+    savingLinks:      false,
+    linksMsg:         '',
+    listingDiffs:     [],
+    listingSelections:{},
+    syncingDetails:   false,
+    detailsMsg:       '',
 
     init() {
       this.$watch('$store.dw.activeModal', val => {
@@ -21,13 +25,16 @@ document.addEventListener('alpine:init', () => {
     async run() {
       this.loading        = true;
       this.errMsg         = '';
-      this.orders         = [];
-      this.listings       = [];
-      this.matched        = [];
-      this.unmatched      = [];
-      this.unlinkedRecs   = [];
-      this.linkSelections = {};
-      this.linksMsg       = '';
+      this.orders            = [];
+      this.listings          = [];
+      this.matched           = [];
+      this.unmatched         = [];
+      this.unlinkedRecs      = [];
+      this.linkSelections    = {};
+      this.linksMsg          = '';
+      this.listingDiffs      = [];
+      this.listingSelections = {};
+      this.detailsMsg        = '';
       try {
         const [ordersRes, listingsRes] = await Promise.all([
           fetch('/api/ebay/orders'),
@@ -78,6 +85,50 @@ document.addEventListener('alpine:init', () => {
       const sel = {};
       for (const r of this.unlinkedRecs) sel[r.id] = '';
       this.linkSelections = sel;
+
+      // Listing Details: diffs between live eBay listings and local records
+      this.listingDiffs = dw.records.reduce((acc, r) => {
+        const localListing = (r.listings || []).find(
+          l => l.site?.name === 'eBay' && l.platform_listing_id
+        );
+        if (!localListing) return acc;
+        const live = this.listings.find(l => l.legacyItemId === localListing.platform_listing_id);
+        if (!live) return acc;
+        const newName  = live.title || '';
+        const newPrice = parseFloat(live.price) || 0;
+        const oldName  = r.name || '';
+        const oldPrice = localListing.list_price || 0;
+        if (newName !== oldName || newPrice !== oldPrice) {
+          acc.push({ rec: r, listing: localListing, newName, newPrice, oldName, oldPrice });
+        }
+        return acc;
+      }, []);
+
+      const detailSel = {};
+      for (const d of this.listingDiffs) detailSel[d.rec.id] = true;
+      this.listingSelections = detailSel;
+    },
+
+    async syncDetails() {
+      const selected = this.listingDiffs.filter(d => this.listingSelections[d.rec.id]);
+      if (!selected.length) return;
+      this.syncingDetails = true;
+      this.detailsMsg     = '';
+      let saved = 0, errors = 0;
+      const dw = Alpine.store('dw');
+      for (const { rec, listing, newName, newPrice } of selected) {
+        try {
+          await dw.updateListing(listing.id, { list_price: newPrice });
+          await dw.updateItem(rec.id, { name: newName });
+          saved++;
+        } catch(e) {
+          console.error('eBay syncDetails:', e);
+          errors++;
+        }
+      }
+      this.detailsMsg     = errors ? `${saved} synced, ${errors} failed` : `✓ ${saved} synced`;
+      this.syncingDetails = false;
+      setTimeout(async () => { await dw.fetchAll(); this._process(); }, 800);
     },
 
     openShip(rec, order) {
