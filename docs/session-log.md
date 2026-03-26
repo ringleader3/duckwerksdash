@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-26 (QoL fixes)
+- **Dashboard reorder:** KPIs → In Transit → Recently Listed → Lot Recovery (full width) → Recently Sold (full width) → Analytics
+- **Delete item:** `DELETE /api/items/:id` route cascades to listings → orders → shipments via FK cascade. Button in item modal footer (red, right-aligned, confirm dialog). Verified no orphans post-delete.
+- **Item edit modal:** "Reverb Listing ID" label now dynamic — shows site name or "Platform" when no site selected.
+- **Item modal parity:** Reverb packing slip link added (`/my/orders/{id}/packing_slip.pdf`). eBay gets Order Details + Packing Slip links. Both platforms show order link + packing slip in item modal when `platform_order_num` is present. Same buttons in label modal result step for eBay.
+
 ### 2026-03-26 (eBay ship flow validation + packing slip links)
 - **Item modal parity:** Added eBay Order Details + Packing Slip links to item modal eBay row (`platform_order_num` required). Added Reverb Packing Slip link (`https://reverb.com/my/orders/{id}/packing_slip.pdf`). Both platforms now show order link + packing slip inline. Label modal result step also has ORDER DETAILS + PACKING SLIP buttons for eBay.
 
