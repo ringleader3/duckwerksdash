@@ -65,6 +65,10 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       return dw.records.filter(r => r.status === 'Listed').reduce((s, r) => s + dw.estProfit(r), 0);
     },
+    get grossPending() {
+      const dw = Alpine.store('dw');
+      return dw.records.filter(r => r.status === 'Listed').reduce((s, r) => s + dw.payout(r), 0);
+    },
     get notListed() {
       return Alpine.store('dw').records.filter(r => r.status !== 'Listed' && r.status !== 'Sold').length;
     },
