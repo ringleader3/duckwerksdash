@@ -512,6 +512,12 @@
                  :href="'https://reverb.com/my/selling/orders/' + record.order?.platform_order_num"
                  style="font-size:11px; color:var(--reverb)"
                  x-text="'↗ Order #' + record.order?.platform_order_num"></a>
+              <a x-show="record.order?.platform_order_num && $store.dw.siteLabel(record) === 'eBay'" target="_blank"
+                 :href="'https://www.ebay.com/sh/ord/details?orderid=' + record.order?.platform_order_num"
+                 style="font-size:11px; color:var(--ebay)">↗ Order Details</a>
+              <a x-show="record.order?.platform_order_num && $store.dw.siteLabel(record) === 'eBay'" target="_blank"
+                 :href="'https://www.ebay.com/sh/ord/prt?module=PACKING_SLIP_MODULE&orderId=' + record.order?.platform_order_num"
+                 style="font-size:11px; color:var(--muted)">↗ Packing Slip</a>
             </span>
           </div>
 
@@ -1091,6 +1097,11 @@
               :style="ebayShipMsg === '✓ buyer notified' ? 'background:var(--surface);border:1px solid var(--ebay);color:var(--ebay);cursor:default;opacity:.6' : 'background:transparent;border:1px solid var(--ebay);color:var(--ebay);cursor:pointer'"
               x-text="ebayShipMsg === 'Notifying eBay...' ? 'NOTIFYING...' : ebayShipMsg === '✓ buyer notified' ? '✓ SHIPPED ON EBAY' : 'MARK SHIPPED ON EBAY'"
               style="padding:10px 24px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px">
+            </button>
+            <button x-show="ebayOrderId"
+              @click="window.open(`https://www.ebay.com/sh/ord/details?orderid=${ebayOrderId}`, '_blank')"
+              style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
+              ORDER DETAILS
             </button>
             <button x-show="ebayOrderId"
               @click="window.open(`https://www.ebay.com/sh/ord/prt?module=PACKING_SLIP_MODULE&orderId=${ebayOrderId}`, '_blank')"
