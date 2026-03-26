@@ -79,9 +79,9 @@ document.addEventListener('alpine:init', () => {
         } catch(e) { console.warn('Reverb order fetch failed:', e); }
       }
 
-      // eBay: activeEbayOrderId is set by ebayModal before opening label modal
+      // eBay: activeEbayOrderId is set by ebayModal before opening label modal; fall back to saved order num
       if (isEbay) {
-        const ebayOrderId = dw.activeEbayOrderId;
+        const ebayOrderId = dw.activeEbayOrderId || r.order?.platform_order_num || null;
         dw.activeEbayOrderId = null; // clear so it doesn't leak to subsequent opens
         if (ebayOrderId) {
           this.ebayOrderId = ebayOrderId;
@@ -91,7 +91,9 @@ document.addEventListener('alpine:init', () => {
               const order = await res.json();
               this.ebayLineItemId = order.lineItems?.[0]?.lineItemId || null;
               // totalDueSeller is post-fee payout (equivalent to Reverb's direct_checkout_payout)
-              const payout = order.pricingSummary?.total?.value;
+              // paymentSummary.totalDueSeller is the post-fee payout; pricingSummary.total is pre-fee gross
+              const payout = order.paymentSummary?.totalDueSeller?.value
+                || order.pricingSummary?.total?.value;
               if (payout) this.reverbSaleAmount = parseFloat(payout);
               if (order.creationDate) this.platformSaleDate = order.creationDate.split('T')[0];
               // shipTo is the actual shipping address; buyerRegistrationAddress is account address (may differ)
