@@ -61,7 +61,7 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       return this.items
         .filter(r => r.status !== 'Sold')
-        .reduce((sum, r) => sum + dw.payout(r), 0);
+        .reduce((sum, r) => sum + dw.estProfit(r), 0);
     },
 
     estTotalProfit() {

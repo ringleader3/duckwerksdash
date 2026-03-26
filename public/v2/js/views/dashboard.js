@@ -63,7 +63,7 @@ document.addEventListener('alpine:init', () => {
     },
     get pipeline() {
       const dw = Alpine.store('dw');
-      return dw.records.filter(r => r.status !== 'Sold').reduce((s, r) => s + dw.payout(r), 0);
+      return dw.records.filter(r => r.status !== 'Sold').reduce((s, r) => s + dw.estProfit(r), 0);
     },
     get notListed() {
       return Alpine.store('dw').records.filter(r => r.status !== 'Listed' && r.status !== 'Sold').length;
@@ -77,7 +77,7 @@ document.addEventListener('alpine:init', () => {
                             .reduce((s, r) => s + (r.order?.sale_price || 0), 0);
         const pct    = cost > 0 ? Math.min(100, Math.round((recovered / cost) * 100)) : 0;
         const upside = lot.items.filter(r => r.status === 'Listed')
-                         .reduce((s, r) => s + dw.payout(r), 0);
+                         .reduce((s, r) => s + dw.estProfit(r), 0);
         return { name: lot.name, cost, recovered, pct, upside };
       }).sort((a, b) => b.cost - a.cost);
     },
