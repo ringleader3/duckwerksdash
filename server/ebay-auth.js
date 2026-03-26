@@ -94,4 +94,32 @@ async function exchangeCodeForTokens(code) {
   return res.json();
 }
 
-module.exports = { getAccessToken, authRedirectUrl, exchangeCodeForTokens, readTokens, writeTokens };
+// ── App token (client credentials) — for Browse API, no user auth needed ─────
+const BROWSE_SCOPE = 'https://api.ebay.com/oauth/api_scope';
+let _appToken = null; // { token, expires_at }
+
+async function getAppToken() {
+  if (_appToken && Date.now() < _appToken.expires_at - 60_000) {
+    return _appToken.token;
+  }
+  const res = await fetch(TOKEN_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${clientCredentials()}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      grant_type: 'client_credentials',
+      scope:      BROWSE_SCOPE,
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`eBay app token failed: ${text}`);
+  }
+  const data = await res.json();
+  _appToken = { token: data.access_token, expires_at: Date.now() + data.expires_in * 1000 };
+  return _appToken.token;
+}
+
+module.exports = { getAccessToken, getAppToken, authRedirectUrl, exchangeCodeForTokens, readTokens, writeTokens };

@@ -1,6 +1,6 @@
 const express = require('express');
 const router  = express.Router();
-const { getAccessToken, authRedirectUrl, exchangeCodeForTokens, writeTokens } = require('./ebay-auth');
+const { getAccessToken, getAppToken, authRedirectUrl, exchangeCodeForTokens, writeTokens } = require('./ebay-auth');
 
 const EBAY_API = 'https://api.ebay.com';
 
@@ -104,6 +104,53 @@ router.post('/orders/:id/tracking', async (req, res) => {
     res.status(response.status).json(data);
   } catch (e) {
     res.status(502).json({ error: 'eBay tracking push failed', detail: e.message });
+  }
+});
+
+// ── Browse API: active listings ───────────────────────────────────────────────
+
+// GET /api/ebay/listings — fetch all active listings for seller via Browse API
+// Uses app token (client credentials) — no user OAuth required
+router.get('/listings', async (req, res) => {
+  const username = process.env.EBAY_SELLER_USERNAME;
+  if (!username) return res.status(500).json({ error: 'EBAY_SELLER_USERNAME not set in .env' });
+
+  try {
+    const token    = await getAppToken();
+    const listings = [];
+    let offset     = 0;
+    const limit    = 200;
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const url = `${EBAY_API}/buy/browse/v1/item_summary/search`
+        + `?category_ids=0&filter=sellers:{${username}}&limit=${limit}&offset=${offset}`;
+      const response = await fetch(url, {
+        headers: {
+          'Authorization':          `Bearer ${token}`,
+          'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US',
+        },
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        return res.status(response.status).json({ error: 'Browse API error', detail: text });
+      }
+      const data = await response.json();
+      const items = data.itemSummaries || [];
+
+      for (const item of items) {
+        // itemId format: "v1|168263363142|0" — extract the numeric legacy ID
+        const legacyItemId = item.itemId?.split('|')[1] || '';
+        listings.push({ title: item.title, legacyItemId, price: item.price?.value });
+      }
+
+      if (listings.length >= (data.total || 0) || items.length < limit) break;
+      offset += limit;
+    }
+
+    res.json({ listings });
+  } catch (e) {
+    res.status(502).json({ error: 'eBay listings request failed', detail: e.message });
   }
 });
 

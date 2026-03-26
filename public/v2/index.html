@@ -1404,13 +1404,24 @@
 
           <div x-show="unlinkedRecs.length > 0">
             <div style="font-size:11px;color:#666;padding:4px 0 10px;letter-spacing:1px">
-              Paste the listing ID from the eBay URL (e.g. ebay.com/itm/<strong>123456789</strong>).
+              Select the matching eBay listing for each item.
             </div>
             <template x-for="rec in unlinkedRecs" :key="rec.id">
               <div style="padding:10px 0;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                 <div style="font-size:12px;color:var(--white);min-width:160px;flex:1" x-text="rec.name"></div>
-                <input type="text" x-model="linkSelections[rec.id]" placeholder="listing ID"
-                  style="flex:1;min-width:140px;max-width:180px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:11px;padding:6px 8px">
+                <template x-if="listings.length > 0">
+                  <select x-model="linkSelections[rec.id]"
+                    style="flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:11px;padding:6px 8px">
+                    <option value="">— select listing —</option>
+                    <template x-for="l in listings" :key="l.legacyItemId">
+                      <option :value="l.legacyItemId" x-text="l.title + ' (' + l.legacyItemId + ')'"></option>
+                    </template>
+                  </select>
+                </template>
+                <template x-if="listings.length === 0">
+                  <input type="text" x-model="linkSelections[rec.id]" placeholder="listing ID"
+                    style="flex:1;min-width:140px;max-width:180px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:11px;padding:6px 8px">
+                </template>
               </div>
             </template>
             <div style="padding:14px 0 4px;display:flex;gap:12px;align-items:center">

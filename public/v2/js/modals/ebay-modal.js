@@ -4,6 +4,7 @@ document.addEventListener('alpine:init', () => {
     loading:        false,
     errMsg:         '',
     orders:         [],
+    listings:       [],
     matched:        [],
     unmatched:      [],
     unlinkedRecs:   [],
@@ -21,16 +22,22 @@ document.addEventListener('alpine:init', () => {
       this.loading        = true;
       this.errMsg         = '';
       this.orders         = [];
+      this.listings       = [];
       this.matched        = [];
       this.unmatched      = [];
       this.unlinkedRecs   = [];
       this.linkSelections = {};
       this.linksMsg       = '';
       try {
-        const res = await fetch('/api/ebay/orders');
-        if (!res.ok) throw new Error(`Orders HTTP ${res.status}`);
-        const data = await res.json();
-        this.orders = data.orders || [];
+        const [ordersRes, listingsRes] = await Promise.all([
+          fetch('/api/ebay/orders'),
+          fetch('/api/ebay/listings'),
+        ]);
+        if (!ordersRes.ok) throw new Error(`Orders HTTP ${ordersRes.status}`);
+        const ordersData   = await ordersRes.json();
+        const listingsData = listingsRes.ok ? await listingsRes.json() : { listings: [] };
+        this.orders   = ordersData.orders || [];
+        this.listings = listingsData.listings || [];
         this._process();
       } catch(e) {
         this.errMsg = e.message;
