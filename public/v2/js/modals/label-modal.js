@@ -91,13 +91,20 @@ document.addEventListener('alpine:init', () => {
               const order = await res.json();
               this.ebayLineItemId = order.lineItems?.[0]?.lineItemId || null;
               // totalDueSeller is post-fee payout (equivalent to Reverb's direct_checkout_payout)
-              // paymentSummary.totalDueSeller is post-fee payout (only present after fulfillment)
-              // fall back to total - totalMarketplaceFee, both always present pre-fulfillment
-              const total = parseFloat(order.pricingSummary?.total?.value) || 0;
-              const fees  = parseFloat(order.totalMarketplaceFee?.value) || 0;
-              const payout = order.paymentSummary?.totalDueSeller?.value
-                || (total && fees != null ? String(total - fees) : null);
-              if (payout) this.reverbSaleAmount = parseFloat(payout);
+              const total    = parseFloat(order.pricingSummary?.total?.value) || 0;
+              const mktFee   = parseFloat(order.totalMarketplaceFee?.value);
+              const dueSeller = parseFloat(order.paymentSummary?.totalDueSeller?.value);
+              let payout, payoutSource;
+              if (dueSeller) {
+                payout = dueSeller; payoutSource = 'paymentSummary.totalDueSeller';
+              } else if (mktFee) {
+                payout = total - mktFee; payoutSource = 'total - totalMarketplaceFee';
+              } else if (total) {
+                // eBay fee formula: 13.25% of total + $0.40
+                payout = total - (total * 0.1325 + 0.40); payoutSource = 'fee formula estimate';
+              }
+              console.log(`[eBay payout] source=${payoutSource} payout=${payout} total=${total} mktFee=${mktFee} dueSeller=${dueSeller}`);
+              if (payout) this.reverbSaleAmount = payout;
               if (order.creationDate) this.platformSaleDate = order.creationDate.split('T')[0];
               // shipTo is the actual shipping address; buyerRegistrationAddress is account address (may differ)
               const shipTo = order.fulfillmentStartInstructions?.[0]?.shippingStep?.shipTo;
