@@ -512,6 +512,9 @@
                  :href="'https://reverb.com/my/selling/orders/' + record.order?.platform_order_num"
                  style="font-size:11px; color:var(--reverb)"
                  x-text="'↗ Order #' + record.order?.platform_order_num"></a>
+              <a x-show="record.order?.platform_order_num && $store.dw.siteLabel(record) === 'Reverb'" target="_blank"
+                 :href="'https://reverb.com/my/orders/' + record.order?.platform_order_num + '/packing_slip.pdf'"
+                 style="font-size:11px; color:var(--muted)">↗ Packing Slip</a>
               <a x-show="record.order?.platform_order_num && $store.dw.siteLabel(record) === 'eBay'" target="_blank"
                  :href="'https://www.ebay.com/sh/ord/details?orderid=' + record.order?.platform_order_num"
                  style="font-size:11px; color:var(--ebay)">↗ Order Details</a>
