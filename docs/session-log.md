@@ -1,6 +1,9 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-26 (eBay ship flow validation + packing slip links)
+- **Item modal parity:** Added eBay Order Details + Packing Slip links to item modal eBay row (`platform_order_num` required). Added Reverb Packing Slip link (`https://reverb.com/my/orders/{id}/packing_slip.pdf`). Both platforms now show order link + packing slip inline. Label modal result step also has ORDER DETAILS + PACKING SLIP buttons for eBay.
+
 ### 2026-03-26 (eBay ship flow validation)
 - **#31 — CLOSED:** Validated full eBay ship flow on first real order (Yongnuo YN560 Flash Kit). Fixed four bugs: (1) address was pulling `buyerRegistrationAddress` (Paraguay) instead of `fulfillmentStartInstructions[0].shippingStep.shipTo` (Miami); (2) tracking not pushed to eBay — added `markShippedEbay()` that auto-fires after label purchase, POSTs to `/api/ebay/orders/:id/tracking`; (3) shipped items kept reappearing in Awaiting Shipment — `_process()` now skips records with a `tracking_number`; (4) added MARK SHIPPED ON EBAY button + ORDER DETAILS link in label modal result step. Also: `ebayOrderId` falls back to `r.order?.platform_order_num` so SHIP button works from item modal on already-processed orders. `platform_order_num` now saved for eBay orders.
 - **#46 — Awaiting Validation:** eBay payout field availability unknown pre-fulfillment. Current fallback chain: `paymentSummary.totalDueSeller` → `total - totalMarketplaceFee` → fee formula estimate. Console logging in place — next order will reveal which fields eBay returns before shipping. `pricingSummary` vs `paymentSummary` — different objects, easy to confuse. Item 62 (Yongnuo) patched to correct payout of $57.23.
