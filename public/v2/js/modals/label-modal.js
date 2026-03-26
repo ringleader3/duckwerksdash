@@ -91,9 +91,9 @@ document.addEventListener('alpine:init', () => {
               const order = await res.json();
               this.ebayLineItemId = order.lineItems?.[0]?.lineItemId || null;
               // totalDueSeller is post-fee payout (equivalent to Reverb's direct_checkout_payout)
+              // totalDueSeller only appears after payment settles; fall back to total (pre-fee)
               const payout = order.pricingSummary?.totalDueSeller?.value
-                || order.pricingSummary?.totalDueSeller?.amount;
-              console.log('[eBay order] pricingSummary:', JSON.stringify(order.pricingSummary));
+                || order.pricingSummary?.total?.value;
               if (payout) this.reverbSaleAmount = parseFloat(payout);
               if (order.creationDate) this.platformSaleDate = order.creationDate.split('T')[0];
               // shipTo is the actual shipping address; buyerRegistrationAddress is account address (may differ)
