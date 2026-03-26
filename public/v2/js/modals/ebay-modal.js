@@ -78,8 +78,13 @@ document.addEventListener('alpine:init', () => {
             )
           : null;
 
-        if (rec) this.matched.push({ order, rec, lineItem });
-        else     this.unmatched.push(order);
+        if (rec) {
+          // Skip if already shipped locally (tracking pushed to eBay)
+          if (rec.shipment?.tracking_number) continue;
+          this.matched.push({ order, rec, lineItem });
+        } else {
+          this.unmatched.push(order);
+        }
       }
 
       // Unlinked: Listed eBay items with no platform_listing_id

@@ -1085,10 +1085,24 @@
               style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
               PACKING SLIP
             </button>
+            <button x-show="ebayOrderId && purchaseResult?.trackingNumber"
+              @click="markShippedEbay()"
+              :disabled="ebayShipMsg === 'Notifying eBay...' || ebayShipMsg === '✓ buyer notified'"
+              :style="ebayShipMsg === '✓ buyer notified' ? 'background:var(--surface);border:1px solid var(--ebay);color:var(--ebay);cursor:default;opacity:.6' : 'background:transparent;border:1px solid var(--ebay);color:var(--ebay);cursor:pointer'"
+              x-text="ebayShipMsg === 'Notifying eBay...' ? 'NOTIFYING...' : ebayShipMsg === '✓ buyer notified' ? '✓ SHIPPED ON EBAY' : 'MARK SHIPPED ON EBAY'"
+              style="padding:10px 24px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px">
+            </button>
+            <button x-show="ebayOrderId"
+              @click="window.open(`https://www.ebay.com/sh/ord/details?orderid=${ebayOrderId}`, '_blank')"
+              style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
+              ORDER DETAILS
+            </button>
             <span x-show="saveMsg && !saveMsg.startsWith('✓')" x-text="saveMsg"
               style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
             <span x-show="reverbShipMsg && reverbShipMsg !== 'Notifying Reverb...' && reverbShipMsg !== '✓ buyer notified'"
               x-text="reverbShipMsg" style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
+            <span x-show="ebayShipMsg && ebayShipMsg !== 'Notifying eBay...' && ebayShipMsg !== '✓ buyer notified'"
+              x-text="ebayShipMsg" style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
           </div>
         </div>
 

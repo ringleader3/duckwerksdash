@@ -17,6 +17,9 @@ document.addEventListener('alpine:init', () => {
     saveMsg:        '',
     savingShip:     false,
     reverbShipMsg:  '',   // separate from saveMsg so it isn't overwritten by saveShipping()
+    ebayOrderId:    null,
+    ebayLineItemId: null,
+    ebayShipMsg:    '',
 
     init() {
       this.$watch('$store.dw.activeModal', val => {
@@ -40,6 +43,9 @@ document.addEventListener('alpine:init', () => {
       this.saveMsg           = '';
       this.savingShip        = false;
       this.reverbShipMsg     = '';
+      this.ebayOrderId       = null;
+      this.ebayLineItemId    = null;
+      this.ebayShipMsg       = '';
 
       const dw      = Alpine.store('dw');
       const r       = dw.records.find(x => x.id === dw.activeRecordId);
@@ -78,12 +84,16 @@ document.addEventListener('alpine:init', () => {
         const ebayOrderId = dw.activeEbayOrderId;
         dw.activeEbayOrderId = null; // clear so it doesn't leak to subsequent opens
         if (ebayOrderId) {
+          this.ebayOrderId = ebayOrderId;
           try {
             const res = await fetch(`/api/ebay/orders/${encodeURIComponent(ebayOrderId)}`);
             if (res.ok) {
               const order = await res.json();
+              this.ebayLineItemId = order.lineItems?.[0]?.lineItemId || null;
               // totalDueSeller is post-fee payout (equivalent to Reverb's direct_checkout_payout)
-              const payout = order.pricingSummary?.totalDueSeller?.value;
+              const payout = order.pricingSummary?.totalDueSeller?.value
+                || order.pricingSummary?.totalDueSeller?.amount;
+              console.log('[eBay order] pricingSummary:', JSON.stringify(order.pricingSummary));
               if (payout) this.reverbSaleAmount = parseFloat(payout);
               if (order.creationDate) this.platformSaleDate = order.creationDate.split('T')[0];
               const addr = order.buyer?.buyerRegistrationAddress;
@@ -202,8 +212,9 @@ document.addEventListener('alpine:init', () => {
         }
         this.purchaseResult = data;
         this.step = 'result';
-        // Auto-fire both on purchase — don't wait for button clicks
+        // Auto-fire on purchase — don't wait for button clicks
         if (this.reverbLinks?.ship && data.trackingNumber) this.markShipped();
+        if (this.ebayOrderId && this.ebayLineItemId && data.trackingNumber) this.markShippedEbay();
         this.saveShipping();
       } catch(e) {
         this.errMsg = e.message;
@@ -225,7 +236,7 @@ document.addEventListener('alpine:init', () => {
         // ── 1. Create or update the order ──────────────────────────────────────
         const dateSold         = this.platformSaleDate || new Date().toISOString().split('T')[0];
         const sale_price       = this.reverbSaleAmount || null;
-        const platform_order_num = this.reverbOrderNum || null;
+        const platform_order_num = this.reverbOrderNum || this.ebayOrderId || null;
 
         let orderId;
         if (r.order) {
@@ -268,6 +279,30 @@ document.addEventListener('alpine:init', () => {
         this.saveMsg = 'ERROR: ' + e.message;
       } finally {
         this.savingShip = false;
+      }
+    },
+
+    async markShippedEbay() {
+      if (!this.ebayOrderId || !this.ebayLineItemId || !this.purchaseResult?.trackingNumber) return;
+      this.ebayShipMsg = 'Notifying eBay...';
+      try {
+        const res = await fetch(`/api/ebay/orders/${encodeURIComponent(this.ebayOrderId)}/tracking`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            lineItemId:          this.ebayLineItemId,
+            trackingNumber:      this.purchaseResult.trackingNumber,
+            shippingCarrierCode: this.carrier || 'OTHER',
+          }),
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          throw new Error(d.error || `HTTP ${res.status}`);
+        }
+        this.ebayShipMsg = '✓ buyer notified';
+      } catch(e) {
+        this.ebayShipMsg = 'eBay error: ' + e.message;
+        console.error('[markShippedEbay] error:', e);
       }
     },
 
