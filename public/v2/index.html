@@ -1399,24 +1399,15 @@
             All Listed/eBay items already have a listing ID.
           </div>
 
-          <div x-show="unlinkedRecs.length > 0 && !linkableOrders.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
-            No unmatched eBay orders to link.
-          </div>
-
-          <div x-show="unlinkedRecs.length > 0 && linkableOrders.length > 0">
+          <div x-show="unlinkedRecs.length > 0">
             <div style="font-size:11px;color:#666;padding:4px 0 10px;letter-spacing:1px">
-              Match your unlinked items to their eBay listing IDs.
+              Paste the listing ID from the eBay URL (e.g. ebay.com/itm/<strong>123456789</strong>).
             </div>
             <template x-for="rec in unlinkedRecs" :key="rec.id">
               <div style="padding:10px 0;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                 <div style="font-size:12px;color:var(--white);min-width:160px;flex:1" x-text="rec.name"></div>
-                <select x-model="linkSelections[rec.id]"
-                  style="flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:11px;padding:6px 8px">
-                  <option value="">— pick order —</option>
-                  <template x-for="o in linkableOrders" :key="o.orderId">
-                    <option :value="lineItemId(o)" x-text="lineItemTitle(o) + ' (' + lineItemId(o) + ')'"></option>
-                  </template>
-                </select>
+                <input type="text" x-model="linkSelections[rec.id]" placeholder="listing ID"
+                  style="flex:1;min-width:140px;max-width:180px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:11px;padding:6px 8px">
               </div>
             </template>
             <div style="padding:14px 0 4px;display:flex;gap:12px;align-items:center">

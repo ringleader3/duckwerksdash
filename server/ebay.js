@@ -18,6 +18,7 @@ async function ebayHeaders() {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
     'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US',
+    'Accept-Language': 'en-US',
   };
 }
 
@@ -78,26 +79,15 @@ router.get('/orders/:id', async (req, res) => {
 });
 
 // GET /api/ebay/listings — all active listings with title + price via Inventory API
+// Flow: get all inventory items (has title+sku), then bulk-fetch offers by sku (has price+listingId)
 router.get('/listings', async (req, res) => {
   try {
     const headers = await ebayHeaders();
-    const limit   = 100;
+    const limit   = 25;
 
-    // Fetch all offers (paginated by offset)
-    let allOffers = [];
-    let offset = 0;
-    while (true) {
-      const r    = await fetch(`${EBAY_API}/sell/inventory/v1/offer?limit=${limit}&offset=${offset}`, { headers });
-      const data = await r.json();
-      if (!r.ok) throw new Error(`eBay offers HTTP ${r.status}: ${JSON.stringify(data)}`);
-      allOffers = allOffers.concat(data.offers || []);
-      if (allOffers.length >= (data.total || 0)) break;
-      offset += limit;
-    }
-
-    // Fetch all inventory items for titles (paginated)
+    // Step 1: fetch all inventory items (paginated) — gives us sku + title
     let allItems = [];
-    offset = 0;
+    let offset = 0;
     while (true) {
       const r    = await fetch(`${EBAY_API}/sell/inventory/v1/inventory_item?limit=${limit}&offset=${offset}`, { headers });
       const data = await r.json();
@@ -107,6 +97,26 @@ router.get('/listings', async (req, res) => {
       offset += limit;
     }
 
+    if (!allItems.length) return res.json({ listings: [] });
+
+    // Step 2: bulk-fetch offers in batches of 25 — gives us price + listingId per sku
+    const skus = allItems.map(i => i.sku);
+    let allOffers = [];
+    for (let i = 0; i < skus.length; i += 25) {
+      const batch = skus.slice(i, i + 25);
+      const r     = await fetch(`${EBAY_API}/sell/inventory/v1/bulk_get_offers`, {
+        method:  'POST',
+        headers,
+        body:    JSON.stringify({ requests: batch.map(sku => ({ sku })) }),
+      });
+      const data  = await r.json();
+      if (!r.ok) throw new Error(`eBay bulk offers HTTP ${r.status}: ${JSON.stringify(data)}`);
+      for (const resp of data.responses || []) {
+        allOffers = allOffers.concat(resp.offers || []);
+      }
+    }
+
+    // Join: title from inventory item, price+listingId from offer
     const titleBySku = {};
     for (const item of allItems) titleBySku[item.sku] = item.product?.title || item.sku;
 
@@ -122,6 +132,7 @@ router.get('/listings', async (req, res) => {
 
     res.json({ listings });
   } catch (e) {
+    console.error('eBay listings error:', e.message);
     res.status(502).json({ error: 'eBay listings request failed', detail: e.message });
   }
 });

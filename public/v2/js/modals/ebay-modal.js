@@ -220,11 +220,6 @@ document.addEventListener('alpine:init', () => {
       setTimeout(async () => { await dw.fetchAll(); this._process(); }, 800);
     },
 
-    // Orders available to link — unmatched only (matched ones are already taken)
-    get linkableOrders() {
-      return this.unmatched;
-    },
-
     buyerName(order) {
       return order.buyer?.buyerRegistrationAddress?.fullName || order.orderId;
     },
