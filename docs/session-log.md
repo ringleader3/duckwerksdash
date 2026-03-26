@@ -1,6 +1,11 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-26 (KPI + calculation fixes)
+- **Upside/pipeline KPIs:** Were using `payout()` (EAF, no shipping subtracted) — switched to `estProfit()` so they match the per-row profit column sum. Also fixed filter to `Listed` only — Prepping items have no list price and were pulling numbers negative.
+- **Lot modal EST. TOTAL PROFIT:** Was mixing revenue (`recovered`) with est. profit then double-subtracting cost. Fixed to `soldProfit + estUpside` — cost is already baked into `estProfit`.
+- **Gross Pending KPI:** New stat card showing EAF payout sum for listed items (before cost basis). Upside Pending now clearly labeled "after cost+fees". Both use `Listed` filter only.
+
 ### 2026-03-26 (QoL fixes)
 - **Dashboard reorder:** KPIs → In Transit → Recently Listed → Lot Recovery (full width) → Recently Sold (full width) → Analytics
 - **Delete item:** `DELETE /api/items/:id` route cascades to listings → orders → shipments via FK cascade. Button in item modal footer (red, right-aligned, confirm dialog). Verified no orphans post-delete.
