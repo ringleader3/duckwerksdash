@@ -16,9 +16,11 @@ Designed and built by Geoff Goss with Claude.ai via Claude Code CLI and VS Code 
 - **Shipping** — EasyPost integration: get carrier rates (USPS, UPS, FedEx), buy labels, auto-save tracking, auto-mark orders shipped
 - **Label printing** — server-side PDF generation via pdfkit; opens directly in browser print dialog at correct orientation
 - **Shipment tracking** — in-transit panel on dashboard and items view; live carrier status, estimated delivery, public tracker link; items auto-clear 3 days after delivery
-- **Reverb sync** — match open orders to inventory, ship directly from dashboard; link listings; diff and sync listing name/price changes with per-item accept/skip
-- **eBay integration** — OAuth 2.0 with auto token refresh; orders awaiting shipment; push tracking to eBay to trigger payout; link eBay listings to inventory records
+- **Reverb sync** — match open orders to inventory, ship directly from dashboard; link listings; diff and sync listing name/price changes; import new Reverb listings as inventory records
+- **eBay sync** — OAuth 2.0 with auto token refresh; orders awaiting shipment; push tracking to eBay to trigger payout; link listings via Browse API; diff and sync listing name/price changes; import new eBay listings; packing slip + order detail links
 - **Analytics** — 4-chart dashboard section: monthly revenue + profit, inventory pipeline, lot ROI, near-term upside by category
+- **Dashboard KPIs** — Total Invested, Revenue, Profit, Gross Pending (EAF before cost), Upside Pending (after cost+fees), Inventory breakdown
+- **Delete item** — removes item and all associated listings, orders, and shipments via cascade
 - **Quick Find** — live search across items, lots, and categories (`/` or `⌘K`); keyboard navigation
 - **Sortable tables** — click any column header to sort ASC/DESC across Items and Lots views
 - **Item drill-down** — click status, category, or site badges to jump to a filtered view; lot badge opens Lot detail modal
@@ -104,8 +106,11 @@ public/v2/
 | Mar 22 | UPS rates fix (EasyPost label size enum); server-side PDF label printing via pdfkit |
 | Mar 24 | eBay integration — OAuth 2.0, orders awaiting shipment, push tracking, link listings |
 | Mar 25 | Migrated database from Airtable to SQLite (`better-sqlite3`); full validation and cutover |
+| Mar 26 | eBay Browse API — listing sync, name/price diffs, "New on eBay" import; "New on Reverb" import |
+| Mar 26 | First real eBay order end-to-end — address fix, tracking push, packing slip links, payout capture |
+| Mar 26 | KPI fixes — Gross Pending card, corrected Upside Pending and lot profit calculations; delete item |
 
-~3 weeks from first idea to production tool with dual-marketplace integration, shipping automation, and analytics. The v2 rebuild — clean architecture, full modal/shipping/sync workflow — took 2 days.
+~3.5 weeks from first idea to production tool with dual-marketplace integration, shipping automation, and analytics. The v2 rebuild — clean architecture, full modal/shipping/sync workflow — took 2 days.
 
 ---
 
