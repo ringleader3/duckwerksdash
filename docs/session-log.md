@@ -1,6 +1,10 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-26 (eBay Browse API + listing details)
+- **#45 — CLOSED:** eBay Browse API working. `category_ids=0` returns all active seller listings in one call. Added `getAppToken()` (client credentials, in-memory cache) to `ebay-auth.js`. New `GET /api/ebay/listings` route in `server/ebay.js` paginates via offset. eBay modal now fetches orders + listings in parallel on open. Link Listings dropdown populated from live listings instead of manual paste. Added LISTING DETAILS section (mirrors Reverb) — diffs title+price against live Browse API data, SYNC writes name to item and list_price to listing. Added `listingUrl(r)` to store — constructs `https://www.ebay.com/itm/{id}` or `https://reverb.com/item/{id}` from platform_listing_id; item modal listing link now always clickable for eBay/Reverb items (no longer depends on stored `url`).
+- **`EBAY_SELLER_USERNAME=duckwerks`** added to `.env` — required for Browse API seller filter.
+
 ### 2026-03-26 (Reverb + eBay listing sync)
 - **#44 — CLOSED:** Reverb sync modal now has a "NEW ON REVERB" section. Compares live Reverb listings against local `platform_listing_id`s; shows unmatched listings with checkboxes; IMPORT creates item + listing records (title, price, listing ID, site=Reverb). Defaults cost=0, category=null — fill in after import.
 - **#38 — UPDATED:** eBay listing sync investigated. eBay Inventory API (`sell.inventory`) only returns listings created through it — legacy listings (created on eBay website) return empty. Listing Details + New on eBay sections were built then removed. What shipped: (1) Link Listings changed from order dropdown to text input — paste listing ID from eBay URL; (2) item modal "REVERB" label replaced with dynamic site name, links via stored listing URL instead of hardcoded Reverb URL; (3) `sell.inventory` scope added to OAuth + re-auth completed; (4) `Accept-Language` header added to all eBay requests. eBay listing read API deferred to #39 (Trading API path).
