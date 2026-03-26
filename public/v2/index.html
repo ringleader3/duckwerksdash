@@ -153,6 +153,100 @@
           </div>
         </template>
 
+        <!-- Recently Listed -->
+        <div class="panel" style="margin-top:24px">
+          <div class="panel-title">Recently Listed</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Added</th>
+                <th>Item</th>
+                <th>Cat</th>
+                <th>Site</th>
+                <th class="num-col">List Price</th>
+                <th class="num-col">EAF Payout</th>
+                <th class="num-col">Est. Profit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="r in recentlyListed" :key="r.id">
+                <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
+                  <td style="color:var(--muted); white-space:nowrap" x-text="listedDate(r)"></td>
+                  <td style="text-align:left" x-text="r.name"></td>
+                  <td><span :class="'badge ' + (r.category?.badge_class || '')" x-text="r.category?.name"></span></td>
+                  <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
+                  <td class="num" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : '—'"></td>
+                  <td class="num est" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.payout(r)) : '—'"></td>
+                  <td class="num est" x-text="$store.dw.fmt0($store.dw.estProfit(r))"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Lot Recovery -->
+        <div class="panel" style="margin-top:16px">
+          <div class="panel-title">Lot Recovery</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Lot</th>
+                <th class="num-col">Cost</th>
+                <th class="num-col">Recovered</th>
+                <th class="num-col">%</th>
+                <th class="num-col">Pipeline</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="lot in lotRows" :key="lot.name">
+                <tr style="cursor:pointer" @click="$store.dw.openModal('lot', null, lot.name)">
+                  <td style="text-align:left" x-text="lot.name"></td>
+                  <td class="num red" x-text="$store.dw.fmt0(lot.cost)"></td>
+                  <td class="num green" x-text="$store.dw.fmt0(lot.recovered)"></td>
+                  <td class="num">
+                    <div style="display:flex; align-items:center; gap:6px; justify-content:flex-end">
+                      <span :class="barClass(lot.pct) === 'green' ? 'act' : 'est'" x-text="lot.pct + '%'"></span>
+                      <div class="progress-bar" style="width:50px">
+                        <div class="progress-fill" :class="barClass(lot.pct)" :style="'width:' + lot.pct + '%'"></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="num yellow" x-text="$store.dw.fmt0(lot.upside)"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Recently Sold -->
+        <div class="panel" style="margin-top:16px">
+          <div class="panel-title">Recently Sold</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Sold</th>
+                <th>Item</th>
+                <th>Cat</th>
+                <th>Site</th>
+                <th class="num-col">Sale</th>
+                <th class="num-col">Profit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="r in recentlySold" :key="r.id">
+                <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
+                  <td style="color:var(--muted); white-space:nowrap" x-text="soldDate(r)"></td>
+                  <td style="text-align:left" x-text="r.name"></td>
+                  <td><span :class="'badge ' + (r.category?.badge_class || '')" x-text="r.category?.name"></span></td>
+                  <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
+                  <td class="num green" x-text="$store.dw.fmt0(r.order?.sale_price)"></td>
+                  <td class="num" :class="itemProfit(r) >= 0 ? 'green' : 'red'" x-text="$store.dw.fmt0(itemProfit(r))"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+
         <!-- Analytics Charts -->
         <section x-data="chartsSection" style="margin-top:24px">
           <div class="panel-title" style="margin-bottom:12px">ANALYTICS</div>
@@ -208,105 +302,6 @@
 
           </div>
         </section>
-
-        <!-- Panels: Lot Recovery + Recently Sold -->
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
-
-          <!-- Lot Recovery -->
-          <div class="panel">
-            <div class="panel-title">Lot Recovery</div>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Lot</th>
-                  <th class="num-col">Cost</th>
-                  <th class="num-col">Recovered</th>
-                  <th class="num-col">%</th>
-                  <th class="num-col">Pipeline</th>
-                </tr>
-              </thead>
-              <tbody>
-                <template x-for="lot in lotRows" :key="lot.name">
-                  <tr style="cursor:pointer" @click="$store.dw.openModal('lot', null, lot.name)">
-                    <td style="text-align:left" x-text="lot.name"></td>
-                    <td class="num red" x-text="$store.dw.fmt0(lot.cost)"></td>
-                    <td class="num green" x-text="$store.dw.fmt0(lot.recovered)"></td>
-                    <td class="num">
-                      <div style="display:flex; align-items:center; gap:6px; justify-content:flex-end">
-                        <span :class="barClass(lot.pct) === 'green' ? 'act' : 'est'" x-text="lot.pct + '%'"></span>
-                        <div class="progress-bar" style="width:50px">
-                          <div class="progress-fill" :class="barClass(lot.pct)" :style="'width:' + lot.pct + '%'"></div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="num yellow" x-text="$store.dw.fmt0(lot.upside)"></td>
-                  </tr>
-                </template>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Recently Sold -->
-          <div class="panel">
-            <div class="panel-title">Recently Sold</div>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Sold</th>
-                  <th>Item</th>
-                  <th>Cat</th>
-                  <th>Site</th>
-                  <th class="num-col">Sale</th>
-                  <th class="num-col">Profit</th>
-                </tr>
-              </thead>
-              <tbody>
-                <template x-for="r in recentlySold" :key="r.id">
-                  <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
-                    <td style="color:var(--muted); white-space:nowrap" x-text="soldDate(r)"></td>
-                    <td style="text-align:left" x-text="r.name"></td>
-                    <td><span :class="'badge ' + (r.category?.badge_class || '')" x-text="r.category?.name"></span></td>
-                    <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
-                    <td class="num green" x-text="$store.dw.fmt0(r.order?.sale_price)"></td>
-                    <td class="num" :class="itemProfit(r) >= 0 ? 'green' : 'red'" x-text="$store.dw.fmt0(itemProfit(r))"></td>
-                  </tr>
-                </template>
-              </tbody>
-            </table>
-          </div>
-
-        </div>
-
-        <!-- Recently Listed -->
-        <div class="panel" style="margin-top:16px">
-          <div class="panel-title">Recently Listed</div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Added</th>
-                <th>Item</th>
-                <th>Cat</th>
-                <th>Site</th>
-                <th class="num-col">List Price</th>
-                <th class="num-col">EAF Payout</th>
-                <th class="num-col">Est. Profit</th>
-              </tr>
-            </thead>
-            <tbody>
-              <template x-for="r in recentlyListed" :key="r.id">
-                <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
-                  <td style="color:var(--muted); white-space:nowrap" x-text="listedDate(r)"></td>
-                  <td style="text-align:left" x-text="r.name"></td>
-                  <td><span :class="'badge ' + (r.category?.badge_class || '')" x-text="r.category?.name"></span></td>
-                  <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
-                  <td class="num" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : '—'"></td>
-                  <td class="num est" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.payout(r)) : '—'"></td>
-                  <td class="num est" x-text="$store.dw.fmt0($store.dw.estProfit(r))"></td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </div>
 
 
       </div>
