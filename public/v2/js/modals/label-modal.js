@@ -96,7 +96,9 @@ document.addEventListener('alpine:init', () => {
               console.log('[eBay order] pricingSummary:', JSON.stringify(order.pricingSummary));
               if (payout) this.reverbSaleAmount = parseFloat(payout);
               if (order.creationDate) this.platformSaleDate = order.creationDate.split('T')[0];
-              const addr = order.buyer?.buyerRegistrationAddress;
+              // shipTo is the actual shipping address; buyerRegistrationAddress is account address (may differ)
+              const shipTo = order.fulfillmentStartInstructions?.[0]?.shippingStep?.shipTo;
+              const addr = shipTo || order.buyer?.buyerRegistrationAddress;
               if (addr) {
                 const c = addr.contactAddress || {};
                 this.addrText = this._addrToText({
