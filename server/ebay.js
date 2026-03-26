@@ -78,65 +78,6 @@ router.get('/orders/:id', async (req, res) => {
   }
 });
 
-// GET /api/ebay/listings — all active listings with title + price via Inventory API
-// Flow: get all inventory items (has title+sku), then bulk-fetch offers by sku (has price+listingId)
-router.get('/listings', async (req, res) => {
-  try {
-    const headers = await ebayHeaders();
-    const limit   = 25;
-
-    // Step 1: fetch all inventory items (paginated) — gives us sku + title
-    let allItems = [];
-    let offset = 0;
-    while (true) {
-      const r    = await fetch(`${EBAY_API}/sell/inventory/v1/inventory_item?limit=${limit}&offset=${offset}`, { headers });
-      const data = await r.json();
-      if (!r.ok) throw new Error(`eBay inventory HTTP ${r.status}: ${JSON.stringify(data)}`);
-      allItems = allItems.concat(data.inventoryItems || []);
-      if (allItems.length >= (data.total || 0)) break;
-      offset += limit;
-    }
-
-    if (!allItems.length) return res.json({ listings: [] });
-
-    // Step 2: bulk-fetch offers in batches of 25 — gives us price + listingId per sku
-    const skus = allItems.map(i => i.sku);
-    let allOffers = [];
-    for (let i = 0; i < skus.length; i += 25) {
-      const batch = skus.slice(i, i + 25);
-      const r     = await fetch(`${EBAY_API}/sell/inventory/v1/bulk_get_offers`, {
-        method:  'POST',
-        headers,
-        body:    JSON.stringify({ requests: batch.map(sku => ({ sku })) }),
-      });
-      const data  = await r.json();
-      if (!r.ok) throw new Error(`eBay bulk offers HTTP ${r.status}: ${JSON.stringify(data)}`);
-      for (const resp of data.responses || []) {
-        allOffers = allOffers.concat(resp.offers || []);
-      }
-    }
-
-    // Join: title from inventory item, price+listingId from offer
-    const titleBySku = {};
-    for (const item of allItems) titleBySku[item.sku] = item.product?.title || item.sku;
-
-    const listings = allOffers
-      .filter(o => o.listing?.listingStatus === 'ACTIVE')
-      .map(o => ({
-        offerId:      o.offerId,
-        sku:          o.sku,
-        legacyItemId: String(o.listing?.listingId || ''),
-        title:        titleBySku[o.sku] || o.sku,
-        price:        parseFloat(o.pricingSummary?.price?.value) || 0,
-      }));
-
-    res.json({ listings });
-  } catch (e) {
-    console.error('eBay listings error:', e.message);
-    res.status(502).json({ error: 'eBay listings request failed', detail: e.message });
-  }
-});
-
 // POST /api/ebay/orders/:id/tracking — push tracking, marks order shipped
 router.post('/orders/:id/tracking', async (req, res) => {
   const { id } = req.params;
