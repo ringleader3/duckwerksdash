@@ -1093,9 +1093,9 @@
               style="padding:10px 24px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px">
             </button>
             <button x-show="ebayOrderId"
-              @click="window.open(`https://www.ebay.com/sh/ord/details?orderid=${ebayOrderId}`, '_blank')"
+              @click="window.open(`https://www.ebay.com/sh/ord/prt?module=PACKING_SLIP_MODULE&orderId=${ebayOrderId}`, '_blank')"
               style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
-              ORDER DETAILS
+              PACKING SLIP
             </button>
             <span x-show="saveMsg && !saveMsg.startsWith('✓')" x-text="saveMsg"
               style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
