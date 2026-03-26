@@ -18,6 +18,10 @@ document.addEventListener('alpine:init', () => {
     detailSelections: {},
     detailsMsg:       '',
     syncingDetails:   false,
+    newListings:      [],
+    newSelections:    {},
+    importingNew:     false,
+    importMsg:        '',
 
     init() {
       this.$watch('$store.dw.activeModal', val => {
@@ -54,7 +58,11 @@ document.addEventListener('alpine:init', () => {
       this.detailDiffs     = [];
       this.detailSelections = {};
       this.detailsMsg      = '';
-      this.syncingDetails = false;
+      this.syncingDetails  = false;
+      this.newListings     = [];
+      this.newSelections   = {};
+      this.importingNew    = false;
+      this.importMsg       = '';
       try {
         const ordersRes = await fetch('/api/reverb/my/orders/selling/awaiting_shipment');
         if (!ordersRes.ok) throw new Error(`Orders HTTP ${ordersRes.status}`);
@@ -142,6 +150,17 @@ document.addEventListener('alpine:init', () => {
       const detailSel = {};
       for (const d of this.detailDiffs) detailSel[d.rec.id] = true;
       this.detailSelections = detailSel;
+
+      // New on Reverb: live listings with no matching local record
+      const usedIds = new Set(
+        dw.records.flatMap(r => r.listings || [])
+          .map(l => l.platform_listing_id)
+          .filter(Boolean)
+      );
+      this.newListings = this.listings.filter(l => !usedIds.has(String(l.id)));
+      const newSel = {};
+      for (const l of this.newListings) newSel[l.id] = true;
+      this.newSelections = newSel;
     },
 
     async saveMatches() {
@@ -195,6 +214,37 @@ document.addEventListener('alpine:init', () => {
       this.linksMsg    = errors ? `${saved} saved, ${errors} failed` : `✓ ${saved} saved`;
       this.savingLinks = false;
       setTimeout(async () => { await Alpine.store('dw').fetchAll(); this._process(); }, 800);
+    },
+
+    async importNew() {
+      const selected = this.newListings.filter(l => this.newSelections[l.id]);
+      if (!selected.length) return;
+      this.importingNew = true;
+      this.importMsg    = '';
+      let saved = 0, errors = 0;
+      const dw = Alpine.store('dw');
+      const reverbSite = dw.sites.find(s => s.name === 'Reverb');
+      if (!reverbSite) { this.importMsg = 'Reverb site not found'; this.importingNew = false; return; }
+      for (const listing of selected) {
+        try {
+          const item = await dw.createItem({ name: listing.title || 'Untitled', cost: 0 });
+          await dw.createListing({
+            item_id:             item.id,
+            site_id:             reverbSite.id,
+            list_price:          parseFloat(listing.price?.amount) || 0,
+            shipping_estimate:   parseFloat(listing.shipping?.local?.amount) || null,
+            url:                 listing._links?.web?.href || '',
+            platform_listing_id: String(listing.id),
+          });
+          saved++;
+        } catch(e) {
+          console.error('importNew:', e);
+          errors++;
+        }
+      }
+      this.importMsg    = errors ? `${saved} imported, ${errors} failed` : `✓ ${saved} imported`;
+      this.importingNew = false;
+      setTimeout(async () => { await dw.fetchAll(); this._process(); }, 800);
     },
 
     async syncDetails() {
