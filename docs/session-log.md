@@ -1,6 +1,11 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-26 — v0.9.1 (Momentum chart)
+- **#48 — CLOSED:** Wrote and reviewed implementation plan for momentum chart (`docs/superpowers/plans/2026-03-26-momentum-chart.md`). Code-reviewed and patched before implementation: listing selector fix (`l.order` not `l.status`), tooltip gross computation, x-show/flex conflict, eBay capitalization.
+- **#49 — CLOSED:** Implemented momentum chart. Replaces 4-chart analytics grid with a single full-width chart. Windows: 3d/7d/14d/30d (dropped 60d/90d — skewed scale). Hero background bar (custom `beforeDatasetsDraw` plugin) shows total gross/net as a wide translucent wash behind per-site bars. Log y-axis for near-term readability. Gross · net text labels above each cluster. Per-bar site labels (Reverb/eBay in bar color) below each bar. Moved to hero position below KPIs.
+- **#50 — CLOSED:** Validated in browser throughout session.
+
 ### 2026-03-26 — v0.9.0 (versioning + polish)
 - **#40 — CLOSED:** Added semantic versioning. `APP_VERSION` constant in `config.js` displayed in sidebar footer as "Duckwerks Dashboard v0.9.0". `package.json` set to `0.9.0`. Versioning section added to CLAUDE.md: major=re-arch, minor=feature set, patch=session. Tags every patch, GH releases starting at first minor post-1.0.
 - **#47 — CLOSED:** Fixed view flicker during batch sync. `updateItem`/`updateListing` now accept `{ skipRefresh: true }` — batch loops in both Reverb and eBay modal `syncDetails()`/`saveLinks()` skip per-update store mutations and let the existing end-of-loop `fetchAll()` do a single clean re-render.
