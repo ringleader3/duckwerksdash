@@ -1,6 +1,9 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-26 — v0.9.4
+- **Item modal edit — payout field not saving:** `form.sale` was populated in `startEdit()` but never written back on save. Added `updateOrder()` call + `fetchAll()` so the store reflects the updated sale price immediately.
+
 ### 2026-03-26 — v0.9.3
 - **#46 — CLOSED:** Validated `paymentSummary.totalDueSeller` is available pre-fulfillment on first real eBay order (Nikon 50mm, $100.69 payout). Simplified eBay payout fallback chain to just `totalDueSeller` — removed `totalMarketplaceFee` and fee-formula fallbacks.
 - **eBay label modal success state:** ✓ SHIPPED ON EBAY button now shows green (was red/`--ebay`), matching ✓ SAVED. ORDER DETAILS hidden after successful shipping to reduce button row clutter. Filed #51 to validate on next order.
