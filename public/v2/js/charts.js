@@ -176,7 +176,7 @@ document.addEventListener('alpine:init', () => {
                 generateLabels: chart => chart.data.datasets
                   .filter(d => !d.label.startsWith('Cost+Fees'))
                   .map(d => ({
-                    text:        d.stack.charAt(0).toUpperCase() + d.stack.slice(1),
+                    text:        ({ hero: 'All', reverb: 'Reverb', ebay: 'eBay', facebook: 'Facebook' })[d.stack] || d.stack,
                     fillStyle:   d.backgroundColor,
                     strokeStyle: d.backgroundColor,
                     lineWidth:   0,
