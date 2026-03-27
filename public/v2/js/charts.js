@@ -131,7 +131,7 @@ document.addEventListener('alpine:init', () => {
 
           // Hero gross · net labels above each cluster
           const fmt = n => n >= 1000 ? '$' + (n / 1000).toFixed(1) + 'K' : '$' + Math.round(n);
-          ctx.font = '10px "Space Mono", monospace';
+          ctx.font = '13px "Space Mono", monospace';
           ctx.textAlign = 'center';
           chart.data.labels.forEach((_, i) => {
             const netVal   = heroNet[i]  || 0;
@@ -151,7 +151,7 @@ document.addEventListener('alpine:init', () => {
           if (chart.data.datasets.length > 4) {
             siteLabels.push({ dsIndex: 4, name: 'Facebook', color: 'rgba(153,153,153,0.9)' });
           }
-          ctx.font = '9px "Space Mono", monospace';
+          ctx.font = '12px "Space Mono", monospace';
           ctx.textBaseline = 'top';
           siteLabels.forEach(({ dsIndex, name, color }) => {
             const meta = chart.getDatasetMeta(dsIndex);
@@ -211,11 +211,12 @@ document.addEventListener('alpine:init', () => {
             },
           },
           scales: {
-            x: { grid: { display: false } },
+            x: { grid: { display: false }, ticks: { font: { size: 13 } } },
             y: {
               type: 'logarithmic',
               min: 1,
               ticks: {
+                font: { size: 12 },
                 callback: v => [1, 10, 100, 1000, 10000].includes(v) ? '$' + v.toLocaleString() : '',
               },
             },
