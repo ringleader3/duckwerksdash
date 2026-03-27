@@ -167,7 +167,23 @@ document.addEventListener('alpine:init', () => {
           maintainAspectRatio: false,
           _heroData: { heroNet: net['All'], heroOvg: overage['All'] },
           plugins: {
-            legend: { display: false },
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: {
+                boxWidth: 12,
+                padding: 16,
+                generateLabels: chart => chart.data.datasets
+                  .filter(d => !d.label.startsWith('Cost+Fees'))
+                  .map(d => ({
+                    text:        d.stack.charAt(0).toUpperCase() + d.stack.slice(1),
+                    fillStyle:   d.backgroundColor,
+                    strokeStyle: d.backgroundColor,
+                    lineWidth:   0,
+                    hidden:      false,
+                  })),
+              },
+            },
             tooltip: {
               callbacks: {
                 label: ctx => {
