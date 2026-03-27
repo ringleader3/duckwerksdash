@@ -418,6 +418,7 @@
               <tr>
                 <th style="text-align:left" class="sortable" :class="{'sort-active': sortKey==='name'}"        @click="sortBy('name')">Item<span x-text="sortIndicator('name')"></span></th>
                 <th class="sortable"                          :class="{'sort-active': sortKey==='site'}"        @click="sortBy('site')">Site<span x-text="sortIndicator('site')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='listPrice'}"   @click="sortBy('listPrice')">Price<span x-text="sortIndicator('listPrice')"></span></th>
                 <th class="num-col sortable"                  :class="{'sort-active': sortKey==='views'}"       @click="sortBy('views')">Views<span x-text="sortIndicator('views')"></span></th>
                 <th class="num-col sortable"                  :class="{'sort-active': sortKey==='watchers'}"    @click="sortBy('watchers')">Watchers<span x-text="sortIndicator('watchers')"></span></th>
                 <th class="num-col sortable"                  :class="{'sort-active': sortKey==='impressions'}" @click="sortBy('impressions')">Impressions<span x-text="sortIndicator('impressions')"></span></th>
@@ -429,6 +430,7 @@
                 <tr :style="row.itemId ? 'cursor:pointer' : ''" @click="openItem(row.itemId)">
                   <td style="text-align:left" x-text="row.name"></td>
                   <td><span :class="row.site === 'Reverb' ? 'badge-reverb' : 'badge-ebay'" x-text="row.site"></span></td>
+                  <td class="num-col" x-text="row.listPrice != null ? '$' + row.listPrice.toFixed(2) : '—'"></td>
                   <td class="num-col" x-text="row.views    != null ? row.views    : '—'"></td>
                   <td class="num-col" x-text="row.watchers != null ? row.watchers : '—'"></td>
                   <td class="num-col" x-text="row.impressions != null ? row.impressions : '—'"></td>
@@ -436,7 +438,7 @@
                 </tr>
               </template>
               <tr x-show="sortedListedRows.length === 0 && !listedLoading">
-                <td colspan="6" style="color:var(--muted); text-align:center">No listings found</td>
+                <td colspan="7" style="color:var(--muted); text-align:center">No listings found</td>
               </tr>
             </tbody>
           </table>
