@@ -58,13 +58,20 @@ document.addEventListener('alpine:init', () => {
       this.listedError   = null;
       try {
         // Fetch Reverb listings + eBay traffic in parallel
-        const [reverbListings, ebayTraffic] = await Promise.all([
+        const [reverbListings, ebayTraffic, ebayListings] = await Promise.all([
           this._fetchReverbListings(),
           fetch('/api/ebay/traffic').then(r => r.json()).catch(() => ({})),
+          fetch('/api/ebay/listings').then(r => r.json()).catch(() => ({})),
         ]);
 
         // ebayTraffic.listings: { [legacyListingId]: { views, impressions, ctr } }
         const ebayMap = ebayTraffic.listings || {};
+
+        // watchCount map: legacyItemId → count (null until eBay App Check approved)
+        const watchMap = {};
+        for (const l of (ebayListings.listings || [])) {
+          if (l.legacyItemId) watchMap[l.legacyItemId] = l.watchCount;
+        }
 
         const dw   = Alpine.store('dw');
         const rows = [];
@@ -97,7 +104,7 @@ document.addEventListener('alpine:init', () => {
             site:        'eBay',
             listingId:   lid || '',
             views:       traffic.views       ?? null,
-            watchers:    null,
+            watchers:    lid ? (watchMap[lid] ?? null) : null,
             impressions: traffic.impressions ?? null,
             ctr:         traffic.ctr != null ? Math.round(traffic.ctr * 100) : null,
           });

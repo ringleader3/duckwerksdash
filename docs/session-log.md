@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-27 — v1.0.0 (Analytics view — #53 + #64)
+- **#53 + #64 — Awaiting Validation:** New Analytics top-level nav view with two tabs.
+  - **Listed tab:** Reverb (views, watches) + eBay (views, impressions, CTR) in one sortable table. eBay data from Sell Analytics v1 traffic_report (last 30d). All columns sortable.
+  - **Sold tab:** Reverb orders with `needs_feedback_for_seller: true` + eBay FULFILLED orders within 60d feedback window. Sorted by days since sale desc. Order links for quick buyer nudging.
+  - **eBay watcher count:** wired up via Browse API `/api/ebay/listings` — will populate once App Check ticket for watchCount access is approved. Submit at: https://developer.ebay.com/my/support/tickets?tab=app-check
+  - **eBay per-order feedback API:** Not publicly accessible (404 on all paths). eBay Sold tab shows all fulfilled orders within 60d window instead of confirmed-no-feedback only.
+  - **New eBay server routes:** `/api/ebay/traffic`, `/api/ebay/fulfilled-orders`. eBay OAuth scopes expanded to include `sell.analytics.readonly` + `sell.reputation` (re-auth done).
+
 ### 2026-03-27 — v0.9.9 (P2 bug batch + sync improvements)
 - **#60 #61 #62 #63 — CLOSED:** (Previously fixed, forgot to close last session — closed at session start.)
 - **#52 — Awaiting Validation:** Sync Listings now includes Prepping items (previously filtered to Listed only). Linking a Prepping item to a platform listing auto-promotes status to Listed.
