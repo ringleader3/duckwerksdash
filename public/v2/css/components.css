@@ -176,6 +176,7 @@
 /* Numeric columns right-aligned */
 .data-table td.num    { text-align: right; font-variant-numeric: tabular-nums; }
 .data-table td.num-col { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table th.num-col { text-align: right; font-variant-numeric: tabular-nums; width: 1%; white-space: nowrap; }
 .num-col { text-align: right; font-variant-numeric: tabular-nums; }
 
 /* Color utilities on table cells */

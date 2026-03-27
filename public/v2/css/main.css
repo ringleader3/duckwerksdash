@@ -162,6 +162,7 @@ a:hover { text-decoration: underline; }
 .search-result-row:last-child { border-bottom: none; }
 .search-result-row:hover { background: var(--border); }
 .search-result-row.search-result-active { background: var(--border2); }
+.search-result-row.search-result-active.dimmed { background: #2a3a4a; }
 .search-result-row.dimmed { opacity: 0.45; }
 
 /* Nav pills */
