@@ -1,6 +1,11 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-26 — v0.9.3
+- **#46 — CLOSED:** Validated `paymentSummary.totalDueSeller` is available pre-fulfillment on first real eBay order (Nikon 50mm, $100.69 payout). Simplified eBay payout fallback chain to just `totalDueSeller` — removed `totalMarketplaceFee` and fee-formula fallbacks.
+- **eBay label modal success state:** ✓ SHIPPED ON EBAY button now shows green (was red/`--ebay`), matching ✓ SAVED. ORDER DETAILS hidden after successful shipping to reduce button row clutter. Filed #51 to validate on next order.
+- **Categories expanded:** Added A/V Gear, Camera, Comics/Books/Media, Home, Junk Drawer. Badge CSS + config.js updated. Bulk-reconciled all non-Reverb items into correct categories (Camera: Nikon lenses/body/flash, Insta360; A/V Gear: NAD, Technics, HDMI switches, Bose, Roku, Samsung TV/BRP, Sony CD-R; Home: AC unit).
+
 ### 2026-03-26 — v0.9.1.1 (Hotfix)
 - **Chart top clipping:** Label text on the tallest bars was being clipped by the canvas edge. Added top padding to chart layout for label clearance.
 
