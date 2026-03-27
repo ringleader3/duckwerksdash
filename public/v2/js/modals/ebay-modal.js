@@ -149,8 +149,8 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       for (const { rec, listing, newName, newPrice } of selected) {
         try {
-          await dw.updateListing(listing.id, { list_price: newPrice });
-          await dw.updateItem(rec.id, { name: newName });
+          await dw.updateListing(listing.id, { list_price: newPrice }, { skipRefresh: true });
+          await dw.updateItem(rec.id, { name: newName }, { skipRefresh: true });
           saved++;
         } catch(e) {
           console.error('eBay syncDetails:', e);
@@ -187,7 +187,7 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       for (const { listing, listingId } of toLink) {
         try {
-          await dw.updateListing(listing.id, { platform_listing_id: listingId });
+          await dw.updateListing(listing.id, { platform_listing_id: listingId }, { skipRefresh: true });
           saved++;
         } catch(e) {
           console.error('eBay saveLinks:', e);

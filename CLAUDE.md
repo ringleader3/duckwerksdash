@@ -364,11 +364,26 @@ The brainstorm/spec/plan overhead is ~20–30 min. Worth it when it prevents deb
 
 ---
 
+## Versioning
+
+Version lives in two places — keep them in sync:
+- `public/v2/js/config.js` → `APP_VERSION` constant (displayed in sidebar)
+- `package.json` → `version` field
+
+Semantic versioning for this app:
+- **Major** (`1.x.x`): re-architecture or core component swap
+- **Minor** (`x.1.x`): new feature set
+- **Patch** (`x.x.1`): each session with meaningful changes
+
+Bump the patch number at the end of every session that ships something. Target `1.0.0` as the first GitHub release.
+
+---
+
 ## Session Start Checklist
 1. Read `CLAUDE.md` (this file) — especially Session Log
 2. Run `gh issue list --state open` to see current bugs and enhancements
 3. Grep before any file read. One edit per logical change. Commit when done.
-4. Update Session Log and close/reference any resolved GitHub issues at end of session.
+4. Bump patch version in `config.js` + `package.json` and update Session Log at end of session.
 
 ---
 

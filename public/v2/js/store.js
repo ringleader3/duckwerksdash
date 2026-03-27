@@ -179,16 +179,18 @@ document.addEventListener('alpine:init', () => {
     pct(a, b){ return b > 0 ? Math.round((a / b) * 100) : 0; },
 
     // ── Writes ────────────────────────────────────────────────────────────────
-    async updateItem(id, fields) {
+    async updateItem(id, fields, { skipRefresh = false } = {}) {
       const res = await fetch(`/api/items/${id}`, {
         method:  'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(fields),
       });
       if (!res.ok) throw new Error(`Update failed: ${res.status}`);
-      const updated = await res.json();
-      const idx = this.records.findIndex(r => r.id === id);
-      if (idx !== -1) this.records[idx] = updated;
+      if (!skipRefresh) {
+        const updated = await res.json();
+        const idx = this.records.findIndex(r => r.id === id);
+        if (idx !== -1) this.records[idx] = updated;
+      }
     },
 
     async deleteItem(id) {
@@ -222,14 +224,14 @@ document.addEventListener('alpine:init', () => {
       return await res.json();
     },
 
-    async updateListing(id, fields) {
+    async updateListing(id, fields, { skipRefresh = false } = {}) {
       const res = await fetch(`/api/listings/${id}`, {
         method:  'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(fields),
       });
       if (!res.ok) throw new Error(`Update listing failed: ${res.status}`);
-      await this.fetchAll(); // listings are nested in items — full refresh needed
+      if (!skipRefresh) await this.fetchAll(); // listings are nested in items — full refresh needed
     },
 
     async createOrder(fields) {
