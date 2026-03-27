@@ -33,6 +33,65 @@ document.addEventListener('alpine:init', () => {
       }, 50);
     },
 
+    momentumData() {
+      const dw = Alpine.store('dw');
+      const WINDOWS = [3, 7, 14, 30, 60, 90];
+      const now = new Date();
+
+      // Per-window, per-site gross and net
+      const sites = ['All', 'Reverb', 'eBay', 'Facebook'];
+      const gross = {}; // gross[site][windowIdx]
+      const net   = {}; // net[site][windowIdx]
+      for (const s of sites) {
+        gross[s] = Array(WINDOWS.length).fill(0);
+        net[s]   = Array(WINDOWS.length).fill(0);
+      }
+
+      for (const r of dw.soldRecords) {
+        const raw = r.order?.date_sold;
+        if (!raw) continue;
+        const sold     = new Date(raw + (raw.includes('T') ? '' : 'T00:00:00'));
+        const ageMs    = now - sold;
+        const ageDays  = ageMs / (1000 * 60 * 60 * 24);
+
+        const saleGross = r.order?.sale_price || 0;
+        const cost      = r.cost || 0;
+        const shipping  = r.shipment?.shipping_cost || 0;
+
+        // Fee: find the sold listing by presence of an order (not l.status — that's 'active'/'ended')
+        // Fee base is saleGross (actual sale price), not list_price — intentional for actuals.
+        const listing  = r.listings?.find(l => l.order) || r.listings?.[0];
+        const site     = listing?.site;
+        const siteName = site?.name || 'Other';
+        let fee = 0;
+        if (site) {
+          fee = site.fee_on_shipping
+            ? (saleGross + shipping) * site.fee_rate + site.fee_flat
+            : saleGross * site.fee_rate + site.fee_flat;
+        }
+        const saleNet = saleGross - cost - shipping - fee;
+
+        for (let i = 0; i < WINDOWS.length; i++) {
+          if (ageDays <= WINDOWS[i]) {
+            gross['All'][i] += saleGross;
+            net['All'][i]   += saleNet;
+            if (sites.includes(siteName)) {
+              gross[siteName][i] += saleGross;
+              net[siteName][i]   += saleNet;
+            }
+          }
+        }
+      }
+
+      // overage[site][i] = gross - net (the fees+cost visual layer)
+      const overage = {};
+      for (const s of sites) {
+        overage[s] = WINDOWS.map((_, i) => Math.max(0, gross[s][i] - net[s][i]));
+      }
+
+      return { gross, net, overage, hasFacebook: gross['Facebook'].some(v => v > 0) };
+    },
+
     buildRevenueChart() {
       const dw = Alpine.store('dw');
       if (dw.soldRecords.length === 0) return;
