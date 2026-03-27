@@ -155,64 +155,74 @@ router.get('/listings', async (req, res) => {
 });
 
 // GET /api/ebay/traffic — eBay Sell Analytics traffic report, last 30 days, per listing
+// Returns { listings: { [listingId]: { views, impressions, ctr } } }
+// dimension=LISTING; metric order may vary — normalized server-side using header.metrics
 router.get('/traffic', async (req, res) => {
   try {
     const headers = await ebayHeaders();
     const end     = new Date();
     const start   = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const fmt     = d => d.toISOString().split('.')[0] + 'Z';
-    // Build URL manually — URLSearchParams encodes [ ] which eBay rejects
+    // Build URL manually — URLSearchParams encodes [ ] { } which eBay rejects
     const url = `${EBAY_API}/sell/analytics/v1/traffic_report`
-      + `?dimension=LISTING_ID`
-      + `&filter=date_range:[${fmt(start)}..${fmt(end)}],traffic_source:ALL`
-      + `&metric=PAGE_VIEW_COUNT,WATCHER_COUNT,LISTING_IMPRESSION_ORGANIC,LISTING_CLICK_THROUGH_RATE`;
+      + `?dimension=LISTING`
+      + `&metric=LISTING_VIEWS_TOTAL,LISTING_IMPRESSION_TOTAL,CLICK_THROUGH_RATE`
+      + `&filter=marketplace_ids:{EBAY_US},date_range:[${fmt(start)}..${fmt(end)}]`;
     const response = await fetch(url, { headers });
     const data     = await response.json();
-    res.status(response.status).json(data);
+    if (data.errors) return res.status(400).json(data);
+
+    // Normalize: map keyed by listing ID with named fields
+    // eBay may reorder metrics vs. param order — use header.metrics to resolve positions
+    const metricKeys = (data.header?.metrics || []).map(m => m.key);
+    const listings   = {};
+    for (const rec of (data.records || [])) {
+      const lid  = rec.dimensionValues?.[0]?.value;
+      if (!lid) continue;
+      const vals = rec.metricValues || [];
+      const get  = key => {
+        const idx = metricKeys.indexOf(key);
+        return idx >= 0 ? (vals[idx]?.value ?? null) : null;
+      };
+      listings[lid] = {
+        views:       get('LISTING_VIEWS_TOTAL'),
+        impressions: get('LISTING_IMPRESSION_TOTAL'),
+        ctr:         get('CLICK_THROUGH_RATE'),
+      };
+    }
+    res.json({ listings });
   } catch (e) {
     res.status(502).json({ error: 'eBay traffic report failed', detail: e.message });
   }
 });
 
-// GET /api/ebay/feedback — all feedback received as seller (paginated)
-router.get('/feedback', async (req, res) => {
-  try {
-    const headers  = await ebayHeaders();
-    const feedback = [];
-    let url = `${EBAY_API}/sell/feedback/v1/feedback?feedback_type=RECEIVED_AS_SELLER&limit=200`;
+// NOTE: eBay Sell Feedback API (sell/feedback/v1) is not publicly accessible.
+// Per-order feedback status cannot be retrieved via API.
+// The Sold tab instead shows all FULFILLED orders within the 60-day feedback window.
 
-    while (url) {
-      const response = await fetch(url, { headers });
-      const data     = await response.json();
-      (data.feedbackList || []).forEach(f => feedback.push(f));
-      url = data.next || null;
-    }
-
-    res.json({ feedback });
-  } catch (e) {
-    res.status(502).json({ error: 'eBay feedback request failed', detail: e.message });
-  }
-});
-
-// GET /api/ebay/orders/fulfilled — fulfilled orders (paginated)
-router.get('/orders/fulfilled', async (req, res) => {
+// GET /api/ebay/fulfilled-orders — all orders filtered to FULFILLED status (paginated)
+// Note: can't use /orders/fulfilled — shadowed by /orders/:id param route
+// Note: eBay's {FULFILLED} single-value filter syntax is unreliable; fetch all and filter server-side
+router.get('/fulfilled-orders', async (req, res) => {
   try {
     const headers = await ebayHeaders();
     const orders  = [];
     let offset    = 0;
     const limit   = 200;
 
+    const cutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      // Build URL manually — eBay rejects encoded { } |
-      const url = `${EBAY_API}/sell/fulfillment/v1/order`
-        + `?filter=orderfulfillmentstatus:{FULFILLED}`
-        + `&limit=${limit}&offset=${offset}`;
+      const url = `${EBAY_API}/sell/fulfillment/v1/order?limit=${limit}&offset=${offset}`;
       const response = await fetch(url, { headers });
       const data     = await response.json();
-      const batch    = data.orders || [];
+      const batch    = (data.orders || []).filter(o =>
+        o.orderFulfillmentStatus === 'FULFILLED' &&
+        new Date(o.creationDate) >= cutoff
+      );
       orders.push(...batch);
-      if (batch.length < limit || orders.length >= (data.total || 0)) break;
+      const total = data.total || 0;
+      if ((data.orders || []).length < limit || offset + limit >= total) break;
       offset += limit;
     }
 
