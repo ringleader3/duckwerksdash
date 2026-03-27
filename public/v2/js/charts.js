@@ -131,8 +131,8 @@ document.addEventListener('alpine:init', () => {
               callbacks: {
                 label: ctx => {
                   const isOverage = ctx.dataset.label.startsWith('Cost+Fees');
-                  // Extract site name from label, e.g. 'Net (Reverb)' → 'Reverb'
-                  const site = ctx.dataset.label.replace(/^(Cost\+Fees|Net) \(/, '').replace(')', '');
+                  const stack = ctx.dataset.stack;
+                  const site  = stack === 'hero' ? 'All' : stack.charAt(0).toUpperCase() + stack.slice(1);
                   if (isOverage) {
                     // Find the net dataset for this stack to compute gross = net + overage
                     const netDs = ctx.chart.data.datasets.find(
