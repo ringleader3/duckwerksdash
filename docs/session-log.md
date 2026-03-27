@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-27 — v0.9.8 (P1 bug batch + security)
+- **#60 — CLOSED:** Momentum panel header moved inside grey panel box (was floating above it).
+- **#61 — CLOSED:** ESC-to-close added to label, reverb, ebay, and shipping modals.
+- **#62 — CLOSED:** Tab trap added to add, item, and label modals via `store.trapTab()`. Fixed to skip `display:none` elements (x-show hidden inputs were silently swallowing focus).
+- **#63 — CLOSED:** CSS audit of Geoff's 3am session — `modal-title` switched from Bebas Neue to Space Mono 16px. All hardcoded ALL CAPS in HTML normalized to title case (CSS `text-transform` handles display). KPI numbers (`stat-card-value`, `modal-big-profit`) kept as Bebas Neue per Geoff's preference. Panel-title bumped to 14px.
+- **Security:** Removed `express.static(__dirname)` — was serving entire project root (including `.env`) as public files.
+
 ### 2026-03-27 — v0.9.7 (UI cleanup batch)
 - **#54 — CLOSED:** Sidebar nav dots now reactive — active view shows `◉`, others show `○`.
 - **#59 — CLOSED:** Removed Actions column (Edit + Ship buttons) from items view. Row click opens item modal; Ship is accessible from there.
