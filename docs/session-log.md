@@ -1,6 +1,11 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-26 — v0.9.0 (versioning + polish)
+- **#40 — CLOSED:** Added semantic versioning. `APP_VERSION` constant in `config.js` displayed in sidebar footer as "Duckwerks Dashboard v0.9.0". `package.json` set to `0.9.0`. Versioning section added to CLAUDE.md: major=re-arch, minor=feature set, patch=session. Tags every patch, GH releases starting at first minor post-1.0.
+- **#47 — CLOSED:** Fixed view flicker during batch sync. `updateItem`/`updateListing` now accept `{ skipRefresh: true }` — batch loops in both Reverb and eBay modal `syncDetails()`/`saveLinks()` skip per-update store mutations and let the existing end-of-loop `fetchAll()` do a single clean re-render.
+- **eBay modal section order:** Reordered to match Reverb — Awaiting Shipment → Link Listings → Listing Details → New on eBay.
+
 ### 2026-03-26 (KPI + calculation fixes)
 - **Upside/pipeline KPIs:** Were using `payout()` (EAF, no shipping subtracted) — switched to `estProfit()` so they match the per-row profit column sum. Also fixed filter to `Listed` only — Prepping items have no list price and were pulling numbers negative.
 - **Lot modal EST. TOTAL PROFIT:** Was mixing revenue (`recovered`) with est. profit then double-subtracting cost. Fixed to `soldProfit + estUpside` — cost is already baked into `estProfit`.
