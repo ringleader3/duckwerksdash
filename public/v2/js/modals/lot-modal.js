@@ -173,7 +173,7 @@ document.addEventListener('alpine:init', () => {
       if (totalLp <= 0) return;
       const budget = this.reallocOriginalTotal;
       this.reallocRows.forEach(r => {
-        r.editCost = Math.round((r.listPrice / totalLp) * budget * 100) / 100;
+        r.editCost = Math.round((r.listPrice / totalLp) * budget);
       });
     },
 
