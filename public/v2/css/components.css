@@ -173,10 +173,10 @@
 .data-table th.sortable:hover { color: #ccc; }
 .data-table th.sort-active { color: #e0e0e0; }
 
-/* Numeric columns right-aligned (td only — th stays centered) */
+/* Numeric columns right-aligned */
 .data-table td.num    { text-align: right; font-variant-numeric: tabular-nums; }
 .data-table td.num-col { text-align: right; font-variant-numeric: tabular-nums; }
-.num-col { font-variant-numeric: tabular-nums; }
+.num-col { text-align: right; font-variant-numeric: tabular-nums; }
 
 /* Color utilities on table cells */
 .data-table td.green { color: var(--green); }

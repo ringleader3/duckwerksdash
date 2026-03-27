@@ -79,7 +79,11 @@ document.addEventListener('alpine:init', () => {
         const cost      = lot.items.reduce((s, r) => s + (r.cost || 0), 0);
         const recovered = lot.items.filter(r => r.status === 'Sold')
                             .reduce((s, r) => s + (r.order?.sale_price || 0), 0);
-        const pct    = cost > 0 ? Math.min(100, Math.round((recovered / cost) * 100)) : 0;
+        const soldCount  = lot.items.filter(r => r.status === 'Sold').length;
+        const totalCount = lot.items.length;
+        const pct = cost > 0
+          ? Math.min(100, Math.round((recovered / cost) * 100))
+          : (totalCount > 0 ? Math.round((soldCount / totalCount) * 100) : null);
         const upside = lot.items.filter(r => r.status === 'Listed')
                          .reduce((s, r) => s + dw.estProfit(r), 0);
         return { name: lot.name, cost, recovered, pct, upside };

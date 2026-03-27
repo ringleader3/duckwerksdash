@@ -1,6 +1,10 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-26 — v0.9.5
+- **Lot Recovery widget — header alignment:** Added `text-align: right` to `.num-col` so Cost/Recovered/%/Pipeline headers align with right-aligned data.
+- **Lot Recovery widget — zero cost basis:** Lots with no cost (e.g. geoffcam) now show items-sold/total-items % instead of a misleading 0%. Fallback to `—` only if the lot has no items.
+
 ### 2026-03-26 — v0.9.4
 - **Item modal edit — payout field not saving:** `form.sale` was populated in `startEdit()` but never written back on save. Added `updateOrder()` call + `fetchAll()` so the store reflects the updated sale price immediately.
 
