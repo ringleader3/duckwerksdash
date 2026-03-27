@@ -387,6 +387,13 @@ Bump the patch number at the end of every session that ships something. Target `
 3. Grep before any file read. One edit per logical change. Commit when done.
 4. Bump patch version in `config.js` + `package.json` and update Session Log at end of session.
 
+## Checkpoint Protocol
+Any time Geoff says "checkpoint" (mid-session or end of session), do all four steps:
+1. Bump patch version in `config.js` + `package.json`
+2. Update `docs/session-log.md`
+3. Commit with ticket refs
+4. Push to origin
+
 ---
 
 ## Debugging Alpine Issues

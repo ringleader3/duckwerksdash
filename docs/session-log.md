@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-27 — v0.9.9 (P2 bug batch + sync improvements)
+- **#60 #61 #62 #63 — CLOSED:** (Previously fixed, forgot to close last session — closed at session start.)
+- **#52 — Awaiting Validation:** Sync Listings now includes Prepping items (previously filtered to Listed only). Linking a Prepping item to a platform listing auto-promotes status to Listed.
+- **#58 — CLOSED:** Search result highlight on selected sold items now uses a blue-tinted background (`#2a3a4a`) so it's visually distinct from the hover state of adjacent rows (opacity math was making them identical).
+- **#55 — CLOSED:** Lots view Lot column header left-aligned to match left-aligned data. Numeric `<th>` elements globally set to `width:1%; white-space:nowrap` to shrink-wrap around content.
+- **Checkpoint protocol:** Defined — patch bump + session log + commit + push. Saved to memory and CLAUDE.md.
+
 ### 2026-03-27 — v0.9.8 (P1 bug batch + security)
 - **#60 — CLOSED:** Momentum panel header moved inside grey panel box (was floating above it).
 - **#61 — CLOSED:** ESC-to-close added to label, reverb, ebay, and shipping modals.

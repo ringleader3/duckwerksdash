@@ -362,7 +362,7 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th class="sortable" :class="{'sort-active': sortKey==='lotName'}" @click="sortBy('lotName')">Lot<span x-text="sortIndicator('lotName')"></span></th>
+              <th class="sortable" style="text-align:left" :class="{'sort-active': sortKey==='lotName'}" @click="sortBy('lotName')">Lot<span x-text="sortIndicator('lotName')"></span></th>
               <th class="num-col sortable" :class="{'sort-active': sortKey==='items'}" @click="sortBy('items')">Items<span x-text="sortIndicator('items')"></span></th>
               <th class="num-col sortable" :class="{'sort-active': sortKey==='cost'}" @click="sortBy('cost')">Cost<span x-text="sortIndicator('cost')"></span></th>
               <th class="num-col sortable" :class="{'sort-active': sortKey==='recovered'}" @click="sortBy('recovered')">Recovered<span x-text="sortIndicator('recovered')"></span></th>
