@@ -114,7 +114,7 @@ document.addEventListener('alpine:init', () => {
 
     async _fetchReverbListings() {
       const listings = [];
-      let nextPath   = 'my/listings?per_page=100&state=published';
+      let nextPath   = 'my/listings?per_page=100&state=live';
       while (nextPath) {
         const data = await fetch('/api/reverb/' + nextPath).then(r => r.json());
         (data.listings || []).forEach(l => listings.push(l));
@@ -143,7 +143,7 @@ document.addEventListener('alpine:init', () => {
           const soldDate  = new Date(order.created_at);
           const daysSince = Math.floor((Date.now() - soldDate.getTime()) / (1000 * 60 * 60 * 24));
           rows.push({
-            name:       local?.name || order.listing?.title || '—',
+            name:       local?.name || order.title || '—',
             site:       'Reverb',
             orderNum,
             soldDate,
@@ -186,19 +186,25 @@ document.addEventListener('alpine:init', () => {
     },
 
     async _fetchReverbPendingFeedback() {
-      const orders = [];
-      let nextPath = 'my/orders/selling?per_page=50';
-      let pages    = 0;
-      while (nextPath && pages < 10) {
+      // Collect order numbers from list (needs_feedback_for_seller only on detail endpoint)
+      const orderNums = [];
+      let nextPath    = 'my/orders/selling?per_page=50';
+      let pages       = 0;
+      while (nextPath && pages < 6) {
         const data = await fetch('/api/reverb/' + nextPath).then(r => r.json());
-        (data.orders || [])
-          .filter(o => o.needs_feedback_for_seller === true)
-          .forEach(o => orders.push(o));
+        (data.orders || []).forEach(o => { if (o.order_number) orderNums.push(o.order_number); });
         const nextHref = data._links?.next?.href || '';
         nextPath = nextHref ? nextHref.replace('https://api.reverb.com/api/', '') : null;
         pages++;
       }
-      return orders;
+
+      // Fetch details in parallel, filter for needs_feedback_for_seller
+      const details = await Promise.all(
+        orderNums.map(num =>
+          fetch(`/api/reverb/my/orders/selling/${num}`).then(r => r.json()).catch(() => null)
+        )
+      );
+      return details.filter(o => o?.needs_feedback_for_seller === true);
     },
   }));
 });
