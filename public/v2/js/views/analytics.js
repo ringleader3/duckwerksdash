@@ -53,7 +53,52 @@ document.addEventListener('alpine:init', () => {
       return [...this.soldRows].sort((a, b) => b.daysSince - a.daysSince);
     },
 
-    async _loadListed() { /* Task 3 */ },
+    async _loadListed() {
+      this.listedLoading = true;
+      this.listedError   = null;
+      try {
+        const reverbListings = await this._fetchReverbListings();
+
+        const dw   = Alpine.store('dw');
+        const rows = [];
+
+        for (const l of reverbListings) {
+          const lid   = String(l.id);
+          const local = dw.records.find(r =>
+            r.listings?.some(li => String(li.platform_listing_id) === lid)
+          );
+          rows.push({
+            name:        local?.name || l.title || '—',
+            site:        'Reverb',
+            listingId:   lid,
+            views:       l.stats?.views   ?? null,
+            watchers:    l.stats?.watches ?? null,
+            impressions: null,
+            ctr:         null,
+          });
+        }
+
+        this.listedRows   = rows;
+        this.listedLoaded = true;
+      } catch (e) {
+        this.listedError = 'Failed to load listed analytics: ' + e.message;
+      } finally {
+        this.listedLoading = false;
+      }
+    },
+
+    async _fetchReverbListings() {
+      const listings = [];
+      let nextPath   = 'my/listings?per_page=100&state=published';
+      while (nextPath) {
+        const data = await fetch('/api/reverb/' + nextPath).then(r => r.json());
+        (data.listings || []).forEach(l => listings.push(l));
+        const nextHref = data._links?.next?.href || '';
+        nextPath = nextHref ? nextHref.replace('https://api.reverb.com/api/', '') : null;
+      }
+      return listings;
+    },
+
     async _loadSold()   { /* Task 5 */ },
   }));
 });
