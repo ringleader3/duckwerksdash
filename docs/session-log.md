@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-27 — v1.0.1 (Analytics columns + lot cost reallocation — #68 #69 #70)
+- **#68:** Added List Price column to Analytics Listed tab — Reverb uses `l.price.amount` from API; eBay uses `listing.list_price` from local record. Sortable, formatted as `$X.XX`.
+- **#69:** Added Days Listed column to Analytics Listed tab — Reverb uses `published_at` from API; eBay uses `listed_at` from local listing record. Sortable, formatted as `Nd`.
+- **#70:** Lot modal cost reallocation — "REALLOCATE COSTS" button in Items section header opens an inline edit panel. Editable cost input per item, list price shown for reference. Redistribute button fills costs from list price ratio (whole dollar rounding). Running total vs lot cost, color-coded green/yellow/red. Warning shown if total doesn't match; save only PATCHes changed items then fetchAll.
+- **eBay watchCount:** eBay Developer Support asked if Geoff is an EPN partner — answered no, awaiting response.
+- No release tag yet — will cut when release notes are finalized.
+
 ### 2026-03-27 — v1.0.0 (Analytics view validation + polish — #53 #64 #65 #66 #67)
 - **#65 — CLOSED:** Analytics view rows (Listed + Sold) now clickable — opens item modal when local record can be matched. eBay items without a saved `platform_order_num` (pre-order-tracking) won't match; accepted as known limitation, can backfill manually later.
 - **#66 — CLOSED:** Sold tab columns now fully sortable (name, site, soldDate, daysSince) via dedicated `soldSortBy`/`soldSortIndicator` methods.
