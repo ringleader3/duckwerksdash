@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-27 — v1.0.0 (Analytics view validation + polish — #53 #64 #65 #66 #67)
+- **#65 — CLOSED:** Analytics view rows (Listed + Sold) now clickable — opens item modal when local record can be matched. eBay items without a saved `platform_order_num` (pre-order-tracking) won't match; accepted as known limitation, can backfill manually later.
+- **#66 — CLOSED:** Sold tab columns now fully sortable (name, site, soldDate, daysSince) via dedicated `soldSortBy`/`soldSortIndicator` methods.
+- **#67 — CLOSED:** Tab buttons moved below the "Analytics" header title, styled as `btn-active`/`btn-muted` instead of `nav-pill`s floating inline with the header.
+- **README updated** — Analytics view added to features; build timeline extended through v1.0.0; sortable tables note updated.
+- **Tagged v1.0.0** — no GitHub release yet; will cut after first round of post-launch bugs.
+
 ### 2026-03-27 — v1.0.0 (Analytics view — #53 + #64)
 - **#53 + #64 — Awaiting Validation:** New Analytics top-level nav view with two tabs.
   - **Listed tab:** Reverb (views, watches) + eBay (views, impressions, CTR) in one sortable table. eBay data from Sell Analytics v1 traffic_report (last 30d). All columns sortable.
