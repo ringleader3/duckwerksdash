@@ -114,12 +114,31 @@ document.addEventListener('alpine:init', () => {
             const xCenter = x.getPixelForValue(i);
             const yGross  = y.getPixelForValue(grossVal);
             const yNet    = netVal > 0 ? y.getPixelForValue(netVal) : yBottom;
-            // cost+fees layer (top portion, dim)
-            ctx.fillStyle = 'rgba(255,255,255,0.05)';
+            // cost+fees layer (top portion) — blue-gray tint so it reads as "more" not shadow
+            ctx.fillStyle = 'rgba(100,140,220,0.18)';
             ctx.fillRect(xCenter - barWidth / 2, yGross, barWidth, yBottom - yGross);
             // net layer (bottom portion, green wash)
-            ctx.fillStyle = 'rgba(72,187,120,0.18)';
+            ctx.fillStyle = 'rgba(72,187,120,0.22)';
             ctx.fillRect(xCenter - barWidth / 2, yNet, barWidth, yBottom - yNet);
+          });
+          ctx.restore();
+        },
+        afterDraw(chart) {
+          const { ctx, scales: { x, y } } = chart;
+          const { heroNet, heroOvg } = chart.options._heroData || {};
+          if (!heroNet) return;
+          const fmt = n => n >= 1000 ? '$' + (n / 1000).toFixed(1) + 'K' : '$' + Math.round(n);
+          ctx.save();
+          ctx.font = '10px "Space Mono", monospace';
+          ctx.textAlign = 'center';
+          chart.data.labels.forEach((_, i) => {
+            const netVal   = heroNet[i]  || 0;
+            const grossVal = netVal + (heroOvg[i] || 0);
+            if (grossVal <= 0) return;
+            const xCenter = x.getPixelForValue(i);
+            const yGross  = y.getPixelForValue(grossVal);
+            ctx.fillStyle = 'rgba(255,255,255,0.45)';
+            ctx.fillText(`${fmt(grossVal)} · ${fmt(netVal)} net`, xCenter, yGross - 5);
           });
           ctx.restore();
         },
