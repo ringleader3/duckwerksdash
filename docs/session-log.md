@@ -1,6 +1,9 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-26 — v0.9.1.1 (Hotfix)
+- **Chart top clipping:** Label text on the tallest bars was being clipped by the canvas edge. Added top padding to chart layout for label clearance.
+
 ### 2026-03-26 — v0.9.1 (Momentum chart)
 - **#48 — CLOSED:** Wrote and reviewed implementation plan for momentum chart (`docs/superpowers/plans/2026-03-26-momentum-chart.md`). Code-reviewed and patched before implementation: listing selector fix (`l.order` not `l.status`), tooltip gross computation, x-show/flex conflict, eBay capitalization.
 - **#49 — CLOSED:** Implemented momentum chart. Replaces 4-chart analytics grid with a single full-width chart. Windows: 3d/7d/14d/30d (dropped 60d/90d — skewed scale). Hero background bar (custom `beforeDatasetsDraw` plugin) shows total gross/net as a wide translucent wash behind per-site bars. Log y-axis for near-term readability. Gross · net text labels above each cluster. Per-bar site labels (Reverb/eBay in bar color) below each bar. Moved to hero position below KPIs.

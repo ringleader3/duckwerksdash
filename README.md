@@ -18,7 +18,7 @@ Designed and built by Geoff Goss with Claude.ai via Claude Code CLI and VS Code 
 - **Shipment tracking** — in-transit panel on dashboard and items view; live carrier status, estimated delivery, public tracker link; items auto-clear 3 days after delivery
 - **Reverb sync** — match open orders to inventory, ship directly from dashboard; link listings; diff and sync listing name/price changes; import new Reverb listings as inventory records
 - **eBay sync** — OAuth 2.0 with auto token refresh; orders awaiting shipment; push tracking to eBay to trigger payout; link listings via Browse API; diff and sync listing name/price changes; import new eBay listings; packing slip + order detail links
-- **Analytics** — 4-chart dashboard section: monthly revenue + profit, inventory pipeline, lot ROI, near-term upside by category
+- **Momentum chart** — single full-width windowed chart (3d/7d/14d/30d) showing gross + net by site; per-site stacked bars (Reverb/eBay in brand color); hero background bar shows total gross/net as a translucent wash; log y-scale for near-term readability
 - **Dashboard KPIs** — Total Invested, Revenue, Profit, Gross Pending (EAF before cost), Upside Pending (after cost+fees), Inventory breakdown
 - **Delete item** — removes item and all associated listings, orders, and shipments via cascade
 - **Quick Find** — live search across items, lots, and categories (`/` or `⌘K`); keyboard navigation
@@ -109,6 +109,8 @@ public/v2/
 | Mar 26 | eBay Browse API — listing sync, name/price diffs, "New on eBay" import; "New on Reverb" import |
 | Mar 26 | First real eBay order end-to-end — address fix, tracking push, packing slip links, payout capture |
 | Mar 26 | KPI fixes — Gross Pending card, corrected Upside Pending and lot profit calculations; delete item |
+| Mar 26 | Semantic versioning (v0.9.0); eBay modal section reorder; batch sync flicker fix |
+| Mar 26 | Momentum chart (v0.9.1) — single full-width windowed chart replaces 4-chart analytics grid |
 
 ~3.5 weeks from first idea to production tool with dual-marketplace integration, shipping automation, and analytics. The v2 rebuild — clean architecture, full modal/shipping/sync workflow — took 2 days.
 
