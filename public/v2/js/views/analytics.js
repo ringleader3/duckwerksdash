@@ -57,11 +57,19 @@ document.addEventListener('alpine:init', () => {
       this.listedLoading = true;
       this.listedError   = null;
       try {
-        const reverbListings = await this._fetchReverbListings();
+        // Fetch Reverb listings + eBay traffic in parallel
+        const [reverbListings, ebayTraffic] = await Promise.all([
+          this._fetchReverbListings(),
+          fetch('/api/ebay/traffic').then(r => r.json()).catch(() => ({})),
+        ]);
+
+        // ebayTraffic.listings: { [legacyListingId]: { views, impressions, ctr } }
+        const ebayMap = ebayTraffic.listings || {};
 
         const dw   = Alpine.store('dw');
         const rows = [];
 
+        // Reverb rows
         for (const l of reverbListings) {
           const lid   = String(l.id);
           const local = dw.records.find(r =>
@@ -75,6 +83,23 @@ document.addEventListener('alpine:init', () => {
             watchers:    l.stats?.watches ?? null,
             impressions: null,
             ctr:         null,
+          });
+        }
+
+        // eBay rows — from store records with active eBay listings
+        for (const r of dw.records) {
+          if (r.status !== 'Listed' || dw.siteLabel(r) !== 'eBay') continue;
+          const listing = dw.activeListing(r);
+          const lid     = listing?.platform_listing_id ? String(listing.platform_listing_id) : null;
+          const traffic = lid ? (ebayMap[lid] || {}) : {};
+          rows.push({
+            name:        r.name,
+            site:        'eBay',
+            listingId:   lid || '',
+            views:       traffic.views       ?? null,
+            watchers:    null,
+            impressions: traffic.impressions ?? null,
+            ctr:         traffic.ctr != null ? Math.round(traffic.ctr * 100) : null,
           });
         }
 
