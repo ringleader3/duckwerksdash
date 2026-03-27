@@ -32,7 +32,7 @@ document.addEventListener('alpine:init', () => {
 
     momentumData() {
       const dw = Alpine.store('dw');
-      const WINDOWS = [3, 7, 14, 30, 60, 90];
+      const WINDOWS = [3, 7, 14, 30];
       const now = new Date();
 
       // Per-window, per-site gross and net
@@ -94,7 +94,7 @@ document.addEventListener('alpine:init', () => {
       if (dw.soldRecords.length === 0) return;
 
       const { net, overage, hasFacebook } = this.momentumData();
-      const labels = ['3d', '7d', '14d', '30d', '60d', '90d'];
+      const labels = ['3d', '7d', '14d', '30d'];
 
       const datasets = [
         { label: 'Net (All)',           data: net['All'],        stack: 'hero',     backgroundColor: 'rgba(72,187,120,0.85)',  order: 1 },
@@ -119,14 +119,7 @@ document.addEventListener('alpine:init', () => {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                boxWidth: 10,
-                padding: 8,
-                filter: item => !item.text.startsWith('Cost+Fees'),
-              },
-            },
+            legend: { display: false },
             tooltip: {
               callbacks: {
                 label: ctx => {
