@@ -58,6 +58,7 @@
       <button class="nav-pill" :class="{ active: $store.dw.activeView === 'dashboard' }" @click="$store.dw.activeView = 'dashboard'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'dashboard' ? '◉' : '○'"></span> Dashboard</button>
       <button class="nav-pill" :class="{ active: $store.dw.activeView === 'items' }"     @click="$store.dw.activeView = 'items'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'items' ? '◉' : '○'"></span> Inventory</button>
       <button class="nav-pill" :class="{ active: $store.dw.activeView === 'lots' }"      @click="$store.dw.activeView = 'lots'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'lots' ? '◉' : '○'"></span> Lots</button>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'analytics' }" @click="$store.dw.activeView = 'analytics'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'analytics' ? '◉' : '○'"></span> Analytics</button>
     </div>
 
     <!-- Actions -->
@@ -396,6 +397,85 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Analytics -->
+      <div x-show="$store.dw.activeView === 'analytics'" x-data="analyticsView">
+        <div class="view-header">
+          <div class="view-title">Analytics</div>
+          <div style="display:flex; gap:8px">
+            <button class="nav-pill" :class="{ active: activeTab === 'listed' }" @click="activeTab = 'listed'">Listed</button>
+            <button class="nav-pill" :class="{ active: activeTab === 'sold' }"   @click="activeTab = 'sold'">Sold</button>
+          </div>
+        </div>
+
+        <!-- Listed Tab -->
+        <div x-show="activeTab === 'listed'">
+          <div x-show="listedLoading" style="padding:40px; text-align:center; color:var(--muted)">Loading…</div>
+          <div x-show="listedError" x-text="listedError" style="padding:20px; color:var(--red)"></div>
+          <table class="data-table" x-show="!listedLoading && !listedError">
+            <thead>
+              <tr>
+                <th style="text-align:left" class="sortable" :class="{'sort-active': sortKey==='name'}"        @click="sortBy('name')">Item<span x-text="sortIndicator('name')"></span></th>
+                <th class="sortable"                          :class="{'sort-active': sortKey==='site'}"        @click="sortBy('site')">Site<span x-text="sortIndicator('site')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='views'}"       @click="sortBy('views')">Views<span x-text="sortIndicator('views')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='watchers'}"    @click="sortBy('watchers')">Watchers<span x-text="sortIndicator('watchers')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='impressions'}" @click="sortBy('impressions')">Impressions<span x-text="sortIndicator('impressions')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='ctr'}"         @click="sortBy('ctr')">CTR<span x-text="sortIndicator('ctr')"></span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="row in sortedListedRows" :key="row.site + row.listingId">
+                <tr>
+                  <td style="text-align:left" x-text="row.name"></td>
+                  <td><span :class="row.site === 'Reverb' ? 'badge-reverb' : 'badge-ebay'" x-text="row.site"></span></td>
+                  <td class="num-col" x-text="row.views    != null ? row.views    : '—'"></td>
+                  <td class="num-col" x-text="row.watchers != null ? row.watchers : '—'"></td>
+                  <td class="num-col" x-text="row.impressions != null ? row.impressions : '—'"></td>
+                  <td class="num-col" x-text="row.ctr != null ? row.ctr + '%' : '—'"></td>
+                </tr>
+              </template>
+              <tr x-show="sortedListedRows.length === 0 && !listedLoading">
+                <td colspan="6" style="color:var(--muted); text-align:center">No listings found</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Sold Tab -->
+        <div x-show="activeTab === 'sold'">
+          <div x-show="soldLoading" style="padding:40px; text-align:center; color:var(--muted)">Loading…</div>
+          <div x-show="soldError" x-text="soldError" style="padding:20px; color:var(--red)"></div>
+          <table class="data-table" x-show="!soldLoading && !soldError">
+            <thead>
+              <tr>
+                <th style="text-align:left">Item</th>
+                <th>Site</th>
+                <th>Sold Date</th>
+                <th class="num-col">Days Since Sale</th>
+                <th>Order Link</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="row in sortedSoldRows" :key="row.site + row.orderNum">
+                <tr>
+                  <td style="text-align:left" x-text="row.name"></td>
+                  <td><span :class="row.site === 'Reverb' ? 'badge-reverb' : 'badge-ebay'" x-text="row.site"></span></td>
+                  <td style="color:var(--muted); white-space:nowrap" x-text="row.soldDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })"></td>
+                  <td class="num-col" x-text="row.daysSince + 'd'"></td>
+                  <td>
+                    <a x-show="row.orderUrl" :href="row.orderUrl" target="_blank" style="color:var(--blue)">View Order</a>
+                    <span x-show="!row.orderUrl" style="color:var(--muted)">—</span>
+                  </td>
+                </tr>
+              </template>
+              <tr x-show="sortedSoldRows.length === 0 && !soldLoading">
+                <td colspan="5" style="color:var(--muted); text-align:center">No orders pending feedback</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
 
     </div>
@@ -1498,6 +1578,7 @@
 <script src="js/views/dashboard.js"></script>
 <script src="js/views/items.js"></script>
 <script src="js/views/lots.js"></script>
+<script src="js/views/analytics.js"></script>
 <script src="js/modals/item-modal.js"></script>
 <script src="js/modals/add-modal.js"></script>
 <script src="js/modals/lot-modal.js"></script>

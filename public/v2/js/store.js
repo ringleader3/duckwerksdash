@@ -26,7 +26,7 @@ document.addEventListener('alpine:init', () => {
     // ── Init ──────────────────────────────────────────────────────────────────
     async init() {
       const saved = localStorage.getItem('dw-view');
-      if (saved && ['dashboard', 'items', 'lots'].includes(saved)) {
+      if (saved && ['dashboard', 'items', 'lots', 'analytics'].includes(saved)) {
         this.activeView = saved;
       }
       Alpine.effect(() => { localStorage.setItem('dw-view', this.activeView); });
