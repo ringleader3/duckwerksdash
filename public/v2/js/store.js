@@ -73,7 +73,7 @@ document.addEventListener('alpine:init', () => {
     },
     trapTab(e, el) {
       const sel = 'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-      const els = Array.from(el.querySelectorAll(sel));
+      const els = Array.from(el.querySelectorAll(sel)).filter(e => e.offsetParent !== null);
       if (!els.length) return;
       const idx = els.indexOf(document.activeElement);
       if (e.shiftKey) {
