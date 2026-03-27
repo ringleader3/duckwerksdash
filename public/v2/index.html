@@ -55,9 +55,9 @@
     <!-- Nav -->
     <div class="sidebar-section">
       <div class="sidebar-section-label">Nav</div>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'dashboard' }" @click="$store.dw.activeView = 'dashboard'; $store.dw.categoryFilter = null">○ Dashboard</button>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'items' }"     @click="$store.dw.activeView = 'items'; $store.dw.categoryFilter = null">○ Items</button>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'lots' }"      @click="$store.dw.activeView = 'lots'; $store.dw.categoryFilter = null">○ Lots</button>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'dashboard' }" @click="$store.dw.activeView = 'dashboard'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'dashboard' ? '◉' : '○'"></span> Dashboard</button>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'items' }"     @click="$store.dw.activeView = 'items'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'items' ? '◉' : '○'"></span> Items</button>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'lots' }"      @click="$store.dw.activeView = 'lots'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'lots' ? '◉' : '○'"></span> Lots</button>
     </div>
 
     <!-- Actions -->
