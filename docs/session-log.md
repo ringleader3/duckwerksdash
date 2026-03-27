@@ -1,6 +1,9 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-26 — v0.9.6
+- **Lot modal + lots view — zero cost recovery pct:** Applied same items-sold/total fallback to `recoveryPct()` in lot-modal.js and lots.js so geoffcam-style lots show meaningful progress instead of 0%.
+
 ### 2026-03-26 — v0.9.5
 - **Lot Recovery widget — header alignment:** Added `text-align: right` to `.num-col` so Cost/Recovered/%/Pipeline headers align with right-aligned data.
 - **Lot Recovery widget — zero cost basis:** Lots with no cost (e.g. geoffcam) now show items-sold/total-items % instead of a misleading 0%. Fallback to `—` only if the lot has no items.

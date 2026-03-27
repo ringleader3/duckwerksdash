@@ -54,7 +54,9 @@ document.addEventListener('alpine:init', () => {
     recoveryPct() {
       const cost = this.totalCost();
       const rec  = this.recovered();
-      return cost > 0 ? Math.min(100, Math.round((rec / cost) * 100)) : 0;
+      if (cost > 0) return Math.min(100, Math.round((rec / cost) * 100));
+      const total = this.items.length;
+      return total > 0 ? Math.round((this.countByStatus('Sold') / total) * 100) : 0;
     },
 
     estUpside() {

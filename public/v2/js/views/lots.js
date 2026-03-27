@@ -49,7 +49,9 @@ document.addEventListener('alpine:init', () => {
     recoveryPct(lot) {
       const cost = this.totalCost(lot);
       const rec  = this.totalRecovered(lot);
-      return cost > 0 ? Math.min(100, Math.round((rec / cost) * 100)) : 0;
+      if (cost > 0) return Math.min(100, Math.round((rec / cost) * 100));
+      const total = lot.items.length;
+      return total > 0 ? Math.round((this.countByStatus(lot, 'Sold') / total) * 100) : 0;
     },
     recoveryBarClass(pct) {
       if (pct >= 100) return 'green';
