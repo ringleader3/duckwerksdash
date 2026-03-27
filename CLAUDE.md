@@ -377,6 +377,8 @@ Semantic versioning for this app:
 
 Bump the patch number at the end of every session that ships something. Target `1.0.0` as the first GitHub release.
 
+**Git tagging:** Tag minor and major versions only — patches just get the version bump in code. No tag needed per session.
+
 ---
 
 ## Session Start Checklist
