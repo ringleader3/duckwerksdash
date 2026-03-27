@@ -248,8 +248,8 @@ span.red { color: var(--red); }
 }
 
 .modal-title {
-  font-family: var(--font-big);
-  font-size: 20px;
+  font-family: var(--font-body);
+  font-size: 16px;
   letter-spacing: 0.04em;
 }
 

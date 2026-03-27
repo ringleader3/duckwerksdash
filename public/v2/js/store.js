@@ -71,6 +71,19 @@ document.addEventListener('alpine:init', () => {
       this.activeRecordId = recordId;
       this.activeLotName  = lotName;
     },
+    trapTab(e, el) {
+      const sel = 'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      const els = Array.from(el.querySelectorAll(sel));
+      if (!els.length) return;
+      const idx = els.indexOf(document.activeElement);
+      if (e.shiftKey) {
+        e.preventDefault();
+        els[idx <= 0 ? els.length - 1 : idx - 1].focus();
+      } else {
+        e.preventDefault();
+        els[idx >= els.length - 1 ? 0 : idx + 1].focus();
+      }
+    },
     closeModal() {
       if (this.previousModal) {
         const prev = this.previousModal;

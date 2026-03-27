@@ -127,8 +127,8 @@
 
         <!-- Analytics Charts -->
         <section x-data="chartsSection" style="margin-top:24px">
-          <div class="panel-title" style="margin-bottom:12px">MOMENTUM</div>
           <div class="panel">
+          <div class="panel-title" style="margin-bottom:12px">Momentum</div>
             <div style="position:relative;height:300px">
               <canvas x-ref="momentumCanvas"></canvas>
               <div x-show="$store.dw.soldRecords.length === 0"
@@ -142,7 +142,7 @@
         <!-- In Transit -->
         <template x-if="inTransitRows.length > 0 || trackingLoading">
           <div class="panel" style="margin-bottom:24px">
-            <div class="panel-title" style="margin-bottom:12px">IN TRANSIT</div>
+            <div class="panel-title" style="margin-bottom:12px">In Transit</div>
             <div x-show="trackingLoading" style="color:var(--muted);font-size:12px">Loading tracking data...</div>
             <template x-if="!trackingLoading && inTransitRows.length > 0">
               <table class="data-table" style="width:100%;table-layout:fixed">
@@ -406,7 +406,7 @@
   <!-- Item Modal -->
   <div x-show="$store.dw.activeModal === 'item'" x-data="itemModal" class="modal-overlay" x-cloak>
     <template x-if="record">
-    <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()">
+    <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()" @keydown.tab.prevent="$store.dw.trapTab($event, $el)">
 
       <div class="modal-header">
         <div class="modal-title" x-text="record.name"></div>
@@ -707,10 +707,10 @@
   <!-- Add Modal -->
   <template x-if="$store.dw.activeModal === 'add'">
   <div x-data="addModal" class="modal-overlay">
-    <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()">
+    <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()" @keydown.tab.prevent="$store.dw.trapTab($event, $el)">
 
       <div class="modal-header">
-        <div class="modal-title">ADD ITEM</div>
+        <div class="modal-title">Add Item</div>
         <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
       </div>
 
@@ -845,7 +845,7 @@
         </div>
 
         <!-- Item table -->
-        <div class="modal-section-label" style="margin-bottom:8px">ITEMS IN LOT</div>
+        <div class="modal-section-label" style="margin-bottom:8px">Items In Lot</div>
         <table class="data-table">
           <thead>
             <tr>
@@ -882,7 +882,7 @@
   </div>
   <!-- ── LABEL MODAL ──────────────────────────────────────────────────────── -->
   <div x-show="$store.dw.activeModal === 'label'" x-data="labelModal" class="modal-overlay" x-cloak>
-    <div class="modal-box" style="max-width:560px">
+    <div class="modal-box" style="max-width:560px" @keydown.escape.window="$store.dw.closeModal()" @keydown.tab.prevent="$store.dw.trapTab($event, $el)">
       <div class="modal-header">
         <div class="modal-title" x-text="itemName"></div>
         <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
@@ -894,7 +894,7 @@
 
         <!-- STEP: form -->
         <div x-show="step === 'form' && !loading">
-          <div class="modal-section-label">TO ADDRESS</div>
+          <div class="modal-section-label">To Address</div>
           <div class="modal-row" style="flex-direction:column;align-items:stretch;gap:6px">
             <textarea x-model="addrText" rows="5"
               placeholder="Name&#10;Street Address&#10;City State Zip&#10;Country (optional)"
@@ -902,7 +902,7 @@
           </div>
 
           <div class="modal-divider"></div>
-          <div class="modal-section-label">PACKAGE</div>
+          <div class="modal-section-label">Package</div>
 
           <div class="modal-row">
             <span class="modal-field">TYPE</span>
@@ -967,7 +967,7 @@
 
         <!-- STEP: rates -->
         <div x-show="step === 'rates' && !loading">
-          <div class="modal-section-label">SELECT A RATE</div>
+          <div class="modal-section-label">Select A Rate</div>
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
             <template x-for="r in rates" :key="r.object_id">
               <div @click="purchase(r.object_id, r.price, r.carrier)"
@@ -1078,9 +1078,9 @@
 
   <!-- ── REVERB SYNC MODAL ─────────────────────────────────────────────────── -->
   <div x-show="$store.dw.activeModal === 'reverb'" x-data="reverbModal" class="modal-overlay" x-cloak>
-    <div class="modal-box modal-box-wide">
+    <div class="modal-box modal-box-wide" @keydown.escape.window="$store.dw.closeModal()">
       <div class="modal-header">
-        <div class="modal-title">SYNC REVERB ORDERS</div>
+        <div class="modal-title">Sync Reverb Orders</div>
         <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
       </div>
       <div class="modal-body">
@@ -1099,7 +1099,7 @@
         <div x-show="!loading && !errMsg">
 
           <!-- SECTION: Awaiting Shipment -->
-          <div class="modal-section-label">AWAITING SHIPMENT</div>
+          <div class="modal-section-label">Awaiting Shipment</div>
 
           <div x-show="!orders.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
             No orders awaiting shipment.
@@ -1150,7 +1150,7 @@
           </div>
 
           <!-- SECTION: Link Listings -->
-          <div class="modal-section-label" style="margin-top:20px">LINK LISTINGS</div>
+          <div class="modal-section-label" style="margin-top:20px">Link Listings</div>
 
           <div x-show="!unlinkedRecs.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
             All Listed/Reverb items already have a listing ID.
@@ -1190,7 +1190,7 @@
           </div>
 
           <!-- SECTION: Listing Details -->
-          <div class="modal-section-label" style="margin-top:20px">LISTING DETAILS</div>
+          <div class="modal-section-label" style="margin-top:20px">Listing Details</div>
 
           <div x-show="!detailDiffs.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
             ✓ All listing details match.
@@ -1235,7 +1235,7 @@
           </div>
 
           <!-- SECTION: New on Reverb -->
-          <div class="modal-section-label" style="margin-top:20px">NEW ON REVERB</div>
+          <div class="modal-section-label" style="margin-top:20px">New On Reverb</div>
 
           <div x-show="!newListings.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
             ✓ All Reverb listings are already in your inventory.
@@ -1272,9 +1272,9 @@
 
   <!-- ── Shipping Modal ──────────────────────────────────────────────────── -->
   <div x-show="$store.dw.activeModal === 'shipping'" x-data="shippingModal" class="modal-overlay" x-cloak>
-    <div class="modal-box" style="max-width:540px">
+    <div class="modal-box" style="max-width:540px" @keydown.escape.window="$store.dw.closeModal()">
       <div class="modal-header">
-        <div class="modal-title">IN TRANSIT</div>
+        <div class="modal-title">In Transit</div>
         <div style="display:flex;gap:12px;align-items:center">
           <button class="btn-sm" @click="refreshAll()" :disabled="refreshing" style="font-size:11px;letter-spacing:1px">
             <span x-text="refreshing ? 'REFRESHING...' : '↺ REFRESH ALL'"></span>
@@ -1319,9 +1319,9 @@
 
   <!-- ── EBAY SYNC MODAL ───────────────────────────────────────────────────── -->
   <div x-show="$store.dw.activeModal === 'ebay'" x-data="ebayModal" class="modal-overlay" x-cloak>
-    <div class="modal-box modal-box-wide">
+    <div class="modal-box modal-box-wide" @keydown.escape.window="$store.dw.closeModal()">
       <div class="modal-header">
-        <div class="modal-title">SYNC EBAY ORDERS</div>
+        <div class="modal-title">Sync Ebay Orders</div>
         <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
       </div>
       <div class="modal-body">
@@ -1340,7 +1340,7 @@
         <div x-show="!loading && !errMsg">
 
           <!-- SECTION: Awaiting Shipment -->
-          <div class="modal-section-label">AWAITING SHIPMENT</div>
+          <div class="modal-section-label">Awaiting Shipment</div>
 
           <div x-show="!orders.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
             No orders awaiting shipment.
@@ -1370,7 +1370,7 @@
           </template>
 
           <!-- SECTION: Link Listings -->
-          <div class="modal-section-label" style="margin-top:20px">LINK LISTINGS</div>
+          <div class="modal-section-label" style="margin-top:20px">Link Listings</div>
 
           <div x-show="!unlinkedRecs.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
             All Listed/eBay items already have a listing ID.
@@ -1410,7 +1410,7 @@
           </div>
 
           <!-- SECTION: Listing Details -->
-          <div class="modal-section-label" style="margin-top:20px">LISTING DETAILS</div>
+          <div class="modal-section-label" style="margin-top:20px">Listing Details</div>
 
           <div x-show="!listingDiffs.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
             ✓ All listing details match.
@@ -1449,7 +1449,7 @@
           </div>
 
           <!-- SECTION: New on eBay -->
-          <div class="modal-section-label" style="margin-top:20px">NEW ON EBAY</div>
+          <div class="modal-section-label" style="margin-top:20px">New On Ebay</div>
 
           <div x-show="!newListings.length" style="padding:10px 0;font-size:12px;color:var(--muted)">
             ✓ All eBay listings are already in your inventory.
