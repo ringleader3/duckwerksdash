@@ -55,7 +55,7 @@
     <!-- Nav -->
     <div class="sidebar-section">
       <div class="sidebar-section-label">Nav</div>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'dashboard' }" @click="$store.dw.activeView = 'dashboard'; $store.dw.categoryFilter = null">◉ Dashboard</button>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'dashboard' }" @click="$store.dw.activeView = 'dashboard'; $store.dw.categoryFilter = null">○ Dashboard</button>
       <button class="nav-pill" :class="{ active: $store.dw.activeView === 'items' }"     @click="$store.dw.activeView = 'items'; $store.dw.categoryFilter = null">○ Items</button>
       <button class="nav-pill" :class="{ active: $store.dw.activeView === 'lots' }"      @click="$store.dw.activeView = 'lots'; $store.dw.categoryFilter = null">○ Lots</button>
     </div>
@@ -310,7 +310,6 @@
               <th class="num sortable" :class="{'sort-active': sortKey==='profit'}" @click="sortBy('profit')">Est. Profit<span x-text="sortIndicator('profit')"></span></th>
               <th class="num sortable" :class="{'sort-active': sortKey==='shipping'}" @click="sortBy('shipping')">Shipping<span x-text="sortIndicator('shipping')"></span></th>
               <th x-show="statusFilter === 'Sold'" style="white-space:nowrap">Tracking</th>
-              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -346,12 +345,6 @@
                     <span x-show="!trackingData[r.id] && !trackingLoading" style="color:var(--muted);font-size:11px">—</span>
                   </span>
                   <span x-show="!r.shipment?.tracking_id" style="color:var(--muted);font-size:11px">—</span>
-                </td>
-                <td @click.stop>
-                  <div style="display:flex; gap:6px">
-                    <button class="btn btn-ghost" style="padding:3px 8px; font-size:11px" @click="$store.dw.openModal('item', r.id)">Edit</button>
-                    <button class="btn btn-primary" style="padding:3px 8px; font-size:11px" @click="$store.dw.openModal('label', r.id)">Ship</button>
-                  </div>
                 </td>
               </tr>
             </template>
@@ -411,7 +404,7 @@
 
   <!-- ── Modal Containers ──────────────────────────────────────────────────── -->
   <!-- Item Modal -->
-  <div x-show="$store.dw.activeModal === 'item'" x-data="itemModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
+  <div x-show="$store.dw.activeModal === 'item'" x-data="itemModal" class="modal-overlay" x-cloak>
     <template x-if="record">
     <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()">
 
@@ -424,7 +417,7 @@
 
         <!-- READ VIEW -->
         <div x-show="!editMode">
-          <div class="modal-section-label">Status &amp; Classification</div>
+          <div class="modal-section-label">Item Details</div>
 
           <div class="modal-row">
             <span class="modal-field">Status</span>
@@ -607,7 +600,7 @@
 
         <!-- EDIT VIEW -->
         <div x-show="editMode">
-          <div class="modal-section-label">Edit Item</div>
+          <div class="modal-section-label">Item Details</div>
 
           <div class="modal-row">
             <span class="modal-field">Name</span>
@@ -691,20 +684,17 @@
             <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.shipping" style="width:120px"></span>
           </div>
 
-          <div class="modal-save-row">
-            <button class="btn btn-save" @click="save()" :disabled="saving" x-text="saving ? 'SAVING...' : 'SAVE'"></button>
-            <span class="save-msg" :class="saveMsg.startsWith('ERROR') ? 'error' : ''" x-text="saveMsg"></span>
-          </div>
         </div>
 
       </div><!-- .modal-body -->
 
       <div class="modal-footer">
-        <button class="btn btn-ghost" @click="editMode ? cancelEdit() : startEdit()" x-text="editMode ? 'CANCEL' : 'EDIT'"></button>
+        <button class="btn btn-ghost" x-show="editMode" @click="cancelEdit()">CANCEL</button>
+        <button class="btn btn-save"  x-show="editMode" @click="save()" :disabled="saving" x-text="saving ? 'SAVING...' : 'SAVE'"></button>
+        <span class="save-msg" x-show="editMode" :class="saveMsg.startsWith('ERROR') ? 'error' : ''" x-text="saveMsg"></span>
+        <button class="btn btn-ghost" x-show="!editMode" @click="startEdit()">EDIT</button>
         <button class="btn btn-primary" x-show="!editMode" @click="$store.dw.openModal('label', record.id)">SHIP</button>
-        <button class="btn btn-ghost"   x-show="!editMode" @click="$store.dw.closeModal()">CLOSE</button>
-        <button class="btn btn-ghost" x-show="!editMode"
-          style="margin-left:auto;color:var(--red);border-color:var(--red)"
+        <button class="btn btn-ghost" x-show="!editMode" style="margin-left:auto"
           @click="if(confirm('Delete this item and all associated listings/orders/shipments?')) { $store.dw.deleteItem(record.id); $store.dw.closeModal(); }">
           DELETE
         </button>
@@ -716,7 +706,7 @@
 
   <!-- Add Modal -->
   <template x-if="$store.dw.activeModal === 'add'">
-  <div x-data="addModal" class="modal-overlay" @click.self="$store.dw.closeModal()">
+  <div x-data="addModal" class="modal-overlay">
     <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()">
 
       <div class="modal-header">
@@ -725,6 +715,7 @@
       </div>
 
       <div class="modal-body">
+        <div class="modal-section-label">Item Details</div>
         <div class="modal-row">
           <span class="modal-field">Name <span style="color:var(--red)">*</span></span>
           <span class="modal-val" style="flex:1; margin-left:16px">
@@ -753,7 +744,7 @@
           </span>
         </div>
         <div class="modal-row">
-          <span class="modal-field">Platform</span>
+          <span class="modal-field">Site</span>
           <span class="modal-val">
             <select class="modal-select" x-model="form.site">
               <option value="">—</option>
@@ -780,6 +771,8 @@
             <input class="modal-input" type="text" x-model="form.newLot" placeholder="e.g. FB-APR26">
           </span>
         </div>
+        <hr class="modal-divider">
+        <div class="modal-section-label">Financials</div>
         <div class="modal-row">
           <span class="modal-field">List Price</span>
           <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.listPrice" style="width:120px"></span>
@@ -804,7 +797,7 @@
   </div>
   </template>
   <!-- Lot Modal -->
-  <div x-show="$store.dw.activeModal === 'lot'" x-data="lotModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
+  <div x-show="$store.dw.activeModal === 'lot'" x-data="lotModal" class="modal-overlay" x-cloak>
     <div class="modal-box modal-box-wide" x-show="lot" @keydown.escape.window="$store.dw.activeModal === 'lot' && $store.dw.closeModal()">
 
       <div class="modal-header">
@@ -885,14 +878,10 @@
 
       </div><!-- .modal-body -->
 
-      <div class="modal-footer">
-        <button class="btn btn-ghost" @click="$store.dw.closeModal()">CLOSE</button>
-      </div>
-
     </div>
   </div>
   <!-- ── LABEL MODAL ──────────────────────────────────────────────────────── -->
-  <div x-show="$store.dw.activeModal === 'label'" x-data="labelModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
+  <div x-show="$store.dw.activeModal === 'label'" x-data="labelModal" class="modal-overlay" x-cloak>
     <div class="modal-box" style="max-width:560px">
       <div class="modal-header">
         <div class="modal-title" x-text="itemName"></div>
@@ -1088,7 +1077,7 @@
   </div>
 
   <!-- ── REVERB SYNC MODAL ─────────────────────────────────────────────────── -->
-  <div x-show="$store.dw.activeModal === 'reverb'" x-data="reverbModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
+  <div x-show="$store.dw.activeModal === 'reverb'" x-data="reverbModal" class="modal-overlay" x-cloak>
     <div class="modal-box modal-box-wide">
       <div class="modal-header">
         <div class="modal-title">SYNC REVERB ORDERS</div>
@@ -1282,7 +1271,7 @@
   </div>
 
   <!-- ── Shipping Modal ──────────────────────────────────────────────────── -->
-  <div x-show="$store.dw.activeModal === 'shipping'" x-data="shippingModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
+  <div x-show="$store.dw.activeModal === 'shipping'" x-data="shippingModal" class="modal-overlay" x-cloak>
     <div class="modal-box" style="max-width:540px">
       <div class="modal-header">
         <div class="modal-title">IN TRANSIT</div>
@@ -1329,7 +1318,7 @@
   </div>
 
   <!-- ── EBAY SYNC MODAL ───────────────────────────────────────────────────── -->
-  <div x-show="$store.dw.activeModal === 'ebay'" x-data="ebayModal" class="modal-overlay" @click.self="$store.dw.closeModal()" x-cloak>
+  <div x-show="$store.dw.activeModal === 'ebay'" x-data="ebayModal" class="modal-overlay" x-cloak>
     <div class="modal-box modal-box-wide">
       <div class="modal-header">
         <div class="modal-title">SYNC EBAY ORDERS</div>
