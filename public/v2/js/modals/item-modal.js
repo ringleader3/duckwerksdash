@@ -79,6 +79,11 @@ document.addEventListener('alpine:init', () => {
       try {
         await dw.updateItem(r.id, itemFields);
 
+        if (r.order?.id && f.sale !== '') {
+          await dw.updateOrder(r.order.id, { sale_price: parseFloat(f.sale) });
+          await dw.fetchAll();
+        }
+
         if (f.listing_id) {
           // Update existing listing
           const listingFields = {};
