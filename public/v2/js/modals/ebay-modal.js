@@ -87,9 +87,9 @@ document.addEventListener('alpine:init', () => {
         }
       }
 
-      // Unlinked: Listed eBay items with no platform_listing_id
+      // Unlinked: non-Sold eBay items with no platform_listing_id
       this.unlinkedRecs = dw.records.filter(r => {
-        if (r.status !== 'Listed') return false;
+        if (r.status === 'Sold') return false;
         return (r.listings || []).some(
           l => l.site?.name === 'eBay' && l.status === 'active' && !l.platform_listing_id
         );
