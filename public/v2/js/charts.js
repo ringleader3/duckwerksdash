@@ -188,7 +188,7 @@ document.addEventListener('alpine:init', () => {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { bottom: 18 } },
+          layout: { padding: { top: 28, bottom: 18 } },
           _heroData: { heroNet: net['All'], heroOvg: overage['All'] },
           plugins: {
             legend: { display: false },
