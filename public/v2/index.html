@@ -125,6 +125,20 @@
           </div>
         </div>
 
+        <!-- Analytics Charts -->
+        <section x-data="chartsSection" style="margin-top:24px">
+          <div class="panel-title" style="margin-bottom:12px">MOMENTUM</div>
+          <div class="panel">
+            <div style="position:relative;height:300px">
+              <canvas x-ref="momentumCanvas"></canvas>
+              <div x-show="$store.dw.soldRecords.length === 0"
+                   style="padding:20px 0;color:var(--muted);font-size:12px">
+                No sales data yet
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- In Transit -->
         <template x-if="inTransitRows.length > 0 || trackingLoading">
           <div class="panel" style="margin-bottom:24px">
@@ -251,20 +265,6 @@
             </tbody>
           </table>
         </div>
-
-        <!-- Analytics Charts -->
-        <section x-data="chartsSection" style="margin-top:24px">
-          <div class="panel-title" style="margin-bottom:12px">MOMENTUM</div>
-          <div class="panel">
-            <div style="position:relative;height:300px">
-              <canvas x-ref="momentumCanvas"></canvas>
-              <div x-show="$store.dw.soldRecords.length === 0"
-                   style="padding:20px 0;color:var(--muted);font-size:12px">
-                No sales data yet
-              </div>
-            </div>
-          </div>
-        </section>
 
 
       </div>
