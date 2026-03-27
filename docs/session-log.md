@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-27 — v0.9.7 (UI cleanup batch)
+- **#54 — CLOSED:** Sidebar nav dots now reactive — active view shows `◉`, others show `○`.
+- **#59 — CLOSED:** Removed Actions column (Edit + Ship buttons) from items view. Row click opens item modal; Ship is accessible from there.
+- **#57 — CLOSED:** Modal footer normalization — Save/Cancel now inline in footer (was split across body/footer); removed all Close buttons; suppressed click-outside dismiss (ESC or ✕ only); softened Delete button (no more red alarm styling).
+- **#56 — CLOSED:** Modal section headers more visually distinct (bottom border added). "Status & Classification" → "Item Details" in view mode; "Edit Item" → "Item Details" in edit mode. Add modal gains "Item Details" and "Financials" section headers. "Platform" → "Site" in Add modal.
+
 ### 2026-03-26 — v0.9.6
 - **Lot modal + lots view — zero cost recovery pct:** Applied same items-sold/total fallback to `recoveryPct()` in lot-modal.js and lots.js so geoffcam-style lots show meaningful progress instead of 0%.
 
