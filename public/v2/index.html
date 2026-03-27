@@ -17,7 +17,7 @@
 
     <div class="sidebar-logo">
       <img src="duckwerksheader.jpeg" alt="The DuckWerks" class="sidebar-logo-img">
-      <div class="sidebar-logo-name">Duckwerks</div>
+      <div class="sidebar-logo-name">Duckwerks Dashboard</div>
     </div>
 
     <!-- Add Item -->
@@ -56,7 +56,7 @@
     <div class="sidebar-section">
       <div class="sidebar-section-label">Nav</div>
       <button class="nav-pill" :class="{ active: $store.dw.activeView === 'dashboard' }" @click="$store.dw.activeView = 'dashboard'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'dashboard' ? '◉' : '○'"></span> Dashboard</button>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'items' }"     @click="$store.dw.activeView = 'items'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'items' ? '◉' : '○'"></span> Items</button>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'items' }"     @click="$store.dw.activeView = 'items'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'items' ? '◉' : '○'"></span> Inventory</button>
       <button class="nav-pill" :class="{ active: $store.dw.activeView === 'lots' }"      @click="$store.dw.activeView = 'lots'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'lots' ? '◉' : '○'"></span> Lots</button>
     </div>
 
@@ -88,7 +88,7 @@
       <!-- Dashboard -->
       <div x-show="$store.dw.activeView === 'dashboard'" x-data="dashView">
         <div class="view-header">
-          <div class="view-title">DASHBOARD</div>
+          <div class="view-title">Dashboard</div>
         </div>
 
         <!-- KPI Stat Cards -->
@@ -272,7 +272,7 @@
       <!-- Items -->
       <div x-show="$store.dw.activeView === 'items'" x-data="itemsView">
         <div class="view-header">
-          <div class="view-title">ITEMS</div>
+          <div class="view-title">Inventory</div>
           <div x-show="$store.dw.categoryFilter" style="font-size:12px; color:var(--muted); margin-top:4px">
             Filtered: <span x-text="$store.dw.categoryFilter" style="color:#ccc"></span>
           </div>
@@ -357,7 +357,7 @@
       <!-- Lots -->
       <div x-show="$store.dw.activeView === 'lots'" x-data="lotsView">
         <div class="view-header">
-          <div class="view-title">LOTS</div>
+          <div class="view-title">Lots</div>
         </div>
         <table class="data-table">
           <thead>
