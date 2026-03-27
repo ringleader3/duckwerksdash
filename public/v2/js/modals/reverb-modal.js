@@ -202,9 +202,10 @@ document.addEventListener('alpine:init', () => {
       this.linksMsg    = '';
       let saved = 0, errors = 0;
       const dw = Alpine.store('dw');
-      for (const { listing, listingId } of toLink) {
+      for (const { rec, listing, listingId } of toLink) {
         try {
           await dw.updateListing(listing.id, { platform_listing_id: listingId }, { skipRefresh: true });
+          if (rec.status === 'Prepping') await dw.updateItem(rec.id, { status: 'Listed' }, { skipRefresh: true });
           saved++;
         } catch(e) {
           console.error('saveLinks:', e);
