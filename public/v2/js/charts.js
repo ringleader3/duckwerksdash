@@ -124,11 +124,13 @@ document.addEventListener('alpine:init', () => {
           ctx.restore();
         },
         afterDraw(chart) {
-          const { ctx, scales: { x, y } } = chart;
+          const { ctx, chartArea, scales: { x, y } } = chart;
           const { heroNet, heroOvg } = chart.options._heroData || {};
           if (!heroNet) return;
-          const fmt = n => n >= 1000 ? '$' + (n / 1000).toFixed(1) + 'K' : '$' + Math.round(n);
           ctx.save();
+
+          // Hero gross · net labels above each cluster
+          const fmt = n => n >= 1000 ? '$' + (n / 1000).toFixed(1) + 'K' : '$' + Math.round(n);
           ctx.font = '10px "Space Mono", monospace';
           ctx.textAlign = 'center';
           chart.data.labels.forEach((_, i) => {
@@ -140,6 +142,27 @@ document.addEventListener('alpine:init', () => {
             ctx.fillStyle = 'rgba(255,255,255,0.45)';
             ctx.fillText(`${fmt(grossVal)} · ${fmt(netVal)} net`, xCenter, yGross - 5);
           });
+
+          // Site name labels below each bar in bar color
+          const siteLabels = [
+            { dsIndex: 0, name: 'Reverb',   color: 'rgba(237,100,50,0.9)' },
+            { dsIndex: 2, name: 'eBay',     color: 'rgba(236,201,75,0.9)' },
+          ];
+          if (chart.data.datasets.length > 4) {
+            siteLabels.push({ dsIndex: 4, name: 'Facebook', color: 'rgba(153,153,153,0.9)' });
+          }
+          ctx.font = '9px "Space Mono", monospace';
+          ctx.textBaseline = 'top';
+          siteLabels.forEach(({ dsIndex, name, color }) => {
+            const meta = chart.getDatasetMeta(dsIndex);
+            if (!meta) return;
+            ctx.fillStyle = color;
+            chart.data.labels.forEach((_, i) => {
+              if (!meta.data[i]) return;
+              ctx.fillText(name, meta.data[i].x, chartArea.bottom + 4);
+            });
+          });
+
           ctx.restore();
         },
       };
@@ -165,25 +188,10 @@ document.addEventListener('alpine:init', () => {
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          layout: { padding: { bottom: 18 } },
           _heroData: { heroNet: net['All'], heroOvg: overage['All'] },
           plugins: {
-            legend: {
-              display: true,
-              position: 'bottom',
-              labels: {
-                boxWidth: 12,
-                padding: 16,
-                generateLabels: chart => chart.data.datasets
-                  .filter(d => !d.label.startsWith('Cost+Fees'))
-                  .map(d => ({
-                    text:        ({ hero: 'All', reverb: 'Reverb', ebay: 'eBay', facebook: 'Facebook' })[d.stack] || d.stack,
-                    fillStyle:   d.backgroundColor,
-                    strokeStyle: d.backgroundColor,
-                    lineWidth:   0,
-                    hidden:      false,
-                  })),
-              },
-            },
+            legend: { display: false },
             tooltip: {
               callbacks: {
                 label: ctx => {
