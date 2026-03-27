@@ -90,21 +90,9 @@ document.addEventListener('alpine:init', () => {
             if (res.ok) {
               const order = await res.json();
               this.ebayLineItemId = order.lineItems?.[0]?.lineItemId || null;
-              // totalDueSeller is post-fee payout (equivalent to Reverb's direct_checkout_payout)
-              const total    = parseFloat(order.pricingSummary?.total?.value) || 0;
-              const mktFee   = parseFloat(order.totalMarketplaceFee?.value);
+              // totalDueSeller: confirmed available pre-fulfillment (validated 2026-03-26)
               const dueSeller = parseFloat(order.paymentSummary?.totalDueSeller?.value);
-              let payout, payoutSource;
-              if (dueSeller) {
-                payout = dueSeller; payoutSource = 'paymentSummary.totalDueSeller';
-              } else if (mktFee) {
-                payout = total - mktFee; payoutSource = 'total - totalMarketplaceFee';
-              } else if (total) {
-                // eBay fee formula: 13.25% of total + $0.40
-                payout = total - (total * 0.1325 + 0.40); payoutSource = 'fee formula estimate';
-              }
-              console.log(`[eBay payout] source=${payoutSource} payout=${payout} total=${total} mktFee=${mktFee} dueSeller=${dueSeller}`);
-              if (payout) this.reverbSaleAmount = payout;
+              if (dueSeller) this.reverbSaleAmount = dueSeller;
               if (order.creationDate) this.platformSaleDate = order.creationDate.split('T')[0];
               // shipTo is the actual shipping address; buyerRegistrationAddress is account address (may differ)
               const shipTo = order.fulfillmentStartInstructions?.[0]?.shippingStep?.shipTo;
