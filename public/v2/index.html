@@ -403,9 +403,9 @@
       <div x-show="$store.dw.activeView === 'analytics'" x-data="analyticsView">
         <div class="view-header">
           <div class="view-title">Analytics</div>
-          <div style="display:flex; gap:8px">
-            <button class="nav-pill" :class="{ active: activeTab === 'listed' }" @click="activeTab = 'listed'">Listed</button>
-            <button class="nav-pill" :class="{ active: activeTab === 'sold' }"   @click="activeTab = 'sold'">Sold</button>
+          <div style="display:flex; gap:6px; margin-top:10px">
+            <button class="btn" :class="activeTab === 'listed' ? 'btn-active' : 'btn-muted'" @click="activeTab = 'listed'">Listed</button>
+            <button class="btn" :class="activeTab === 'sold'   ? 'btn-active' : 'btn-muted'" @click="activeTab = 'sold'">Sold</button>
           </div>
         </div>
 
@@ -426,7 +426,7 @@
             </thead>
             <tbody>
               <template x-for="row in sortedListedRows" :key="row.site + row.listingId">
-                <tr>
+                <tr :style="row.itemId ? 'cursor:pointer' : ''" @click="openItem(row.itemId)">
                   <td style="text-align:left" x-text="row.name"></td>
                   <td><span :class="row.site === 'Reverb' ? 'badge-reverb' : 'badge-ebay'" x-text="row.site"></span></td>
                   <td class="num-col" x-text="row.views    != null ? row.views    : '—'"></td>
@@ -449,21 +449,21 @@
           <table class="data-table" x-show="!soldLoading && !soldError">
             <thead>
               <tr>
-                <th style="text-align:left">Item</th>
-                <th>Site</th>
-                <th>Sold Date</th>
-                <th class="num-col">Days Since Sale</th>
+                <th style="text-align:left" class="sortable" :class="{'sort-active': soldSortKey==='name'}"      @click="soldSortBy('name')">Item<span x-text="soldSortIndicator('name')"></span></th>
+                <th class="sortable"                          :class="{'sort-active': soldSortKey==='site'}"      @click="soldSortBy('site')">Site<span x-text="soldSortIndicator('site')"></span></th>
+                <th class="sortable"                          :class="{'sort-active': soldSortKey==='soldDate'}"  @click="soldSortBy('soldDate')">Sold Date<span x-text="soldSortIndicator('soldDate')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': soldSortKey==='daysSince'}" @click="soldSortBy('daysSince')">Days Since Sale<span x-text="soldSortIndicator('daysSince')"></span></th>
                 <th>Order Link</th>
               </tr>
             </thead>
             <tbody>
               <template x-for="row in sortedSoldRows" :key="row.site + row.orderNum">
-                <tr>
+                <tr :style="row.itemId ? 'cursor:pointer' : ''" @click="openItem(row.itemId)">
                   <td style="text-align:left" x-text="row.name"></td>
                   <td><span :class="row.site === 'Reverb' ? 'badge-reverb' : 'badge-ebay'" x-text="row.site"></span></td>
                   <td style="color:var(--muted); white-space:nowrap" x-text="row.soldDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })"></td>
                   <td class="num-col" x-text="row.daysSince + 'd'"></td>
-                  <td>
+                  <td @click.stop>
                     <a x-show="row.orderUrl" :href="row.orderUrl" target="_blank" style="color:var(--blue)">View Order</a>
                     <span x-show="!row.orderUrl" style="color:var(--muted)">—</span>
                   </td>

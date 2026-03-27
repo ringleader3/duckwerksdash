@@ -16,6 +16,8 @@ document.addEventListener('alpine:init', () => {
     soldLoading: false,
     soldLoaded:  false,
     soldError:   null,
+    soldSortKey: 'daysSince',
+    soldSortDir: 'desc',
 
     async init() {
       this.$watch('activeTab', tab => {
@@ -39,6 +41,24 @@ document.addEventListener('alpine:init', () => {
       return this.sortDir === 'asc' ? ' ↑' : ' ↓';
     },
 
+    soldSortBy(key) {
+      if (this.soldSortKey === key) {
+        this.soldSortDir = this.soldSortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        this.soldSortKey = key;
+        this.soldSortDir = 'asc';
+      }
+    },
+
+    soldSortIndicator(key) {
+      if (this.soldSortKey !== key) return '';
+      return this.soldSortDir === 'asc' ? ' ↑' : ' ↓';
+    },
+
+    openItem(itemId) {
+      if (itemId) Alpine.store('dw').openModal('item', itemId);
+    },
+
     get sortedListedRows() {
       return [...this.listedRows].sort((a, b) => {
         const av = a[this.sortKey] ?? -1;
@@ -50,7 +70,19 @@ document.addEventListener('alpine:init', () => {
     },
 
     get sortedSoldRows() {
-      return [...this.soldRows].sort((a, b) => b.daysSince - a.daysSince);
+      return [...this.soldRows].sort((a, b) => {
+        let av = a[this.soldSortKey];
+        let bv = b[this.soldSortKey];
+        // Date objects: compare timestamps
+        if (av instanceof Date) av = av.getTime();
+        if (bv instanceof Date) bv = bv.getTime();
+        av = av ?? -1;
+        bv = bv ?? -1;
+        if (typeof av === 'string') return this.soldSortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+        if (av < bv) return this.soldSortDir === 'asc' ? -1 : 1;
+        if (av > bv) return this.soldSortDir === 'asc' ?  1 : -1;
+        return 0;
+      });
     },
 
     async _loadListed() {
@@ -86,6 +118,7 @@ document.addEventListener('alpine:init', () => {
             name:        local?.name || l.title || '—',
             site:        'Reverb',
             listingId:   lid,
+            itemId:      local?.id || null,
             views:       l.stats?.views   ?? null,
             watchers:    l.stats?.watches ?? null,
             impressions: null,
@@ -103,6 +136,7 @@ document.addEventListener('alpine:init', () => {
             name:        r.name,
             site:        'eBay',
             listingId:   lid || '',
+            itemId:      r.id || null,
             views:       traffic.views       ?? null,
             watchers:    lid ? (watchMap[lid] ?? null) : null,
             impressions: traffic.impressions ?? null,
@@ -153,6 +187,7 @@ document.addEventListener('alpine:init', () => {
             name:       local?.name || order.title || '—',
             site:       'Reverb',
             orderNum,
+            itemId:     local?.id || null,
             soldDate,
             daysSince,
             orderUrl:   order._links?.web?.href || null,
@@ -177,6 +212,7 @@ document.addEventListener('alpine:init', () => {
             name:       local?.name || order.lineItems?.[0]?.title || '—',
             site:       'eBay',
             orderNum:   order.orderId || order.legacyOrderId,
+            itemId:     local?.id || null,
             soldDate,
             daysSince,
             orderUrl,

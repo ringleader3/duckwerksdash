@@ -23,6 +23,8 @@
 .btn-danger   { background: var(--red);   color: #fff; }
 .btn-ghost    { background: var(--border2); color: #ccc; }
 .btn-add      { background: var(--green); color: #fff; width: 100%; justify-content: center; font-size: 13px; padding: 9px; }
+.btn-active   { background: var(--blue);    color: #fff; }
+.btn-muted    { background: var(--border2); color: var(--muted); }
 
 /* ── Pill Filters ────────────────────────────────────────────────────────── */
 
