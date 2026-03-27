@@ -154,4 +154,72 @@ router.get('/listings', async (req, res) => {
   }
 });
 
+// GET /api/ebay/traffic — eBay Sell Analytics traffic report, last 30 days, per listing
+router.get('/traffic', async (req, res) => {
+  try {
+    const headers = await ebayHeaders();
+    const end     = new Date();
+    const start   = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const fmt     = d => d.toISOString().split('.')[0] + 'Z';
+    // Build URL manually — URLSearchParams encodes [ ] which eBay rejects
+    const url = `${EBAY_API}/sell/analytics/v1/traffic_report`
+      + `?dimension=LISTING_ID`
+      + `&filter=date_range:[${fmt(start)}..${fmt(end)}],traffic_source:ALL`
+      + `&metric=PAGE_VIEW_COUNT,WATCHER_COUNT,LISTING_IMPRESSION_ORGANIC,LISTING_CLICK_THROUGH_RATE`;
+    const response = await fetch(url, { headers });
+    const data     = await response.json();
+    res.status(response.status).json(data);
+  } catch (e) {
+    res.status(502).json({ error: 'eBay traffic report failed', detail: e.message });
+  }
+});
+
+// GET /api/ebay/feedback — all feedback received as seller (paginated)
+router.get('/feedback', async (req, res) => {
+  try {
+    const headers  = await ebayHeaders();
+    const feedback = [];
+    let url = `${EBAY_API}/sell/feedback/v1/feedback?feedback_type=RECEIVED_AS_SELLER&limit=200`;
+
+    while (url) {
+      const response = await fetch(url, { headers });
+      const data     = await response.json();
+      (data.feedbackList || []).forEach(f => feedback.push(f));
+      url = data.next || null;
+    }
+
+    res.json({ feedback });
+  } catch (e) {
+    res.status(502).json({ error: 'eBay feedback request failed', detail: e.message });
+  }
+});
+
+// GET /api/ebay/orders/fulfilled — fulfilled orders (paginated)
+router.get('/orders/fulfilled', async (req, res) => {
+  try {
+    const headers = await ebayHeaders();
+    const orders  = [];
+    let offset    = 0;
+    const limit   = 200;
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      // Build URL manually — eBay rejects encoded { } |
+      const url = `${EBAY_API}/sell/fulfillment/v1/order`
+        + `?filter=orderfulfillmentstatus:{FULFILLED}`
+        + `&limit=${limit}&offset=${offset}`;
+      const response = await fetch(url, { headers });
+      const data     = await response.json();
+      const batch    = data.orders || [];
+      orders.push(...batch);
+      if (batch.length < limit || orders.length >= (data.total || 0)) break;
+      offset += limit;
+    }
+
+    res.json({ orders });
+  } catch (e) {
+    res.status(502).json({ error: 'eBay fulfilled orders request failed', detail: e.message });
+  }
+});
+
 module.exports = router;
