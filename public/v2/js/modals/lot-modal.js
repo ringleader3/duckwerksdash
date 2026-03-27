@@ -4,6 +4,13 @@ document.addEventListener('alpine:init', () => {
     sortKey: 'name',
     sortDir: 'asc',
 
+    // ── Realloc state ──────────────────────────────────────────────────────
+    reallocMode:          false,
+    reallocRows:          [],
+    reallocOriginalTotal: 0,
+    reallocSaving:        false,
+    reallocError:         null,
+
     get lot() {
       const dw = Alpine.store('dw');
       return dw.lots.find(l => l.name === dw.activeLotName) || null;
@@ -123,6 +130,76 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       dw.previousModal = { type: 'lot', recordId: null, lotName: dw.activeLotName };
       dw.openModal('item', r.id);
+    },
+
+    // ── Realloc methods ────────────────────────────────────────────────────
+    initRealloc() {
+      const dw = Alpine.store('dw');
+      this.reallocOriginalTotal = this.totalCost();
+      this.reallocRows = this.items.map(r => ({
+        id:        r.id,
+        name:      r.name,
+        status:    r.status,
+        listPrice: dw.activeListing(r)?.list_price || 0,
+        editCost:  r.cost || 0,
+      }));
+      this.reallocMode  = true;
+      this.reallocError = null;
+    },
+
+    cancelRealloc() {
+      this.reallocMode  = false;
+      this.reallocRows  = [];
+      this.reallocError = null;
+    },
+
+    reallocAllocated() {
+      return this.reallocRows.reduce((s, r) => s + (parseFloat(r.editCost) || 0), 0);
+    },
+
+    reallocDiff() {
+      return this.reallocAllocated() - this.reallocOriginalTotal;
+    },
+
+    reallocColorClass() {
+      const diff = Math.abs(this.reallocDiff());
+      if (diff < 0.01) return 'green';
+      if (diff < 5)    return 'yellow';
+      return 'red';
+    },
+
+    redistribute() {
+      const totalLp = this.reallocRows.reduce((s, r) => s + (r.listPrice || 0), 0);
+      if (totalLp <= 0) return;
+      const budget = this.reallocOriginalTotal;
+      this.reallocRows.forEach(r => {
+        r.editCost = Math.round((r.listPrice / totalLp) * budget * 100) / 100;
+      });
+    },
+
+    async saveRealloc() {
+      this.reallocSaving = true;
+      this.reallocError  = null;
+      try {
+        const changed = this.reallocRows.filter(r => {
+          const orig = this.items.find(i => i.id === r.id);
+          return Math.abs((orig?.cost || 0) - (parseFloat(r.editCost) || 0)) > 0.001;
+        });
+        await Promise.all(changed.map(r =>
+          fetch(`/api/items/${r.id}`, {
+            method:  'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ cost: parseFloat(r.editCost) || 0 }),
+          })
+        ));
+        await Alpine.store('dw').fetchAll();
+        this.reallocMode = false;
+        this.reallocRows = [];
+      } catch (e) {
+        this.reallocError = 'Save failed: ' + e.message;
+      } finally {
+        this.reallocSaving = false;
+      }
     },
   }));
 });
