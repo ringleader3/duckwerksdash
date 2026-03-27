@@ -96,9 +96,36 @@ document.addEventListener('alpine:init', () => {
       const { net, overage, hasFacebook } = this.momentumData();
       const labels = ['3d', '7d', '14d', '30d'];
 
+      // Hero background plugin — draws a wide translucent bar per window behind the site bars
+      const heroPlugin = {
+        id: 'heroBg',
+        beforeDatasetsDraw(chart) {
+          const { ctx, chartArea, scales: { x, y } } = chart;
+          const { heroNet, heroOvg } = chart.options._heroData || {};
+          if (!heroNet) return;
+          const slotWidth = x.width / chart.data.labels.length;
+          const barWidth  = slotWidth * 0.78;
+          const yBottom   = chartArea.bottom;
+          ctx.save();
+          chart.data.labels.forEach((_, i) => {
+            const netVal   = heroNet[i]  || 0;
+            const grossVal = netVal + (heroOvg[i] || 0);
+            if (grossVal <= 0) return;
+            const xCenter = x.getPixelForValue(i);
+            const yGross  = y.getPixelForValue(grossVal);
+            const yNet    = netVal > 0 ? y.getPixelForValue(netVal) : yBottom;
+            // cost+fees layer (top portion, dim)
+            ctx.fillStyle = 'rgba(255,255,255,0.05)';
+            ctx.fillRect(xCenter - barWidth / 2, yGross, barWidth, yBottom - yGross);
+            // net layer (bottom portion, green wash)
+            ctx.fillStyle = 'rgba(72,187,120,0.18)';
+            ctx.fillRect(xCenter - barWidth / 2, yNet, barWidth, yBottom - yNet);
+          });
+          ctx.restore();
+        },
+      };
+
       const datasets = [
-        { label: 'Net (All)',           data: net['All'],        stack: 'hero',     backgroundColor: 'rgba(72,187,120,0.85)',  order: 1 },
-        { label: 'Cost+Fees (All)',     data: overage['All'],    stack: 'hero',     backgroundColor: 'rgba(255,255,255,0.07)', order: 1 },
         { label: 'Net (Reverb)',        data: net['Reverb'],     stack: 'reverb',   backgroundColor: 'rgba(237,100,50,0.8)',   order: 1 },
         { label: 'Cost+Fees (Reverb)',  data: overage['Reverb'], stack: 'reverb',   backgroundColor: 'rgba(237,100,50,0.2)',   order: 1 },
         { label: 'Net (eBay)',          data: net['eBay'],       stack: 'ebay',     backgroundColor: 'rgba(236,201,75,0.8)',   order: 1 },
@@ -115,9 +142,11 @@ document.addEventListener('alpine:init', () => {
       this.charts.momentum = new Chart(this.$refs.momentumCanvas, {
         type: 'bar',
         data: { labels, datasets },
+        plugins: [heroPlugin],
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          _heroData: { heroNet: net['All'], heroOvg: overage['All'] },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -125,11 +154,10 @@ document.addEventListener('alpine:init', () => {
                 label: ctx => {
                   const isOverage = ctx.dataset.label.startsWith('Cost+Fees');
                   const stack = ctx.dataset.stack;
-                  const site  = stack === 'hero' ? 'All' : stack.charAt(0).toUpperCase() + stack.slice(1);
+                  const site  = stack.charAt(0).toUpperCase() + stack.slice(1);
                   if (isOverage) {
-                    // Find the net dataset for this stack to compute gross = net + overage
                     const netDs = ctx.chart.data.datasets.find(
-                      d => d.stack === ctx.dataset.stack && !d.label.startsWith('Cost+Fees')
+                      d => d.stack === stack && !d.label.startsWith('Cost+Fees')
                     );
                     const gross = (netDs?.data[ctx.dataIndex] || 0) + ctx.parsed.y;
                     return ` Gross (${site}): $${gross.toFixed(2)}`;
@@ -141,7 +169,13 @@ document.addEventListener('alpine:init', () => {
           },
           scales: {
             x: { grid: { display: false } },
-            y: { ticks: { callback: v => '$' + v.toFixed(0) } },
+            y: {
+              type: 'logarithmic',
+              min: 1,
+              ticks: {
+                callback: v => [1, 10, 100, 1000, 10000].includes(v) ? '$' + v.toLocaleString() : '',
+              },
+            },
           },
         },
       });
