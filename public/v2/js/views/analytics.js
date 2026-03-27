@@ -114,12 +114,15 @@ document.addEventListener('alpine:init', () => {
           const local = dw.records.find(r =>
             r.listings?.some(li => String(li.platform_listing_id) === lid)
           );
+          const reverbDate   = l.published_at ? new Date(l.published_at) : null;
+          const reverbDaysListed = reverbDate ? Math.floor((Date.now() - reverbDate) / 86400000) : null;
           rows.push({
             name:        local?.name || l.title || '—',
             site:        'Reverb',
             listingId:   lid,
             itemId:      local?.id || null,
             listPrice:   l.price?.amount != null ? parseFloat(l.price.amount) : null,
+            daysListed:  reverbDaysListed,
             views:       l.stats?.views   ?? null,
             watchers:    l.stats?.watches ?? null,
             impressions: null,
@@ -133,12 +136,15 @@ document.addEventListener('alpine:init', () => {
           const listing = dw.activeListing(r);
           const lid     = listing?.platform_listing_id ? String(listing.platform_listing_id) : null;
           const traffic = lid ? (ebayMap[lid] || {}) : {};
+          const ebayDate     = listing?.listed_at ? new Date(listing.listed_at) : null;
+          const ebayDaysListed = ebayDate ? Math.floor((Date.now() - ebayDate) / 86400000) : null;
           rows.push({
             name:        r.name,
             site:        'eBay',
             listingId:   lid || '',
             itemId:      r.id || null,
             listPrice:   listing?.list_price != null ? parseFloat(listing.list_price) : null,
+            daysListed:  ebayDaysListed,
             views:       traffic.views       ?? null,
             watchers:    lid ? (watchMap[lid] ?? null) : null,
             impressions: traffic.impressions ?? null,
