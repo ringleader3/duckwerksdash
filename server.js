@@ -4,8 +4,9 @@ const path    = require('path');
 const app     = express();
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public/v2')));
-app.use('/v2', express.static(path.join(__dirname, 'public/v2')));
+const noCache = { setHeaders: (res) => res.set('Cache-Control', 'no-store') };
+app.use(express.static(path.join(__dirname, 'public/v2'), noCache));
+app.use('/v2', express.static(path.join(__dirname, 'public/v2'), noCache));
 
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 
