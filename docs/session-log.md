@@ -1,6 +1,11 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-28 — v1.0.2 (deploy script)
+- Added `scripts/deploy-nuc.sh` — SSH to NUC, git pull, restart PM2 app + cloudflared tunnel in one command
+- Set up passwordless sudo on NUC for `systemctl restart cloudflared`
+- Set up SSH key auth from MacBook to NUC (`ssh-copy-id`)
+
 ### 2026-03-28 — v1.0.2 (remote access setup + housekeeping)
 - Migrated `duckwerks.com` DNS from Hostgator nameservers to Cloudflare (free tier)
 - Deployed app to Intel NUC (Fedora) — PM2 manages the Node process, survives reboots
