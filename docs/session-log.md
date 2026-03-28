@@ -7,6 +7,7 @@ _Most recent first. Update this at the end of every session._
 - Set up Cloudflare Tunnel (`cloudflared` as systemd service) → `dash.duckwerks.com`
 - Configured Cloudflare Access (Zero Trust) with email one-time code auth — only `geoff@duckwerks.com` allowed
 - Updated README with remote access setup docs
+- Added mobile media query to `main.css` — sidebar stacks above content on narrow screens, stat cards reflow naturally (ref #74)
 
 ### 2026-03-28 — v1.0.2 (housekeeping)
 - Removed last Airtable string reference from `index.html` (comment on config script tag)

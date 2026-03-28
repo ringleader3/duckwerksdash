@@ -254,3 +254,28 @@ a:hover { text-decoration: underline; }
   display: inline-block;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  #app {
+    flex-direction: column;
+  }
+
+  #sidebar {
+    width: 100%;
+    min-height: unset;
+    position: static;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo-img {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  #main {
+    padding: 16px;
+  }
+}
