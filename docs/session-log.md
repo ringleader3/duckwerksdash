@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-28 — v1.0.2 (remote access setup + housekeeping)
+- Migrated `duckwerks.com` DNS from Hostgator nameservers to Cloudflare (free tier)
+- Deployed app to Intel NUC (Fedora) — PM2 manages the Node process, survives reboots
+- Set up Cloudflare Tunnel (`cloudflared` as systemd service) → `dash.duckwerks.com`
+- Configured Cloudflare Access (Zero Trust) with email one-time code auth — only `geoff@duckwerks.com` allowed
+- Updated README with remote access setup docs
+
 ### 2026-03-28 — v1.0.2 (housekeeping)
 - Removed last Airtable string reference from `index.html` (comment on config script tag)
 

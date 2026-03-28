@@ -52,6 +52,25 @@ Requires a `.env` file with EasyPost tokens, eBay OAuth credentials, and a from-
 
 ---
 
+## Remote Access (NUC + Cloudflare Tunnel)
+
+The app runs persistently on an Intel NUC (Fedora) and is accessible remotely at `dash.duckwerks.com` via Cloudflare Tunnel, protected by Cloudflare Access (email-based one-time code auth).
+
+**On the NUC:**
+- App managed by PM2: `pm2 start server.js --name duckwerks` — auto-restarts on reboot
+- Tunnel managed by systemd: `sudo systemctl start cloudflared` — auto-restarts on reboot
+- Tunnel config: `/home/geoff/.cloudflared/config.yml`
+
+**To check status after a reboot:**
+```bash
+pm2 status
+sudo systemctl status cloudflared
+```
+
+**DNS:** `duckwerks.com` is on Cloudflare. The `dash` subdomain CNAME points to the tunnel.
+
+---
+
 ## Project Structure
 
 ```
