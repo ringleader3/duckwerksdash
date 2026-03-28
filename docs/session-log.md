@@ -1,6 +1,9 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-28 — v1.0.2 (housekeeping)
+- Removed last Airtable string reference from `index.html` (comment on config script tag)
+
 ### 2026-03-27 — v1.0.1 (Analytics columns + lot cost reallocation — #68 #69 #70)
 - **#68:** Added List Price column to Analytics Listed tab — Reverb uses `l.price.amount` from API; eBay uses `listing.list_price` from local record. Sortable, formatted as `$X.XX`.
 - **#69:** Added Days Listed column to Analytics Listed tab — Reverb uses `published_at` from API; eBay uses `listed_at` from local listing record. Sortable, formatted as `Nd`.

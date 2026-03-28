@@ -1336,7 +1336,7 @@
 
           <div x-show="detailDiffs.length > 0">
             <div style="font-size:11px;color:var(--muted);padding:4px 0 10px;letter-spacing:1px">
-              Reverb changes pending. Review and sync to Airtable.
+              Reverb changes pending. Review and sync to Database.
             </div>
             <template x-for="diff in detailDiffs" :key="diff.rec.id">
               <div style="padding:10px 0;border-bottom:1px solid var(--border2);display:flex;gap:10px;align-items:flex-start">
@@ -1625,7 +1625,7 @@
 </div><!-- #app -->
 
 <!-- ── Scripts: load order matters ──────────────────────────────────────── -->
-<!-- Config first — defines F, BASE_ID, AIRTABLE_API -->
+<!-- Config first — defines APP_VERSION, CAT_COLOR, CAT_BADGE, SITE_FEES -->
 <script src="js/config.js"></script>
 
 <!-- Alpine store — must register before Alpine initializes -->
