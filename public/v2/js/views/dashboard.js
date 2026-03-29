@@ -13,7 +13,8 @@ document.addEventListener('alpine:init', () => {
 
     get inTransitRows() {
       const dw = Alpine.store('dw');
-      return dw.records.filter(r => dw.isInTransit(r, this.trackingData));
+      return dw.records.filter(r => dw.isInTransit(r, this.trackingData))
+        .sort((a, b) => new Date(b.order?.date_sold || 0) - new Date(a.order?.date_sold || 0));
     },
 
     async _loadTracking() {
