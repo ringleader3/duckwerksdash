@@ -1,6 +1,11 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-29 — v1.0.2 (caching fix + date sold column)
+- Added `Cache-Control: no-store` to Express static middleware — prevents Cloudflare from caching stale JS/CSS after deploys
+- Added Date Sold column to Inventory view — sortable, shows `date_sold` from order record, blank for unlisted items
+- Manually patched item #19 via API (order + shipment records) to recover data lost in local→NUC migration
+
 ### 2026-03-28 — v1.0.2 (deploy script)
 - Added `scripts/deploy-nuc.sh` — SSH to NUC, git pull, restart PM2 app + cloudflared tunnel in one command
 - Set up passwordless sudo on NUC for `systemctl restart cloudflared`
