@@ -1,9 +1,10 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
-### 2026-03-29 — v1.0.2 (caching fix + date sold column)
+### 2026-03-29 — v1.0.2 (caching fix + inventory columns)
 - Added `Cache-Control: no-store` to Express static middleware — prevents Cloudflare from caching stale JS/CSS after deploys
 - Added Date Sold column to Inventory view — sortable, shows `date_sold` from order record, blank for unlisted items
+- Added Shipped date column to in-transit dashboard table; sorted in-transit rows by ship date desc
 - Manually patched item #19 via API (order + shipment records) to recover data lost in local→NUC migration
 
 ### 2026-03-28 — v1.0.2 (deploy script)
