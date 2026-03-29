@@ -150,6 +150,7 @@
                 <thead>
                   <tr>
                     <th style="text-align:left">Item</th>
+                    <th style="white-space:nowrap;width:80px">Shipped</th>
                     <th style="white-space:nowrap;width:130px">Status</th>
                     <th style="white-space:nowrap;width:80px">Carrier</th>
                     <th style="white-space:nowrap;width:110px">Est. Delivery</th>
@@ -159,6 +160,7 @@
                   <template x-for="r in inTransitRows" :key="r.id">
                     <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
                       <td style="text-align:left" x-text="r.name"></td>
+                      <td style="color:var(--muted);font-size:12px;white-space:nowrap" x-text="r.order?.date_sold ? new Date(r.order.date_sold + 'T00:00:00').toLocaleDateString('en-US', {month:'short',day:'numeric'}) : '—'"></td>
                       <td>
                         <span x-show="trackStatus(r)" :class="'badge ' + trackStatusBadge(trackStatus(r))" x-text="trackStatusLabel(trackStatus(r))"></span>
                         <span x-show="!trackStatus(r)" style="color:var(--muted);font-size:11px">—</span>
