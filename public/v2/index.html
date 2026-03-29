@@ -313,7 +313,7 @@
               <th class="num sortable" :class="{'sort-active': sortKey==='profit'}" @click="sortBy('profit')">Est. Profit<span x-text="sortIndicator('profit')"></span></th>
               <th class="num sortable" :class="{'sort-active': sortKey==='shipping'}" @click="sortBy('shipping')">Shipping<span x-text="sortIndicator('shipping')"></span></th>
               <th x-show="statusFilter === 'Sold' || statusFilter === 'All'" class="num sortable" :class="{'sort-active': sortKey==='soldDate'}" @click="sortBy('soldDate')">Date Sold<span x-text="sortIndicator('soldDate')"></span></th>
-              <th x-show="statusFilter === 'Sold'" style="white-space:nowrap">Tracking</th>
+              <th x-show="statusFilter === 'Sold' || statusFilter === 'All'" style="white-space:nowrap">Tracking</th>
             </tr>
           </thead>
           <tbody>
@@ -344,7 +344,7 @@
                 <td class="num est" x-text="profitDisplay(r)"></td>
                 <td class="num" :class="shipIsEst(r) ? 'est' : 'act'" x-text="shipDisplay(r)"></td>
                 <td x-show="statusFilter === 'Sold' || statusFilter === 'All'" style="color:var(--muted); white-space:nowrap" x-text="r.order?.date_sold ? new Date(r.order.date_sold + 'T00:00:00').toLocaleDateString('en-US', {month:'short',day:'numeric'}) : '-'"></td>
-                <td x-show="statusFilter === 'Sold'" class="num">
+                <td x-show="statusFilter === 'Sold' || statusFilter === 'All'" class="num">
                   <span x-show="r.shipment?.tracking_id">
                     <span x-show="trackingData[r.id]" :class="'badge ' + trackStatusBadge(trackingData[r.id]?.status)" x-text="trackStatusLabel(trackingData[r.id]?.status)"></span>
                     <span x-show="!trackingData[r.id] && !trackingLoading" style="color:var(--muted);font-size:11px">—</span>
