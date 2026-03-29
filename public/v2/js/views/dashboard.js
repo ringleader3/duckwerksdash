@@ -100,7 +100,7 @@ document.addEventListener('alpine:init', () => {
       return [...Alpine.store('dw').soldRecords]
         .filter(r => r.order?.date_sold)
         .sort((a, b) => new Date(b.order.date_sold) - new Date(a.order.date_sold))
-        .slice(0, 10);
+        .slice(0, 30);
     },
     get recentlyListed() {
       return [...Alpine.store('dw').listedRecords]
