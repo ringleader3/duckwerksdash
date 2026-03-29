@@ -21,10 +21,10 @@ document.addEventListener('alpine:init', () => {
         }
       });
       this.$watch('statusFilter', val => {
-        if (val === 'Sold') this._loadTracking();
+        if (val === 'Sold' || val === 'All') this._loadTracking();
       });
       const dw = Alpine.store('dw');
-      if (this.statusFilter === 'Sold' && !dw.loading && dw.records.length > 0) this._loadTracking();
+      if ((this.statusFilter === 'Sold' || this.statusFilter === 'All') && !dw.loading && dw.records.length > 0) this._loadTracking();
     },
 
     get rows() {
