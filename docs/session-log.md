@@ -1,6 +1,11 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-30 — v1.0.6 (eBay Browse API diagnosis)
+- Diagnosed eBay Browse API problems in `server/comps.js`: missing recent sold listings, empty sold dates, overly broad model matching, possible active listings included
+- Raw API test: 29 results for "Technics SL-6" returned only 2 true SL-6s; $189.99 and $200 items visible on eBay web were completely absent
+- Filed #79: replace Browse API with puppeteer sold listings scraper (`LH_Sold=1&LH_Complete=1` URL) — same pattern as Reverb scraper
+
 ### 2026-03-30 — v1.0.6 (Reverb scraper fix)
 - #76: Switched to `puppeteer-extra` + stealth plugin to bypass Cloudflare bot detection on Reverb
 - #76: Fixed stale CSS selectors (`rc-listing-row-card__*` → `rc-listing-card__*`) — titles and conditions now populate correctly
