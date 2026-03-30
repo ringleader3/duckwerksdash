@@ -6,9 +6,7 @@ const path       = require('path');
 const puppeteerExtra = require('puppeteer-extra');
 const StealthPlugin  = require('puppeteer-extra-plugin-stealth');
 puppeteerExtra.use(StealthPlugin());
-const { getAppToken } = require('./ebay-auth');
 
-const EBAY_API    = 'https://api.ebay.com';
 const CHROME_PATH = process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
 const COMP_WORKFLOW = fs.readFileSync(
@@ -56,13 +54,15 @@ router.post('/search', async (req, res) => {
   }
 
   try {
-    const token   = await getAppToken();
     const results = await Promise.all(items.map(async item => {
       const sources = item.sources || ['ebay'];
 
       const [ebayListings, reverbListings] = await Promise.all([
         sources.includes('ebay')
-          ? searchItem(token, item).then(r => r.listings)
+          ? searchItem(item).then(r => r.listings).catch(e => {
+              console.warn(`eBay scrape failed for "${item.name}":`, e.message);
+              return [];
+            })
           : Promise.resolve([]),
         sources.includes('reverb')
           ? searchReverb(item.name, item.minPrice).catch(e => {
@@ -83,65 +83,68 @@ router.post('/search', async (req, res) => {
   }
 });
 
-async function searchItem(token, item) {
+async function searchItem(item) {
   const { name, minPrice } = item;
-  const allListings = [];
-
-  const params = new URLSearchParams({
-      q: name,
-      limit: '30',
-      sort: '-itemEndDate',
-      fieldgroups: 'EXTENDED',
+  const url     = `https://www.ebay.com/sch/l.html?_nkw=${encodeURIComponent(name)}&LH_Sold=1&LH_Complete=1`;
+  const browser = await puppeteerExtra.launch({ executablePath: CHROME_PATH, headless: true });
+  try {
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: 'networkidle2' });
+    const pageTitle = await page.title();
+    await page.waitForSelector('.s-item', { timeout: 10000 }).catch(e => {
+      throw new Error(`selector not found (page title: "${pageTitle}") — ${e.message}`);
     });
 
-    // soldItems:{true} filters to sold/completed listings only
-    let filter = 'itemLocationCountry:US,soldItems:{true}';
-    if (minPrice) filter += `,price:[${minPrice}..],priceCurrency:USD`;
-  params.set('filter', filter);
+    const listings = await page.evaluate(() => {
+      return [...document.querySelectorAll('.s-item')].map(el => {
+        const title = el.querySelector('.s-item__title')?.textContent?.trim() || '';
+        if (!title || title === 'Shop on eBay') return null;
 
-  const url      = `${EBAY_API}/buy/browse/v1/item_summary/search?${params}`;
-  const response = await fetch(url, {
-    headers: {
-      'Authorization':           `Bearer ${token}`,
-      'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US',
-    },
-  });
+        const priceRaw  = el.querySelector('.s-item__price')?.textContent?.trim() || '';
+        const shipRaw   = el.querySelector('.s-item__shipping, .s-item__logisticsCost')?.textContent?.trim() || '';
+        const condition = el.querySelector('.SECONDARY_INFO')?.textContent?.trim() || '';
+        const dateRaw   = el.querySelector('.s-item__ended-date, .s-item__caption--signal')?.textContent?.trim() || '';
+        const buyRaw    = el.querySelector('.s-item__purchase-options')?.textContent?.trim() || '';
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`eBay Browse API error for "${name}": ${response.status} — ${text}`);
-  }
+        // Handle price ranges ("$10.00 to $20.00") — take first value
+        const prices   = priceRaw.replace(/[^\d.]/g, ' ').trim().split(/\s+/).filter(Boolean).map(Number);
+        const price    = prices[0] || 0;
 
-  const data       = await response.json();
-  const itemsFound = data.itemSummaries || [];
+        let shipping = 0;
+        if (shipRaw && !/free/i.test(shipRaw)) {
+          shipping = parseFloat(shipRaw.replace(/[^\d.]/g, '')) || 0;
+        }
 
-  for (const i of itemsFound) {
-    const salePrice = parseFloat(i.price?.value || 0);
-    const shipping  = parseFloat(i.shippingOptions?.[0]?.shippingCost?.value || 0);
-    allListings.push({
-      query:           name,
-      title:           i.title,
-      condition:       i.condition || '',
-      sold_price:      salePrice,
-      shipping,
-      total_landed:    +(salePrice + shipping).toFixed(2),
-      sale_type:       normalizeBuyingOption(i.buyingOptions),
-      end_date:        i.itemEndDate || i.soldDate || '',
-      listing_status:  'sold',
-      source:          'eBay',
-      item_id:         i.legacyItemId || i.itemId,
+        let saleType = 'BIN';
+        const buyLower = buyRaw.toLowerCase();
+        if (buyLower.includes('best offer')) saleType = 'OBO';
+        else if (buyLower.includes('auction')) saleType = 'Auction';
+
+        return { title, condition, sold_price: price, shipping, sale_type: saleType, end_date: dateRaw };
+      }).filter(Boolean);
     });
+
+    return {
+      name:     item.name,
+      hints:    item,
+      listings: listings
+        .map(l => ({
+          query:          name,
+          title:          l.title,
+          condition:      l.condition,
+          sold_price:     l.sold_price,
+          shipping:       l.shipping,
+          total_landed:   +(l.sold_price + l.shipping).toFixed(2),
+          sale_type:      l.sale_type,
+          end_date:       l.end_date,
+          listing_status: 'sold',
+          source:         'eBay',
+        }))
+        .filter(l => !minPrice || l.sold_price >= minPrice),
+    };
+  } finally {
+    await browser.close();
   }
-
-  return { name: item.name, hints: item, listings: allListings };
-}
-
-function normalizeBuyingOption(opts) {
-  if (!opts) return 'BIN';
-  const s = opts.join(',').toLowerCase();
-  if (s.includes('best_offer')) return 'OBO';
-  if (s.includes('auction'))    return 'Auction';
-  return 'BIN';
 }
 
 async function searchReverb(name, minPrice) {
