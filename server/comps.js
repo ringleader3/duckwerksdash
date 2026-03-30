@@ -28,6 +28,8 @@ For the CSV:
 - listing_status: use "sold" if end_date is populated, otherwise "active"
 - notes: flag outliers (parts-only, lot, Japanese import, no PSU, battery-only, etc.) as described in the workflow. Leave empty if nothing notable.
 
+IMPORTANT: You MUST always output both sections. Even if the data is noisy or all listings are active, still produce the CSV — use the notes column to flag questionable listings (kit, charger-only, 2-pack, aftermarket, active/no-sold-date, etc.). Never skip the CSV block.
+
 Format your response EXACTLY as:
 ANALYSIS:
 <analysis paragraph>
@@ -166,8 +168,15 @@ function extractSection(text, startMarker, endMarker) {
 }
 
 function extractCsvBlock(text) {
-  const match = text.match(/```[\s\S]*?\n([\s\S]*?)```/);
-  return match ? match[1].trim() : '';
+  // Match fenced block with optional language hint
+  const fenced = text.match(/```[^\n]*\n([\s\S]*?)```/);
+  if (fenced) return fenced[1].trim();
+  // Fallback: grab everything after "CSV:" and strip any surrounding fences
+  const csvIdx = text.indexOf('CSV:');
+  if (csvIdx !== -1) {
+    return text.slice(csvIdx + 4).trim().replace(/^```[^\n]*\n?/, '').replace(/```$/, '').trim();
+  }
+  return '';
 }
 
 module.exports = { router };

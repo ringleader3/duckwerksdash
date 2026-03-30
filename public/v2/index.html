@@ -59,6 +59,7 @@
       <button class="nav-pill" :class="{ active: $store.dw.activeView === 'items' }"     @click="$store.dw.activeView = 'items'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'items' ? '◉' : '○'"></span> Inventory</button>
       <button class="nav-pill" :class="{ active: $store.dw.activeView === 'lots' }"      @click="$store.dw.activeView = 'lots'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'lots' ? '◉' : '○'"></span> Lots</button>
       <button class="nav-pill" :class="{ active: $store.dw.activeView === 'analytics' }" @click="$store.dw.activeView = 'analytics'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'analytics' ? '◉' : '○'"></span> Analytics</button>
+      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'comps' }"     @click="$store.dw.activeView = 'comps'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'comps' ? '◉' : '○'"></span> Comps</button>
     </div>
 
     <!-- Actions -->
@@ -483,6 +484,93 @@
             </tbody>
           </table>
         </div>
+
+      </div>
+
+      <!-- Comps -->
+      <div x-show="$store.dw.activeView === 'comps'" x-data="compsView">
+        <div class="view-header">
+          <div class="view-title">Comp Research</div>
+        </div>
+
+        <!-- Input panel -->
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px">
+          <textarea
+            x-model="inputText"
+            placeholder="One item per line. Optional hints: item name | min_price=50 | alternates=[Model A, Model B] | notes=no charger"
+            style="width:100%; height:120px; background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:10px; resize:vertical; border-radius:4px; box-sizing:border-box"
+            :disabled="running"
+          ></textarea>
+          <div style="display:flex; gap:8px; align-items:center">
+            <button class="btn btn-active" @click="run()" :disabled="running || !inputText.trim()">
+              <span x-show="!running">Run Comps</span>
+              <span x-show="running">Running…</span>
+            </button>
+            <button class="btn btn-muted" x-show="results.some(r => r.csv)" @click="copyAll(); $el.textContent='✓ Copied'">Copy All CSV</button>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <template x-for="(result, idx) in results" :key="idx">
+          <div style="margin-bottom:32px; border:1px solid var(--border); border-radius:6px; padding:16px">
+
+            <!-- Card header -->
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px">
+              <div style="font-size:14px; font-weight:bold; color:var(--white)" x-text="result.name"></div>
+              <div style="font-size:11px"
+                   :style="result.status === 'done' ? 'color:var(--green)' : result.status === 'error' ? 'color:var(--red)' : 'color:var(--yellow)'"
+                   x-text="result.status === 'searching' ? 'Searching eBay…' : result.status === 'analyzing' ? 'Analyzing…' : result.status === 'done' ? 'Done' : 'Error'">
+              </div>
+            </div>
+
+            <!-- Error -->
+            <div x-show="result.status === 'error'" x-text="result.error" style="color:var(--red); font-size:12px; margin-bottom:8px"></div>
+
+            <!-- Analysis paragraph -->
+            <div x-show="result.analysis" x-text="result.analysis"
+                 style="font-size:12px; color:var(--white); line-height:1.6; margin-bottom:16px; padding:10px; background:rgba(255,255,255,0.04); border-radius:4px">
+            </div>
+
+            <!-- CSV table -->
+            <div x-show="result.csv">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+                <div style="font-size:11px; color:var(--muted)">Comp table</div>
+                <button class="btn btn-muted" style="font-size:11px; padding:3px 8px" @click="copyCSV(result.csv); $el.textContent='✓ Copied'">Copy CSV</button>
+              </div>
+              <div style="overflow-x:auto">
+                <table class="data-table" style="font-size:11px">
+                  <thead>
+                    <tr>
+                      <th style="text-align:left">Title</th>
+                      <th>Cond</th>
+                      <th class="num-col">Sold</th>
+                      <th class="num-col">Ship</th>
+                      <th class="num-col">Landed</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                      <th style="text-align:left">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="(row, ri) in csvRows(result.csv)" :key="ri">
+                      <tr>
+                        <td x-text="row.title" style="max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis"></td>
+                        <td x-text="row.condition" style="color:var(--muted)"></td>
+                        <td class="num-col" x-text="row.sold_price ? '$' + parseFloat(row.sold_price).toFixed(2) : '—'" style="color:var(--green)"></td>
+                        <td class="num-col" x-text="parseFloat(row.shipping) > 0 ? '$' + parseFloat(row.shipping).toFixed(2) : 'Free'" style="color:var(--muted)"></td>
+                        <td class="num-col" x-text="row.total_landed ? '$' + parseFloat(row.total_landed).toFixed(2) : '—'" style="color:var(--white); font-weight:bold"></td>
+                        <td x-text="row.sale_type" style="color:var(--muted)"></td>
+                        <td x-text="row.listing_status" :style="row.listing_status === 'sold' ? 'color:var(--green)' : 'color:var(--yellow)'"></td>
+                        <td x-text="row.notes" style="color:var(--muted); max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis"></td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </template>
 
       </div>
 
@@ -1641,6 +1729,7 @@
 <script src="js/views/items.js"></script>
 <script src="js/views/lots.js"></script>
 <script src="js/views/analytics.js"></script>
+<script src="js/views/comps.js"></script>
 <script src="js/modals/item-modal.js"></script>
 <script src="js/modals/add-modal.js"></script>
 <script src="js/modals/lot-modal.js"></script>
