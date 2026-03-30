@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-30 — v1.0.6 (Reverb scraper fix)
+- #76: Switched to `puppeteer-extra` + stealth plugin to bypass Cloudflare bot detection on Reverb
+- #76: Fixed stale CSS selectors (`rc-listing-row-card__*` → `rc-listing-card__*`) — titles and conditions now populate correctly
+- Added empty listings guard in comps view — shows red error card instead of calling Claude with 0 results (prevents hallucinated CSV)
+- NUC: installed Chromium (`/usr/lib64/chromium-browser/chromium-browser`), set `CHROME_PATH` in `.env`
+
 ### 2026-03-30 — v1.0.5 (comp research — Reverb, download, form UI, Comp button)
 - #76: Added Puppeteer-based Reverb sold listing scrape (`puppeteer-core` + system Chrome); fans out eBay + Reverb in parallel; `CHROME_PATH` env var
 - #76: Added `sources=` per-item control (ebay/reverb/both); defaults to eBay only — Reverb opt-in to avoid scrape latency
