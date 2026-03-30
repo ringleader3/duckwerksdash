@@ -61,6 +61,11 @@ document.addEventListener('alpine:init', () => {
       for (let i = 0; i < searchResults.length; i++) {
         const item   = searchResults[i];
         const result = this.results[i];
+        if (!item.listings || item.listings.length === 0) {
+          result.status = 'error';
+          result.error  = 'No listings found — check source or search terms';
+          continue;
+        }
         try {
           const response = await fetch('/api/comps/analyze', {
             method:  'POST',

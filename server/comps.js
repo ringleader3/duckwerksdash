@@ -3,7 +3,9 @@ const router     = express.Router();
 const Anthropic  = require('@anthropic-ai/sdk');
 const fs         = require('fs');
 const path       = require('path');
-const puppeteer  = require('puppeteer-core');
+const puppeteerExtra = require('puppeteer-extra');
+const StealthPlugin  = require('puppeteer-extra-plugin-stealth');
+puppeteerExtra.use(StealthPlugin());
 const { getAppToken } = require('./ebay-auth');
 
 const EBAY_API    = 'https://api.ebay.com';
@@ -145,16 +147,19 @@ function normalizeBuyingOption(opts) {
 async function searchReverb(name, minPrice) {
   const url = `https://reverb.com/marketplace?query=${encodeURIComponent(name)}&show_only_sold=true&sort=published_at|desc`;
 
-  const browser = await puppeteer.launch({ executablePath: CHROME_PATH, headless: true });
+  const browser = await puppeteerExtra.launch({ executablePath: CHROME_PATH, headless: true });
   try {
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle2' });
-    await page.waitForSelector('ul.rc-listing-grid', { timeout: 10000 });
+    const pageTitle = await page.title();
+    await page.waitForSelector('ul.rc-listing-grid', { timeout: 10000 }).catch(e => {
+      throw new Error(`selector not found (page title: "${pageTitle}") — ${e.message}`);
+    });
 
     const listings = await page.evaluate(() => {
       return [...document.querySelectorAll('li.rc-listing-grid__item')].map(el => {
-        const title     = el.querySelector('h2.rc-listing-row-card__title')?.textContent?.trim() || '';
-        const condition = el.querySelector('div.rc-listing-row-card__condition')?.textContent?.trim() || '';
+        const title     = el.querySelector('h2.rc-listing-card__title')?.textContent?.trim() || '';
+        const condition = el.querySelector('div.rc-listing-card__condition')?.textContent?.trim() || '';
         const priceRaw  = el.querySelector('div.rc-price-block__price')?.textContent?.trim() || '';
         const shipRaw   = el.querySelector('div.rc-price-block__shipping')?.textContent?.trim() || '';
         const price     = parseFloat(priceRaw.replace(/[^\d.]/g, '')) || 0;
