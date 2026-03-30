@@ -3,9 +3,7 @@ const router     = express.Router();
 const Anthropic  = require('@anthropic-ai/sdk');
 const fs         = require('fs');
 const path       = require('path');
-const { getAppToken } = require('./ebay-auth');
-
-const EBAY_API = 'https://api.ebay.com';
+const SERPAPI = 'https://serpapi.com/search.json';
 
 const COMP_WORKFLOW = fs.readFileSync(
   path.join(__dirname, '../docs/gear-comp-research.md'), 'utf8'
@@ -52,13 +50,12 @@ router.post('/search', async (req, res) => {
   }
 
   try {
-    const token   = await getAppToken();
     const results = await Promise.all(items.map(async item => {
       const sources = item.sources || ['ebay'];
 
       const [ebayListings, reverbListings] = await Promise.all([
         sources.includes('ebay')
-          ? searchItem(token, item).then(r => r.listings).catch(e => {
+          ? searchItem(item).then(r => r.listings).catch(e => {
               console.warn(`eBay search failed for "${item.name}":`, e.message);
               return [];
             })
@@ -82,35 +79,30 @@ router.post('/search', async (req, res) => {
   }
 });
 
-async function searchItem(token, item) {
+async function searchItem(item) {
   const { name, minPrice } = item;
-  const now   = new Date().toISOString();
-  const ago90 = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
-
-  let filter = [
-    'itemLocationCountry:US',
-    'soldItems:{true}',
-    'conditionIds:{2500|3000|4000|5000|6000}',
-    `itemEndDate:[${ago90}..${now}]`,
-  ].join(',');
-  if (minPrice) filter += `,price:[${minPrice}..],priceCurrency:USD`;
-
-  const params = new URLSearchParams({ q: name, limit: '40', sort: '-itemEndDate', fieldgroups: 'EXTENDED', filter });
-  const res = await fetch(`${EBAY_API}/buy/browse/v1/item_summary/search?${params}`, {
-    headers: { 'Authorization': `Bearer ${token}`, 'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US' },
+  const params = new URLSearchParams({
+    engine:    'ebay',
+    _nkw:      name,
+    show_only: 'Sold',
+    _ipg:      '50',
+    api_key:   process.env.SERPAPI_API_KEY,
   });
+  if (minPrice) {
+    params.set('_udlo', String(minPrice));
+  }
 
+  const res = await fetch(`${SERPAPI}?${params}`);
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`eBay Browse API error for "${name}": ${res.status} — ${text}`);
+    throw new Error(`SerpAPI error for "${name}": ${res.status} — ${text}`);
   }
 
   const data     = await res.json();
-  const listings = (data.itemSummaries || []).map(i => {
-    const price    = parseFloat(i.price?.value || 0);
-    const shipping = parseFloat(i.shippingOptions?.[0]?.shippingCost?.value || 0);
-    const opts     = (i.buyingOptions || []).join(',').toLowerCase();
-    const saleType = opts.includes('best_offer') ? 'OBO' : opts.includes('auction') ? 'Auction' : 'BIN';
+  const listings = (data.organic_results || []).map(i => {
+    const price    = i.price?.extracted || 0;
+    const shipping = typeof i.shipping === 'object' ? (i.shipping.extracted || 0) : 0;
+    const saleType = i.bids != null ? 'Auction' : 'BIN';
     return {
       query:          name,
       title:          i.title,
@@ -119,7 +111,7 @@ async function searchItem(token, item) {
       shipping,
       total_landed:   +(price + shipping).toFixed(2),
       sale_type:      saleType,
-      end_date:       i.itemEndDate || '',
+      end_date:       i.sold_date || '',
       listing_status: 'sold',
       source:         'eBay',
     };
