@@ -497,7 +497,7 @@
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px">
           <textarea
             x-model="inputText"
-            placeholder="One item per line. Optional hints: item name | min_price=50 | alternates=[Model A, Model B] | notes=no charger"
+            placeholder="One item per line. Optional hints: item name | sources=ebay | min_price=50 | alternates=[Model A, Model B] | notes=no charger&#10;Sources: ebay (default), reverb, or ebay,reverb for both"
             style="width:100%; height:120px; background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:10px; resize:vertical; border-radius:4px; box-sizing:border-box"
             :disabled="running"
           ></textarea>

@@ -56,17 +56,23 @@ router.post('/search', async (req, res) => {
   try {
     const token   = await getAppToken();
     const results = await Promise.all(items.map(async item => {
-      const [ebayResult, reverbListings] = await Promise.all([
-        searchItem(token, item),
-        searchReverb(item.name, item.minPrice).catch(e => {
-          console.warn(`Reverb scrape failed for "${item.name}":`, e.message);
-          return [];
-        }),
+      const sources = item.sources || ['ebay'];
+
+      const [ebayListings, reverbListings] = await Promise.all([
+        sources.includes('ebay')
+          ? searchItem(token, item).then(r => r.listings)
+          : Promise.resolve([]),
+        sources.includes('reverb')
+          ? searchReverb(item.name, item.minPrice).catch(e => {
+              console.warn(`Reverb scrape failed for "${item.name}":`, e.message);
+              return [];
+            })
+          : Promise.resolve([]),
       ]);
       return {
         name:     item.name,
         hints:    item,
-        listings: [...ebayResult.listings, ...reverbListings],
+        listings: [...ebayListings, ...reverbListings],
       };
     }));
     res.json({ results });

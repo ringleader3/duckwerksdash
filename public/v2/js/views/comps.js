@@ -21,6 +21,7 @@ document.addEventListener('alpine:init', () => {
             if (key === 'min_price')  hints.minPrice   = parseFloat(val) || undefined;
             if (key === 'alternates') hints.alternates = val.replace(/[\[\]]/g, '').split(',').map(s => s.trim()).filter(Boolean);
             if (key === 'notes')      hints.notes      = val;
+            if (key === 'sources')    hints.sources    = val.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
           });
           return { name: namePart, ...hints };
         });
