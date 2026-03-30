@@ -106,5 +106,32 @@ document.addEventListener('alpine:init', () => {
       navigator.clipboard.writeText(all);
     },
 
+    _buildTXT(result) {
+      return `COMP RESEARCH: ${result.name}\n${'='.repeat(60)}\n\n${result.analysis}\n\n${'─'.repeat(60)}\n\n${result.csv}`;
+    },
+
+    _triggerDownload(filename, content) {
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+
+    downloadTXT(result) {
+      const filename = result.name.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '_comps.txt';
+      this._triggerDownload(filename, this._buildTXT(result));
+    },
+
+    downloadAll() {
+      const content = this.results
+        .filter(r => r.csv)
+        .map(r => this._buildTXT(r))
+        .join('\n\n' + '='.repeat(60) + '\n\n');
+      this._triggerDownload('comps_all.txt', content);
+    },
+
   }));
 });

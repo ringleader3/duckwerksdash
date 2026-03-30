@@ -507,6 +507,7 @@
               <span x-show="running">Running…</span>
             </button>
             <button class="btn btn-muted" x-show="results.some(r => r.csv)" @click="copyAll(); $el.textContent='✓ Copied'">Copy All CSV</button>
+            <button class="btn btn-muted" x-show="results.some(r => r.csv)" @click="downloadAll()">Download All</button>
           </div>
         </div>
 
@@ -519,7 +520,7 @@
               <div style="font-size:14px; font-weight:bold; color:var(--white)" x-text="result.name"></div>
               <div style="font-size:11px"
                    :style="result.status === 'done' ? 'color:var(--green)' : result.status === 'error' ? 'color:var(--red)' : 'color:var(--yellow)'"
-                   x-text="result.status === 'searching' ? 'Searching eBay…' : result.status === 'analyzing' ? 'Analyzing…' : result.status === 'done' ? 'Done' : 'Error'">
+                   x-text="result.status === 'searching' ? 'Searching…' : result.status === 'analyzing' ? 'Analyzing…' : result.status === 'done' ? 'Done' : 'Error'">
               </div>
             </div>
 
@@ -536,6 +537,7 @@
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
                 <div style="font-size:11px; color:var(--muted)">Comp table</div>
                 <button class="btn btn-muted" style="font-size:11px; padding:3px 8px" @click="copyCSV(result.csv); $el.textContent='✓ Copied'">Copy CSV</button>
+                <button class="btn btn-muted" style="font-size:11px; padding:3px 8px; margin-left:4px" @click="downloadTXT(result)">Download</button>
               </div>
               <div style="overflow-x:auto">
                 <table class="data-table" style="font-size:11px">

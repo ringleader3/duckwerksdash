@@ -1,11 +1,13 @@
-const express   = require('express');
-const router    = express.Router();
-const Anthropic = require('@anthropic-ai/sdk');
-const fs        = require('fs');
-const path      = require('path');
+const express    = require('express');
+const router     = express.Router();
+const Anthropic  = require('@anthropic-ai/sdk');
+const fs         = require('fs');
+const path       = require('path');
+const puppeteer  = require('puppeteer-core');
 const { getAppToken } = require('./ebay-auth');
 
-const EBAY_API = 'https://api.ebay.com';
+const EBAY_API    = 'https://api.ebay.com';
+const CHROME_PATH = process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
 const COMP_WORKFLOW = fs.readFileSync(
   path.join(__dirname, '../docs/gear-comp-research.md'), 'utf8'
@@ -22,10 +24,10 @@ When given raw eBay listing data for an item, you will:
 2. Output a CSV block in the exact format from the workflow doc above.
 
 For the CSV:
-- source is always "eBay"
+- source: use "eBay" for eBay listings and "Reverb" for Reverb listings (check the listing data)
 - date_pulled is the date provided
 - Use the listing data as-is for title, condition, sold_price, shipping, total_landed, sale_type
-- listing_status: use the value from the data — eBay results are confirmed sold (soldItems filter), Reverb results are active. Do not override based on end_date.
+- listing_status: use the value from the data — eBay results are confirmed sold (soldItems filter), Reverb results are confirmed sold (show_only_sold=true). Do not override based on end_date.
 - notes: flag outliers (parts-only, lot, Japanese import, no PSU, battery-only, etc.) as described in the workflow. Leave empty if nothing notable.
 
 IMPORTANT: You MUST always output both sections. Even if the data is noisy or all listings are active, still produce the CSV — use the notes column to flag questionable listings (kit, charger-only, 2-pack, aftermarket, active/no-sold-date, etc.). Never skip the CSV block.
@@ -53,10 +55,23 @@ router.post('/search', async (req, res) => {
 
   try {
     const token   = await getAppToken();
-    const results = await Promise.all(items.map(item => searchItem(token, item)));
+    const results = await Promise.all(items.map(async item => {
+      const [ebayResult, reverbListings] = await Promise.all([
+        searchItem(token, item),
+        searchReverb(item.name, item.minPrice).catch(e => {
+          console.warn(`Reverb scrape failed for "${item.name}":`, e.message);
+          return [];
+        }),
+      ]);
+      return {
+        name:     item.name,
+        hints:    item,
+        listings: [...ebayResult.listings, ...reverbListings],
+      };
+    }));
     res.json({ results });
   } catch (e) {
-    res.status(502).json({ error: 'eBay search failed', detail: e.message });
+    res.status(502).json({ error: 'Search failed', detail: e.message });
   }
 });
 
@@ -109,6 +124,7 @@ async function searchItem(token, item) {
         sale_type:       normalizeBuyingOption(i.buyingOptions),
         end_date:        i.itemEndDate || i.soldDate || '',
         listing_status:  'sold',   // soldItems:{true} filter confirmed working; Browse API just doesn't return date
+        source:          'eBay',
         item_id:         i.legacyItemId || i.itemId,
       });
     }
@@ -123,6 +139,45 @@ function normalizeBuyingOption(opts) {
   if (s.includes('best_offer')) return 'OBO';
   if (s.includes('auction'))    return 'Auction';
   return 'BIN';
+}
+
+async function searchReverb(name, minPrice) {
+  const url = `https://reverb.com/marketplace?query=${encodeURIComponent(name)}&show_only_sold=true&sort=published_at|desc`;
+
+  const browser = await puppeteer.launch({ executablePath: CHROME_PATH, headless: true });
+  try {
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: 'networkidle2' });
+    await page.waitForSelector('ul.rc-listing-grid', { timeout: 10000 });
+
+    const listings = await page.evaluate(() => {
+      return [...document.querySelectorAll('li.rc-listing-grid__item')].map(el => {
+        const title     = el.querySelector('h2.rc-listing-row-card__title')?.textContent?.trim() || '';
+        const condition = el.querySelector('div.rc-listing-row-card__condition')?.textContent?.trim() || '';
+        const priceRaw  = el.querySelector('div.rc-price-block__price')?.textContent?.trim() || '';
+        const shipRaw   = el.querySelector('div.rc-price-block__shipping')?.textContent?.trim() || '';
+        const price     = parseFloat(priceRaw.replace(/[^\d.]/g, '')) || 0;
+        const shipping  = parseFloat(shipRaw.replace(/[^\d.]/g, '')) || 0;
+        return {
+          query: '',  // filled below
+          title, condition,
+          sold_price:      price,
+          shipping,
+          total_landed:    +(price + shipping).toFixed(2),
+          sale_type:       'BIN',
+          end_date:        '',
+          listing_status:  'sold',
+          source:          'Reverb',
+        };
+      });
+    });
+
+    return listings
+      .map(l => ({ ...l, query: name }))
+      .filter(l => !minPrice || l.sold_price >= minPrice);
+  } finally {
+    await browser.close();
+  }
 }
 
 // POST /api/comps/analyze
