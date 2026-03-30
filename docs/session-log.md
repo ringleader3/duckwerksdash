@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-29 — v1.0.7 (eBay scraper attempt + UI fixes)
+- #78: Replaced all emdash (`—`) null-display placeholders with `n/a` across JS and HTML templates; dropdown option emdashes updated to n/a/none/descriptive text
+- #79: Replaced eBay Browse API with puppeteer scraper targeting `LH_Sold=1&LH_Complete=1` URL — bot detection blocked all puppeteer approaches (headless, headless:new, headless:false all served security challenge page)
+- #79: Attempted direct fetch with browser headers + cookie priming — eBay is full CSR (13KB JS shell, 0 items in HTML)
+- #79: Attempted eBay Finding API (`findCompletedItems`) — returned error 10001 (rate limit or access not enabled for this App ID); needs investigation in eBay developer portal before next attempt
+- eBay comps currently broken/disabled; Reverb comps unaffected and working
+- Added `cheerio` dependency (installed but not currently used — safe to remove if Finding API path works)
+
 ### 2026-03-30 — v1.0.6 (eBay Browse API diagnosis)
 - Diagnosed eBay Browse API problems in `server/comps.js`: missing recent sold listings, empty sold dates, overly broad model matching, possible active listings included
 - Raw API test: 29 results for "Technics SL-6" returned only 2 true SL-6s; $189.99 and $200 items visible on eBay web were completely absent

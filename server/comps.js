@@ -85,66 +85,53 @@ router.post('/search', async (req, res) => {
 
 async function searchItem(item) {
   const { name, minPrice } = item;
-  const url     = `https://www.ebay.com/sch/l.html?_nkw=${encodeURIComponent(name)}&LH_Sold=1&LH_Complete=1`;
-  const browser = await puppeteerExtra.launch({ executablePath: CHROME_PATH, headless: true });
-  try {
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2' });
-    const pageTitle = await page.title();
-    await page.waitForSelector('.s-item', { timeout: 10000 }).catch(e => {
-      throw new Error(`selector not found (page title: "${pageTitle}") — ${e.message}`);
-    });
 
-    const listings = await page.evaluate(() => {
-      return [...document.querySelectorAll('.s-item')].map(el => {
-        const title = el.querySelector('.s-item__title')?.textContent?.trim() || '';
-        if (!title || title === 'Shop on eBay') return null;
+  const params = new URLSearchParams({
+    'OPERATION-NAME':                 'findCompletedItems',
+    'SERVICE-VERSION':                '1.0.0',
+    'SECURITY-APPNAME':               process.env.EBAY_CLIENT_ID,
+    'RESPONSE-DATA-FORMAT':           'JSON',
+    'keywords':                       name,
+    'sortOrder':                      'EndTimeSoonest',
+    'paginationInput.entriesPerPage': '50',
+    'itemFilter(0).name':             'SoldItemsOnly',
+    'itemFilter(0).value':            'true',
+  });
 
-        const priceRaw  = el.querySelector('.s-item__price')?.textContent?.trim() || '';
-        const shipRaw   = el.querySelector('.s-item__shipping, .s-item__logisticsCost')?.textContent?.trim() || '';
-        const condition = el.querySelector('.SECONDARY_INFO')?.textContent?.trim() || '';
-        const dateRaw   = el.querySelector('.s-item__ended-date, .s-item__caption--signal')?.textContent?.trim() || '';
-        const buyRaw    = el.querySelector('.s-item__purchase-options')?.textContent?.trim() || '';
-
-        // Handle price ranges ("$10.00 to $20.00") — take first value
-        const prices   = priceRaw.replace(/[^\d.]/g, ' ').trim().split(/\s+/).filter(Boolean).map(Number);
-        const price    = prices[0] || 0;
-
-        let shipping = 0;
-        if (shipRaw && !/free/i.test(shipRaw)) {
-          shipping = parseFloat(shipRaw.replace(/[^\d.]/g, '')) || 0;
-        }
-
-        let saleType = 'BIN';
-        const buyLower = buyRaw.toLowerCase();
-        if (buyLower.includes('best offer')) saleType = 'OBO';
-        else if (buyLower.includes('auction')) saleType = 'Auction';
-
-        return { title, condition, sold_price: price, shipping, sale_type: saleType, end_date: dateRaw };
-      }).filter(Boolean);
-    });
-
-    return {
-      name:     item.name,
-      hints:    item,
-      listings: listings
-        .map(l => ({
-          query:          name,
-          title:          l.title,
-          condition:      l.condition,
-          sold_price:     l.sold_price,
-          shipping:       l.shipping,
-          total_landed:   +(l.sold_price + l.shipping).toFixed(2),
-          sale_type:      l.sale_type,
-          end_date:       l.end_date,
-          listing_status: 'sold',
-          source:         'eBay',
-        }))
-        .filter(l => !minPrice || l.sold_price >= minPrice),
-    };
-  } finally {
-    await browser.close();
+  if (minPrice) {
+    params.set('itemFilter(1).name',       'MinPrice');
+    params.set('itemFilter(1).value',      String(minPrice));
+    params.set('itemFilter(1).paramName',  'Currency');
+    params.set('itemFilter(1).paramValue', 'USD');
   }
+
+  const res = await fetch(`https://svcs.ebay.com/services/search/FindingService/v1?${params}`);
+  if (!res.ok) throw new Error(`eBay Finding API error: ${res.status}`);
+
+  const data    = await res.json();
+  const results = data?.findCompletedItemsResponse?.[0]?.searchResult?.[0]?.item || [];
+
+  const listings = results.map(i => {
+    const price       = parseFloat(i.sellingStatus?.[0]?.currentPrice?.[0]?.['__value__'] || 0);
+    const shipVal     = i.shippingInfo?.[0]?.shippingServiceCost?.[0]?.['__value__'];
+    const shipping    = shipVal != null ? parseFloat(shipVal) : 0;
+    const listingType = i.listingInfo?.[0]?.listingType?.[0] || '';
+    const saleType    = listingType === 'Auction' ? 'Auction' : 'BIN';
+    return {
+      query:          name,
+      title:          i.title?.[0] || '',
+      condition:      i.condition?.[0]?.conditionDisplayName?.[0] || '',
+      sold_price:     price,
+      shipping,
+      total_landed:   +(price + shipping).toFixed(2),
+      sale_type:      saleType,
+      end_date:       i.listingInfo?.[0]?.endTime?.[0] || '',
+      listing_status: 'sold',
+      source:         'eBay',
+    };
+  });
+
+  return { name: item.name, hints: item, listings };
 }
 
 async function searchReverb(name, minPrice) {
