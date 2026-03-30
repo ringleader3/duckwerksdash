@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-30 — v1.0.5 (comp research — Reverb, download, form UI, Comp button)
+- #76: Added Puppeteer-based Reverb sold listing scrape (`puppeteer-core` + system Chrome); fans out eBay + Reverb in parallel; `CHROME_PATH` env var
+- #76: Added `sources=` per-item control (ebay/reverb/both); defaults to eBay only — Reverb opt-in to avoid scrape latency
+- #77: Added Download (.txt) button per result + Download All — format: analysis + separator + CSV, named `{item}_comps.txt`
+- Replaced free-text textarea with structured form: one row per item with Name, Source select, Min $, Notes fields; + Add Item / × remove
+- Removed `alternates` hint — multiple rows serve the same purpose with separate result cards per query
+- Added Comp button to Items view (Listed filter only) — auto-fills comp form: parses `Name - Description` format, maps listing site to source, sets min price to 60% of list price, notes from description part
+
 ### 2026-03-30 — v1.0.4 (comp research view)
 - Added Comps view (issue #75) — sidebar nav pill, textarea input, Run Comps button
 - Input format: `item name | min_price=X | alternates=[A, B] | notes=...`
