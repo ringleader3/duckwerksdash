@@ -28,6 +28,7 @@ app.use('/api/shippo',    require('./server/shippo'));
 app.use('/api/label',     require('./server/label'));
 app.use('/api/reverb',    require('./server/reverb'));
 app.use('/api/ebay',      require('./server/ebay'));
+app.use('/api/comps',     require('./server/comps').router);
 
 // ── START ─────────────────────────────────────────────────────────────────────
 
