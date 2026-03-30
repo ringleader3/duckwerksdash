@@ -6,6 +6,15 @@ document.addEventListener('alpine:init', () => {
     results: [],   // [{ name, status, analysis, csv, error }]
     running: false,
 
+    init() {
+      this.$watch('$store.dw.pendingComp', val => {
+        if (!val) return;
+        this.items   = [{ name: val.name, sources: val.sources, minPrice: val.minPrice, notes: val.notes }];
+        this.results = [];
+        this.$store.dw.pendingComp = null;
+      });
+    },
+
     addItem() {
       this.items.push({ name: '', sources: 'ebay', minPrice: '', notes: '' });
     },

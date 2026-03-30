@@ -21,6 +21,7 @@ document.addEventListener('alpine:init', () => {
     previousModal:    null,
     categoryFilter:   null,
     pendingFilters:   null,
+    pendingComp:      null,
     shippingProvider: 'EASYPOST',
 
     // ── Init ──────────────────────────────────────────────────────────────────
@@ -96,6 +97,18 @@ document.addEventListener('alpine:init', () => {
       this.activeModal    = null;
       this.activeRecordId = null;
       this.activeLotName  = null;
+    },
+
+    navToComp(r) {
+      const parts    = r.name.split(' - ');
+      const name     = parts[0].trim();
+      const notes    = parts.slice(1).join(' - ').trim();
+      const site     = this.siteLabel(r).toLowerCase();
+      const sources  = (site === 'ebay' || site === 'reverb') ? site : 'ebay';
+      const listPrice = this.activeListing(r)?.list_price || 0;
+      const minPrice  = listPrice ? String(Math.round(listPrice * 0.6)) : '';
+      this.pendingComp = { name, sources, minPrice, notes };
+      this.activeView  = 'comps';
     },
 
     navToItems(status, category, site) {
