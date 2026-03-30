@@ -512,22 +512,26 @@
 
           <!-- Item rows -->
           <template x-for="(item, idx) in items" :key="idx">
-            <div style="display:grid; grid-template-columns:1fr 90px 80px 1fr 28px; gap:6px; margin-bottom:6px">
-              <input type="text" x-model="item.name" placeholder="e.g. Fender Stratocaster MIM" :disabled="running"
-                     style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 8px; border-radius:4px; min-width:0">
-              <select x-model="item.sources" :disabled="running"
-                      style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 4px; border-radius:4px">
-                <option value="ebay">eBay</option>
-                <option value="reverb">Reverb</option>
-                <option value="ebay,reverb">Both</option>
-              </select>
-              <input type="number" x-model="item.minPrice" placeholder="0" min="0" :disabled="running"
-                     style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 8px; border-radius:4px; min-width:0">
-              <input type="text" x-model="item.notes" placeholder="e.g. no charger, parts only" :disabled="running"
-                     style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 8px; border-radius:4px; min-width:0">
-              <button x-show="items.length > 1" @click="removeItem(idx)" :disabled="running" title="Remove"
-                      style="background:none; border:1px solid var(--border); color:var(--muted); border-radius:4px; cursor:pointer; font-size:14px; padding:0; line-height:1">×</button>
-              <div x-show="items.length === 1"></div>
+            <div style="margin-bottom:8px">
+              <div style="display:grid; grid-template-columns:1fr 90px 80px 1fr 28px; gap:6px; margin-bottom:3px">
+                <input type="text" x-model="item.name" placeholder="e.g. Fender Stratocaster MIM" :disabled="running"
+                       style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 8px; border-radius:4px; min-width:0">
+                <select x-model="item.sources" :disabled="running"
+                        style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 4px; border-radius:4px">
+                  <option value="ebay">eBay</option>
+                  <option value="reverb">Reverb</option>
+                  <option value="ebay,reverb">Both</option>
+                </select>
+                <input type="number" x-model="item.minPrice" placeholder="0" min="0" :disabled="running"
+                       style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 8px; border-radius:4px; min-width:0">
+                <input type="text" x-model="item.notes" placeholder="e.g. no charger, parts only" :disabled="running"
+                       style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 8px; border-radius:4px; min-width:0">
+                <button x-show="items.length > 1" @click="removeItem(idx)" :disabled="running" title="Remove"
+                        style="background:none; border:1px solid var(--border); color:var(--muted); border-radius:4px; cursor:pointer; font-size:14px; padding:0; line-height:1">×</button>
+                <div x-show="items.length === 1"></div>
+              </div>
+              <input type="text" x-model="item.searchQuery" placeholder="eBay search query (optional — defaults to item name above)" :disabled="running"
+                     style="width:100%; box-sizing:border-box; background:var(--surface); border:1px solid var(--border2); color:var(--muted); font-family:'Space Mono',monospace; font-size:11px; padding:4px 8px; border-radius:4px">
             </div>
           </template>
 

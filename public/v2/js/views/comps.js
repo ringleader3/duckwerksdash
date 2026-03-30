@@ -2,21 +2,21 @@
 document.addEventListener('alpine:init', () => {
   Alpine.data('compsView', () => ({
 
-    items:   [{ name: '', sources: 'ebay', minPrice: '', notes: '' }],
+    items:   [{ name: '', sources: 'ebay', minPrice: '', notes: '', searchQuery: '' }],
     results: [],   // [{ name, status, analysis, csv, error }]
     running: false,
 
     init() {
       this.$watch('$store.dw.pendingComp', val => {
         if (!val) return;
-        this.items   = [{ name: val.name, sources: val.sources, minPrice: val.minPrice, notes: val.notes }];
+        this.items   = [{ name: val.name, sources: val.sources, minPrice: val.minPrice, notes: val.notes, searchQuery: '' }];
         this.results = [];
         this.$store.dw.pendingComp = null;
       });
     },
 
     addItem() {
-      this.items.push({ name: '', sources: 'ebay', minPrice: '', notes: '' });
+      this.items.push({ name: '', sources: 'ebay', minPrice: '', notes: '', searchQuery: '' });
     },
 
     removeItem(idx) {
@@ -27,10 +27,11 @@ document.addEventListener('alpine:init', () => {
       const items = this.items
         .filter(i => i.name.trim())
         .map(i => ({
-          name:     i.name.trim(),
-          sources:  i.sources.split(','),
-          minPrice: parseFloat(i.minPrice) || undefined,
-          notes:    i.notes.trim() || undefined,
+          name:        i.name.trim(),
+          sources:     i.sources.split(','),
+          minPrice:    parseFloat(i.minPrice) || undefined,
+          notes:       i.notes.trim() || undefined,
+          searchQuery: i.searchQuery.trim() || undefined,
         }));
       if (!items.length) return;
 

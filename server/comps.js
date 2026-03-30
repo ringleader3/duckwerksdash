@@ -80,10 +80,10 @@ router.post('/search', async (req, res) => {
 });
 
 async function searchItem(item) {
-  const { name, minPrice } = item;
+  const { name, searchQuery, minPrice } = item;
   const params = new URLSearchParams({
     engine:    'ebay',
-    _nkw:      name,
+    _nkw:      searchQuery || name,
     show_only: 'Sold',
     _ipg:      '50',
     api_key:   process.env.SERPAPI_API_KEY,
