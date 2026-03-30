@@ -315,7 +315,6 @@
               <th class="num sortable" :class="{'sort-active': sortKey==='shipping'}" @click="sortBy('shipping')">Shipping<span x-text="sortIndicator('shipping')"></span></th>
               <th x-show="statusFilter === 'Sold' || statusFilter === 'All'" class="num sortable" :class="{'sort-active': sortKey==='soldDate'}" @click="sortBy('soldDate')">Date Sold<span x-text="sortIndicator('soldDate')"></span></th>
               <th x-show="statusFilter === 'Sold' || statusFilter === 'All'" style="white-space:nowrap">Tracking</th>
-              <th x-show="statusFilter === 'Listed'"></th>
             </tr>
           </thead>
           <tbody>
@@ -352,9 +351,6 @@
                     <span x-show="!trackingData[r.id] && !trackingLoading" style="color:var(--muted);font-size:11px">—</span>
                   </span>
                   <span x-show="!r.shipment?.tracking_id" style="color:var(--muted);font-size:11px">—</span>
-                </td>
-                <td x-show="statusFilter === 'Listed'" @click.stop>
-                  <button class="btn btn-muted" style="font-size:11px; padding:3px 8px; white-space:nowrap" @click="$store.dw.navToComp(r)">Comp</button>
                 </td>
               </tr>
             </template>
@@ -433,6 +429,7 @@
                 <th class="num-col sortable"                  :class="{'sort-active': sortKey==='watchers'}"    @click="sortBy('watchers')">Watchers<span x-text="sortIndicator('watchers')"></span></th>
                 <th class="num-col sortable"                  :class="{'sort-active': sortKey==='impressions'}" @click="sortBy('impressions')">Impressions<span x-text="sortIndicator('impressions')"></span></th>
                 <th class="num-col sortable"                  :class="{'sort-active': sortKey==='ctr'}"         @click="sortBy('ctr')">CTR<span x-text="sortIndicator('ctr')"></span></th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -446,10 +443,14 @@
                   <td class="num-col" x-text="row.watchers != null ? row.watchers : '—'"></td>
                   <td class="num-col" x-text="row.impressions != null ? row.impressions : '—'"></td>
                   <td class="num-col" x-text="row.ctr != null ? row.ctr + '%' : '—'"></td>
+                  <td @click.stop x-show="row.itemId">
+                    <button class="btn btn-muted" style="font-size:11px; padding:3px 8px; white-space:nowrap"
+                            @click="$store.dw.navToComp($store.dw.records.find(r => r.id === row.itemId))">Comp</button>
+                  </td>
                 </tr>
               </template>
               <tr x-show="sortedListedRows.length === 0 && !listedLoading">
-                <td colspan="8" style="color:var(--muted); text-align:center">No listings found</td>
+                <td colspan="9" style="color:var(--muted); text-align:center">No listings found</td>
               </tr>
             </tbody>
           </table>
