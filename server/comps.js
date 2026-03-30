@@ -3,6 +3,9 @@ const router     = express.Router();
 const Anthropic  = require('@anthropic-ai/sdk');
 const fs         = require('fs');
 const path       = require('path');
+const puppeteerExtra = require('puppeteer-extra');
+puppeteerExtra.use(require('puppeteer-extra-plugin-stealth')());
+const CHROME_PATH = process.env.CHROME_PATH;
 const SERPAPI = 'https://serpapi.com/search.json';
 
 const COMP_WORKFLOW = fs.readFileSync(
