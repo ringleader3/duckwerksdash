@@ -25,7 +25,7 @@ For the CSV:
 - source is always "eBay"
 - date_pulled is the date provided
 - Use the listing data as-is for title, condition, sold_price, shipping, total_landed, sale_type
-- listing_status: use "sold" if end_date is populated, otherwise "active"
+- listing_status: use the value from the data — eBay results are confirmed sold (soldItems filter), Reverb results are active. Do not override based on end_date.
 - notes: flag outliers (parts-only, lot, Japanese import, no PSU, battery-only, etc.) as described in the workflow. Leave empty if nothing notable.
 
 IMPORTANT: You MUST always output both sections. Even if the data is noisy or all listings are active, still produce the CSV — use the notes column to flag questionable listings (kit, charger-only, 2-pack, aftermarket, active/no-sold-date, etc.). Never skip the CSV block.
@@ -106,9 +106,10 @@ async function searchItem(token, item) {
         sold_price:   salePrice,
         shipping,
         total_landed: +(salePrice + shipping).toFixed(2),
-        sale_type:    normalizeBuyingOption(i.buyingOptions),
-        end_date:     i.itemEndDate || i.soldDate || '',
-        item_id:      i.legacyItemId || i.itemId,
+        sale_type:       normalizeBuyingOption(i.buyingOptions),
+        end_date:        i.itemEndDate || i.soldDate || '',
+        listing_status:  'sold',   // soldItems:{true} filter confirmed working; Browse API just doesn't return date
+        item_id:         i.legacyItemId || i.itemId,
       });
     }
   }
