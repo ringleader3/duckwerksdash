@@ -525,9 +525,9 @@
                      style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 8px; border-radius:4px; min-width:0">
               <input type="text" x-model="item.notes" placeholder="e.g. no charger, parts only" :disabled="running"
                      style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 8px; border-radius:4px; min-width:0">
-              <button @click="removeItem(idx)" :disabled="running || items.length === 1" title="Remove"
-                      style="background:none; border:1px solid var(--border); color:var(--muted); border-radius:4px; cursor:pointer; font-size:14px; padding:0; line-height:1"
-                      :style="items.length === 1 ? 'opacity:.3; cursor:default' : ''">×</button>
+              <button x-show="items.length > 1" @click="removeItem(idx)" :disabled="running" title="Remove"
+                      style="background:none; border:1px solid var(--border); color:var(--muted); border-radius:4px; cursor:pointer; font-size:14px; padding:0; line-height:1">×</button>
+              <div x-show="items.length === 1"></div>
             </div>
           </template>
 
