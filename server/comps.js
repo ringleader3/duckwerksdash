@@ -82,15 +82,11 @@ router.post('/search', async (req, res) => {
 });
 
 async function searchItem(token, item) {
-  const { name, minPrice, alternates } = item;
-
-  // Search the primary item name first, then any alternates
-  const queries    = [name, ...(alternates || [])];
+  const { name, minPrice } = item;
   const allListings = [];
 
-  for (const q of queries) {
-    const params = new URLSearchParams({
-      q,
+  const params = new URLSearchParams({
+      q: name,
       limit: '30',
       sort: '-itemEndDate',
       fieldgroups: 'EXTENDED',
@@ -99,41 +95,40 @@ async function searchItem(token, item) {
     // soldItems:{true} filters to sold/completed listings only
     let filter = 'itemLocationCountry:US,soldItems:{true}';
     if (minPrice) filter += `,price:[${minPrice}..],priceCurrency:USD`;
-    params.set('filter', filter);
+  params.set('filter', filter);
 
-    const url      = `${EBAY_API}/buy/browse/v1/item_summary/search?${params}`;
-    const response = await fetch(url, {
-      headers: {
-        'Authorization':           `Bearer ${token}`,
-        'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US',
-      },
+  const url      = `${EBAY_API}/buy/browse/v1/item_summary/search?${params}`;
+  const response = await fetch(url, {
+    headers: {
+      'Authorization':           `Bearer ${token}`,
+      'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US',
+    },
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`eBay Browse API error for "${name}": ${response.status} — ${text}`);
+  }
+
+  const data       = await response.json();
+  const itemsFound = data.itemSummaries || [];
+
+  for (const i of itemsFound) {
+    const salePrice = parseFloat(i.price?.value || 0);
+    const shipping  = parseFloat(i.shippingOptions?.[0]?.shippingCost?.value || 0);
+    allListings.push({
+      query:           name,
+      title:           i.title,
+      condition:       i.condition || '',
+      sold_price:      salePrice,
+      shipping,
+      total_landed:    +(salePrice + shipping).toFixed(2),
+      sale_type:       normalizeBuyingOption(i.buyingOptions),
+      end_date:        i.itemEndDate || i.soldDate || '',
+      listing_status:  'sold',
+      source:          'eBay',
+      item_id:         i.legacyItemId || i.itemId,
     });
-
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`eBay Browse API error for "${q}": ${response.status} — ${text}`);
-    }
-
-    const data  = await response.json();
-    const items = data.itemSummaries || [];
-
-    for (const i of items) {
-      const salePrice = parseFloat(i.price?.value || 0);
-      const shipping  = parseFloat(i.shippingOptions?.[0]?.shippingCost?.value || 0);
-      allListings.push({
-        query:        q,
-        title:        i.title,
-        condition:    i.condition || '',
-        sold_price:   salePrice,
-        shipping,
-        total_landed: +(salePrice + shipping).toFixed(2),
-        sale_type:       normalizeBuyingOption(i.buyingOptions),
-        end_date:        i.itemEndDate || i.soldDate || '',
-        listing_status:  'sold',   // soldItems:{true} filter confirmed working; Browse API just doesn't return date
-        source:          'eBay',
-        item_id:         i.legacyItemId || i.itemId,
-      });
-    }
   }
 
   return { name: item.name, hints: item, listings: allListings };
