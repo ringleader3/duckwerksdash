@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-30 — v1.0.4 (comp research view)
+- Added Comps view (issue #75) — sidebar nav pill, textarea input, Run Comps button
+- Input format: `item name | min_price=X | alternates=[A, B] | notes=...`
+- `server/comps.js`: `POST /api/comps/search` fans out to eBay Browse API (sold items filter, app token auth); `POST /api/comps/analyze` calls Claude API (`claude-sonnet-4-6`) with `docs/gear-comp-research.md` as system prompt
+- Output: per-item analysis paragraph + comp table with Copy CSV / Copy All CSV buttons
+- Added `@anthropic-ai/sdk` dependency
+
 ### 2026-03-29 — v1.0.3 (caching fix + inventory columns)
 - Added `Cache-Control: no-store` to Express static middleware — prevents Cloudflare from caching stale JS/CSS after deploys
 - Added Date Sold column to Inventory view — sortable, shows `date_sold` from order record, blank for unlisted items
