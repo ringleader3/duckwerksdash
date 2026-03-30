@@ -494,21 +494,49 @@
         </div>
 
         <!-- Input panel -->
-        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px">
-          <textarea
-            x-model="inputText"
-            placeholder="One item per line. Optional hints: item name | sources=ebay | min_price=50 | alternates=[Model A, Model B] | notes=no charger&#10;Sources: ebay (default), reverb, or ebay,reverb for both"
-            style="width:100%; height:120px; background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:10px; resize:vertical; border-radius:4px; box-sizing:border-box"
-            :disabled="running"
-          ></textarea>
-          <div style="display:flex; gap:8px; align-items:center">
-            <button class="btn btn-active" @click="run()" :disabled="running || !inputText.trim()">
+        <div style="margin-bottom:24px">
+
+          <!-- Column headers -->
+          <div style="display:grid; grid-template-columns:1fr 90px 80px 1fr 28px; gap:6px; margin-bottom:4px; padding:0 2px">
+            <div style="font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em">Item Name</div>
+            <div style="font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em">Source</div>
+            <div style="font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em">Min $</div>
+            <div style="font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em">Notes</div>
+            <div></div>
+          </div>
+
+          <!-- Item rows -->
+          <template x-for="(item, idx) in items" :key="idx">
+            <div style="display:grid; grid-template-columns:1fr 90px 80px 1fr 28px; gap:6px; margin-bottom:6px">
+              <input type="text" x-model="item.name" placeholder="e.g. Fender Stratocaster MIM" :disabled="running"
+                     style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 8px; border-radius:4px; min-width:0">
+              <select x-model="item.sources" :disabled="running"
+                      style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 4px; border-radius:4px">
+                <option value="ebay">eBay</option>
+                <option value="reverb">Reverb</option>
+                <option value="ebay,reverb">Both</option>
+              </select>
+              <input type="number" x-model="item.minPrice" placeholder="0" min="0" :disabled="running"
+                     style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 8px; border-radius:4px; min-width:0">
+              <input type="text" x-model="item.notes" placeholder="e.g. no charger, parts only" :disabled="running"
+                     style="background:var(--surface); border:1px solid var(--border); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:6px 8px; border-radius:4px; min-width:0">
+              <button @click="removeItem(idx)" :disabled="running || items.length === 1" title="Remove"
+                      style="background:none; border:1px solid var(--border); color:var(--muted); border-radius:4px; cursor:pointer; font-size:14px; padding:0; line-height:1"
+                      :style="items.length === 1 ? 'opacity:.3; cursor:default' : ''">×</button>
+            </div>
+          </template>
+
+          <!-- Add row + action buttons -->
+          <div style="display:flex; gap:8px; align-items:center; margin-top:10px">
+            <button class="btn btn-muted" @click="addItem()" :disabled="running">+ Add Item</button>
+            <button class="btn btn-active" @click="run()" :disabled="running || !items.some(i => i.name.trim())">
               <span x-show="!running">Run Comps</span>
               <span x-show="running">Running…</span>
             </button>
             <button class="btn btn-muted" x-show="results.some(r => r.csv)" @click="copyAll(); $el.textContent='✓ Copied'">Copy All CSV</button>
             <button class="btn btn-muted" x-show="results.some(r => r.csv)" @click="downloadAll()">Download All</button>
           </div>
+
         </div>
 
         <!-- Results -->

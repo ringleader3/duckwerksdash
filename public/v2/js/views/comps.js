@@ -2,33 +2,27 @@
 document.addEventListener('alpine:init', () => {
   Alpine.data('compsView', () => ({
 
-    inputText: '',
-    results:   [],   // [{ name, status, analysis, csv, error }]
-    running:   false,
+    items:   [{ name: '', sources: 'ebay', minPrice: '', notes: '' }],
+    results: [],   // [{ name, status, analysis, csv, error }]
+    running: false,
 
-    parseItems(raw) {
-      return raw.split('\n')
-        .map(line => line.trim())
-        .filter(Boolean)
-        .map(line => {
-          const [namePart, ...hintParts] = line.split('|').map(s => s.trim());
-          const hints = {};
-          hintParts.forEach(h => {
-            const eq = h.indexOf('=');
-            if (eq === -1) return;
-            const key = h.slice(0, eq).trim();
-            const val = h.slice(eq + 1).trim();
-            if (key === 'min_price')  hints.minPrice   = parseFloat(val) || undefined;
-            if (key === 'alternates') hints.alternates = val.replace(/[\[\]]/g, '').split(',').map(s => s.trim()).filter(Boolean);
-            if (key === 'notes')      hints.notes      = val;
-            if (key === 'sources')    hints.sources    = val.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-          });
-          return { name: namePart, ...hints };
-        });
+    addItem() {
+      this.items.push({ name: '', sources: 'ebay', minPrice: '', notes: '' });
+    },
+
+    removeItem(idx) {
+      this.items.splice(idx, 1);
     },
 
     async run() {
-      const items = this.parseItems(this.inputText);
+      const items = this.items
+        .filter(i => i.name.trim())
+        .map(i => ({
+          name:     i.name.trim(),
+          sources:  i.sources.split(','),
+          minPrice: parseFloat(i.minPrice) || undefined,
+          notes:    i.notes.trim() || undefined,
+        }));
       if (!items.length) return;
 
       this.running = true;
