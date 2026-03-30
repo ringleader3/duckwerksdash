@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-30 — v1.0.8 (SerpAPI eBay comps + search query field)
+- #79: Replaced eBay Browse API with SerpAPI (`show_only=Sold`) — returns real sold listings with `sold_date` field; 50 results per query
+- #79: Removed `getAppToken` / eBay OAuth dependency from `server/comps.js`; `SERPAPI_API_KEY` added to `.env`
+- Added optional `searchQuery` field to comps form — overrides `_nkw` for tighter eBay searches (e.g. "Technics SL-6" vs full item name)
+- Closed #79
+
 ### 2026-03-29 — v1.0.7 (eBay scraper attempt + UI fixes)
 - #78: Replaced all emdash (`—`) null-display placeholders with `n/a` across JS and HTML templates; dropdown option emdashes updated to n/a/none/descriptive text
 - #79: Replaced eBay Browse API with puppeteer scraper targeting `LH_Sold=1&LH_Complete=1` URL — bot detection blocked all puppeteer approaches (headless, headless:new, headless:false all served security challenge page)
