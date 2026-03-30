@@ -107,14 +107,14 @@ document.addEventListener('alpine:init', () => {
     listPriceDisplay(r) {
       const dw = Alpine.store('dw');
       const lp = dw.activeListing(r)?.list_price || 0;
-      return lp > 0 ? dw.fmt0(lp) : '—';
+      return lp > 0 ? dw.fmt0(lp) : 'n/a';
     },
 
     eafDisplay(r) {
       const dw = Alpine.store('dw');
-      if (r.status === 'Sold') return '—';
+      if (r.status === 'Sold') return 'n/a';
       const lp = dw.activeListing(r)?.list_price || 0;
-      return lp > 0 ? dw.fmt0(dw.payout(r)) : '—';
+      return lp > 0 ? dw.fmt0(dw.payout(r)) : 'n/a';
     },
 
     profitValue(r) {

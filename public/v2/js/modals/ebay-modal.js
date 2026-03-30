@@ -235,7 +235,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     lineItemTitle(order) {
-      return order.lineItems?.[0]?.title || '—';
+      return order.lineItems?.[0]?.title || 'n/a';
     },
 
     lineItemId(order) {

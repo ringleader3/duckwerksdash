@@ -117,7 +117,7 @@ document.addEventListener('alpine:init', () => {
           const reverbDate   = l.published_at ? new Date(l.published_at) : null;
           const reverbDaysListed = reverbDate ? Math.floor((Date.now() - reverbDate) / 86400000) : null;
           rows.push({
-            name:        local?.name || l.title || '—',
+            name:        local?.name || l.title || 'n/a',
             site:        'Reverb',
             listingId:   lid,
             itemId:      local?.id || null,
@@ -192,7 +192,7 @@ document.addEventListener('alpine:init', () => {
           const soldDate  = new Date(order.created_at);
           const daysSince = Math.floor((Date.now() - soldDate.getTime()) / (1000 * 60 * 60 * 24));
           rows.push({
-            name:       local?.name || order.title || '—',
+            name:       local?.name || order.title || 'n/a',
             site:       'Reverb',
             orderNum,
             itemId:     local?.id || null,
@@ -217,7 +217,7 @@ document.addEventListener('alpine:init', () => {
             ? `https://www.ebay.com/mesh/ord/details?orderId=${order.orderId}`
             : null;
           rows.push({
-            name:       local?.name || order.lineItems?.[0]?.title || '—',
+            name:       local?.name || order.lineItems?.[0]?.title || 'n/a',
             site:       'eBay',
             orderNum:   order.orderId || order.legacyOrderId,
             itemId:     local?.id || null,

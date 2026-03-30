@@ -161,7 +161,7 @@
                   <template x-for="r in inTransitRows" :key="r.id">
                     <tr style="cursor:pointer" @click="$store.dw.openModal('item', r.id)">
                       <td style="text-align:left" x-text="r.name"></td>
-                      <td style="color:var(--muted);font-size:12px;white-space:nowrap" x-text="r.order?.date_sold ? new Date(r.order.date_sold + 'T00:00:00').toLocaleDateString('en-US', {month:'short',day:'numeric'}) : '—'"></td>
+                      <td style="color:var(--muted);font-size:12px;white-space:nowrap" x-text="r.order?.date_sold ? new Date(r.order.date_sold + 'T00:00:00').toLocaleDateString('en-US', {month:'short',day:'numeric'}) : 'n/a'"></td>
                       <td>
                         <span x-show="trackStatus(r)" :class="'badge ' + trackStatusBadge(trackStatus(r))" x-text="trackStatusLabel(trackStatus(r))"></span>
                         <span x-show="!trackStatus(r)" style="color:var(--muted);font-size:11px">—</span>
@@ -198,8 +198,8 @@
                   <td style="text-align:left" x-text="r.name"></td>
                   <td><span :class="'badge ' + (r.category?.badge_class || '')" x-text="r.category?.name"></span></td>
                   <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
-                  <td class="num" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : '—'"></td>
-                  <td class="num est" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.payout(r)) : '—'"></td>
+                  <td class="num" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : 'n/a'"></td>
+                  <td class="num est" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.payout(r)) : 'n/a'"></td>
                   <td class="num est" x-text="$store.dw.fmt0($store.dw.estProfit(r))"></td>
                 </tr>
               </template>
@@ -340,7 +340,7 @@
                     </template>
                   </div>
                 </td>
-                <td class="num" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : '—'"></td>
+                <td class="num" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : 'n/a'"></td>
                 <td class="num est" x-text="eafDisplay(r)"></td>
                 <td class="num est" x-text="profitDisplay(r)"></td>
                 <td class="num" :class="shipIsEst(r) ? 'est' : 'act'" x-text="shipDisplay(r)"></td>
@@ -394,7 +394,7 @@
                     <span class="num-col" :class="recoveryBarClass(recoveryPct(lot))" x-text="recoveryPct(lot) + '%'"></span>
                   </div>
                 </td>
-                <td class="num-col yellow" x-text="estUpside(lot) > 0 ? $store.dw.fmt0(estUpside(lot)) : '—'"></td>
+                <td class="num-col yellow" x-text="estUpside(lot) > 0 ? $store.dw.fmt0(estUpside(lot)) : 'n/a'"></td>
               </tr>
             </template>
             <tr x-show="rows.length === 0">
@@ -437,12 +437,12 @@
                 <tr :style="row.itemId ? 'cursor:pointer' : ''" @click="openItem(row.itemId)">
                   <td style="text-align:left" x-text="row.name"></td>
                   <td><span :class="row.site === 'Reverb' ? 'badge-reverb' : 'badge-ebay'" x-text="row.site"></span></td>
-                  <td class="num-col" x-text="row.listPrice != null ? '$' + row.listPrice.toFixed(2) : '—'"></td>
-                  <td class="num-col" x-text="row.daysListed != null ? row.daysListed + 'd' : '—'"></td>
-                  <td class="num-col" x-text="row.views    != null ? row.views    : '—'"></td>
-                  <td class="num-col" x-text="row.watchers != null ? row.watchers : '—'"></td>
-                  <td class="num-col" x-text="row.impressions != null ? row.impressions : '—'"></td>
-                  <td class="num-col" x-text="row.ctr != null ? row.ctr + '%' : '—'"></td>
+                  <td class="num-col" x-text="row.listPrice != null ? '$' + row.listPrice.toFixed(2) : 'n/a'"></td>
+                  <td class="num-col" x-text="row.daysListed != null ? row.daysListed + 'd' : 'n/a'"></td>
+                  <td class="num-col" x-text="row.views    != null ? row.views    : 'n/a'"></td>
+                  <td class="num-col" x-text="row.watchers != null ? row.watchers : 'n/a'"></td>
+                  <td class="num-col" x-text="row.impressions != null ? row.impressions : 'n/a'"></td>
+                  <td class="num-col" x-text="row.ctr != null ? row.ctr + '%' : 'n/a'"></td>
                   <td @click.stop x-show="row.itemId">
                     <button class="btn btn-muted" style="font-size:11px; padding:3px 8px; white-space:nowrap"
                             @click="$store.dw.navToComp($store.dw.records.find(r => r.id === row.itemId))">Comp</button>
@@ -591,9 +591,9 @@
                       <tr>
                         <td x-text="row.title" style="max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis"></td>
                         <td x-text="row.condition" style="color:var(--muted)"></td>
-                        <td class="num-col" x-text="row.sold_price ? '$' + parseFloat(row.sold_price).toFixed(2) : '—'" style="color:var(--green)"></td>
+                        <td class="num-col" x-text="row.sold_price ? '$' + parseFloat(row.sold_price).toFixed(2) : 'n/a'" style="color:var(--green)"></td>
                         <td class="num-col" x-text="parseFloat(row.shipping) > 0 ? '$' + parseFloat(row.shipping).toFixed(2) : 'Free'" style="color:var(--muted)"></td>
-                        <td class="num-col" x-text="row.total_landed ? '$' + parseFloat(row.total_landed).toFixed(2) : '—'" style="color:var(--white); font-weight:bold"></td>
+                        <td class="num-col" x-text="row.total_landed ? '$' + parseFloat(row.total_landed).toFixed(2) : 'n/a'" style="color:var(--white); font-weight:bold"></td>
                         <td x-text="row.sale_type" style="color:var(--muted)"></td>
                         <td x-text="row.listing_status" :style="row.listing_status === 'sold' ? 'color:var(--green)' : 'color:var(--yellow)'"></td>
                         <td x-text="row.notes" style="color:var(--muted); max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis"></td>
@@ -633,7 +633,7 @@
           <div class="modal-row">
             <span class="modal-field">Status</span>
             <span class="modal-val">
-              <span class="badge" :class="badgeClass(record.status)" x-text="record.status || '—'"
+              <span class="badge" :class="badgeClass(record.status)" x-text="record.status || 'n/a'"
                     style="cursor:pointer" title="View all with this status"
                     @click="$store.dw.navToItems(record.status, null)"></span>
             </span>
@@ -641,7 +641,7 @@
           <div class="modal-row">
             <span class="modal-field">Category</span>
             <span class="modal-val">
-              <span class="badge" :class="record.category?.badge_class" x-text="record.category?.name || '—'"
+              <span class="badge" :class="record.category?.badge_class" x-text="record.category?.name || 'n/a'"
                     style="cursor:pointer" title="View all in this category"
                     @click="$store.dw.navToItems(null, record.category?.name)"></span>
             </span>
@@ -691,7 +691,7 @@
 
           <div class="modal-row">
             <span class="modal-field">List Price</span>
-            <span class="modal-val" x-text="$store.dw.activeListing(record)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(record).list_price) : '—'"></span>
+            <span class="modal-val" x-text="$store.dw.activeListing(record)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(record).list_price) : 'n/a'"></span>
           </div>
           <div class="modal-row" x-show="$store.dw.activeListing(record)?.list_price > 0 && !isSold">
             <span class="modal-field">Earnings After Fees</span>
@@ -699,7 +699,7 @@
           </div>
           <div class="modal-row">
             <span class="modal-field">Cost Basis</span>
-            <span class="modal-val red" x-text="record.cost > 0 ? $store.dw.fmt0(record.cost) : '—'"></span>
+            <span class="modal-val red" x-text="record.cost > 0 ? $store.dw.fmt0(record.cost) : 'n/a'"></span>
           </div>
 
           <!-- SOLD state -->
@@ -711,7 +711,7 @@
               </div>
               <div class="modal-row">
                 <span class="modal-field">Shipping Cost</span>
-                <span class="modal-val red" x-text="$store.dw.fmt0(record.shipment?.shipping_cost || record.listings?.find(l => l.status === 'sold')?.shipping_estimate) || '—'"></span>
+                <span class="modal-val red" x-text="$store.dw.fmt0(record.shipment?.shipping_cost || record.listings?.find(l => l.status === 'sold')?.shipping_estimate) || 'n/a'"></span>
               </div>
               <hr class="modal-divider">
               <div style="display:flex; justify-content:space-between; align-items:flex-end; padding:8px 0">
@@ -722,7 +722,7 @@
                 <div style="text-align:right">
                   <div class="modal-field" style="margin-bottom:6px">Margin</div>
                   <div style="font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--muted)"
-                       x-text="record.cost > 0 ? Math.round((record.order?.profit / record.cost) * 100) + '%' : '—'"></div>
+                       x-text="record.cost > 0 ? Math.round((record.order?.profit / record.cost) * 100) + '%' : 'n/a'"></div>
                 </div>
               </div>
             </div>
@@ -747,7 +747,7 @@
           <hr class="modal-divider">
           <div class="modal-row" style="padding:4px 0">
             <span class="modal-field" style="font-size:11px">Date Added</span>
-            <span style="font-size:11px; color:var(--muted)" x-text="record ? new Date(record.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '—'"></span>
+            <span style="font-size:11px; color:var(--muted)" x-text="record ? new Date(record.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : 'n/a'"></span>
           </div>
           <div class="modal-row" x-show="record.order?.date_sold" style="padding:4px 0">
             <span class="modal-field" style="font-size:11px">Date Sold</span>
@@ -833,7 +833,7 @@
             <span class="modal-field">Category</span>
             <span class="modal-val">
               <select class="modal-select" x-model="form.category">
-                <option value="">—</option>
+                <option value="">n/a</option>
                 <template x-for="c in $store.dw.categories" :key="c.id">
                   <option :value="c.name" x-text="c.name"></option>
                 </template>
@@ -844,7 +844,7 @@
             <span class="modal-field">Site</span>
             <span class="modal-val">
               <select class="modal-select" x-model="form.site">
-                <option value="">—</option>
+                <option value="">n/a</option>
                 <template x-for="s in $store.dw.sites" :key="s.id">
                   <option :value="s.name" x-text="s.name"></option>
                 </template>
@@ -855,7 +855,7 @@
             <span class="modal-field">Lot</span>
             <span class="modal-val">
               <select class="modal-select" x-model="form.lot">
-                <option value="">— none —</option>
+                <option value="">none</option>
                 <template x-for="l in $store.dw.lots" :key="l.name">
                   <option :value="l.name" x-text="l.name"></option>
                 </template>
@@ -947,7 +947,7 @@
           <span class="modal-field">Category</span>
           <span class="modal-val">
             <select class="modal-select" x-model="form.category">
-              <option value="">—</option>
+              <option value="">n/a</option>
               <template x-for="c in $store.dw.categories" :key="c.id">
                 <option :value="c.name" x-text="c.name"></option>
               </template>
@@ -958,7 +958,7 @@
           <span class="modal-field">Site</span>
           <span class="modal-val">
             <select class="modal-select" x-model="form.site">
-              <option value="">—</option>
+              <option value="">n/a</option>
               <template x-for="s in $store.dw.sites" :key="s.id">
                 <option :value="s.name" x-text="s.name"></option>
               </template>
@@ -969,7 +969,7 @@
           <span class="modal-field">Lot</span>
           <span class="modal-val">
             <select class="modal-select" x-model="form.lot" :disabled="form.newLot.trim().length > 0">
-              <option value="">— none —</option>
+              <option value="">none</option>
               <template x-for="l in $store.dw.lots" :key="l.name">
                 <option :value="l.name" x-text="l.name"></option>
               </template>
@@ -1030,7 +1030,7 @@
           </div>
           <div class="stat-card yellow">
             <div class="stat-card-label">EST. UPSIDE</div>
-            <div class="stat-card-value" x-text="estUpside() > 0 ? $store.dw.fmt0(estUpside()) : '—'"></div>
+            <div class="stat-card-value" x-text="estUpside() > 0 ? $store.dw.fmt0(estUpside()) : 'n/a'"></div>
             <div class="stat-card-sub">listed items @ EAF</div>
           </div>
           <div class="stat-card" :class="estTotalProfit() >= 0 ? 'green' : 'red'">
@@ -1079,11 +1079,11 @@
               <tr class="clickable-row" @click="openItem(r)">
                 <td style="text-align:left" x-text="r.name"></td>
                 <td><span class="badge" :class="badgeClass(r.status)" x-text="r.status"></span></td>
-                <td class="num-col red"    x-text="r.cost ? $store.dw.fmt0(r.cost) : '—'"></td>
+                <td class="num-col red"    x-text="r.cost ? $store.dw.fmt0(r.cost) : 'n/a'"></td>
                 <td class="num-col"        x-text="listPriceDisplay(r)"></td>
                 <td class="num-col yellow" x-text="eafDisplay(r)"></td>
                 <td class="num-col" :class="profitValue(r) >= 0 ? 'green' : 'red'" x-text="profitDisplay(r)"></td>
-                <td class="num-col green"  x-text="r.order?.sale_price ? $store.dw.fmt0(r.order.sale_price) : '—'"></td>
+                <td class="num-col green"  x-text="r.order?.sale_price ? $store.dw.fmt0(r.order.sale_price) : 'n/a'"></td>
               </tr>
             </template>
             <tr x-show="items.length === 0">
@@ -1108,7 +1108,7 @@
                 <tr>
                   <td style="text-align:left" x-text="row.name"></td>
                   <td><span class="badge" :class="badgeClass(row.status)" x-text="row.status"></span></td>
-                  <td class="num-col" x-text="row.listPrice > 0 ? '$' + row.listPrice.toFixed(2) : '—'"></td>
+                  <td class="num-col" x-text="row.listPrice > 0 ? '$' + row.listPrice.toFixed(2) : 'n/a'"></td>
                   <td class="num-col">
                     <input type="number" x-model.number="reallocRows[i].editCost" min="0" step="0.01"
                       style="width:80px; background:var(--surface); border:1px solid var(--border2); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:3px 6px; text-align:right">
@@ -1264,7 +1264,7 @@
           <div class="modal-row">
             <span class="modal-field">TRACKING #</span>
             <span class="modal-val" style="display:flex;gap:8px;align-items:center">
-              <span style="font-size:12px;color:var(--white)" x-text="purchaseResult?.trackingNumber || '—'"></span>
+              <span style="font-size:12px;color:var(--white)" x-text="purchaseResult?.trackingNumber || 'n/a'"></span>
               <button x-show="purchaseResult?.trackingNumber"
                 @click="navigator.clipboard.writeText(purchaseResult.trackingNumber); $el.textContent='✓'"
                 style="padding:3px 8px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;cursor:pointer">
@@ -1433,7 +1433,7 @@
                 <div style="font-size:12px;color:var(--white);min-width:160px;flex:1" x-text="rec.name"></div>
                 <select x-model="linkSelections[rec.id]"
                   style="flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:11px;padding:6px 8px">
-                  <option value="">— pick listing —</option>
+                  <option value="">pick listing...</option>
                   <template x-for="l in sortedListings" :key="l.id">
                     <option :value="String(l.id)"
                       :disabled="usedListingIds.has(String(l.id))"
@@ -1572,7 +1572,7 @@
                     <span x-show="!trackStatus(r)" style="color:var(--muted);font-size:11px">—</span>
                   </td>
                   <td style="color:var(--muted);font-size:12px" x-text="trackCarrier(r)"></td>
-                  <td style="color:var(--muted);font-size:12px" x-text="trackEstDelivery(r) || '—'"></td>
+                  <td style="color:var(--muted);font-size:12px" x-text="trackEstDelivery(r) || 'n/a'"></td>
                 </tr>
               </template>
             </tbody>
@@ -1651,7 +1651,7 @@
                 <template x-if="listings.length > 0">
                   <select x-model="linkSelections[rec.id]"
                     style="flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:11px;padding:6px 8px">
-                    <option value="">— select listing —</option>
+                    <option value="">select listing...</option>
                     <template x-for="l in listings" :key="l.legacyItemId">
                       <option :value="l.legacyItemId" x-text="l.title + ' (' + l.legacyItemId + ')'"></option>
                     </template>

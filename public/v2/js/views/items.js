@@ -86,7 +86,7 @@ document.addEventListener('alpine:init', () => {
     eafDisplay(r)  {
       const dw = Alpine.store('dw');
       const lp = dw.activeListing(r)?.list_price || 0;
-      return lp > 0 ? dw.fmt0(dw.payout(r)) : '—';
+      return lp > 0 ? dw.fmt0(dw.payout(r)) : 'n/a';
     },
     profitDisplay(r) {
       const dw = Alpine.store('dw');
@@ -145,7 +145,7 @@ document.addEventListener('alpine:init', () => {
       }
     },
     trackStatusLabel(status) {
-      if (!status) return '—';
+      if (!status) return 'n/a';
       return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     },
   }));

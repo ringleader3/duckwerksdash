@@ -56,7 +56,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     trackCarrier(r) {
-      return this.trackingData[r.id]?.carrier || '—';
+      return this.trackingData[r.id]?.carrier || 'n/a';
     },
 
     trackEstDelivery(r) {

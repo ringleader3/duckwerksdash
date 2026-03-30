@@ -121,7 +121,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     get itemName() {
-      return this.record ? this.record.name || '—' : '—';
+      return this.record ? this.record.name || 'n/a' : 'n/a';
     },
 
     setType(type) {

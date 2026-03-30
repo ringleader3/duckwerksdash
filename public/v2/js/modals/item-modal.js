@@ -153,7 +153,7 @@ document.addEventListener('alpine:init', () => {
     },
     get trackStatusLabel() {
       const s = this.trackingInfo?.status;
-      if (!s) return '—';
+      if (!s) return 'n/a';
       return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     },
     get trackEstDelivery() {

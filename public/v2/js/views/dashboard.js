@@ -32,10 +32,10 @@ document.addEventListener('alpine:init', () => {
     },
 
     trackStatus(r)      { return this.trackingData[r.id]?.status || null; },
-    trackCarrier(r)     { return this.trackingData[r.id]?.carrier || '—'; },
+    trackCarrier(r)     { return this.trackingData[r.id]?.carrier || 'n/a'; },
     trackEstDelivery(r) {
       const raw = this.trackingData[r.id]?.estDelivery;
-      return raw ? new Date(raw).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+      return raw ? new Date(raw).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'n/a';
     },
 
     trackStatusBadge(status) {
@@ -49,7 +49,7 @@ document.addEventListener('alpine:init', () => {
       }
     },
     trackStatusLabel(status) {
-      if (!status) return '—';
+      if (!status) return 'n/a';
       return status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     },
 
@@ -114,7 +114,7 @@ document.addEventListener('alpine:init', () => {
     },
     soldDate(r) {
       const raw = r.order?.date_sold;
-      if (!raw) return '—';
+      if (!raw) return 'n/a';
       const [y, m, d] = raw.split('T')[0].split('-');
       return new Date(+y, +m - 1, +d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     },
