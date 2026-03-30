@@ -1,8 +1,44 @@
-const express  = require('express');
-const router   = express.Router();
+const express   = require('express');
+const router    = express.Router();
+const Anthropic = require('@anthropic-ai/sdk');
+const fs        = require('fs');
+const path      = require('path');
 const { getAppToken } = require('./ebay-auth');
 
 const EBAY_API = 'https://api.ebay.com';
+
+const COMP_WORKFLOW = fs.readFileSync(
+  path.join(__dirname, '../docs/gear-comp-research.md'), 'utf8'
+);
+
+const SYSTEM_PROMPT = `You are a reseller pricing assistant. Your job is to analyze eBay listing data and produce structured comp analysis.
+
+Here is the comp research workflow and CSV format you must follow:
+
+${COMP_WORKFLOW}
+
+When given raw eBay listing data for an item, you will:
+1. Write a brief analysis paragraph (2-4 sentences): price range, notable outliers or patterns, recommended list price and floor price. Be specific with dollar amounts.
+2. Output a CSV block in the exact format from the workflow doc above.
+
+For the CSV:
+- source is always "eBay"
+- date_pulled is the date provided
+- Use the listing data as-is for title, condition, sold_price, shipping, total_landed, sale_type
+- listing_status: use "sold" if end_date is populated, otherwise "active"
+- notes: flag outliers (parts-only, lot, Japanese import, no PSU, battery-only, etc.) as described in the workflow. Leave empty if nothing notable.
+
+Format your response EXACTLY as:
+ANALYSIS:
+<analysis paragraph>
+
+CSV:
+\`\`\`
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+<rows>
+\`\`\`
+
+Do not include any other text outside this format.`;
 
 // POST /api/comps/search
 // Body: { items: [{ name, minPrice, notes, alternates }] }
@@ -84,6 +120,54 @@ function normalizeBuyingOption(opts) {
   if (s.includes('best_offer')) return 'OBO';
   if (s.includes('auction'))    return 'Auction';
   return 'BIN';
+}
+
+// POST /api/comps/analyze
+// Body: { item: { name, hints, listings: [...] } }
+// Returns: { name, analysis, csv }
+router.post('/analyze', async (req, res) => {
+  const { item } = req.body;
+  if (!item || !item.listings) {
+    return res.status(400).json({ error: 'item with listings required' });
+  }
+
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const today     = new Date().toISOString().split('T')[0];
+  const userMsg   = `Item: ${item.name}
+Date today: ${today}
+Hints: ${JSON.stringify(item.hints)}
+
+eBay listings (${item.listings.length} results):
+${JSON.stringify(item.listings, null, 2)}`;
+
+  try {
+    const message = await anthropic.messages.create({
+      model:      'claude-sonnet-4-6',
+      max_tokens: 2000,
+      system:     SYSTEM_PROMPT,
+      messages:   [{ role: 'user', content: userMsg }],
+    });
+
+    const text     = message.content[0]?.text || '';
+    const analysis = extractSection(text, 'ANALYSIS:', 'CSV:');
+    const csv      = extractCsvBlock(text);
+
+    res.json({ name: item.name, analysis, csv });
+  } catch (e) {
+    res.status(502).json({ error: 'Claude API error', detail: e.message });
+  }
+});
+
+function extractSection(text, startMarker, endMarker) {
+  const start = text.indexOf(startMarker);
+  const end   = endMarker ? text.indexOf(endMarker) : text.length;
+  if (start === -1) return text.trim();
+  return text.slice(start + startMarker.length, end > start ? end : text.length).trim();
+}
+
+function extractCsvBlock(text) {
+  const match = text.match(/```[\s\S]*?\n([\s\S]*?)```/);
+  return match ? match[1].trim() : '';
 }
 
 module.exports = { router };
