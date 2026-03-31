@@ -971,14 +971,14 @@
           </span>
         </div>
         <div class="modal-row">
-          <span class="modal-field">Site</span>
-          <span class="modal-val">
-            <select class="modal-select" x-model="form.site">
-              <option value="">n/a</option>
-              <template x-for="s in $store.dw.sites" :key="s.id">
-                <option :value="s.name" x-text="s.name"></option>
-              </template>
-            </select>
+          <span class="modal-field">Sites</span>
+          <span class="modal-val" style="display:flex; flex-wrap:wrap; gap:10px">
+            <template x-for="s in $store.dw.sites" :key="s.id">
+              <label style="display:flex; align-items:center; gap:4px; cursor:pointer; font-size:12px">
+                <input type="checkbox" :value="s.name" x-model="form.sites">
+                <span x-text="s.name"></span>
+              </label>
+            </template>
           </span>
         </div>
         <div class="modal-row">

@@ -7,7 +7,7 @@ document.addEventListener('alpine:init', () => {
       name:      '',
       status:    'Prepping',
       category:  '',
-      site:      '',
+      sites:     [],
       lot:       '',
       newLot:    '',
       cost:      '',
@@ -17,7 +17,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     reset() {
-      this.form    = { name: '', status: 'Prepping', category: '', site: '', lot: '', newLot: '', cost: '', listPrice: '', shipping: '', notes: '' };
+      this.form    = { name: '', status: 'Prepping', category: '', sites: [], lot: '', newLot: '', cost: '', listPrice: '', shipping: '', notes: '' };
       this.saveMsg = '';
       this.saving  = false;
     },
@@ -38,12 +38,14 @@ document.addEventListener('alpine:init', () => {
         if (cat) body.category_id = cat.id;
       }
 
-      // Resolve site_id for listing creation after item save
-      let siteId = null;
-      if (this.form.site) {
-        const sites = await fetch('/api/sites').then(r => r.json());
-        const site  = sites.find(s => s.name === this.form.site);
-        if (site) siteId = site.id;
+      // Resolve site_ids for all selected sites
+      const siteIds = [];
+      if (this.form.sites.length) {
+        const allSites = await fetch('/api/sites').then(r => r.json());
+        for (const siteName of this.form.sites) {
+          const site = allSites.find(s => s.name === siteName);
+          if (site) siteIds.push(site.id);
+        }
       }
 
       // Resolve lot_id (create new lot if needed)
@@ -64,11 +66,13 @@ document.addEventListener('alpine:init', () => {
       this.saving = true; this.saveMsg = '';
       try {
         const created = await dw.createItem(body);
-        if (siteId) {
-          const listing = { item_id: created.id, site_id: siteId };
-          if (this.form.listPrice !== '') listing.list_price        = parseFloat(this.form.listPrice);
-          if (this.form.shipping  !== '') listing.shipping_estimate = parseFloat(this.form.shipping);
-          await dw.createListing(listing);
+        if (siteIds.length) {
+          for (const siteId of siteIds) {
+            const listing = { item_id: created.id, site_id: siteId };
+            if (this.form.listPrice !== '') listing.list_price        = parseFloat(this.form.listPrice);
+            if (this.form.shipping  !== '') listing.shipping_estimate = parseFloat(this.form.shipping);
+            await dw.createListing(listing);
+          }
           // createListing auto-sets status=Listed; restore user's choice if different
           if (this.form.status && this.form.status !== 'Listed') {
             await dw.updateItem(created.id, { status: this.form.status });
