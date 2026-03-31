@@ -1,6 +1,16 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-30 — v1.0.9 (multi-listing per item — FB/CL support)
+- #82: Add Item modal: site dropdown → checkboxes; creates one listing per checked site with shared price/shipping
+- #82: `siteLabel()` returns 'Multiple' for items with >1 active listing; new `siteBadgeClass()` helper centralizes badge CSS
+- #82: Items view site filter now uses contains logic — multi-listing items appear under each active site's filter pill
+- #82: Item modal: listings mini-table (Site | Status | URL | Mark Sold) replaces single listing section in read view
+- #82: Item modal edit mode: per-listing URL/ID fields; "Add Site" dropdown shown only for items with no listings yet
+- #82: Mark Sold inline flow: expands row to capture sale price, auto-ends other active listings, creates order record
+- #80: Closed as won't fix — GetSellerList (Trading API) too much overhead for watchCount alone; Analytics API views/impressions/CTR sufficient
+- #81: Analytics site filter buttons (eBay/Reverb toggle) added to both Listed and Sold tabs
+
 ### 2026-03-30 — v1.0.8 (SerpAPI eBay comps + search query field)
 - #79: Replaced eBay Browse API with SerpAPI (`show_only=Sold`) — returns real sold listings with `sold_date` field; 50 results per query
 - #79: Removed `getAppToken` / eBay OAuth dependency from `server/comps.js`; `SERPAPI_API_KEY` added to `.env`
