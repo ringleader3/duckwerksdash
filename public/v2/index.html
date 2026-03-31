@@ -72,6 +72,9 @@
 
     <div class="sidebar-spacer"></div>
     <div class="sidebar-version" x-data x-text="'Duckwerks Dashboard v' + APP_VERSION"></div>
+    <div style="font-size:10px; letter-spacing:1px; text-align:center; padding-bottom:2px" x-data
+         :style="$store.dw.environment === 'Production' ? 'color:var(--green)' : 'color:var(--yellow)'"
+         x-text="$store.dw.environment"></div>
     <div style="font-size:10px; color:#444; letter-spacing:1px; text-align:center; padding-bottom:4px" x-data x-text="$store.dw.hostname"></div>
 
   </aside>

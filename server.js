@@ -14,6 +14,7 @@ app.get('/api/config', (_req, res) => {
   res.json({
     shippingProvider: (process.env.SHIPPING_PROVIDER || 'EASYPOST').toUpperCase(),
     hostname:         require('os').hostname(),
+    environment:      process.env.SERVER_ENVIRONMENT || 'Development',
   });
 });
 
