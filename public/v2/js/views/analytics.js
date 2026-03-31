@@ -4,20 +4,22 @@ document.addEventListener('alpine:init', () => {
     activeTab:     'listed',
 
     // Listed tab state
-    listedRows:    [],
-    listedLoading: false,
-    listedLoaded:  false,
-    listedError:   null,
-    sortKey:       'views',
-    sortDir:       'desc',
+    listedRows:       [],
+    listedLoading:    false,
+    listedLoaded:     false,
+    listedError:      null,
+    listedSiteFilter: ['eBay', 'Reverb'],
+    sortKey:          'views',
+    sortDir:          'desc',
 
     // Sold tab state
-    soldRows:    [],
-    soldLoading: false,
-    soldLoaded:  false,
-    soldError:   null,
-    soldSortKey: 'daysSince',
-    soldSortDir: 'desc',
+    soldRows:       [],
+    soldLoading:    false,
+    soldLoaded:     false,
+    soldError:      null,
+    soldSiteFilter: ['eBay', 'Reverb'],
+    soldSortKey:    'daysSince',
+    soldSortDir:    'desc',
 
     async init() {
       this.$watch('activeTab', tab => {
@@ -55,12 +57,28 @@ document.addEventListener('alpine:init', () => {
       return this.soldSortDir === 'asc' ? ' ↑' : ' ↓';
     },
 
+    toggleListedSite(site) {
+      if (this.listedSiteFilter.includes(site)) {
+        this.listedSiteFilter = this.listedSiteFilter.filter(s => s !== site);
+      } else {
+        this.listedSiteFilter = [...this.listedSiteFilter, site];
+      }
+    },
+
+    toggleSoldSite(site) {
+      if (this.soldSiteFilter.includes(site)) {
+        this.soldSiteFilter = this.soldSiteFilter.filter(s => s !== site);
+      } else {
+        this.soldSiteFilter = [...this.soldSiteFilter, site];
+      }
+    },
+
     openItem(itemId) {
       if (itemId) Alpine.store('dw').openModal('item', itemId);
     },
 
     get sortedListedRows() {
-      return [...this.listedRows].sort((a, b) => {
+      return [...this.listedRows].filter(r => this.listedSiteFilter.includes(r.site)).sort((a, b) => {
         const av = a[this.sortKey] ?? -1;
         const bv = b[this.sortKey] ?? -1;
         if (av < bv) return this.sortDir === 'asc' ? -1 : 1;
@@ -70,7 +88,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     get sortedSoldRows() {
-      return [...this.soldRows].sort((a, b) => {
+      return [...this.soldRows].filter(r => this.soldSiteFilter.includes(r.site)).sort((a, b) => {
         let av = a[this.soldSortKey];
         let bv = b[this.soldSortKey];
         // Date objects: compare timestamps

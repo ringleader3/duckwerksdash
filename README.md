@@ -10,7 +10,7 @@ Designed and built by Geoff Goss with Claude.ai via Claude Code CLI and VS Code 
 
 ## Features
 
-- **Inventory tracking** — items with cost, status (Listed / Sold / Prepping), category, site, and lot
+- **Inventory tracking** — items with cost, status (Listed / Sold / Prepping), category, site, and lot; multi-listing support (e.g. same item on Facebook + Craigslist simultaneously)
 - **Profit math** — site-aware fee calculation for Reverb, eBay, and Facebook; EAF (earnings after fees) per item; estimated vs. actual profit throughout
 - **Lots** — bundle low-value items into lots, track cost recovery across the lot
 - **Shipping** — EasyPost integration: get carrier rates (USPS, UPS, FedEx), buy labels, auto-save tracking, auto-mark orders shipped
@@ -22,7 +22,7 @@ Designed and built by Geoff Goss with Claude.ai via Claude Code CLI and VS Code 
 - **Dashboard KPIs** — Total Invested, Revenue, Profit, Gross Pending (EAF before cost), Upside Pending (after cost+fees), Inventory breakdown
 - **Delete item** — removes item and all associated listings, orders, and shipments via cascade
 - **Quick Find** — live search across items, lots, and categories (`/` or `⌘K`); keyboard navigation
-- **Analytics view** — two-tab analytics panel: Listed tab shows Reverb views/watches + eBay views/impressions/CTR per listing; Sold tab shows Reverb orders pending seller feedback + eBay fulfilled orders within the 60-day feedback window; all columns sortable; rows click through to item detail
+- **Analytics view** — two-tab analytics panel: Listed tab shows Reverb views/watches + eBay views/impressions/CTR per listing; Sold tab shows Reverb orders pending seller feedback + eBay fulfilled orders within the 60-day feedback window; all columns sortable; site filter toggle buttons per tab; rows click through to item detail
 - **Sortable tables** — click any column header to sort ASC/DESC across Items, Lots, and Analytics views
 - **Item drill-down** — click status, category, or site badges to jump to a filtered view; lot badge opens Lot detail modal
 - **Modal back-navigation** — opening an item from a lot modal returns to the lot on close
@@ -133,6 +133,8 @@ public/v2/
 | Mar 26 | Momentum chart (v0.9.1) — single full-width windowed chart replaces 4-chart analytics grid |
 | Mar 27 | UI polish batch — modal normalization, nav dots, sortable lot columns, sidebar search improvements |
 | Mar 27 | Analytics view (v1.0.0) — Listed tab (Reverb + eBay traffic data); Sold tab (pending feedback orders); sortable columns; item click-through |
+| Mar 28–29 | eBay comps via SerpAPI (v1.0.8) — replaced Browse API with SerpAPI sold listings; optional `searchQuery` field per comp item |
+| Mar 30 | Multi-listing per item (v1.0.9) — FB/CL support: checkbox site selection in Add Item, listings mini-table in item modal, per-row Mark Sold flow, contains-style site filter |
 
 ~3.5 weeks from first idea to v1.0.0 — production tool with dual-marketplace integration, shipping automation, and analytics. The v2 rebuild — clean architecture, full modal/shipping/sync workflow — took 2 days.
 
