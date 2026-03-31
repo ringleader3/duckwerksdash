@@ -7,11 +7,14 @@ document.addEventListener('alpine:init', () => {
     form:            {},
     trackingInfo:    null,
     trackingLoading: false,
+    markSoldId:      null,
+    markSoldPrice:   '',
 
     init() {
       this.$watch('$store.dw.activeRecordId', () => {
         this.editMode = false; this.saveMsg = ''; this.form = {};
         this.trackingInfo = null; this.trackingLoading = false;
+        this.markSoldId = null; this.markSoldPrice = '';
         this._loadTracking();
       });
       if (Alpine.store('dw').activeRecordId) this._loadTracking();
@@ -29,18 +32,22 @@ document.addEventListener('alpine:init', () => {
       if (!r) return;
       const listing = Alpine.store('dw').activeListing(r);
       this.form = {
-        name:           r.name,
-        status:         r.status,
-        category:       r.category?.name || '',
-        site:           listing?.site?.name || '',
-        lot:            r.lot?.name || '',
-        url:            listing?.url || '',
-        reverbListingId: listing?.platform_listing_id || '',
-        listPrice:      listing?.list_price ?? '',
-        cost:           r.cost ?? '',
-        sale:           r.order?.sale_price ?? '',
-        shipping:       listing?.shipping_estimate ?? '',
-        listing_id:     listing?.id || null,
+        name:      r.name,
+        status:    r.status,
+        category:  r.category?.name || '',
+        lot:       r.lot?.name || '',
+        listPrice: listing?.list_price ?? '',
+        cost:      r.cost ?? '',
+        sale:      r.order?.sale_price ?? '',
+        shipping:  listing?.shipping_estimate ?? '',
+        listings:  (r.listings || []).map(l => ({
+          id:                  l.id,
+          site:                l.site?.name || '',
+          status:              l.status,
+          url:                 l.url || '',
+          platform_listing_id: l.platform_listing_id || '',
+        })),
+        newSite: '',
       };
       this.editMode = true; this.saveMsg = '';
     },
@@ -67,11 +74,11 @@ document.addEventListener('alpine:init', () => {
         itemFields.lot_id = lot?.id || null;
       }
 
-      // Resolve site_id if site set
+      // Resolve site_id for new listing creation (only when item has no listings yet)
       let siteId = null;
-      if (f.site) {
+      if (f.newSite) {
         const sites = await fetch('/api/sites').then(r => r.json());
-        const site  = sites.find(s => s.name === f.site);
+        const site  = sites.find(s => s.name === f.newSite);
         if (site) siteId = site.id;
       }
 
@@ -81,29 +88,39 @@ document.addEventListener('alpine:init', () => {
 
         if (r.order?.id && f.sale !== '') {
           await dw.updateOrder(r.order.id, { sale_price: parseFloat(f.sale) });
-          await dw.fetchAll();
         }
 
-        if (f.listing_id) {
-          // Update existing listing
+        // Update price/shipping on all active listings (shared fields)
+        const activeListings = (r.listings || []).filter(l => l.status === 'active');
+        for (const l of activeListings) {
           const listingFields = {};
-          if (siteId)              listingFields.site_id              = siteId;
-          if (f.url !== undefined) listingFields.url                  = f.url || null;
-          if (f.reverbListingId !== undefined) listingFields.platform_listing_id = f.reverbListingId || null;
-          if (f.listPrice !== '')  listingFields.list_price           = parseFloat(f.listPrice);
-          if (f.shipping  !== '')  listingFields.shipping_estimate    = parseFloat(f.shipping);
-          if (Object.keys(listingFields).length) await dw.updateListing(f.listing_id, listingFields);
-        } else if (siteId) {
-          // No listing yet — create one
+          if (f.listPrice !== '') listingFields.list_price        = parseFloat(f.listPrice);
+          if (f.shipping  !== '') listingFields.shipping_estimate = parseFloat(f.shipping);
+          if (Object.keys(listingFields).length) {
+            await dw.updateListing(l.id, listingFields, { skipRefresh: true });
+          }
+        }
+
+        // Update per-listing URL/platform_listing_id
+        for (const lf of (f.listings || [])) {
+          if (lf.id) {
+            await dw.updateListing(lf.id, {
+              url:                 lf.url || null,
+              platform_listing_id: lf.platform_listing_id || null,
+            }, { skipRefresh: true });
+          }
+        }
+
+        // Create first listing if item had none
+        if (siteId && !r.listings?.length) {
           const listing = { item_id: r.id, site_id: siteId };
           if (f.listPrice !== '') listing.list_price        = parseFloat(f.listPrice);
           if (f.shipping  !== '') listing.shipping_estimate = parseFloat(f.shipping);
-          if (f.url)              listing.url               = f.url;
-          if (f.reverbListingId)  listing.platform_listing_id = f.reverbListingId;
           await dw.createListing(listing);
-          // createListing auto-sets Listed; restore status if user chose differently
           if (f.status && f.status !== 'Listed') await dw.updateItem(r.id, { status: f.status });
         }
+
+        await dw.fetchAll();
 
         this.saveMsg = 'saved';
         setTimeout(() => { this.editMode = false; this.saveMsg = ''; }, 900);
@@ -112,6 +129,49 @@ document.addEventListener('alpine:init', () => {
       } finally {
         this.saving = false;
       }
+    },
+
+    listingStatusBadge(status) {
+      if (status === 'active') return 'badge-listed';
+      if (status === 'sold')   return 'badge-sold';
+      return 'badge-other';
+    },
+
+    listingUrl(l) {
+      if (l.platform_listing_id) {
+        const site = l.site?.name;
+        if (site === 'eBay')   return `https://www.ebay.com/itm/${l.platform_listing_id}`;
+        if (site === 'Reverb') return `https://reverb.com/item/${l.platform_listing_id}`;
+      }
+      return l.url || null;
+    },
+
+    markSold(listingId) {
+      this.markSoldId    = listingId;
+      this.markSoldPrice = '';
+    },
+
+    cancelMarkSold() {
+      this.markSoldId    = null;
+      this.markSoldPrice = '';
+    },
+
+    async confirmMarkSold(listingId) {
+      const dw = Alpine.store('dw');
+      const r  = this.record;
+      // End all OTHER active listings
+      const others = (r.listings || []).filter(l => l.status === 'active' && l.id !== listingId);
+      await Promise.all(others.map(l =>
+        dw.updateListing(l.id, { status: 'ended', ended_at: new Date().toISOString() }, { skipRefresh: true })
+      ));
+      // Create order — auto-sets sold listing to 'sold' and item to 'Sold'
+      await dw.createOrder({
+        listing_id: listingId,
+        sale_price: this.markSoldPrice ? parseFloat(this.markSoldPrice) : null,
+        date_sold:  new Date().toISOString().split('T')[0],
+      });
+      this.markSoldId    = null;
+      this.markSoldPrice = '';
     },
 
     badgeClass(status) {
