@@ -38,7 +38,12 @@ document.addEventListener('alpine:init', () => {
         recs = recs.filter(r => r.status === this.statusFilter);
       }
       if (this.siteFilter !== 'All') {
-        recs = recs.filter(r => dw.siteLabel(r) === this.siteFilter);
+        const sites = dw.sites || [];
+        recs = recs.filter(r => {
+          const targetSite = sites.find(s => s.name === this.siteFilter);
+          if (!targetSite) return false;
+          return (r.listings || []).some(l => l.status === 'active' && l.site_id === targetSite.id);
+        });
       }
       const q = this.nameSearch.trim().toLowerCase();
       if (q) recs = recs.filter(r => r.name.toLowerCase().includes(q));
