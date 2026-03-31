@@ -143,9 +143,23 @@ document.addEventListener('alpine:init', () => {
       return active.reduce((best, l) => (l.list_price || 0) > (best.list_price || 0) ? l : best, active[0]);
     },
 
-    // Site label from best active listing
+    // Site label — 'Multiple' when item has more than one active listing
     siteLabel(r) {
-      return this.activeListing(r)?.site?.name || '';
+      const active = (r.listings || []).filter(l => l.status === 'active');
+      if (active.length > 1) return 'Multiple';
+      return active[0]?.site?.name || this.activeListing(r)?.site?.name || '';
+    },
+
+    // CSS badge class for a site name string
+    siteBadgeClass(name) {
+      switch (name) {
+        case 'eBay':        return 'badge-ebay';
+        case 'Reverb':      return 'badge-reverb';
+        case 'Facebook':    return 'badge-facebook';
+        case 'Craigslist':  return 'badge-craigslist';
+        case 'Multiple':    return 'badge-multiple';
+        default:            return 'badge-other';
+      }
     },
 
     // Listing URL — constructed from site + platform_listing_id; falls back to stored url
