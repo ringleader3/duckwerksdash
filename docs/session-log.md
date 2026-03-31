@@ -1,6 +1,9 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-30 — v1.0.9 (multi-listing per item + env indicator)
+- #83: Sidebar footer shows `SERVER_ENVIRONMENT` (.env, defaults to 'Development') + `os.hostname()` — green for Production, yellow for Development; exposed via existing `/api/config` endpoint
+
 ### 2026-03-30 — v1.0.9 (multi-listing per item — FB/CL support)
 - #82: Add Item modal: site dropdown → checkboxes; creates one listing per checked site with shared price/shipping
 - #82: `siteLabel()` returns 'Multiple' for items with >1 active listing; new `siteBadgeClass()` helper centralizes badge CSS
