@@ -197,7 +197,7 @@
                   <td style="color:var(--muted); white-space:nowrap" x-text="listedDate(r)"></td>
                   <td style="text-align:left" x-text="r.name"></td>
                   <td><span :class="'badge ' + (r.category?.badge_class || '')" x-text="r.category?.name"></span></td>
-                  <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
+                  <td><span class="badge" :class="$store.dw.siteBadgeClass($store.dw.siteLabel(r))" x-text="$store.dw.siteLabel(r)"></span></td>
                   <td class="num" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : 'n/a'"></td>
                   <td class="num est" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.payout(r)) : 'n/a'"></td>
                   <td class="num est" x-text="$store.dw.fmt0($store.dw.estProfit(r))"></td>
@@ -261,7 +261,7 @@
                   <td style="color:var(--muted); white-space:nowrap" x-text="soldDate(r)"></td>
                   <td style="text-align:left" x-text="r.name"></td>
                   <td><span :class="'badge ' + (r.category?.badge_class || '')" x-text="r.category?.name"></span></td>
-                  <td><span :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge badge-ebay' : 'badge badge-reverb'" x-text="$store.dw.siteLabel(r)"></span></td>
+                  <td><span class="badge" :class="$store.dw.siteBadgeClass($store.dw.siteLabel(r))" x-text="$store.dw.siteLabel(r)"></span></td>
                   <td class="num green" x-text="$store.dw.fmt0(r.order?.sale_price)"></td>
                   <td class="num" :class="itemProfit(r) >= 0 ? 'green' : 'red'" x-text="$store.dw.fmt0(itemProfit(r))"></td>
                 </tr>
@@ -330,7 +330,7 @@
                   <span class="badge" :class="r.category?.badge_class" x-text="r.category?.name"></span>
                 </td>
                 <td>
-                  <span class="badge" :class="$store.dw.siteLabel(r) === 'eBay' ? 'badge-ebay' : 'badge-reverb'" x-text="$store.dw.siteLabel(r)"></span>
+                  <span class="badge" :class="$store.dw.siteBadgeClass($store.dw.siteLabel(r))" x-text="$store.dw.siteLabel(r)"></span>
                 </td>
                 <td style="position:relative">
                   <span class="badge" :class="badgeClass(r.status)" x-text="r.status" @click="toggleStatusMenu(r.id, $event)" style="cursor:pointer" title="Click to change status"></span>
@@ -416,6 +416,12 @@
 
         <!-- Listed Tab -->
         <div x-show="activeTab === 'listed'">
+          <div style="display:flex; gap:6px; margin-bottom:12px">
+            <template x-for="site in ['eBay', 'Reverb']" :key="site">
+              <button class="btn" :class="listedSiteFilter.includes(site) ? 'btn-active' : 'btn-muted'"
+                      @click="toggleListedSite(site)" x-text="site"></button>
+            </template>
+          </div>
           <div x-show="listedLoading" style="padding:40px; text-align:center; color:var(--muted)">Loading…</div>
           <div x-show="listedError" x-text="listedError" style="padding:20px; color:var(--red)"></div>
           <table class="data-table" x-show="!listedLoading && !listedError">
@@ -458,6 +464,12 @@
 
         <!-- Sold Tab -->
         <div x-show="activeTab === 'sold'">
+          <div style="display:flex; gap:6px; margin-bottom:12px">
+            <template x-for="site in ['eBay', 'Reverb']" :key="site">
+              <button class="btn" :class="soldSiteFilter.includes(site) ? 'btn-active' : 'btn-muted'"
+                      @click="toggleSoldSite(site)" x-text="site"></button>
+            </template>
+          </div>
           <div x-show="soldLoading" style="padding:40px; text-align:center; color:var(--muted)">Loading…</div>
           <div x-show="soldError" x-text="soldError" style="padding:20px; color:var(--red)"></div>
           <table class="data-table" x-show="!soldLoading && !soldError">
