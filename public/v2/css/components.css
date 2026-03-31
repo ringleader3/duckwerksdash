@@ -75,8 +75,11 @@
 .badge-media     { background: #2e1a28; color: #c060a0; }
 .badge-home      { background: #1a2e2e; color: #60b0b0; }
 
-.badge-ebay      { background: #2e1a1a; color: var(--ebay); }
-.badge-reverb    { background: #1a2040; color: var(--reverb); }
+.badge-ebay       { background: #2e1a1a; color: var(--ebay); }
+.badge-reverb     { background: #1a2040; color: var(--reverb); }
+.badge-facebook   { background: #1a2a1a; color: #4db86a; }
+.badge-craigslist { background: #1a1f2e; color: #7b9de0; }
+.badge-multiple   { background: var(--border2); color: var(--muted); }
 
 /* ── Stat Cards ──────────────────────────────────────────────────────────── */
 
