@@ -23,6 +23,7 @@ document.addEventListener('alpine:init', () => {
     pendingFilters:   null,
     pendingComp:      null,
     shippingProvider: 'EASYPOST',
+    hostname:         '',
 
     // ── Init ──────────────────────────────────────────────────────────────────
     async init() {
@@ -35,6 +36,7 @@ document.addEventListener('alpine:init', () => {
       try {
         const cfg = await fetch('/api/config').then(r => r.json()).catch(() => ({}));
         if (cfg.shippingProvider) this.shippingProvider = cfg.shippingProvider;
+        if (cfg.hostname)         this.hostname         = cfg.hostname;
         await this.fetchAll();
       } catch (e) {
         this.error = 'Failed to initialize: ' + e.message;

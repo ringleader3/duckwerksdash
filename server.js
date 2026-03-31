@@ -13,6 +13,7 @@ app.use('/v2', express.static(path.join(__dirname, 'public/v2'), noCache));
 app.get('/api/config', (_req, res) => {
   res.json({
     shippingProvider: (process.env.SHIPPING_PROVIDER || 'EASYPOST').toUpperCase(),
+    hostname:         require('os').hostname(),
   });
 });
 
