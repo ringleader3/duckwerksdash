@@ -1,6 +1,16 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-01 — v1.1.6 (per-listing shipping + best-net activeListing — #87)
+- Item modal edit: shipping_estimate moved from shared Financials to each listing card (existing + pending)
+- Save loop: all per-listing fields (price, shipping, URL, listing ID) now updated together per listing
+- `activeListing()` now picks by highest estimated net (price - shipping - fees) instead of highest list price
+- Est. Profit qualifier updated to "(best net)" for multi-listing items
+
+### 2026-04-01 — v1.1.5 (per-listing shipping estimate editing — #87)
+- Item modal edit: shipping_estimate field added to each listing card
+- Pending listings carry shipping_estimate through to createListing
+
 ### 2026-04-01 — v1.1.4 (per-listing price editing and display — #87)
 - Item modal read: price column added to listings table (yellow, per-listing)
 - Item modal read: "Est. Profit" label shows site name + "(best price)" qualifier for multi-listing items
