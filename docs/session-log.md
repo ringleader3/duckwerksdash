@@ -1,7 +1,7 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
-### 2026-03-31 — v1.0.10 (site filter bug fix)
+### 2026-03-31 — v1.1.0 (1.1 release)
 - #84: Fixed site filter in Items view — listings nest site as `site: { id, name }` but filter was checking `l.site_id` (undefined); changed to `l.site?.id`; closes #84
 
 ### 2026-03-30 — v1.0.9 (multi-listing per item + env indicator)
