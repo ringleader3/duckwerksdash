@@ -672,10 +672,10 @@
               <table style="width:100%; border-collapse:collapse">
                 <template x-for="l in record.listings" :key="l.id">
                   <tr style="border-bottom:1px solid var(--border)">
-                    <td style="padding:4px 6px 4px 0; width:1%; white-space:nowrap">
+                    <td style="padding:4px 8px 4px 0; width:1%; white-space:nowrap">
                       <span class="badge" :class="$store.dw.siteBadgeClass(l.site?.name)" x-text="l.site?.name"></span>
                     </td>
-                    <td style="padding:4px 6px; width:1%; white-space:nowrap">
+                    <td style="padding:4px 8px; width:1%; white-space:nowrap">
                       <span class="badge" :class="listingStatusBadge(l.status)" x-text="l.status"></span>
                     </td>
                     <td style="padding:4px 0 4px 6px; font-size:11px; color:var(--muted); text-align:right">
