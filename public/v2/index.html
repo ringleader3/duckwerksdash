@@ -791,7 +791,7 @@
               </div>
               <div style="padding:8px 0" x-show="$store.dw.activeListing(record)?.list_price > 0">
                 <div class="modal-field" style="margin-bottom:6px"
-                     x-text="record.listings?.filter(l => l.status === 'active').length > 1 ? 'Est. Profit (' + $store.dw.activeListing(record)?.site?.name + ', best price)' : 'Est. Profit'"></div>
+                     x-text="record.listings?.filter(l => l.status === 'active').length > 1 ? 'Est. Profit (' + $store.dw.activeListing(record)?.site?.name + ', best net)' : 'Est. Profit'"></div>
                 <div class="modal-big-profit est" x-text="$store.dw.fmt0($store.dw.estProfit(record))"></div>
               </div>
             </div>

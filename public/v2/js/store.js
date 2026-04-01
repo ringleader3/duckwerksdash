@@ -140,11 +140,19 @@ document.addEventListener('alpine:init', () => {
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    // Best active listing for display (highest list_price among active listings)
+    // Best active listing — highest estimated net (price - shipping - fees) among active listings
     activeListing(r) {
       const active = (r.listings || []).filter(l => l.status === 'active');
       if (!active.length) return r.listings?.[0] || null;
-      return active.reduce((best, l) => (l.list_price || 0) > (best.list_price || 0) ? l : best, active[0]);
+      const estNet = l => {
+        const lp   = l.list_price || 0;
+        const ship = l.shipping_estimate ?? 10;
+        const fee  = l.site ? (l.site.fee_on_shipping ? (lp + ship) * l.site.fee_rate + l.site.fee_flat
+                                                      :  lp         * l.site.fee_rate + l.site.fee_flat)
+                            : 0;
+        return lp - ship - fee;
+      };
+      return active.reduce((best, l) => estNet(l) > estNet(best) ? l : best, active[0]);
     },
 
     // Site label — 'Multiple' when item has more than one active listing
