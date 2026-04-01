@@ -1,6 +1,9 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-31 — v1.0.10 (site filter bug fix)
+- #84: Fixed site filter in Items view — listings nest site as `site: { id, name }` but filter was checking `l.site_id` (undefined); changed to `l.site?.id`; closes #84
+
 ### 2026-03-30 — v1.0.9 (multi-listing per item + env indicator)
 - #83: Sidebar footer shows `SERVER_ENVIRONMENT` (.env, defaults to 'Development') + `os.hostname()` — green for Production, yellow for Development; exposed via existing `/api/config` endpoint
 
