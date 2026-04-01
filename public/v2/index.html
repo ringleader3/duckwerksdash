@@ -678,6 +678,9 @@
                     <td style="padding:4px 8px; width:1%; white-space:nowrap">
                       <span class="badge" :class="listingStatusBadge(l.status)" x-text="l.status"></span>
                     </td>
+                    <td style="padding:4px 8px; width:1%; white-space:nowrap; text-align:right; font-size:12px"
+                        :style="l.list_price > 0 ? 'color:var(--yellow)' : 'color:var(--muted)'"
+                        x-text="l.list_price > 0 ? '$' + l.list_price.toFixed(0) : '—'"></td>
                     <td style="padding:4px 0 4px 6px; font-size:11px; color:var(--muted); text-align:right">
                       <a x-show="listingUrl(l)" :href="listingUrl(l)" target="_blank" style="color:var(--muted)"
                          x-text="l.platform_listing_id ? '↗ #' + l.platform_listing_id : '↗ link'"></a>
@@ -787,7 +790,8 @@
                       x-text="$store.dw.activeListing(record)?.shipping_estimate != null ? $store.dw.fmt0($store.dw.activeListing(record).shipping_estimate) : '($10 est)'"></span>
               </div>
               <div style="padding:8px 0" x-show="$store.dw.activeListing(record)?.list_price > 0">
-                <div class="modal-field" style="margin-bottom:6px">Est. Profit</div>
+                <div class="modal-field" style="margin-bottom:6px"
+                     x-text="record.listings?.filter(l => l.status === 'active').length > 1 ? 'Est. Profit (' + $store.dw.activeListing(record)?.site?.name + ', best price)' : 'Est. Profit'"></div>
                 <div class="modal-big-profit est" x-text="$store.dw.fmt0($store.dw.estProfit(record))"></div>
               </div>
             </div>
@@ -910,6 +914,10 @@
                 <span class="badge badge-other" x-text="lf.status"></span>
               </div>
               <div class="modal-row">
+                <span class="modal-field">List Price</span>
+                <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="lf.list_price" style="width:120px"></span>
+              </div>
+              <div class="modal-row">
                 <span class="modal-field">URL</span>
                 <span class="modal-val" style="flex:1; margin-left:16px">
                   <input class="modal-input" type="text" x-model="lf.url">
@@ -941,6 +949,10 @@
                 </span>
               </div>
               <div class="modal-row">
+                <span class="modal-field">List Price</span>
+                <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="pl.list_price" style="width:120px"></span>
+              </div>
+              <div class="modal-row">
                 <span class="modal-field">URL</span>
                 <span class="modal-val" style="flex:1; margin-left:16px">
                   <input class="modal-input" type="text" x-model="pl.url">
@@ -955,16 +967,12 @@
             </div>
           </template>
           <div style="margin-top:2px">
-            <button class="btn btn-ghost" @click="form.pendingListings.push({ site: '', url: '', platform_listing_id: '' })" style="font-size:11px; padding:4px 10px">+ ADD LISTING</button>
+            <button class="btn btn-ghost" @click="form.pendingListings.push({ site: '', list_price: '', url: '', platform_listing_id: '' })" style="font-size:11px; padding:4px 10px">+ ADD LISTING</button>
           </div>
 
           <hr class="modal-divider">
           <div class="modal-section-label">Financials</div>
 
-          <div class="modal-row">
-            <span class="modal-field">List Price</span>
-            <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.listPrice" style="width:120px"></span>
-          </div>
           <div class="modal-row">
             <span class="modal-field">Cost Basis</span>
             <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.cost" style="width:120px"></span>

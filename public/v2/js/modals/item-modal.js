@@ -36,7 +36,6 @@ document.addEventListener('alpine:init', () => {
         status:    r.status,
         category:  r.category?.name || '',
         lot:       r.lot?.name || '',
-        listPrice: listing?.list_price ?? '',
         cost:      r.cost ?? '',
         sale:      r.order?.sale_price ?? '',
         shipping:  listing?.shipping_estimate ?? '',
@@ -44,6 +43,7 @@ document.addEventListener('alpine:init', () => {
           id:                  l.id,
           site:                l.site?.name || '',
           status:              l.status,
+          list_price:          l.list_price ?? '',
           url:                 l.url || '',
           platform_listing_id: l.platform_listing_id || '',
         })),
@@ -82,24 +82,23 @@ document.addEventListener('alpine:init', () => {
           await dw.updateOrder(r.order.id, { sale_price: parseFloat(f.sale) });
         }
 
-        // Update price/shipping on all active listings (shared fields)
+        // Update shipping on all active listings (shared field)
         const activeListings = (r.listings || []).filter(l => l.status === 'active');
-        for (const l of activeListings) {
-          const listingFields = {};
-          if (f.listPrice !== '') listingFields.list_price        = parseFloat(f.listPrice);
-          if (f.shipping  !== '') listingFields.shipping_estimate = parseFloat(f.shipping);
-          if (Object.keys(listingFields).length) {
-            await dw.updateListing(l.id, listingFields, { skipRefresh: true });
+        if (f.shipping !== '') {
+          for (const l of activeListings) {
+            await dw.updateListing(l.id, { shipping_estimate: parseFloat(f.shipping) }, { skipRefresh: true });
           }
         }
 
-        // Update per-listing URL/platform_listing_id
+        // Update per-listing fields (price, URL, platform_listing_id)
         for (const lf of (f.listings || [])) {
           if (lf.id) {
-            await dw.updateListing(lf.id, {
+            const listingFields = {
               url:                 lf.url || null,
               platform_listing_id: lf.platform_listing_id || null,
-            }, { skipRefresh: true });
+            };
+            if (lf.list_price !== '') listingFields.list_price = parseFloat(lf.list_price);
+            await dw.updateListing(lf.id, listingFields, { skipRefresh: true });
           }
         }
 
@@ -111,8 +110,8 @@ document.addEventListener('alpine:init', () => {
             const site = sites.find(s => s.name === pl.site);
             if (!site) continue;
             const listing = { item_id: r.id, site_id: site.id };
-            if (f.listPrice !== '') listing.list_price        = parseFloat(f.listPrice);
-            if (f.shipping  !== '') listing.shipping_estimate = parseFloat(f.shipping);
+            if (pl.list_price !== '') listing.list_price       = parseFloat(pl.list_price);
+            if (f.shipping    !== '') listing.shipping_estimate = parseFloat(f.shipping);
             if (pl.url)                 listing.url                 = pl.url;
             if (pl.platform_listing_id) listing.platform_listing_id = pl.platform_listing_id;
             await dw.createListing(listing);
