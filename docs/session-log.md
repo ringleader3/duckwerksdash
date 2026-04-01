@@ -1,6 +1,10 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-01 — v1.1.3 (edit modal new listing UX — #86)
+- Item modal edit: new listing form now includes URL + Listing ID fields (no more save→reopen cycle)
+- Item modal edit: "+ ADD LISTING" button stays visible — can add multiple new listings in a single save
+
 ### 2026-04-01 — v1.1.2 (multilisting item modal fixes — #85)
 - Item modal: listings section label now top-aligns with multi-row table (flex-start)
 - Item modal: Order section split into its own labeled section with divider — no longer visually blends with listings
