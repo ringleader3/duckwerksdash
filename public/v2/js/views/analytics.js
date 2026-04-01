@@ -150,8 +150,9 @@ document.addEventListener('alpine:init', () => {
 
         // eBay rows — from store records with active eBay listings
         for (const r of dw.records) {
-          if (r.status !== 'Listed' || dw.siteLabel(r) !== 'eBay') continue;
-          const listing = dw.activeListing(r);
+          if (r.status !== 'Listed') continue;
+          const listing = (r.listings || []).find(l => l.status === 'active' && l.site?.name === 'eBay');
+          if (!listing) continue;
           const lid     = listing?.platform_listing_id ? String(listing.platform_listing_id) : null;
           const traffic = lid ? (ebayMap[lid] || {}) : {};
           const ebayDate     = listing?.listed_at ? new Date(listing.listed_at) : null;
