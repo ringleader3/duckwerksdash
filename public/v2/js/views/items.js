@@ -42,7 +42,7 @@ document.addEventListener('alpine:init', () => {
         recs = recs.filter(r => {
           const targetSite = sites.find(s => s.name === this.siteFilter);
           if (!targetSite) return false;
-          return (r.listings || []).some(l => l.status === 'active' && l.site?.id === targetSite.id);
+          return (r.listings || []).some(l => l.site?.id === targetSite.id);
         });
       }
       const q = this.nameSearch.trim().toLowerCase();
