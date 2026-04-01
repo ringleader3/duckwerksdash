@@ -47,7 +47,8 @@ document.addEventListener('alpine:init', () => {
           url:                 l.url || '',
           platform_listing_id: l.platform_listing_id || '',
         })),
-        newSite: '',
+        newSite:        '',
+        addingListing:  false,
       };
       this.editMode = true; this.saveMsg = '';
     },
@@ -111,8 +112,8 @@ document.addEventListener('alpine:init', () => {
           }
         }
 
-        // Create first listing if item had none
-        if (siteId && !r.listings?.length) {
+        // Create new listing if a site was selected
+        if (siteId) {
           const listing = { item_id: r.id, site_id: siteId };
           if (f.listPrice !== '') listing.list_price        = parseFloat(f.listPrice);
           if (f.shipping  !== '') listing.shipping_estimate = parseFloat(f.shipping);

@@ -898,8 +898,8 @@
           <hr class="modal-divider">
           <div class="modal-section-label">Listings</div>
           <template x-for="(lf, idx) in form.listings" :key="lf.id || idx">
-            <div style="padding:6px 0; border-bottom:1px solid var(--border)">
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px">
+            <div style="border:1px solid var(--border2); border-radius:4px; padding:10px 12px; margin-bottom:8px">
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px">
                 <span class="badge" :class="$store.dw.siteBadgeClass(lf.site)" x-text="lf.site"></span>
                 <span class="badge badge-other" x-text="lf.status"></span>
               </div>
@@ -917,16 +917,23 @@
               </div>
             </div>
           </template>
-          <div class="modal-row" x-show="form.listings?.length === 0">
-            <span class="modal-field">Add Site</span>
-            <span class="modal-val">
-              <select class="modal-select" x-model="form.newSite">
-                <option value="">— select —</option>
-                <template x-for="s in $store.dw.sites" :key="s.id">
-                  <option :value="s.name" x-text="s.name"></option>
-                </template>
-              </select>
-            </span>
+          <template x-if="form.addingListing">
+            <div style="border:1px solid var(--border2); border-radius:4px; padding:10px 12px; margin-bottom:8px">
+              <div class="modal-row">
+                <span class="modal-field">Site</span>
+                <span class="modal-val">
+                  <select class="modal-select" x-model="form.newSite">
+                    <option value="">— select —</option>
+                    <template x-for="s in $store.dw.sites" :key="s.id">
+                      <option :value="s.name" x-text="s.name"></option>
+                    </template>
+                  </select>
+                </span>
+              </div>
+            </div>
+          </template>
+          <div x-show="!form.addingListing" style="margin-top:2px">
+            <button class="btn btn-ghost" @click="form.addingListing = true" style="font-size:11px; padding:4px 10px">+ ADD LISTING</button>
           </div>
 
           <hr class="modal-divider">
