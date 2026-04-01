@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-01 — v1.1.2 (multilisting item modal fixes — #85)
+- Item modal: listings section label now top-aligns with multi-row table (flex-start)
+- Item modal: Order section split into its own labeled section with divider — no longer visually blends with listings
+- Item modal: Order section site label now derived from the sold listing, not siteLabel() — fixes wrong site shown on multilisting items
+- Items view: site filter now matches any listing (not just active) — Sold+eBay filter now works correctly
+- Item modal: listing ID column right-aligned; badge columns shrink-wrapped with proper padding
+
 ### 2026-03-31 — v1.1.1 (listing edit improvements)
 - Item modal edit: listing fields now rendered in bordered cards — clear visual grouping per listing
 - Item modal edit: "+ ADD LISTING" button always shown; can add 2nd–Nth listings to existing items (was previously gated to items with no listings)
