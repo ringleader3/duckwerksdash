@@ -923,12 +923,16 @@
               </div>
             </div>
           </template>
-          <template x-if="form.addingListing">
+          <template x-for="(pl, idx) in form.pendingListings" :key="idx">
             <div style="border:1px solid var(--border2); border-radius:4px; padding:10px 12px; margin-bottom:8px">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px">
+                <span style="font-size:11px; color:var(--muted)">NEW LISTING</span>
+                <button class="btn btn-ghost" @click="form.pendingListings.splice(idx, 1)" style="font-size:10px; padding:2px 8px; color:var(--muted)">remove</button>
+              </div>
               <div class="modal-row">
                 <span class="modal-field">Site</span>
                 <span class="modal-val">
-                  <select class="modal-select" x-model="form.newSite">
+                  <select class="modal-select" x-model="pl.site">
                     <option value="">— select —</option>
                     <template x-for="s in $store.dw.sites" :key="s.id">
                       <option :value="s.name" x-text="s.name"></option>
@@ -936,10 +940,22 @@
                   </select>
                 </span>
               </div>
+              <div class="modal-row">
+                <span class="modal-field">URL</span>
+                <span class="modal-val" style="flex:1; margin-left:16px">
+                  <input class="modal-input" type="text" x-model="pl.url">
+                </span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">Listing ID</span>
+                <span class="modal-val" style="flex:1; margin-left:16px">
+                  <input class="modal-input" type="text" x-model="pl.platform_listing_id">
+                </span>
+              </div>
             </div>
           </template>
-          <div x-show="!form.addingListing" style="margin-top:2px">
-            <button class="btn btn-ghost" @click="form.addingListing = true" style="font-size:11px; padding:4px 10px">+ ADD LISTING</button>
+          <div style="margin-top:2px">
+            <button class="btn btn-ghost" @click="form.pendingListings.push({ site: '', url: '', platform_listing_id: '' })" style="font-size:11px; padding:4px 10px">+ ADD LISTING</button>
           </div>
 
           <hr class="modal-divider">

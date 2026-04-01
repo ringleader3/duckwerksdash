@@ -47,8 +47,7 @@ document.addEventListener('alpine:init', () => {
           url:                 l.url || '',
           platform_listing_id: l.platform_listing_id || '',
         })),
-        newSite:        '',
-        addingListing:  false,
+        pendingListings: [],
       };
       this.editMode = true; this.saveMsg = '';
     },
@@ -73,14 +72,6 @@ document.addEventListener('alpine:init', () => {
       if (f.lot !== undefined) {
         const lot = dw.lots.find(l => l.name === f.lot);
         itemFields.lot_id = lot?.id || null;
-      }
-
-      // Resolve site_id for new listing creation (only when item has no listings yet)
-      let siteId = null;
-      if (f.newSite) {
-        const sites = await fetch('/api/sites').then(r => r.json());
-        const site  = sites.find(s => s.name === f.newSite);
-        if (site) siteId = site.id;
       }
 
       this.saving = true; this.saveMsg = '';
@@ -112,12 +103,20 @@ document.addEventListener('alpine:init', () => {
           }
         }
 
-        // Create new listing if a site was selected
-        if (siteId) {
-          const listing = { item_id: r.id, site_id: siteId };
-          if (f.listPrice !== '') listing.list_price        = parseFloat(f.listPrice);
-          if (f.shipping  !== '') listing.shipping_estimate = parseFloat(f.shipping);
-          await dw.createListing(listing);
+        // Create new listings from pendingListings
+        const pending = (f.pendingListings || []).filter(pl => pl.site);
+        if (pending.length) {
+          const sites = await fetch('/api/sites').then(r => r.json());
+          for (const pl of pending) {
+            const site = sites.find(s => s.name === pl.site);
+            if (!site) continue;
+            const listing = { item_id: r.id, site_id: site.id };
+            if (f.listPrice !== '') listing.list_price        = parseFloat(f.listPrice);
+            if (f.shipping  !== '') listing.shipping_estimate = parseFloat(f.shipping);
+            if (pl.url)                 listing.url                 = pl.url;
+            if (pl.platform_listing_id) listing.platform_listing_id = pl.platform_listing_id;
+            await dw.createListing(listing);
+          }
           if (f.status && f.status !== 'Listed') await dw.updateItem(r.id, { status: f.status });
         }
 
