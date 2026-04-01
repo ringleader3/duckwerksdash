@@ -918,6 +918,10 @@
                 <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="lf.list_price" style="width:120px"></span>
               </div>
               <div class="modal-row">
+                <span class="modal-field">Shipping Est.</span>
+                <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="lf.shipping_estimate" style="width:120px"></span>
+              </div>
+              <div class="modal-row">
                 <span class="modal-field">URL</span>
                 <span class="modal-val" style="flex:1; margin-left:16px">
                   <input class="modal-input" type="text" x-model="lf.url">
@@ -953,6 +957,10 @@
                 <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="pl.list_price" style="width:120px"></span>
               </div>
               <div class="modal-row">
+                <span class="modal-field">Shipping Est.</span>
+                <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="pl.shipping_estimate" style="width:120px"></span>
+              </div>
+              <div class="modal-row">
                 <span class="modal-field">URL</span>
                 <span class="modal-val" style="flex:1; margin-left:16px">
                   <input class="modal-input" type="text" x-model="pl.url">
@@ -967,7 +975,7 @@
             </div>
           </template>
           <div style="margin-top:2px">
-            <button class="btn btn-ghost" @click="form.pendingListings.push({ site: '', list_price: '', url: '', platform_listing_id: '' })" style="font-size:11px; padding:4px 10px">+ ADD LISTING</button>
+            <button class="btn btn-ghost" @click="form.pendingListings.push({ site: '', list_price: '', shipping_estimate: '', url: '', platform_listing_id: '' })" style="font-size:11px; padding:4px 10px">+ ADD LISTING</button>
           </div>
 
           <hr class="modal-divider">
@@ -980,10 +988,6 @@
           <div class="modal-row">
             <span class="modal-field">Payout</span>
             <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.sale" style="width:120px"></span>
-          </div>
-          <div class="modal-row">
-            <span class="modal-field">Shipping Cost</span>
-            <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.shipping" style="width:120px"></span>
           </div>
 
         </div>

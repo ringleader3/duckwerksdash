@@ -38,12 +38,12 @@ document.addEventListener('alpine:init', () => {
         lot:       r.lot?.name || '',
         cost:      r.cost ?? '',
         sale:      r.order?.sale_price ?? '',
-        shipping:  listing?.shipping_estimate ?? '',
         listings:  (r.listings || []).map(l => ({
           id:                  l.id,
           site:                l.site?.name || '',
           status:              l.status,
           list_price:          l.list_price ?? '',
+          shipping_estimate:   l.shipping_estimate ?? '',
           url:                 l.url || '',
           platform_listing_id: l.platform_listing_id || '',
         })),
@@ -82,22 +82,15 @@ document.addEventListener('alpine:init', () => {
           await dw.updateOrder(r.order.id, { sale_price: parseFloat(f.sale) });
         }
 
-        // Update shipping on all active listings (shared field)
-        const activeListings = (r.listings || []).filter(l => l.status === 'active');
-        if (f.shipping !== '') {
-          for (const l of activeListings) {
-            await dw.updateListing(l.id, { shipping_estimate: parseFloat(f.shipping) }, { skipRefresh: true });
-          }
-        }
-
-        // Update per-listing fields (price, URL, platform_listing_id)
+        // Update per-listing fields (price, shipping, URL, platform_listing_id)
         for (const lf of (f.listings || [])) {
           if (lf.id) {
             const listingFields = {
               url:                 lf.url || null,
               platform_listing_id: lf.platform_listing_id || null,
             };
-            if (lf.list_price !== '') listingFields.list_price = parseFloat(lf.list_price);
+            if (lf.list_price        !== '') listingFields.list_price        = parseFloat(lf.list_price);
+            if (lf.shipping_estimate !== '') listingFields.shipping_estimate = parseFloat(lf.shipping_estimate);
             await dw.updateListing(lf.id, listingFields, { skipRefresh: true });
           }
         }
@@ -110,8 +103,8 @@ document.addEventListener('alpine:init', () => {
             const site = sites.find(s => s.name === pl.site);
             if (!site) continue;
             const listing = { item_id: r.id, site_id: site.id };
-            if (pl.list_price !== '') listing.list_price       = parseFloat(pl.list_price);
-            if (f.shipping    !== '') listing.shipping_estimate = parseFloat(f.shipping);
+            if (pl.list_price        !== '') listing.list_price        = parseFloat(pl.list_price);
+            if (pl.shipping_estimate !== '') listing.shipping_estimate = parseFloat(pl.shipping_estimate);
             if (pl.url)                 listing.url                 = pl.url;
             if (pl.platform_listing_id) listing.platform_listing_id = pl.platform_listing_id;
             await dw.createListing(listing);
