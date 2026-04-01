@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-01 — v1.1.4 (per-listing price editing and display — #87)
+- Item modal read: price column added to listings table (yellow, per-listing)
+- Item modal read: "Est. Profit" label shows site name + "(best price)" qualifier for multi-listing items
+- Item modal edit: list price moved from shared Financials section into each listing card (existing + pending)
+- "+ ADD LISTING" now seeds `list_price: ''` in the pending listing object
+- Save loop refactored: shipping stays shared across active listings; list_price, URL, and listing ID updated per-listing
+
 ### 2026-04-01 — v1.1.3 (edit modal new listing UX — #86)
 - Item modal edit: new listing form now includes URL + Listing ID fields (no more save→reopen cycle)
 - Item modal edit: "+ ADD LISTING" button stays visible — can add multiple new listings in a single save
