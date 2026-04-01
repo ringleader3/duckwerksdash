@@ -1,6 +1,10 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-03-31 — v1.1.1 (listing edit improvements)
+- Item modal edit: listing fields now rendered in bordered cards — clear visual grouping per listing
+- Item modal edit: "+ ADD LISTING" button always shown; can add 2nd–Nth listings to existing items (was previously gated to items with no listings)
+
 ### 2026-03-31 — v1.1.0 (1.1 release)
 - #84: Fixed site filter in Items view — listings nest site as `site: { id, name }` but filter was checking `l.site_id` (undefined); changed to `l.site?.id`; closes #84
 
