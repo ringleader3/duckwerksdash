@@ -313,6 +313,11 @@ document.addEventListener('alpine:init', () => {
       }
     },
 
+    carrierColor(carrier) {
+      const map = { USPS: 'var(--blue)', UPS: 'var(--yellow)', FedEx: 'var(--orange)', DHL: 'var(--purple)' };
+      return map[carrier] || 'var(--white)';
+    },
+
     printLabel() {
       Alpine.store('dw').printLabel(this.purchaseResult?.labelUrl);
     },
