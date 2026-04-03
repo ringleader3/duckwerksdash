@@ -5,7 +5,7 @@ document.addEventListener('alpine:init', () => {
     siteFilter:   'All',
     nameSearch:   '',
     openStatusId: null,
-    sortKey:      'created_at',
+    sortKey:      'createdTime',
     sortDir:      'desc',
     trackingData:    {},
     trackingLoading: false,
@@ -51,7 +51,7 @@ document.addEventListener('alpine:init', () => {
       const key = this.sortKey, dir = this.sortDir;
       recs = [...recs].sort((a, b) => {
         let av, bv;
-        if      (key === 'created_at') { av = new Date(a.created_at).getTime(); bv = new Date(b.created_at).getTime(); }
+        if      (key === 'createdTime') { av = new Date(a.created_at).getTime(); bv = new Date(b.created_at).getTime(); }
         else if (key === 'name')       { av = a.name.toLowerCase();             bv = b.name.toLowerCase(); }
         else if (key === 'lot')        { av = (a.lot?.name||'').toLowerCase();  bv = (b.lot?.name||'').toLowerCase(); }
         else if (key === 'category')   { av = (a.category?.name||'').toLowerCase(); bv = (b.category?.name||'').toLowerCase(); }
