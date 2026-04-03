@@ -156,6 +156,7 @@ async function easypostRates(toAddress, parcel) {
           width:  parcel.width,
           height: parcel.height,
         },
+        insurance: '100.00',
         options: {
           label_format: 'PNG',
           label_size:   '4X6',

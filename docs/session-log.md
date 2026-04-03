@@ -1,6 +1,11 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-02 — v1.1.8 (hardcode $100 EasyPost insurance — #88)
+- Added `insurance: '100.00'` to EasyPost shipment creation call in `server/label.js`
+- EasyPost account default ($50) was not being honored for API-created shipments
+- Filed #88 for future configurable insured amount per shipment
+
 ### 2026-04-01 — v1.1.6 (per-listing shipping + best-net activeListing — #87)
 - Item modal edit: shipping_estimate moved from shared Financials to each listing card (existing + pending)
 - Save loop: all per-listing fields (price, shipping, URL, listing ID) now updated together per listing
