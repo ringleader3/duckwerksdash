@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-03 — v1.1.11 (manual shipment tracking fields in item edit modal)
+- Added Tracker ID, Tracking #, Tracker URL, and Ship Cost fields to edit modal Shipment section
+- Widened read-view tracking section to show when tracking_number or tracker_url present without a tracking_id
+- Fixed clearTracking: optimistic store mutation prevents race between fetchAll and modal reopen reloading stale tracking
+- Fixed clearTracking: now calls fetchAll() so cleared state reflects without hard refresh
+
 ### 2026-04-03 — v1.1.10 (capture actual shipping cost incl. insurance fee — #88)
 - Insurance passed at buy step (not shipment creation — EasyPost ignores it there)
 - `easypostPurchase` sums all fees from response and returns `totalCost`
