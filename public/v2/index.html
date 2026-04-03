@@ -1360,7 +1360,7 @@
         <div x-show="step === 'result' && !loading">
           <div style="padding:16px 0 8px;text-align:center">
             <div style="font-size:11px;letter-spacing:3px;color:var(--green);margin-bottom:8px">LABEL CREATED</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green)" x-text="'$' + ratePrice.toFixed(2)"></div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green)" x-text="'$' + (purchaseResult?.totalCost ?? ratePrice).toFixed(2)"></div>
           </div>
           <div class="modal-divider"></div>
 

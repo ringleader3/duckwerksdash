@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-03 — v1.1.10 (capture actual shipping cost incl. insurance fee — #88)
+- Insurance passed at buy step (not shipment creation — EasyPost ignores it there)
+- `easypostPurchase` sums all fees from response and returns `totalCost`
+- `saveShipping` uses `totalCost` instead of `ratePrice` so shipping_cost includes insurance fee
+- Result step in label modal now displays total cost instead of just carrier rate
+
 ### 2026-04-02 — v1.1.9 (configurable insured amount in label modal — #88)
 - Added INSURED field to label modal form, defaults to $100
 - Auto-fills from sale amount (Reverb/eBay) if > $100

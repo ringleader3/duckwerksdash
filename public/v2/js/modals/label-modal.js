@@ -184,7 +184,7 @@ document.addEventListener('alpine:init', () => {
         const res  = await fetch('/api/label/rates', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ toAddress: addr, parcel, insurance: this.insuredAmount || '100' }),
+          body:    JSON.stringify({ toAddress: addr, parcel }),
         });
         const data = await res.json();
         if (!res.ok || !data.rates) {
@@ -209,7 +209,7 @@ document.addEventListener('alpine:init', () => {
         const res  = await fetch('/api/label/purchase', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ rateObjectId: rateId }),
+          body:    JSON.stringify({ rateObjectId: rateId, insurance: this.insuredAmount || '100' }),
         });
         const data = await res.json();
         if (!res.ok) {
@@ -272,7 +272,7 @@ document.addEventListener('alpine:init', () => {
           tracking_number: this.purchaseResult?.trackingNumber || null,
           tracker_url:     this.purchaseResult?.trackerUrl     || null,
           label_url:       this.purchaseResult?.labelUrl       || null,
-          shipping_cost:   this.ratePrice,
+          shipping_cost:   this.purchaseResult?.totalCost ?? this.ratePrice,
         };
         if (r.shipment) {
           await dw.updateShipment(r.shipment.id, shipmentFields);

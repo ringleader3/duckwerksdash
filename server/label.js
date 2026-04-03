@@ -141,7 +141,7 @@ function easypostHeaders(token) {
   };
 }
 
-async function easypostRates(toAddress, parcel, insurance = '100.00') {
+async function easypostRates(toAddress, parcel) {
   const token = easypostToken();
   const res   = await fetch(`${EASYPOST_API}/shipments`, {
     method:  'POST',
@@ -156,7 +156,6 @@ async function easypostRates(toAddress, parcel, insurance = '100.00') {
           width:  parcel.width,
           height: parcel.height,
         },
-        insurance: String(parseFloat(insurance) || 100),
         options: {
           label_format: 'PNG',
           label_size:   '4X6',
@@ -178,23 +177,25 @@ async function easypostRates(toAddress, parcel, insurance = '100.00') {
     }));
 }
 
-async function easypostPurchase(rateObjectId) {
+async function easypostPurchase(rateObjectId, insurance = '100.00') {
   const [shipmentId, rateId] = rateObjectId.split('|');
   if (!shipmentId || !rateId) throw new Error('Invalid EasyPost rate ID');
   const token = easypostToken();
   const res   = await fetch(`${EASYPOST_API}/shipments/${shipmentId}/buy`, {
     method:  'POST',
     headers: easypostHeaders(token),
-    body: JSON.stringify({ rate: { id: rateId } }),
+    body: JSON.stringify({ rate: { id: rateId }, insurance: String(parseFloat(insurance) || 100) }),
   });
   const data = await res.json();
   if (!res.ok) throw Object.assign(new Error('EasyPost error'), { status: res.status, data });
+  const totalCost = (data.fees || []).reduce((sum, f) => sum + parseFloat(f.amount || 0), 0);
   return {
     trackingNumber: data.tracking_code,
     labelUrl:       data.postage_label?.label_url,
     trackingUrl:    data.tracker?.public_url,
     trackingId:     data.tracker?.id   || null,
     trackerUrl:     data.tracker?.public_url || null,
+    totalCost:      totalCost || null,
   };
 }
 
@@ -230,10 +231,10 @@ router.get('/print-pdf', async (req, res) => {
 // ── ROUTES ────────────────────────────────────────────────────────────────────
 
 router.post('/rates', async (req, res) => {
-  const { toAddress, parcel, insurance } = req.body;
+  const { toAddress, parcel } = req.body;
   try {
     const rates = PROVIDER === 'EASYPOST'
-      ? await easypostRates(toAddress, parcel, insurance)
+      ? await easypostRates(toAddress, parcel)
       : await shippoRates(toAddress, parcel);
     res.json({ rates });
   } catch (e) {
@@ -243,10 +244,10 @@ router.post('/rates', async (req, res) => {
 });
 
 router.post('/purchase', async (req, res) => {
-  const { rateObjectId } = req.body;
+  const { rateObjectId, insurance } = req.body;
   try {
     const result = PROVIDER === 'EASYPOST'
-      ? await easypostPurchase(rateObjectId)
+      ? await easypostPurchase(rateObjectId, insurance)
       : await shippoPurchase(rateObjectId);
     res.json(result);
   } catch (e) {
