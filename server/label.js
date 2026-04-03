@@ -141,7 +141,7 @@ function easypostHeaders(token) {
   };
 }
 
-async function easypostRates(toAddress, parcel) {
+async function easypostRates(toAddress, parcel, insurance = '100.00') {
   const token = easypostToken();
   const res   = await fetch(`${EASYPOST_API}/shipments`, {
     method:  'POST',
@@ -156,7 +156,7 @@ async function easypostRates(toAddress, parcel) {
           width:  parcel.width,
           height: parcel.height,
         },
-        insurance: '100.00',
+        insurance: String(parseFloat(insurance) || 100),
         options: {
           label_format: 'PNG',
           label_size:   '4X6',
@@ -230,10 +230,10 @@ router.get('/print-pdf', async (req, res) => {
 // ── ROUTES ────────────────────────────────────────────────────────────────────
 
 router.post('/rates', async (req, res) => {
-  const { toAddress, parcel } = req.body;
+  const { toAddress, parcel, insurance } = req.body;
   try {
     const rates = PROVIDER === 'EASYPOST'
-      ? await easypostRates(toAddress, parcel)
+      ? await easypostRates(toAddress, parcel, insurance)
       : await shippoRates(toAddress, parcel);
     res.json({ rates });
   } catch (e) {

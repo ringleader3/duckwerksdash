@@ -1,6 +1,11 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-02 — v1.1.9 (configurable insured amount in label modal — #88)
+- Added INSURED field to label modal form, defaults to $100
+- Auto-fills from sale amount (Reverb/eBay) if > $100
+- Insurance value passed through `/api/label/rates` → `easypostRates()` → EasyPost shipment creation
+
 ### 2026-04-02 — v1.1.8 (hardcode $100 EasyPost insurance — #88)
 - Added `insurance: '100.00'` to EasyPost shipment creation call in `server/label.js`
 - EasyPost account default ($50) was not being honored for API-created shipments

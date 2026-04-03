@@ -3,6 +3,7 @@ document.addEventListener('alpine:init', () => {
   Alpine.data('labelModal', () => ({
     step:           'form',   // 'form' | 'rates' | 'result'
     addrText:       '',
+    insuredAmount:  '100',
     parcel:         { type: 'box', weightLbs: '', weightOz: '', length: '', width: '', height: '' },
     rates:          [],
     purchaseResult: null,
@@ -30,6 +31,7 @@ document.addEventListener('alpine:init', () => {
     async _open() {
       this.step              = 'form';
       this.addrText          = '';
+      this.insuredAmount     = '100';
       this.rates             = [];
       this.purchaseResult    = null;
       this.ratePrice         = 0;
@@ -113,6 +115,11 @@ document.addEventListener('alpine:init', () => {
           } catch(e) { console.warn('eBay order fetch failed:', e); }
         }
       }
+
+      // Auto-set insured amount to sale price if > $100
+      if (this.reverbSaleAmount && this.reverbSaleAmount > 100) {
+        this.insuredAmount = String(Math.ceil(this.reverbSaleAmount));
+      }
     },
 
     get record() {
@@ -177,7 +184,7 @@ document.addEventListener('alpine:init', () => {
         const res  = await fetch('/api/label/rates', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ toAddress: addr, parcel }),
+          body:    JSON.stringify({ toAddress: addr, parcel, insurance: this.insuredAmount || '100' }),
         });
         const data = await res.json();
         if (!res.ok || !data.rates) {
