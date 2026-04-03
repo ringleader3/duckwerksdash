@@ -48,6 +48,12 @@ document.addEventListener('alpine:init', () => {
           platform_listing_id: l.platform_listing_id || '',
         })),
         pendingListings: [],
+        shipment: r.shipment ? {
+          tracking_id:     r.shipment.tracking_id     || '',
+          tracking_number: r.shipment.tracking_number || '',
+          tracker_url:     r.shipment.tracker_url     || '',
+          shipping_cost:   r.shipment.shipping_cost   ?? '',
+        } : null,
       };
       this.editMode = true; this.saveMsg = '';
     },
@@ -80,6 +86,15 @@ document.addEventListener('alpine:init', () => {
 
         if (r.order?.id && f.sale !== '') {
           await dw.updateOrder(r.order.id, { sale_price: parseFloat(f.sale) });
+        }
+
+        if (r.shipment?.id && f.shipment) {
+          const sf = {};
+          if (f.shipment.tracking_id     !== (r.shipment.tracking_id     || '')) sf.tracking_id     = f.shipment.tracking_id     || null;
+          if (f.shipment.tracking_number !== (r.shipment.tracking_number || '')) sf.tracking_number = f.shipment.tracking_number || null;
+          if (f.shipment.tracker_url     !== (r.shipment.tracker_url     || '')) sf.tracker_url     = f.shipment.tracker_url     || null;
+          if (f.shipment.shipping_cost   !== (r.shipment.shipping_cost   ?? '')) sf.shipping_cost   = f.shipment.shipping_cost !== '' ? parseFloat(f.shipment.shipping_cost) : null;
+          if (Object.keys(sf).length) await dw.updateShipment(r.shipment.id, sf);
         }
 
         // Update per-listing fields (price, shipping, URL, platform_listing_id)
@@ -181,7 +196,12 @@ document.addEventListener('alpine:init', () => {
       await Alpine.store('dw').updateShipment(r.shipment.id, {
         tracking_id: null, tracking_number: null, tracker_url: null
       });
+      // Optimistically clear so the watcher can't race fetchAll and reload tracking
+      r.shipment.tracking_id     = null;
+      r.shipment.tracking_number = null;
+      r.shipment.tracker_url     = null;
       this.trackingInfo = null;
+      await Alpine.store('dw').fetchAll();
     },
 
     async _loadTracking() {
