@@ -157,7 +157,7 @@ async function easypostRates(toAddress, parcel) {
           height: parcel.height,
         },
         options: {
-          label_format: 'PNG',
+          label_format: 'PDF',
           label_size:   '4X6',
         },
       },
@@ -198,35 +198,6 @@ async function easypostPurchase(rateObjectId, insurance = '100.00') {
     totalCost:      totalCost || null,
   };
 }
-
-// ── PDF PRINT PAGE ────────────────────────────────────────────────────────────
-
-const PDFDocument = require('pdfkit');
-
-// GET /api/label/print-pdf?url=<encodedLabelUrl>
-// Returns a landscape 8.5x11 PDF with the label in the left slot.
-// Chrome's PDF viewer respects the embedded page size → print dialog opens landscape.
-router.get('/print-pdf', async (req, res) => {
-  const { url } = req.query;
-  if (!url) return res.status(400).json({ error: 'url required' });
-  try {
-    const imgRes = await fetch(url);
-    if (!imgRes.ok) throw new Error(`fetch failed: ${imgRes.status}`);
-    const buf = Buffer.from(await imgRes.arrayBuffer());
-
-    // 11 x 8.5 inches in PDF points (1in = 72pt)
-    const doc = new PDFDocument({ size: [11 * 72, 8.5 * 72], margin: 0 });
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'inline; filename="label.pdf"');
-    doc.pipe(res);
-    const marginX = 0.5 * 72;   // 0.5in from left
-    const marginY = 1.25 * 72;  // centers 6in label vertically on 8.5in page
-    doc.image(buf, marginX, marginY, { width: 4 * 72 });
-    doc.end();
-  } catch (e) {
-    res.status(502).json({ error: e.message });
-  }
-});
 
 // ── ROUTES ────────────────────────────────────────────────────────────────────
 

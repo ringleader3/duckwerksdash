@@ -69,7 +69,7 @@ document.addEventListener('alpine:init', () => {
 
     // ── Modal Helpers ─────────────────────────────────────────────────────────
     printLabel(url) {
-      window.open(`/api/label/print-pdf?url=${encodeURIComponent(url)}`, '_blank');
+      window.open(url, '_blank');
     },
     openModal(type, recordId = null, lotName = null) {
       this.activeModal    = type;
