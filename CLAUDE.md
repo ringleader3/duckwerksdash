@@ -46,6 +46,7 @@ npm start   # starts Express on http://localhost:3000
 - `server/shipments.js` — `/api/shipments` (POST create, PATCH update)
 - `server/label.js` — provider-agnostic label routes (`/api/label/*`) — delegates to Shippo or EasyPost based on `SHIPPING_PROVIDER`
 - `server/shippo.js` — Shippo generic proxy (`/api/shippo/*`); also contains Shippo implementation (kept for potential re-use)
+- `server/comps.js` — comp research routes (`/api/comps/*`) — SerpAPI eBay search, Puppeteer Reverb scrape, Claude analysis
 - `server/reverb.js` — all Reverb routes (`/api/reverb/*`)
 - `server/ebay-auth.js` — eBay OAuth token management (one-time setup + auto-refresh)
 - `server/ebay.js` — eBay Sell Fulfillment routes (`/api/ebay/*`) — orders, tracking push, OAuth flow
@@ -77,6 +78,9 @@ FROM_STATE=CA
 FROM_ZIP=...
 FROM_COUNTRY=US
 FROM_PHONE=...
+ANTHROPIC_API_KEY=sk-ant-...    # comp research — Claude analysis
+SERPAPI_API_KEY=...              # comp research — eBay sold listings via SerpAPI
+CHROME_PATH=/Applications/Google Chrome.app/Contents/MacOS/Google Chrome  # comp research — Reverb Puppeteer scrape
 ```
 
 ## Shipping Provider Test vs Live
@@ -123,6 +127,10 @@ FROM_PHONE=...
 - `POST /api/label/purchase` — purchase a rate, return tracking + label URL. Body: `{ rateObjectId }`. EasyPost encodes `shipmentId|rateId` in `rateObjectId` — transparent to client
 - `GET /api/label/tracker/:id` — proxies EasyPost tracker by ID; returns tracker object with status, carrier, tracking_details, etc.
 - `GET /api/label/usage` — Shippo-only usage counter; returns `{ skipped: true }` when on EasyPost
+
+**server/comps.js** (mounted at `/api/comps`)
+- `POST /api/comps/search` — fetch raw sold listings. Body: `{ items: [{ name, sources, minPrice, notes, searchQuery }] }`. `sources` is a comma-separated string `'ebay'`, `'reverb'`, or `'ebay,reverb'`. Returns `{ results: [{ name, hints, listings: [...] }] }`. eBay via SerpAPI; Reverb via Puppeteer headless scrape.
+- `POST /api/comps/analyze` — send listings to Claude for analysis. Body: `{ item: { name, hints, listings: [...] } }`. Returns `{ name, analysis, csv }` where `analysis` is a 2–4 sentence narrative and `csv` is the structured comp table.
 
 **server/shippo.js** (mounted at `/api/shippo` — generic proxy only)
 - `POST /api/shippo/:path` — generic Shippo proxy (POST)
@@ -191,6 +199,8 @@ public/v2/
       dashboard.js        ← Alpine.data('dashView')
       items.js            ← Alpine.data('itemsView')
       lots.js             ← Alpine.data('lotsView')
+      analytics.js        ← Alpine.data('analyticsView')
+      comps.js            ← Alpine.data('compsView') — comp research UI
     modals/
       item-modal.js       ← Alpine.data('itemModal')
       add-modal.js        ← Alpine.data('addModal')
@@ -331,6 +341,48 @@ to the Lot detail modal directly.
 - `_links.packing_slip.web.href` — public reverb.com URL, open directly (no proxy needed)
 - `order.direct_checkout_payout` — post-fee seller payout (what to store as F.sale); `order.amount_product.amount` is pre-fee listing price
 - `order.shipping_address` — buyer address
+
+### Comp Research View — Architecture
+
+The comp research feature is a two-step pipeline: **search** raw listings from eBay/Reverb, then **analyze** them with Claude to produce a structured CSV + narrative summary.
+
+**Entry points:**
+- Direct nav: sidebar "Comps" pill → opens `compsView` with an empty form
+- From item modal: "Research Comps" button → calls `store.navToComp(r)`, which populates `store.pendingComp` and switches to the comps view. `compsView.init()` watches `pendingComp` and pre-fills the form on the next tick.
+
+**`store.navToComp(r)` pre-fill logic:**
+- `name` — first segment of `r.name` before ` - ` (strips variant/notes suffix)
+- `notes` — remainder of `r.name` after ` - `
+- `sources` — inferred from the item's active listing site (`ebay` or `reverb`); falls back to `ebay`
+- `minPrice` — 60% of the item's current list price (floor to filter out accessories/parts noise)
+
+**Search step** (`POST /api/comps/search`):
+- eBay: SerpAPI `engine=ebay` with `show_only=Sold`, optional `_udlo` (min price). Returns up to 50 sold listings. Requires `SERPAPI_API_KEY` in `.env`.
+- Reverb: Puppeteer + puppeteer-extra-plugin-stealth headless scrape of `reverb.com/marketplace?show_only_sold=true`. Requires `CHROME_PATH` in `.env` pointing to local Chrome. No Reverb API token needed — public page.
+- Both sources run in parallel per item; multiple items run in parallel across items.
+
+**Analyze step** (`POST /api/comps/analyze`):
+- Sends raw listing data + item hints to Claude (`claude-sonnet-4-6`) with a structured system prompt.
+- System prompt loaded from `docs/gear-comp-research.md` — this is the comp research workflow doc (also used manually with Claude Desktop). Changing that doc changes the AI behavior.
+- Requires `ANTHROPIC_API_KEY` in `.env`.
+- Response is parsed into `ANALYSIS:` paragraph and `CSV:` fenced block.
+- Analysis calls are sequential (not parallel) to avoid Claude rate limits.
+
+**Output:**
+- Analysis paragraph displayed inline in the view.
+- CSV rendered as a table + available for copy or `.txt` download.
+- "Copy All" / "Download All" combines all results in one pass.
+
+**`docs/gear-comp-research.md`** — the comp workflow reference doc. Defines the CSV column schema, search URL patterns, Reverb/eBay URL formats, and pricing heuristics (outlier handling, lot normalization, Japanese import flags, parts-only floor logic, etc.). Also used as a standalone reference for manual Claude Desktop comp pulls.
+
+**Required `.env` additions for comps:**
+```
+ANTHROPIC_API_KEY=sk-ant-...
+SERPAPI_API_KEY=...
+CHROME_PATH=/Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+```
+
+**Known limitation:** Reverb scrape uses Puppeteer against the public marketplace page — no pagination, so results are limited to the first page (~20–30 listings). eBay returns up to 50 via SerpAPI.
 
 ### Working on Files
 JS files are small and targeted — read them in full if under ~150 lines.

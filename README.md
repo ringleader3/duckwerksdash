@@ -22,6 +22,7 @@ Designed and built by Geoff Goss with Claude.ai via Claude Code CLI and VS Code 
 - **Dashboard KPIs** — Total Invested, Revenue, Profit, Gross Pending (EAF before cost), Upside Pending (after cost+fees), Inventory breakdown
 - **Delete item** — removes item and all associated listings, orders, and shipments via cascade
 - **Quick Find** — live search across items, lots, and categories (`/` or `⌘K`); keyboard navigation
+- **Comp research** — pull sold price comps from eBay (via SerpAPI) and Reverb (Puppeteer headless scrape), then analyze with Claude to produce a narrative + structured CSV; launch from any item modal or the sidebar; results are copyable and downloadable for use in Claude Desktop deal analysis
 - **Analytics view** — two-tab analytics panel: Listed tab shows Reverb views/watches + eBay views/impressions/CTR per listing; Sold tab shows Reverb orders pending seller feedback + eBay fulfilled orders within the 60-day feedback window; all columns sortable; site filter toggle buttons per tab; rows click through to item detail
 - **Sortable tables** — click any column header to sort ASC/DESC across Items, Lots, and Analytics views
 - **Item drill-down** — click status, category, or site badges to jump to a filtered view; lot badge opens Lot detail modal
@@ -38,6 +39,7 @@ Designed and built by Geoff Goss with Claude.ai via Claude Code CLI and VS Code 
 | Database | SQLite via `better-sqlite3` |
 | Shipping | EasyPost API |
 | Marketplaces | Reverb API, eBay Sell Fulfillment + Inventory API |
+| Comp research | SerpAPI (eBay sold listings), Puppeteer (Reverb scrape), Claude API (analysis) |
 
 ---
 
@@ -48,7 +50,7 @@ npm install
 npm start    # http://localhost:3000
 ```
 
-Requires a `.env` file with EasyPost tokens, eBay OAuth credentials, and a from-address. See `CLAUDE.md` for the full env var list.
+Requires a `.env` file with EasyPost tokens, eBay OAuth credentials, a from-address, and (for comp research) SerpAPI key, Anthropic API key, and local Chrome path. See `CLAUDE.md` for the full env var list.
 
 ---
 
@@ -86,6 +88,7 @@ server/
   reverb.js             ← Reverb API proxy
   ebay.js               ← eBay Sell Fulfillment routes + OAuth flow
   ebay-auth.js          ← eBay token management + auto-refresh
+  comps.js              ← Comp research: SerpAPI eBay search + Puppeteer Reverb scrape + Claude analysis
   shippo.js             ← Shippo proxy (retained, inactive)
 public/v2/
   index.html            ← App shell
@@ -101,6 +104,8 @@ public/v2/
       dashboard.js
       items.js
       lots.js
+      analytics.js
+      comps.js          ← Comp research UI
     modals/
       item-modal.js
       add-modal.js
@@ -133,7 +138,7 @@ public/v2/
 | Mar 26 | Momentum chart (v0.9.1) — single full-width windowed chart replaces 4-chart analytics grid |
 | Mar 27 | UI polish batch — modal normalization, nav dots, sortable lot columns, sidebar search improvements |
 | Mar 27 | Analytics view (v1.0.0) — Listed tab (Reverb + eBay traffic data); Sold tab (pending feedback orders); sortable columns; item click-through |
-| Mar 28–29 | eBay comps via SerpAPI (v1.0.8) — replaced Browse API with SerpAPI sold listings; optional `searchQuery` field per comp item |
+| Mar 28–29 | Comp research view (v1.0.8) — SerpAPI eBay sold listings + Puppeteer Reverb scrape + Claude analysis; structured CSV + narrative output; launch from item modal or sidebar; copy/download results |
 | Mar 30 | Multi-listing per item (v1.0.9) — FB/CL support: checkbox site selection in Add Item, listings mini-table in item modal, per-row Mark Sold flow, contains-style site filter |
 
 ~3.5 weeks from first idea to v1.0.0 — production tool with dual-marketplace integration, shipping automation, and analytics. The v2 rebuild — clean architecture, full modal/shipping/sync workflow — took 2 days.
