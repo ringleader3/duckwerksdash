@@ -17,6 +17,35 @@ if (!fs.existsSync(PHOTOS_DIR)) fs.mkdirSync(PHOTOS_DIR, { recursive: true });
 
 const upload = multer({ storage: multer.memoryStorage() });
 
+let _merchantLocationKey = null;
+
+async function getMerchantLocationKey(headers) {
+  if (_merchantLocationKey) return _merchantLocationKey;
+  const res  = await fetch(`${EBAY_API}/sell/inventory/v1/location`, { headers });
+  const data = await res.json();
+  if (data.locations?.length > 0) {
+    _merchantLocationKey = data.locations[0].merchantLocationKey;
+    return _merchantLocationKey;
+  }
+  // No locations — create a default one
+  const key     = 'duckwerks-default';
+  const created = await fetch(`${EBAY_API}/sell/inventory/v1/location/${key}`, {
+    method:  'POST',
+    headers,
+    body: JSON.stringify({
+      location:      { address: { country: 'US' } },
+      locationTypes: ['WAREHOUSE'],
+      name:          'Duckwerks Default',
+    }),
+  });
+  if (!created.ok) {
+    const err = await created.text();
+    throw new Error(`merchant location create failed: ${err}`);
+  }
+  _merchantLocationKey = key;
+  return _merchantLocationKey;
+}
+
 async function ebayHeaders() {
   const token = await getAccessToken();
   return {
@@ -92,11 +121,12 @@ async function putInventoryItem(sku, disc, photoUrls, headers) {
   }
 }
 
-async function createOffer(sku, disc, policies, headers) {
+async function createOffer(sku, disc, policies, locationKey, headers) {
   const body = {
     sku,
-    marketplaceId:      MARKETPLACE,
-    format:             'FIXED_PRICE',
+    marketplaceId:       MARKETPLACE,
+    format:              'FIXED_PRICE',
+    merchantLocationKey: locationKey,
     listingPolicies: {
       fulfillmentPolicyId: policies.fulfillmentPolicyId,
       returnPolicyId:      policies.returnPolicyId,
@@ -180,13 +210,14 @@ router.post('/bulk-list', upload.any(), async (req, res) => {
   }
 
   try {
-    const headers   = await ebayHeaders();
-    const policies  = await fetchPolicies(headers);
-    const sku       = `DWG-${String(disc.id).padStart(3, '0')}`;
-    const photoUrls = savePhotos(req.files || []);
+    const headers     = await ebayHeaders();
+    const policies    = await fetchPolicies(headers);
+    const locationKey = await getMerchantLocationKey(headers);
+    const sku         = `DWG-${String(disc.id).padStart(3, '0')}`;
+    const photoUrls   = savePhotos(req.files || []);
 
     await putInventoryItem(sku, disc, photoUrls, headers);
-    const offerId   = await createOffer(sku, disc, policies, headers);
+    const offerId   = await createOffer(sku, disc, policies, locationKey, headers);
     const listingId = await publishOffer(offerId, headers);
 
     dbWrite(disc, listingId);
