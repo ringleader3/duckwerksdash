@@ -7,17 +7,54 @@ const fs      = require('fs');
 const db      = require('./db');
 const { getAccessToken } = require('./ebay-auth');
 
-const EBAY_API    = 'https://api.ebay.com';
-const PHOTOS_DIR  = path.join(__dirname, '..', 'public', 'dg-photos');
-const PHOTOS_BASE = 'https://dash.duckwerks.com/dg-photos';
-const DG_CATEGORY = '184356'; // eBay: Sporting Goods > Disc Golf > Discs
-const MARKETPLACE = 'EBAY_US';
+const EBAY_API      = 'https://api.ebay.com';
+const EBAY_TRADING  = 'https://api.ebay.com/ws/api.dll';
+const PHOTOS_DIR    = path.join(__dirname, '..', 'public', 'dg-photos');
+const DG_CATEGORY   = '184356'; // eBay: Sporting Goods > Disc Golf > Discs
+const MARKETPLACE   = 'EBAY_US';
 
 if (!fs.existsSync(PHOTOS_DIR)) fs.mkdirSync(PHOTOS_DIR, { recursive: true });
 
 const upload = multer({ storage: multer.memoryStorage() });
 
 let _merchantLocationKey = null;
+
+async function uploadToEPS(buffer, filename) {
+  const token = await getAccessToken();
+  // Trading API requires multipart with XML envelope + image binary
+  const boundary = 'BOUNDARY_' + Date.now();
+  const xmlEnvelope = `<?xml version="1.0" encoding="utf-8"?>
+<UploadSiteHostedPicturesRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+  <RequesterCredentials><eBayAuthToken>${token}</eBayAuthToken></RequesterCredentials>
+  <PictureName>${filename}</PictureName>
+  <PictureSet>Supersize</PictureSet>
+</UploadSiteHostedPicturesRequest>`;
+
+  const body = Buffer.concat([
+    Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="XML Payload"\r\nContent-Type: text/xml;charset=utf-8\r\n\r\n`),
+    Buffer.from(xmlEnvelope),
+    Buffer.from(`\r\n--${boundary}\r\nContent-Disposition: form-data; name="dummy"; filename="${filename}"\r\nContent-Type: image/jpeg\r\nContent-Transfer-Encoding: binary\r\n\r\n`),
+    buffer,
+    Buffer.from(`\r\n--${boundary}--\r\n`),
+  ]);
+
+  const res = await fetch(EBAY_TRADING, {
+    method: 'POST',
+    headers: {
+      'X-EBAY-API-CALL-NAME':        'UploadSiteHostedPictures',
+      'X-EBAY-API-COMPATIBILITY-LEVEL': '967',
+      'X-EBAY-API-SITEID':           '0',
+      'X-EBAY-API-APP-NAME':         process.env.EBAY_CLIENT_ID,
+      'Content-Type':                `multipart/form-data; boundary=${boundary}`,
+    },
+    body,
+  });
+
+  const xml = await res.text();
+  const match = xml.match(/<FullURL>(https?:\/\/[^<]+)<\/FullURL>/);
+  if (!match) throw new Error(`EPS upload failed for ${filename}: ${xml.slice(0, 300)}`);
+  return match[1];
+}
 
 async function getMerchantLocationKey(headers) {
   if (_merchantLocationKey) return _merchantLocationKey;
@@ -94,12 +131,13 @@ function buildDescription(disc) {
   return lines.join('\n');
 }
 
-function savePhotos(files) {
+async function savePhotos(files) {
   const urls = [];
   for (const file of files) {
     const dest = path.join(PHOTOS_DIR, file.originalname);
     if (!fs.existsSync(dest)) fs.writeFileSync(dest, file.buffer);
-    urls.push(`${PHOTOS_BASE}/${file.originalname}`);
+    const epsUrl = await uploadToEPS(file.buffer, file.originalname);
+    urls.push(epsUrl);
   }
   return urls;
 }
@@ -224,7 +262,7 @@ router.post('/bulk-list', upload.any(), async (req, res) => {
     const policies    = await fetchPolicies(headers);
     const locationKey = await getMerchantLocationKey(headers);
     const sku         = `DWG-${String(disc.id).padStart(3, '0')}`;
-    const photoUrls   = savePhotos(req.files || []);
+    const photoUrls   = await savePhotos(req.files || []);
 
     await putInventoryItem(sku, disc, photoUrls, headers);
     const offerId   = await createOffer(sku, disc, policies, locationKey, headers);
