@@ -188,7 +188,7 @@ eBay listings (${item.listings.length} results):
 ${JSON.stringify(item.listings, null, 2)}`;
 
   try {
-    const message = await anthropic.messages.create({
+    const message = await anthropic.beta.messages.create({
       model:      'claude-sonnet-4-6',
       max_tokens: 2000,
       system:     [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
