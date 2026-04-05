@@ -6,7 +6,8 @@ const path       = require('path');
 const puppeteerExtra = require('puppeteer-extra');
 puppeteerExtra.use(require('puppeteer-extra-plugin-stealth')());
 const CHROME_PATH = process.env.CHROME_PATH;
-const SERPAPI = 'https://serpapi.com/search.json';
+const SERPAPI     = 'https://serpapi.com/search.json';
+const anthropic   = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const COMP_WORKFLOW = fs.readFileSync(
   path.join(__dirname, '../docs/gear-comp-research.md'), 'utf8'
@@ -175,8 +176,7 @@ router.post('/analyze', async (req, res) => {
     return res.status(400).json({ error: 'item with listings required' });
   }
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const today     = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split('T')[0];
   const userMsg   = `Item: ${item.name}
 Date today: ${today}
 Hints: ${JSON.stringify(item.hints)}
@@ -188,7 +188,7 @@ ${JSON.stringify(item.listings, null, 2)}`;
     const message = await anthropic.messages.create({
       model:      'claude-sonnet-4-6',
       max_tokens: 2000,
-      system:     SYSTEM_PROMPT,
+      system:     [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
       messages:   [{ role: 'user', content: userMsg }],
     });
 
