@@ -7,10 +7,7 @@ const puppeteerExtra = require('puppeteer-extra');
 puppeteerExtra.use(require('puppeteer-extra-plugin-stealth')());
 const CHROME_PATH = process.env.CHROME_PATH;
 const SERPAPI     = 'https://serpapi.com/search.json';
-const anthropic   = new Anthropic({
-  apiKey:         process.env.ANTHROPIC_API_KEY,
-  defaultHeaders: { 'anthropic-beta': 'prompt-caching-2024-07-31' },
-});
+const anthropic   = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const COMP_WORKFLOW = fs.readFileSync(
   path.join(__dirname, '../docs/gear-comp-research.md'), 'utf8'
@@ -188,7 +185,7 @@ eBay listings (${item.listings.length} results):
 ${JSON.stringify(item.listings, null, 2)}`;
 
   try {
-    const message = await anthropic.beta.messages.create({
+    const message = await anthropic.messages.create({
       model:      'claude-sonnet-4-6',
       max_tokens: 2000,
       system:     [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
