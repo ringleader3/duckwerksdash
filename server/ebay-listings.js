@@ -8,7 +8,7 @@ const db      = require('./db');
 const { getAccessToken } = require('./ebay-auth');
 
 const EBAY_API      = 'https://api.ebay.com';
-const EBAY_TRADING  = 'https://api.ebay.com/ws/api.dll';
+const EBAY_MEDIA    = 'https://apim.ebay.com/commerce/media/v1_beta';
 const PHOTOS_DIR    = path.join(__dirname, '..', 'public', 'dg-photos');
 const DG_CATEGORY   = '184356'; // eBay: Sporting Goods > Disc Golf > Discs
 const MARKETPLACE   = 'EBAY_US';
@@ -20,40 +20,18 @@ const upload = multer({ storage: multer.memoryStorage() });
 let _merchantLocationKey = null;
 
 async function uploadToEPS(buffer, filename) {
-  const token = await getAccessToken();
-  // Trading API requires multipart with XML envelope + image binary
-  const boundary = 'BOUNDARY_' + Date.now();
-  const xmlEnvelope = `<?xml version="1.0" encoding="utf-8"?>
-<UploadSiteHostedPicturesRequest xmlns="urn:ebay:apis:eBLBaseComponents">
-  <RequesterCredentials><eBayAuthToken>${token}</eBayAuthToken></RequesterCredentials>
-  <PictureName>${filename}</PictureName>
-  <PictureSet>Supersize</PictureSet>
-</UploadSiteHostedPicturesRequest>`;
+  const token    = await getAccessToken();
+  const formData = new FormData();
+  formData.set('image', new Blob([buffer], { type: 'image/jpeg' }), filename);
 
-  const body = Buffer.concat([
-    Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="XML Payload"\r\nContent-Type: text/xml;charset=utf-8\r\n\r\n`),
-    Buffer.from(xmlEnvelope),
-    Buffer.from(`\r\n--${boundary}\r\nContent-Disposition: form-data; name="dummy"; filename="${filename}"\r\nContent-Type: image/jpeg\r\nContent-Transfer-Encoding: binary\r\n\r\n`),
-    buffer,
-    Buffer.from(`\r\n--${boundary}--\r\n`),
-  ]);
-
-  const res = await fetch(EBAY_TRADING, {
-    method: 'POST',
-    headers: {
-      'X-EBAY-API-CALL-NAME':        'UploadSiteHostedPictures',
-      'X-EBAY-API-COMPATIBILITY-LEVEL': '967',
-      'X-EBAY-API-SITEID':           '0',
-      'X-EBAY-API-APP-NAME':         process.env.EBAY_CLIENT_ID,
-      'Content-Type':                `multipart/form-data; boundary=${boundary}`,
-    },
-    body,
+  const res  = await fetch(`${EBAY_MEDIA}/image`, {
+    method:  'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body:    formData,
   });
-
-  const xml = await res.text();
-  const match = xml.match(/<FullURL>(https?:\/\/[^<]+)<\/FullURL>/);
-  if (!match) throw new Error(`EPS upload failed for ${filename}: ${xml.slice(0, 300)}`);
-  return match[1];
+  const data = await res.json();
+  if (!res.ok) throw new Error(`EPS upload failed for ${filename}: ${JSON.stringify(data)}`);
+  return data.imageUrl;
 }
 
 async function getMerchantLocationKey(headers) {
