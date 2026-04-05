@@ -29,8 +29,10 @@ async function uploadToEPS(buffer, filename) {
     headers: { 'Authorization': `Bearer ${token}` },
     body:    formData,
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`EPS upload failed for ${filename}: ${JSON.stringify(data)}`);
+  const text = await res.text();
+  if (!res.ok) throw new Error(`EPS upload failed for ${filename} (${res.status}): ${text}`);
+  let data;
+  try { data = JSON.parse(text); } catch { throw new Error(`EPS upload non-JSON for ${filename}: ${text.slice(0, 200)}`); }
   return data.imageUrl;
 }
 
