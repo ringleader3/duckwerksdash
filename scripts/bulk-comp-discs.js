@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 // scripts/bulk-comp-discs.js — bulk comp research for disc golf inventory
-// Usage: node scripts/bulk-comp-discs.js --csv <path> --ids <start>-<end> [--api <url>] [--sources ebay,reverb] [--out <file>]
+// Usage: node scripts/bulk-comp-discs.js --sheet <url> --ids <start>-<end> [--api <url>] [--sources ebay,reverb] [--out <file>]
+//        node scripts/bulk-comp-discs.js --csv <path>  --ids <start>-<end> [--api <url>] [--sources ebay,reverb] [--out <file>]
+//
+// --sheet: Google Sheets CSV export URL (File > Share > Publish to web > CSV)
+// --csv:   local CSV file path (fallback)
 //
 // For each disc in range: POST /api/comps/search → POST /api/comps/analyze
 // Writes a combined text file with analysis + CSV table per disc.
@@ -15,14 +19,15 @@ function arg(name) {
   return i >= 0 ? process.argv[i + 1] : null;
 }
 
+const sheetUrl = arg('--sheet');
 const csvPath  = arg('--csv');
 const idsArg   = arg('--ids');
 const apiBase  = arg('--api')     || 'http://localhost:3000';
 const sources  = arg('--sources') || 'ebay';
 const outFile  = arg('--out')     || null;
 
-if (!csvPath || !idsArg) {
-  console.error('Usage: node scripts/bulk-comp-discs.js --csv <path> --ids <start>-<end> [--api <url>] [--sources ebay,reverb] [--out <file>]');
+if ((!sheetUrl && !csvPath) || !idsArg) {
+  console.error('Usage: node scripts/bulk-comp-discs.js --sheet <url> --ids <start>-<end> [--api <url>] [--sources ebay,reverb] [--out <file>]');
   process.exit(1);
 }
 
@@ -33,7 +38,16 @@ if (isNaN(startId) || isNaN(endId) || startId > endId) {
 }
 
 async function main() {
-  const records = parse(fs.readFileSync(csvPath, 'utf8'), {
+  let csvText;
+  if (sheetUrl) {
+    const res = await fetch(sheetUrl);
+    if (!res.ok) throw new Error(`Failed to fetch sheet: ${res.status}`);
+    csvText = await res.text();
+  } else {
+    csvText = fs.readFileSync(csvPath, 'utf8');
+  }
+
+  const records = parse(csvText, {
     columns: true, skip_empty_lines: true, bom: true,
   });
 
