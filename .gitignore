@@ -10,3 +10,7 @@ claude-personal.md
 .superpowers/
 data/
 public/dg-photos/*.jpg
+*.csv
+docs/*.json
+docs/prompt-cache.md
+memory/

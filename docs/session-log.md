@@ -1,6 +1,33 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-05 — v1.1.16 (bulk workflow improvements + comp prompt caching)
+
+**Bulk script improvements:**
+- `bulk-comp-discs.js` and `bulk-list-discs.js` now accept `--sheet <url>` to read directly from a public Google Sheet CSV export — eliminates the export/scp cycle
+- `bulk-list-discs.js`: removed CSV write-back of eBay Listing ID/URL — DB is the source of truth, range-based `--ids` arg makes it unnecessary
+- `scripts/assign-lot.js` — new script: bulk-assigns items to a lot by category name; dry-run by default, `--confirm` to apply
+
+**Comp analysis prompt:**
+- Trimmed manual workflow sections (search URLs, workflow steps, search hints) — these were from the old Claude Desktop extension workflow, no longer relevant
+- Added category-specific analysis guidance: Music Gear, Consumer Electronics, Comics, Disc Golf sections
+- Added: Recency Weighting, Thin Comp Pool Protocol, Outlier Protocol, Price Synthesis sections
+- Added disc golf-specific guidance on plastic tiers, run/edition premiums, weight, condition
+- Prompt now ~3000 tokens (doc) — over the 2048 minimum for prompt caching on claude-sonnet-4-6
+- Enabled prompt caching via `cache_control: { type: 'ephemeral' }` on system content block
+
+**Prompt caching debugging notes (for future reference):**
+- `claude-sonnet-4-6` requires **2048 token minimum** for caching (not 1024 — that's for older models). Documented in Anthropic's prompt caching docs.
+- `cache_control` goes on the system content block array (explicit breakpoints approach) — standard `anthropic.messages.create()`, no beta header needed
+- Caching silently does nothing if under the token minimum — no error returned, check `cache_creation_input_tokens` in response to verify
+- Lesson: always check the actual Anthropic docs for model-specific requirements before implementing
+
+**Workflow context:**
+- Disc golf inventory: ~26 listed, ~250 total planned across multiple batches
+- Google Sheet (`duckwerks-dg-catalog` tab) is now the source of truth for the CSV data — scripts read from it directly
+- Next up: comics lot coming; scripts need to be more generic for other lot/category types
+- Longer term: UI for bulk comp and bulk listing workflows (see GitHub issue)
+
 ### 2026-04-05 — v1.1.15 (EPS image upload fix)
 - Fixed eBay Media API integration: correct host (apim.ebay.com), correct endpoint (/image/create_image_from_file), correct response flow (201 + Location header → GET imageUrl)
 - All 11 disc golf listings now showing EPS-hosted thumbnails in eBay search
