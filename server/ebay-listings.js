@@ -110,7 +110,7 @@ async function putInventoryItem(sku, disc, photoUrls, headers) {
   const body = {
     product: {
       title:       disc.title.slice(0, 80),
-      description: disc.description || buildDescription(disc),
+      description: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
       imageUrls:   photoUrls,
       aspects: {
         ...(disc.manufacturer && { Brand:          [disc.manufacturer] }),
@@ -147,7 +147,7 @@ async function createOffer(sku, disc, policies, locationKey, headers) {
       price: { value: String(disc.listPrice), currency: 'USD' },
     },
     categoryId:         DG_CATEGORY,
-    listingDescription: disc.description || buildDescription(disc),
+    listingDescription: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
     shipToLocations: {
       regionIncluded: [{ regionType: 'COUNTRY', regionName: 'US' }],
     },
