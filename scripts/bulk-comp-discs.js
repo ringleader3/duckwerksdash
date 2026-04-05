@@ -67,7 +67,8 @@ async function main() {
           items: [{
             name:        title,
             sources,
-            ...(minPrice && { minPrice }),
+            ...(minPrice       && { minPrice }),
+            ...(row['Comp Pull']?.trim() && { searchQuery: row['Comp Pull'].trim() }),
             notes:       [row['Plastic'], row['Run / Edition'], row['Condition']].filter(Boolean).join(', '),
           }],
         }),
