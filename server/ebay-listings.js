@@ -8,7 +8,7 @@ const db      = require('./db');
 const { getAccessToken } = require('./ebay-auth');
 
 const EBAY_API      = 'https://api.ebay.com';
-const EBAY_MEDIA    = 'https://apix.ebay.com/commerce/media/v1_beta';
+const EBAY_MEDIA    = 'https://apim.ebay.com/commerce/media/v1_beta';
 const PHOTOS_DIR    = path.join(__dirname, '..', 'public', 'dg-photos');
 const DG_CATEGORY   = '184356'; // eBay: Sporting Goods > Disc Golf > Discs
 const MARKETPLACE   = 'EBAY_US';
@@ -24,15 +24,24 @@ async function uploadToEPS(buffer, filename) {
   const formData = new FormData();
   formData.set('image', new Blob([buffer], { type: 'image/jpeg' }), filename);
 
-  const res  = await fetch(`${EBAY_MEDIA}/image`, {
+  // Step 1: upload file → 201 + Location header containing image resource URI
+  const uploadRes = await fetch(`${EBAY_MEDIA}/image/create_image_from_file`, {
     method:  'POST',
     headers: { 'Authorization': `Bearer ${token}` },
     body:    formData,
   });
-  const text = await res.text();
-  if (!res.ok) throw new Error(`EPS upload failed for ${filename} (${res.status}): ${text}`);
-  let data;
-  try { data = JSON.parse(text); } catch { throw new Error(`EPS upload non-JSON for ${filename}: ${text.slice(0, 200)}`); }
+  if (uploadRes.status !== 201) {
+    const text = await uploadRes.text();
+    throw new Error(`EPS upload failed for ${filename} (${uploadRes.status}): ${text.slice(0, 200)}`);
+  }
+  const location = uploadRes.headers.get('Location');
+  if (!location) throw new Error(`EPS upload for ${filename}: no Location header in 201 response`);
+
+  // Step 2: GET the image resource to retrieve the EPS CDN URL
+  const getRes  = await fetch(location, { headers: { 'Authorization': `Bearer ${token}` } });
+  const getText = await getRes.text();
+  if (!getRes.ok) throw new Error(`EPS getImage failed for ${filename} (${getRes.status}): ${getText.slice(0, 200)}`);
+  const data = JSON.parse(getText);
   return data.imageUrl;
 }
 
