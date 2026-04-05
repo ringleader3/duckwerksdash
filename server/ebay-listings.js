@@ -29,15 +29,16 @@ async function getMerchantLocationKey(headers) {
     return _merchantLocationKey;
   }
   // No locations — create a default one (key must be alphanumeric + underscores only)
-  const key     = 'duckwerks1';
+  const key         = 'duckwerks1';
+  const postHeaders = { ...headers };
+  delete postHeaders['Content-Language']; // location API rejects this header
   const created = await fetch(`${EBAY_API}/sell/inventory/v1/location/${key}`, {
     method:  'POST',
-    headers,
+    headers: postHeaders,
     body: JSON.stringify({
-      location:      { address: { country: 'US', stateOrProvince: 'CA' } },
+      location:      { address: { country: 'US' } },
       locationTypes: ['WAREHOUSE'],
       name:          'Duckwerks',
-      merchantLocationStatus: 'ENABLED',
     }),
   });
   if (!created.ok) {
