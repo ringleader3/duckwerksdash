@@ -1,6 +1,10 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-05 — v1.1.14 (disc golf scripts)
+- New: `scripts/rename-disc-photos.js` — sorts photos by creation time, renames to DWG-{id}-{n}.jpeg; supports --per, --dry-run
+- New: `scripts/bulk-comp-discs.js` — batch comp research from CSV; uses Comp Pull column as search query, falls back to List Title; outputs combined analysis + CSV to file
+
 ### 2026-04-05 — v1.1.13 (eBay bulk listing pipeline)
 - New: `scripts/bulk-list-discs.js` — CLI script reads CSV, validates, sends one disc at a time to server
 - New: `server/ebay-listings.js` — POST /api/ebay/bulk-list: saves photos, eBay Inventory API (item → offer → publish), DB writes
