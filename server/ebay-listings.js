@@ -115,7 +115,12 @@ async function createOffer(sku, disc, policies, headers) {
     method: 'POST', headers, body: JSON.stringify(body),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(`offer POST ${res.status}: ${JSON.stringify(data)}`);
+  if (!res.ok) {
+    // Offer already exists from a prior partial run — extract the offerId and reuse it
+    const existing = data.errors?.find(e => e.errorId === 25002 && e.parameters?.find(p => p.name === 'offerId'));
+    if (existing) return existing.parameters.find(p => p.name === 'offerId').value;
+    throw new Error(`offer POST ${res.status}: ${JSON.stringify(data)}`);
+  }
   return data.offerId;
 }
 
