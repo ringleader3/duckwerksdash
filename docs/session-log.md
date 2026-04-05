@@ -1,6 +1,11 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-05 — v1.1.15 (EPS image upload fix)
+- Fixed eBay Media API integration: correct host (apim.ebay.com), correct endpoint (/image/create_image_from_file), correct response flow (201 + Location header → GET imageUrl)
+- All 11 disc golf listings now showing EPS-hosted thumbnails in eBay search
+- Added explicit multer error handling with console.error logging for easier diagnosis
+
 ### 2026-04-05 — v1.1.14 (disc golf scripts)
 - New: `scripts/rename-disc-photos.js` — sorts photos by creation time, renames to DWG-{id}-{n}.jpeg; supports --per, --dry-run
 - New: `scripts/bulk-comp-discs.js` — batch comp research from CSV; uses Comp Pull column as search query, falls back to List Title; outputs combined analysis + CSV to file
