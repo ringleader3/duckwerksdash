@@ -7,6 +7,7 @@ app.use(express.json());
 const noCache = { setHeaders: (res) => res.set('Cache-Control', 'no-store') };
 app.use(express.static(path.join(__dirname, 'public/v2'), noCache));
 app.use('/v2', express.static(path.join(__dirname, 'public/v2'), noCache));
+app.use('/dg-photos', express.static(path.join(__dirname, 'public/dg-photos')));
 
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 
@@ -30,6 +31,7 @@ app.use('/api/shippo',    require('./server/shippo'));
 app.use('/api/label',     require('./server/label'));
 app.use('/api/reverb',    require('./server/reverb'));
 app.use('/api/ebay',      require('./server/ebay'));
+app.use('/api/ebay',      require('./server/ebay-listings'));
 app.use('/api/comps',     require('./server/comps').router);
 
 // ── START ─────────────────────────────────────────────────────────────────────
