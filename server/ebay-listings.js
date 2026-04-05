@@ -116,9 +116,19 @@ async function createOffer(sku, disc, policies, headers) {
   });
   const data = await res.json();
   if (!res.ok) {
-    // Offer already exists from a prior partial run — extract the offerId and reuse it
+    // Offer already exists from a prior partial run — patch it with current body and reuse
     const existing = data.errors?.find(e => e.errorId === 25002 && e.parameters?.find(p => p.name === 'offerId'));
-    if (existing) return existing.parameters.find(p => p.name === 'offerId').value;
+    if (existing) {
+      const offerId = existing.parameters.find(p => p.name === 'offerId').value;
+      const patch = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offerId}`, {
+        method: 'PUT', headers, body: JSON.stringify(body),
+      });
+      if (!patch.ok) {
+        const patchData = await patch.json();
+        throw new Error(`offer PUT ${patch.status}: ${JSON.stringify(patchData)}`);
+      }
+      return offerId;
+    }
     throw new Error(`offer POST ${res.status}: ${JSON.stringify(data)}`);
   }
   return data.offerId;
