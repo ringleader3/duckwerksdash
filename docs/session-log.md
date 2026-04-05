@@ -1,6 +1,17 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-05 — v1.1.13 (eBay bulk listing pipeline)
+- New: `scripts/bulk-list-discs.js` — CLI script reads CSV, validates, sends one disc at a time to server
+- New: `server/ebay-listings.js` — POST /api/ebay/bulk-list: saves photos, eBay Inventory API (item → offer → publish), DB writes
+- Photos served from `public/dg-photos/` via static route; hosted at dash.duckwerks.com/dg-photos/
+- eBay category: 184356 (Disc Golf Discs) — verified via taxonomy API
+- Merchant location auto-created from FROM_ env vars on first run
+- CSV columns: Disc #, List Title, List Price, Condition, Manufacturer, Mold, Type, Plastic, Run / Edition, Weight (g), Notes, Description, eBay Listing ID, eBay URL
+- Description column: if set, used as listing description (HTML paragraphs); falls back to auto-generated metadata block
+- Idempotent: skips rows with eBay URL set; reuses existing offer on re-run; skips DB write if listing_id exists
+- Dependencies added: multer (multipart upload), csv-parse (CSV parsing)
+
 ### 2026-04-03 — v1.1.11 (manual shipment tracking fields in item edit modal)
 - Added Tracker ID, Tracking #, Tracker URL, and Ship Cost fields to edit modal Shipment section
 - Widened read-view tracking section to show when tracking_number or tracker_url present without a tracking_id
