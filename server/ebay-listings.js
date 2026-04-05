@@ -22,6 +22,7 @@ async function ebayHeaders() {
   return {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
+    'Content-Language': 'en-US',
     'X-EBAY-C-MARKETPLACE-ID': MARKETPLACE,
     'Accept-Language': 'en-US',
   };
