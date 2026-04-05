@@ -8,7 +8,7 @@ const db      = require('./db');
 const { getAccessToken } = require('./ebay-auth');
 
 const EBAY_API      = 'https://api.ebay.com';
-const EBAY_MEDIA    = 'https://api.ebay.com/commerce/media/v1_beta';
+const EBAY_MEDIA    = 'https://apix.ebay.com/commerce/media/v1_beta';
 const PHOTOS_DIR    = path.join(__dirname, '..', 'public', 'dg-photos');
 const DG_CATEGORY   = '184356'; // eBay: Sporting Goods > Disc Golf > Discs
 const MARKETPLACE   = 'EBAY_US';
