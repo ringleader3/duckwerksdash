@@ -23,6 +23,7 @@ async function getMerchantLocationKey(headers) {
   if (_merchantLocationKey) return _merchantLocationKey;
   const res  = await fetch(`${EBAY_API}/sell/inventory/v1/location`, { headers });
   const data = await res.json();
+  console.log('[ebay-listings] GET location response:', JSON.stringify(data));
   if (data.locations?.length > 0) {
     _merchantLocationKey = data.locations[0].merchantLocationKey;
     return _merchantLocationKey;
