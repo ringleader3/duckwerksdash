@@ -40,3 +40,13 @@ On eBay: "completed" does not always mean sold. Listings that expired with no bu
 - **Japanese import listings** (AC100V voltage noted) are a known comp artifact — flag in notes but treat as a separate tier
 - **Auction outliers at the low end** often reflect condition issues not visible in the title — check seller's other listings for clues before including in your range
 - **Shutter count matters for cameras** — low SC (<10k) commands a premium tier; mid SC (10k-30k) is the normal market; high SC (50k+) trends toward floor pricing regardless of condition claims
+
+## Disc Golf Pricing Notes
+
+- **Plastic tier matters significantly** — premium plastics (Halo, Neutron, Cosmic Neutron, Proton, Eclipse, Fission) command higher prices than base plastics (Poly, Glow). Note the plastic in the comp when relevant.
+- **Run and edition premiums** — first runs, limited stamp editions, event stamps, and pro shop exclusives trade at a premium over standard releases. Flag these in notes.
+- **Weight ranges** — heavier weights (174g+) are generally preferred for distance drivers; putters and midranges are less weight-sensitive. Significant weight outliers can affect price.
+- **Unthrown/mint condition premium** — disc golf buyers pay a notable premium for unthrown discs. Condition claims in the title ("unthrown", "mint", "never thrown") are reliable signals.
+- **Prototype and pre-production discs** — command significant premiums, often 2-3x standard release pricing. Always flag in notes.
+- **Collector vs. player demand** — some molds (putters especially) have crossover collector demand that inflates prices above functional value. Consider the audience when setting floor/ceiling.
+- **OTB (Off the Beaten Path) and specialty retailer stamps** — store stamps from known retailers add modest premium over generic stamps.
