@@ -107,6 +107,9 @@ async function createOffer(sku, disc, policies, headers) {
     },
     categoryId:         DG_CATEGORY,
     listingDescription: buildDescription(disc),
+    shipToLocations: {
+      regionIncluded: [{ regionType: 'COUNTRY', regionName: 'US' }],
+    },
   };
   const res  = await fetch(`${EBAY_API}/sell/inventory/v1/offer`, {
     method: 'POST', headers, body: JSON.stringify(body),
