@@ -7,7 +7,10 @@ const puppeteerExtra = require('puppeteer-extra');
 puppeteerExtra.use(require('puppeteer-extra-plugin-stealth')());
 const CHROME_PATH = process.env.CHROME_PATH;
 const SERPAPI     = 'https://serpapi.com/search.json';
-const anthropic   = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const anthropic   = new Anthropic({
+  apiKey:         process.env.ANTHROPIC_API_KEY,
+  defaultHeaders: { 'anthropic-beta': 'prompt-caching-2024-07-31' },
+});
 
 const COMP_WORKFLOW = fs.readFileSync(
   path.join(__dirname, '../docs/gear-comp-research.md'), 'utf8'
