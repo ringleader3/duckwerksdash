@@ -227,7 +227,15 @@ function dbWrite(disc, listingId) {
   ).run(item.lastInsertRowid, ebaySite.id, String(listingId), disc.listPrice, `https://ebay.com/itm/${listingId}`);
 }
 
-router.post('/bulk-list', upload.any(), async (req, res) => {
+router.post('/bulk-list', (req, res, next) => {
+  upload.any()(req, res, err => {
+    if (err) {
+      console.error('[ebay-listings] multer error:', err);
+      return res.json({ error: `Upload error: ${err.message}` });
+    }
+    next();
+  });
+}, async (req, res) => {
   let disc;
   try {
     disc = JSON.parse(req.body.disc);
@@ -250,7 +258,7 @@ router.post('/bulk-list', upload.any(), async (req, res) => {
 
     res.json({ discId: disc.id, sku, listingId, url: `https://ebay.com/itm/${listingId}` });
   } catch (e) {
-    // Return error per-disc — script logs and continues
+    console.error('[ebay-listings] handler error:', e);
     res.json({ discId: disc?.id, error: e.message });
   }
 });
