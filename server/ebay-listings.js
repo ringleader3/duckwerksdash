@@ -10,7 +10,7 @@ const { getAccessToken } = require('./ebay-auth');
 const EBAY_API    = 'https://api.ebay.com';
 const PHOTOS_DIR  = path.join(__dirname, '..', 'public', 'dg-photos');
 const PHOTOS_BASE = 'https://dash.duckwerks.com/dg-photos';
-const DG_CATEGORY = '26441'; // eBay disc golf category — verify on first dry-run
+const DG_CATEGORY = '184356'; // eBay: Sporting Goods > Disc Golf > Discs
 const MARKETPLACE = 'EBAY_US';
 
 if (!fs.existsSync(PHOTOS_DIR)) fs.mkdirSync(PHOTOS_DIR, { recursive: true });
