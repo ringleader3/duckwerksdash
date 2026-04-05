@@ -87,7 +87,7 @@ async function main() {
     if (!title)                                        warnings.push('no List Title');
     if (!row['List Price'] || isNaN(price) || price <= 0) warnings.push('no List Price');
 
-    const photoPattern = new RegExp(`^DWG-${paddedId}-.*\\.jpg$`, 'i');
+    const photoPattern = new RegExp(`^DWG-${id}-.*\\.jpe?g$`, 'i');
     const photoFiles   = fs.readdirSync(photosDir).filter(f => photoPattern.test(f));
     if (photoFiles.length === 0) warnings.push('no photos');
 
@@ -153,7 +153,7 @@ async function main() {
       for (const filename of p.photoFiles) {
         const buf  = fs.readFileSync(path.join(photosDir, filename));
         const blob = new Blob([buf], { type: 'image/jpeg' });
-        formData.set(`photos[${filename.replace(/\.jpg$/i, '')}]`, blob, filename);
+        formData.set(`photos[${filename.replace(/\.jpe?g$/i, '')}]`, blob, filename);
       }
 
       const response = await fetch(`${apiBase}/api/ebay/bulk-list`, {
