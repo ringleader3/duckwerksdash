@@ -64,7 +64,7 @@ async function main() {
 
   // Filter to the requested ID range
   const rangeRows = records.filter(r => {
-    const id = parseInt(r['Disc ID'], 10);
+    const id = parseInt(r['Disc #'], 10);
     return id >= startId && id <= endId;
   });
 
@@ -75,10 +75,10 @@ async function main() {
 
   // Build per-disc plan: validate + collect photos
   const plan = rangeRows.map(row => {
-    const id       = parseInt(row['Disc ID'], 10);
+    const id       = parseInt(row['Disc #'], 10);
     const paddedId = String(id).padStart(3, '0');
     const title    = (row['List Title'] || '').trim();
-    const price    = parseFloat(row['List Price']);
+    const price    = parseFloat((row['List Price'] || '').replace(/[$,]/g, ''));
     const ebayUrl  = (row['eBay URL'] || '').trim();
 
     if (ebayUrl) return { id, paddedId, row, title, skip: 'already listed' };
@@ -145,7 +145,7 @@ async function main() {
         mold:         p.row['Mold']         || '',
         type:         p.row['Type']         || '',
         plastic:      p.row['Plastic']      || '',
-        run:          p.row['Run/Edition']  || '',
+        run:          p.row['Run / Edition'] || '',
         weight:       p.row['Weight (g)']   || '',
         notes:        p.row['Notes']        || '',
       }));
