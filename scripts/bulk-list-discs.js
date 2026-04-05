@@ -140,6 +140,7 @@ async function main() {
         id:           p.id,
         title:        p.title,
         listPrice:    p.price,
+        description:  p.row['Description']   || '',
         condition:    p.row['Condition']    || '',
         manufacturer: p.row['Manufacturer'] || '',
         mold:         p.row['Mold']         || '',
