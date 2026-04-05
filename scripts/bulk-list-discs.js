@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// scripts/bulk-list-discs.js — eBay bulk listing from CSV
-// Usage: node scripts/bulk-list-discs.js --csv <path> --photos <dir> --ids <start>-<end> [--api <url>] [--dry-run]
+// scripts/bulk-list-discs.js — eBay bulk listing from CSV or Google Sheet
+// Usage: node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <start>-<end> [--api <url>] [--dry-run]
+//        node scripts/bulk-list-discs.js --csv <path>  --photos <dir> --ids <start>-<end> [--api <url>] [--dry-run]
 
 const fs   = require('fs');
 const path = require('path');
@@ -13,14 +14,15 @@ function arg(name) {
   return i >= 0 ? process.argv[i + 1] : null;
 }
 
+const sheetUrl  = arg('--sheet');
 const csvPath   = arg('--csv');
 const photosDir = arg('--photos');
 const idsArg    = arg('--ids');
 const apiBase   = arg('--api') || 'http://localhost:3000';
 const dryRun    = process.argv.includes('--dry-run');
 
-if (!csvPath || !photosDir || !idsArg) {
-  console.error('Usage: node scripts/bulk-list-discs.js --csv <path> --photos <dir> --ids <start>-<end> [--api <url>] [--dry-run]');
+if ((!sheetUrl && !csvPath) || !photosDir || !idsArg) {
+  console.error('Usage: node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <start>-<end> [--api <url>] [--dry-run]');
   process.exit(1);
 }
 
@@ -30,37 +32,24 @@ if (isNaN(startId) || isNaN(endId) || startId > endId) {
   process.exit(1);
 }
 
-// ── CSV helpers ───────────────────────────────────────────────────────────────
-
-function csvEscape(val) {
-  if (val == null) return '';
-  const s = String(val);
-  return (s.includes(',') || s.includes('"') || s.includes('\n'))
-    ? '"' + s.replace(/"/g, '""') + '"'
-    : s;
-}
-
-function serializeCSV(headers, rows) {
-  return [
-    headers.map(csvEscape).join(','),
-    ...rows.map(r => headers.map(h => csvEscape(r[h] ?? '')).join(',')),
-  ].join('\n') + '\n';
-}
-
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
-  const csvText = fs.readFileSync(csvPath, 'utf8');
+  let csvText;
+  if (sheetUrl) {
+    const res = await fetch(sheetUrl);
+    if (!res.ok) throw new Error(`Failed to fetch sheet: ${res.status}`);
+    csvText = await res.text();
+  } else {
+    csvText = fs.readFileSync(csvPath, 'utf8');
+  }
+
   const records = parse(csvText, { columns: true, skip_empty_lines: true, bom: true });
 
   if (records.length === 0) {
     console.error('CSV has no rows.');
     process.exit(1);
   }
-
-  const headers = Object.keys(records[0]);
-  if (!headers.includes('eBay Listing ID')) headers.push('eBay Listing ID');
-  if (!headers.includes('eBay URL'))        headers.push('eBay URL');
 
   // Filter to the requested ID range
   const rangeRows = records.filter(r => {
@@ -168,11 +157,6 @@ async function main() {
         skipped++;
         continue;
       }
-
-      // Write eBay columns back to the in-memory row and save CSV immediately
-      p.row['eBay Listing ID'] = result.listingId;
-      p.row['eBay URL']        = result.url;
-      fs.writeFileSync(csvPath, serializeCSV(headers, records));
 
       console.log(`${label}  ${t}  listed  ${result.url}`);
       listed++;
