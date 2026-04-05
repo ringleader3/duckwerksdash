@@ -36,7 +36,15 @@ async function getMerchantLocationKey(headers) {
     method:  'POST',
     headers: postHeaders,
     body: JSON.stringify({
-      location:      { address: { country: 'US' } },
+      location: {
+        address: {
+          addressLine1:    process.env.FROM_STREET1,
+          city:            process.env.FROM_CITY,
+          stateOrProvince: process.env.FROM_STATE,
+          postalCode:      process.env.FROM_ZIP,
+          country:         process.env.FROM_COUNTRY || 'US',
+        },
+      },
       locationTypes: ['WAREHOUSE'],
       name:          'Duckwerks',
     }),
