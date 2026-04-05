@@ -9,7 +9,7 @@ comic-reselling-project.md
 claude-personal.md
 .superpowers/
 data/
-public/dg-photos/*.jpg
+public/dg-photos/
 *.csv
 docs/*.json
 docs/prompt-cache.md
