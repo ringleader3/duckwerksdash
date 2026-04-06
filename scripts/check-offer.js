@@ -10,7 +10,7 @@ async function main() {
   const token = await getAccessToken();
   const res = await fetch(
     `https://api.ebay.com/sell/inventory/v1/offer?sku=${encodeURIComponent(sku)}&marketplace_id=EBAY_US`,
-    { headers: { Authorization: `Bearer ${token}` } }
+    { headers: { Authorization: `Bearer ${token}`, 'Accept-Language': 'en-US', 'Content-Language': 'en-US' } }
   );
   const data = await res.json();
   const offer = data.offers?.[0];
