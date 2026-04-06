@@ -60,7 +60,7 @@ document.addEventListener('alpine:init', () => {
     },
     estUpside(lot) {
       const dw = Alpine.store('dw');
-      return lot.items.filter(r => r.status !== 'Sold').reduce((s, r) => s + dw.payout(r), 0);
+      return lot.items.filter(r => r.status === 'Listed').reduce((s, r) => s + dw.estProfit(r), 0);
     },
 
     openLot(lot) { Alpine.store('dw').openModal('lot', null, lot.name); },
