@@ -1,7 +1,7 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
-### 2026-04-06 — v1.1.18 (eBay multi-listing ship fix + bulk condition fix)
+### 2026-04-06 — v1.1.19 (eBay multi-listing ship fix + bulk listing fixes)
 
 **eBay label modal — multi-listing address bug:**
 - `isEbay` was determined by `activeListing(r).site.name`, which returns the wrong site when an item has listings on multiple platforms (e.g. eBay + CL/FB). When the eBay modal sets `activeEbayOrderId` before opening label modal, that's the authoritative signal. Fixed: `isEbay = siteName === 'eBay' || !!dw.activeEbayOrderId`; `isReverb` guards against the eBay order ID to avoid double-triggering.
@@ -10,6 +10,10 @@ _Most recent first. Update this at the end of every session._
 - `USED` is not a valid ConditionEnum string in the Inventory API — it's just the UI display label.
 - Category 184356 (Disc Golf Discs) only supports conditionId 3000 = `USED_EXCELLENT`.
 - Added `scripts/check-conditions.js` — queries eBay Sell Metadata API to list valid conditions for any category (`node scripts/check-conditions.js 184356`).
+
+**eBay bulk listing — bestOfferTerms fix:**
+- `bestOfferTerms` was at the top level of the offer body — eBay accepts the PUT but silently drops it.
+- Per `sell_inventory_v1_oas3.json`, `bestOfferTerms` is a property of `listingPolicies`, not the offer root. Moved it there — "or Best Offer" now appears on listings.
 
 ### 2026-04-05 — v1.1.17 (eBay bulk listing fixes + lots calc fix)
 
