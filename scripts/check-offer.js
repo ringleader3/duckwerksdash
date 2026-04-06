@@ -9,7 +9,7 @@ if (!sku) { console.error('Usage: node scripts/check-offer.js <sku>'); process.e
 async function main() {
   const token = await getAccessToken();
   const res = await fetch(
-    `https://api.ebay.com/sell/inventory/v1/offers?sku=${encodeURIComponent(sku)}&marketplace_id=EBAY_US`,
+    `https://api.ebay.com/sell/inventory/v1/offer?sku=${encodeURIComponent(sku)}&marketplace_id=EBAY_US`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
   const data = await res.json();
