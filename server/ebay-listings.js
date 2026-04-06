@@ -168,12 +168,12 @@ async function createOffer(sku, disc, policies, locationKey, headers) {
       fulfillmentPolicyId: policies.fulfillmentPolicyId,
       returnPolicyId:      policies.returnPolicyId,
       paymentPolicyId:     policies.paymentPolicyId,
+      bestOfferTerms: {
+        bestOfferEnabled: true,
+      },
     },
     pricingSummary: {
       price: { value: String(disc.listPrice), currency: 'USD' },
-    },
-    bestOfferTerms: {
-      bestOfferEnabled: true,
     },
     categoryId:         DG_CATEGORY,
     listingDescription: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
