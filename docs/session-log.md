@@ -1,6 +1,17 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-05 — v1.1.17 (eBay bulk listing fixes + lots calc fix)
+
+**eBay bulk listing fixes:**
+- Fixed `bestOfferEnabled`: was incorrectly nested inside `pricingSummary` (silently ignored by eBay API); moved to top-level `bestOfferTerms: { bestOfferEnabled: true }`. Note: doesn't apply to already-published offers via PATCH — enable manually in Seller Hub for existing listings.
+- Added `scripts/check-offer.js` — debug script to inspect eBay offer state for a given SKU (`node scripts/check-offer.js DWG-014`)
+- Documented `bulk-list-discs.js` idempotency in CLAUDE.md: safe to re-run on already-listed items (existing offer is PATCHed via errorId 25002 handler, re-published in place, same listing ID returned)
+- eBay 25604 "Product not found" errors on some SKUs: transient eBay-side issue; retrying resolved them. Manually edited listings convert from Inventory API-managed to legacy — Inventory API loses track of them.
+
+**Lots view fix:**
+- `lotsView.estUpside()` was using `dw.payout(r)` (fees only, no cost/shipping) and including non-Listed items — now matches lot modal: `dw.estProfit(r)` on `status === 'Listed'` items only
+
 ### 2026-04-05 — v1.1.16 (bulk workflow improvements + comp prompt caching)
 
 **Bulk script improvements:**
