@@ -132,7 +132,7 @@ async function savePhotos(files) {
 }
 
 async function putInventoryItem(sku, disc, photoUrls, headers) {
-  const condition = disc.condition === 'Unthrown' ? 'NEW' : 'USED';
+  const condition = disc.condition === 'Unthrown' ? 'NEW' : 'USED_VERY_GOOD';
   const body = {
     product: {
       title:       disc.title.slice(0, 80),
