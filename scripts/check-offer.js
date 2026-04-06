@@ -14,7 +14,7 @@ async function main() {
   );
   const data = await res.json();
   const offer = data.offers?.[0];
-  if (!offer) { console.log('No offer found for', sku); return; }
+  if (!offer) { console.log('No offer found for', sku); console.log('Raw response:', JSON.stringify(data, null, 2)); return; }
   console.log('offerId:        ', offer.offerId);
   console.log('status:         ', offer.status);
   console.log('bestOfferTerms: ', JSON.stringify(offer.bestOfferTerms));
