@@ -55,8 +55,8 @@ document.addEventListener('alpine:init', () => {
 
       const listing  = dw.activeListing(r);
       const siteName = listing?.site?.name;
-      const isReverb = siteName === 'Reverb';
-      const isEbay   = siteName === 'eBay';
+      const isReverb = siteName === 'Reverb' && !dw.activeEbayOrderId;
+      const isEbay   = siteName === 'eBay' || !!dw.activeEbayOrderId;
       // activeReverbOrderNum is set by reverbModal SHIP button for items without a local order yet
       const pendingOrderNum = dw.activeReverbOrderNum;
       dw.activeReverbOrderNum = null; // clear so it doesn't leak to subsequent opens
