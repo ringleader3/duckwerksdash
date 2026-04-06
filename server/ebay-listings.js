@@ -171,6 +171,8 @@ async function createOffer(sku, disc, policies, locationKey, headers) {
     },
     pricingSummary: {
       price: { value: String(disc.listPrice), currency: 'USD' },
+    },
+    bestOfferTerms: {
       bestOfferEnabled: true,
     },
     categoryId:         DG_CATEGORY,

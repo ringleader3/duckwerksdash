@@ -50,6 +50,8 @@ npm start   # starts Express on http://localhost:3000
 - `server/reverb.js` — all Reverb routes (`/api/reverb/*`)
 - `server/ebay-auth.js` — eBay OAuth token management (one-time setup + auto-refresh)
 - `server/ebay.js` — eBay Sell Fulfillment routes (`/api/ebay/*`) — orders, tracking push, OAuth flow
+- `server/ebay-listings.js` — eBay Inventory API bulk listing route (`POST /api/ebay/bulk-list`) — called by `scripts/bulk-list-discs.js`
+- `scripts/bulk-list-discs.js` — bulk eBay listing script; safe to re-run on already-listed discs (idempotent: existing offer is PATCHed via errorId 25002 handler, then re-published in place — no duplicates created)
 - `data/ebay-tokens.json` — eBay OAuth tokens (never commit — gitignored)
 - `data/duckwerks.db` — SQLite database (never commit)
 - `.env` — secrets (EasyPost + Shippo tokens, from-address)
