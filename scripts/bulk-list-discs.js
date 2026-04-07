@@ -78,8 +78,6 @@ async function main() {
     if (!row['List Price'] || isNaN(price) || price <= 0) warnings.push('no List Price');
 
     if (updateMode) {
-      // In update mode: only process items that are already listed
-      if (!ebayUrl) return { id, paddedId, row, title, price, skip: 'not yet listed' };
       return { id, paddedId, row, title, price, warnings: warnings.length ? warnings : null };
     }
 
