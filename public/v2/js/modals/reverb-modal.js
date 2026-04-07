@@ -22,6 +22,9 @@ document.addEventListener('alpine:init', () => {
     newSelections:    {},
     importingNew:     false,
     importMsg:        '',
+    importCategory:   '',
+    importLot:        '',
+    importNewLot:     '',
 
     init() {
       this.$watch('$store.dw.activeModal', val => {
@@ -63,6 +66,9 @@ document.addEventListener('alpine:init', () => {
       this.newSelections   = {};
       this.importingNew    = false;
       this.importMsg       = '';
+      this.importCategory  = '';
+      this.importLot       = '';
+      this.importNewLot    = '';
       try {
         const ordersRes = await fetch('/api/reverb/my/orders/selling/awaiting_shipment');
         if (!ordersRes.ok) throw new Error(`Orders HTTP ${ordersRes.status}`);
@@ -226,9 +232,26 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       const reverbSite = dw.sites.find(s => s.name === 'Reverb');
       if (!reverbSite) { this.importMsg = 'Reverb site not found'; this.importingNew = false; return; }
+
+      // Resolve lot (create if new)
+      let lotId = null;
+      const lotName = this.importNewLot.trim() || this.importLot;
+      if (lotName) {
+        let lot = dw.lots.find(l => l.name === lotName);
+        if (!lot) {
+          const res = await fetch('/api/lots', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: lotName }) });
+          lot = await res.json();
+        }
+        lotId = lot.id;
+      }
+      const categoryId = this.importCategory ? parseInt(this.importCategory, 10) : null;
+
       for (const listing of selected) {
         try {
-          const item = await dw.createItem({ name: listing.title || 'Untitled', cost: 0 });
+          const itemFields = { name: listing.title || 'Untitled', cost: 0 };
+          if (categoryId) itemFields.category_id = categoryId;
+          if (lotId)      itemFields.lot_id       = lotId;
+          const item = await dw.createItem(itemFields);
           await dw.createListing({
             item_id:             item.id,
             site_id:             reverbSite.id,
