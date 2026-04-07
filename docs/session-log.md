@@ -1,6 +1,20 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-07 — v1.1.24 (eBay aspect key fixes + Color + Sold skip)
+
+**eBay aspect key corrections (ref #91):**
+- `Plastic Type` → `Disc Plastic Type`
+- `Weight` → `Disc Weight`
+- Added `Type: Disc Golf Disc` (constant for all disc golf category listings)
+- Added `Disc Type` from spreadsheet `Type` column (Driver/Putter/etc.)
+- Added `Color` aspect from spreadsheet `Color` column — validated against eBay enum (Beige/Black/Blue/Bronze/Brown/Gold/Gray/Green/Multi-Color/Orange/Pink/Purple/Red/Silver/White/Yellow); invalid values silently ignored
+- Applied to both new-listing and `--update` paths
+
+**Sold skip in bulk script:**
+- New `Sold` checkbox column in spreadsheet (TRUE/FALSE)
+- Rows with `Sold=TRUE` are skipped in both list and update modes (`skipped — sold`)
+
 ### 2026-04-06 — v1.1.20 (shipping display fixes + carrier warnings)
 
 **Shipping column — actual cost display:**
