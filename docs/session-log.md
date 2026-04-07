@@ -12,6 +12,17 @@ _Most recent first. Update this at the end of every session._
 - Label modal displays carrier errors in yellow below the rate list (e.g. "UPS: UPS responded with an invalid JSON response, please try again").
 - Added `scripts/test-rates.js` — debug utility to test EasyPost rate fetch + surface carrier errors for a given address.
 
+### 2026-04-06 — v1.1.22 (bulk listing --update mode + 25604 retry)
+
+**Bulk listing `--update` mode:**
+- New `--update` flag: updates title, description, list price on existing eBay listings. No photos required, no republish needed.
+- New `/api/ebay/bulk-update` route: GETs existing inventory item to preserve imageUrls/condition, PUTs with new title/description, PATCHes offer with new price.
+- Usage: `node scripts/bulk-list-discs.js --sheet <url> --ids 1-52 --update`
+- Photo updates deferred — future `--update-photos` flag.
+
+**25604 transient error retry:**
+- `publishOffer` now retries once on errorId 25604 "Product not found" with a 3s delay.
+
 ### 2026-04-06 — v1.1.21 (local print server for labels)
 
 **Local print server (`scripts/print-server.js`):**
