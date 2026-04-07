@@ -77,11 +77,13 @@ async function main() {
     if (!title)                                           warnings.push('no List Title');
     if (!row['List Price'] || isNaN(price) || price <= 0) warnings.push('no List Price');
 
+    // Skip sold items in all modes
+    if ((row['Sold'] || '').toUpperCase() === 'TRUE') return { id, paddedId, row, title, skip: 'sold' };
+
     if (updateMode) {
       return { id, paddedId, row, title, price, warnings: warnings.length ? warnings : null };
     }
 
-    // List mode: skip already-listed items, require photos
     if (ebayUrl) return { id, paddedId, row, title, skip: 'already listed' };
 
     const photoPattern = new RegExp(`^DWG-${id}-.*\\.jpe?g$`, 'i');
