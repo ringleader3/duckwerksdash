@@ -26,6 +26,7 @@ const SERVICE_NAMES = {
   Express:            'Express Mail',
   ParcelSelect:       'Parcel Select',
   LibraryMail:        'Library Mail',
+  MediaMail:          'Media Mail',
   // FedEx
   SMART_POST:         'Smart Post',
   FEDEX_GROUND:       'Ground',
@@ -157,13 +158,15 @@ async function easypostRates(toAddress, parcel) {
           height: parcel.height,
         },
         options: {
-          label_format: 'PDF',
-          label_size:   '4X6',
+          label_format:             'PDF',
+          label_size:               '4X6',
+          special_rates_eligibility: 'USPS.MEDIAMAIL,USPS.LIBRARYMAIL',
         },
       },
     }),
   });
   const data = await res.json();
+  console.log('EasyPost rates raw:', JSON.stringify(data, null, 2));
   if (!res.ok) throw Object.assign(new Error('EasyPost error'), { status: res.status, data });
   const rates = (data.rates || [])
     .sort((a, b) => parseFloat(a.rate) - parseFloat(b.rate))
