@@ -12,6 +12,12 @@ _Most recent first. Update this at the end of every session._
 - Label modal displays carrier errors in yellow below the rate list (e.g. "UPS: UPS responded with an invalid JSON response, please try again").
 - Added `scripts/test-rates.js` — debug utility to test EasyPost rate fetch + surface carrier errors for a given address.
 
+### 2026-04-06 — v1.1.23 (bulk update aspects fix)
+
+**Bulk update — aspects now rebuilt from sheet data:**
+- Brand (Manufacturer), Model (Mold), Plastic Type, Weight now update alongside title/description/price in `--update` mode.
+- Previously was preserving existing aspects from eBay inventory item.
+
 ### 2026-04-06 — v1.1.22 (bulk listing --update mode + 25604 retry)
 
 **Bulk listing `--update` mode:**
