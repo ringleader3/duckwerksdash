@@ -166,7 +166,6 @@ async function easypostRates(toAddress, parcel) {
     }),
   });
   const data = await res.json();
-  console.log('EasyPost rates raw:', JSON.stringify(data, null, 2));
   if (!res.ok) throw Object.assign(new Error('EasyPost error'), { status: res.status, data });
   const rates = (data.rates || [])
     .sort((a, b) => parseFloat(a.rate) - parseFloat(b.rate))
