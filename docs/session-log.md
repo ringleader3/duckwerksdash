@@ -12,6 +12,16 @@ _Most recent first. Update this at the end of every session._
 - Label modal displays carrier errors in yellow below the rate list (e.g. "UPS: UPS responded with an invalid JSON response, please try again").
 - Added `scripts/test-rates.js` — debug utility to test EasyPost rate fetch + surface carrier errors for a given address.
 
+### 2026-04-06 — v1.1.21 (local print server for labels)
+
+**Local print server (`scripts/print-server.js`):**
+- Runs on Mac; exposes `POST /print/label` — downloads EasyPost PDF, sends to thermal printer via `lp` with `media=Custom.4x6in fit-to-page`. No print dialog.
+- NUC proxy at `server/print.js` — `/api/print/label` forwards to `PRINT_SERVER_URL` (e.g. `http://MBA.local:3002`). Dashboard calls NUC, NUC calls Mac — no CORS issues.
+- `store.printLabel()` now calls API first, falls back to `window.open` if print server unavailable.
+- Config: `LABEL_PRINTER`, `PRINT_SERVER_PORT=3002` in Mac `.env`; `PRINT_SERVER_URL` in NUC `.env`.
+- Start with: `node scripts/print-server.js`
+- Packing slips stay as `window.open` — Reverb/eBay URLs require browser auth, no clean API path.
+
 ### 2026-04-06 — v1.1.19 (eBay multi-listing ship fix + bulk listing fixes)
 
 **eBay label modal — multi-listing address bug:**
