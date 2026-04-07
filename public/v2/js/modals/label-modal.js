@@ -22,7 +22,6 @@ document.addEventListener('alpine:init', () => {
     ebayLineItemId:   null,
     ebayShipMsg:      '',
     carrierWarnings:  [],
-    packingSlipMsg:   '',
 
     init() {
       this.$watch('$store.dw.activeModal', val => {
@@ -51,7 +50,6 @@ document.addEventListener('alpine:init', () => {
       this.ebayLineItemId    = null;
       this.ebayShipMsg       = '';
       this.carrierWarnings   = [];
-      this.packingSlipMsg    = '';
 
       const dw      = Alpine.store('dw');
       const r       = dw.records.find(x => x.id === dw.activeRecordId);
@@ -327,38 +325,6 @@ document.addEventListener('alpine:init', () => {
       Alpine.store('dw').printLabel(this.purchaseResult?.labelUrl);
     },
 
-    async printPackingSlip() {
-      const r = this.record;
-      if (!r) return;
-      this.packingSlipMsg = 'PRINTING...';
-      try {
-        const res = await fetch('/api/print/packingslip', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            itemName:       r.name || '',
-            toName:         this._addrToName(),
-            toAddress:      this.addrText,
-            orderNum:       this.reverbOrderNum || this.ebayOrderId || r.order?.platform_order_num || '',
-            trackingNumber: this.purchaseResult?.trackingNumber || '',
-            carrier:        this.carrier || '',
-            service:        this.purchaseResult?.service || '',
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-        this.packingSlipMsg = '✓ SENT TO PRINTER';
-        setTimeout(() => { this.packingSlipMsg = ''; }, 3000);
-      } catch(e) {
-        this.packingSlipMsg = 'ERROR: ' + e.message;
-        console.error('[printPackingSlip]', e);
-      }
-    },
-
-    _addrToName() {
-      // Extract first line (name) from addrText
-      return this.addrText?.split('\n')[0] || '';
-    },
 
     async markShipped() {
       if (!this.reverbLinks?.ship?.href || !this.purchaseResult?.trackingNumber) return;
