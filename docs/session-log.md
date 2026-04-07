@@ -1,6 +1,17 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-06 — v1.1.20 (shipping display fixes + carrier warnings)
+
+**Shipping column — actual cost display:**
+- `shipDisplay` now prioritizes `shipment.shipping_cost` (actual) over `listing.shipping_estimate`. All sold+shipped rows now show actual cost in green.
+- For sold listings with no shipment (in-person CL/FB), falls back to sold listing's `shipping_estimate`; if null and site is Craigslist or Facebook, defaults to $0.
+
+**Carrier rate warnings in label modal:**
+- EasyPost `messages` array (rate_error type) now passed through `/api/label/rates` response.
+- Label modal displays carrier errors in yellow below the rate list (e.g. "UPS: UPS responded with an invalid JSON response, please try again").
+- Added `scripts/test-rates.js` — debug utility to test EasyPost rate fetch + surface carrier errors for a given address.
+
 ### 2026-04-06 — v1.1.19 (eBay multi-listing ship fix + bulk listing fixes)
 
 **eBay label modal — multi-listing address bug:**
