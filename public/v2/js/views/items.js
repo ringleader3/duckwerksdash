@@ -100,10 +100,14 @@ document.addEventListener('alpine:init', () => {
     },
     shipDisplay(r) {
       const dw = Alpine.store('dw');
-      const l  = dw.activeListing(r);
+      if (r.shipment?.shipping_cost != null) return dw.fmt0(r.shipment.shipping_cost);
+      const l = dw.activeListing(r);
       return l?.shipping_estimate != null ? dw.fmt0(l.shipping_estimate) : '~$10';
     },
-    shipIsEst(r) { return Alpine.store('dw').activeListing(r)?.shipping_estimate == null; },
+    shipIsEst(r) {
+      if (r.shipment?.shipping_cost != null) return false;
+      return Alpine.store('dw').activeListing(r)?.shipping_estimate == null;
+    },
 
     toggleStatusMenu(id, e) { e.stopPropagation(); this.openStatusId = this.openStatusId === id ? null : id; },
 
