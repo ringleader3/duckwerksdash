@@ -160,7 +160,7 @@ async function easypostRates(toAddress, parcel) {
         options: {
           label_format:             'PDF',
           label_size:               '4X6',
-          special_rates_eligibility: 'USPS.MEDIAMAIL,USPS.LIBRARYMAIL',
+          special_rates_eligibility: 'USPS.MEDIAMAIL',
         },
       },
     }),
