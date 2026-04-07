@@ -328,7 +328,12 @@ router.post('/bulk-update', async (req, res) => {
         title:       disc.title.slice(0, 80),
         description: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
         imageUrls,
-        aspects: existing.product?.aspects || {},
+        aspects: {
+          ...(disc.manufacturer && { Brand:          [disc.manufacturer] }),
+          ...(disc.mold         && { Model:          [disc.mold] }),
+          ...(disc.plastic      && { 'Plastic Type': [disc.plastic] }),
+          ...(disc.weight       && { Weight:         [`${disc.weight}g`] }),
+        },
       },
       condition,
       availability: { shipToLocationAvailability: { quantity: 1 } },
