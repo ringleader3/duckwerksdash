@@ -33,6 +33,7 @@ app.use('/api/reverb',    require('./server/reverb'));
 app.use('/api/ebay',      require('./server/ebay'));
 app.use('/api/ebay',      require('./server/ebay-listings'));
 app.use('/api/comps',     require('./server/comps').router);
+app.use('/api/print',    require('./server/print'));
 
 // ── START ─────────────────────────────────────────────────────────────────────
 
