@@ -18,9 +18,10 @@ document.addEventListener('alpine:init', () => {
     saveMsg:        '',
     savingShip:     false,
     reverbShipMsg:  '',   // separate from saveMsg so it isn't overwritten by saveShipping()
-    ebayOrderId:    null,
-    ebayLineItemId: null,
-    ebayShipMsg:    '',
+    ebayOrderId:      null,
+    ebayLineItemId:   null,
+    ebayShipMsg:      '',
+    carrierWarnings:  [],
 
     init() {
       this.$watch('$store.dw.activeModal', val => {
@@ -48,6 +49,7 @@ document.addEventListener('alpine:init', () => {
       this.ebayOrderId       = null;
       this.ebayLineItemId    = null;
       this.ebayShipMsg       = '';
+      this.carrierWarnings   = [];
 
       const dw      = Alpine.store('dw');
       const r       = dw.records.find(x => x.id === dw.activeRecordId);
@@ -191,8 +193,9 @@ document.addEventListener('alpine:init', () => {
           this.errMsg = data.error || 'No rates returned';
           return;
         }
-        this.rates = data.rates;
-        this.step  = 'rates';
+        this.rates           = data.rates;
+        this.carrierWarnings = data.warnings || [];
+        this.step            = 'rates';
       } catch(e) {
         this.errMsg = e.message;
       } finally {

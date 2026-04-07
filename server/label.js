@@ -165,7 +165,7 @@ async function easypostRates(toAddress, parcel) {
   });
   const data = await res.json();
   if (!res.ok) throw Object.assign(new Error('EasyPost error'), { status: res.status, data });
-  return (data.rates || [])
+  const rates = (data.rates || [])
     .sort((a, b) => parseFloat(a.rate) - parseFloat(b.rate))
     .map(r => ({
       object_id: `${r.shipment_id}|${r.id}`,  // encoded for purchase
@@ -175,6 +175,10 @@ async function easypostRates(toAddress, parcel) {
       currency:  r.currency,
       days:      r.delivery_days,
     }));
+  const warnings = (data.messages || [])
+    .filter(m => m.type === 'rate_error' && CARRIER_NAMES[m.carrier])
+    .map(m => `${carrierName(m.carrier)}: ${m.message}`);
+  return { rates, warnings };
 }
 
 async function easypostPurchase(rateObjectId, insurance = '100.00') {
@@ -204,10 +208,10 @@ async function easypostPurchase(rateObjectId, insurance = '100.00') {
 router.post('/rates', async (req, res) => {
   const { toAddress, parcel } = req.body;
   try {
-    const rates = PROVIDER === 'EASYPOST'
+    const result = PROVIDER === 'EASYPOST'
       ? await easypostRates(toAddress, parcel)
-      : await shippoRates(toAddress, parcel);
-    res.json({ rates });
+      : { rates: await shippoRates(toAddress, parcel), warnings: [] };
+    res.json(result);
   } catch (e) {
     const status = e.status || 502;
     res.status(status).json(e.data || { error: e.message });

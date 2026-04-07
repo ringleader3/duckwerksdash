@@ -1388,6 +1388,13 @@
               </div>
             </template>
           </div>
+          <template x-if="carrierWarnings.length">
+            <div style="margin-bottom:12px">
+              <template x-for="w in carrierWarnings" :key="w">
+                <div x-text="w" style="font-size:11px;color:var(--yellow);letter-spacing:1px;margin-bottom:4px"></div>
+              </template>
+            </div>
+          </template>
           <button @click="step = 'form'"
             style="padding:8px 20px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer">
             ← BACK
