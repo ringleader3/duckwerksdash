@@ -103,6 +103,8 @@ document.addEventListener('alpine:init', () => {
       if (r.shipment?.shipping_cost != null) return dw.fmt0(r.shipment.shipping_cost);
       const sold = (r.listings || []).find(l => l.status === 'sold');
       if (sold?.shipping_estimate != null) return dw.fmt0(sold.shipping_estimate);
+      const inPerson = ['Facebook', 'Craigslist'].includes(sold?.site?.name);
+      if (inPerson) return dw.fmt0(0);
       const l = dw.activeListing(r);
       return l?.shipping_estimate != null ? dw.fmt0(l.shipping_estimate) : '~$10';
     },
@@ -110,6 +112,7 @@ document.addEventListener('alpine:init', () => {
       if (r.shipment?.shipping_cost != null) return false;
       const sold = (r.listings || []).find(l => l.status === 'sold');
       if (sold?.shipping_estimate != null) return false;
+      if (['Facebook', 'Craigslist'].includes(sold?.site?.name)) return false;
       return Alpine.store('dw').activeListing(r)?.shipping_estimate == null;
     },
 
