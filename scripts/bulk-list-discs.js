@@ -146,6 +146,7 @@ async function main() {
         mold:         p.row['Mold']           || '',
         type:         p.row['Type']           || '',
         plastic:      p.row['Plastic']        || '',
+        color:        p.row['Color']          || '',
         run:          p.row['Run / Edition']  || '',
         weight:       p.row['Weight (g)']     || '',
         notes:        p.row['Notes']          || '',

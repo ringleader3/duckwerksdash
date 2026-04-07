@@ -13,6 +13,11 @@ const PHOTOS_DIR    = path.join(__dirname, '..', 'public', 'dg-photos');
 const DG_CATEGORY   = '184356'; // eBay: Sporting Goods > Disc Golf > Discs
 const MARKETPLACE   = 'EBAY_US';
 
+const VALID_COLORS = new Set([
+  'Beige', 'Black', 'Blue', 'Bronze', 'Brown', 'Gold', 'Gray', 'Green',
+  'Multi-Color', 'Orange', 'Pink', 'Purple', 'Red', 'Silver', 'White', 'Yellow',
+]);
+
 if (!fs.existsSync(PHOTOS_DIR)) fs.mkdirSync(PHOTOS_DIR, { recursive: true });
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -337,6 +342,7 @@ router.post('/bulk-update', async (req, res) => {
           ...(disc.type         && { 'Disc Type':      [disc.type] }),
           ...(disc.plastic      && { 'Disc Plastic Type': [disc.plastic] }),
           ...(disc.weight       && { 'Disc Weight':    [`${disc.weight}g`] }),
+          ...(disc.color && VALID_COLORS.has(disc.color) && { Color: [disc.color] }),
         },
       },
       condition,
