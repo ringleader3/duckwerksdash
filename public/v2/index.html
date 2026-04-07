@@ -724,14 +724,14 @@
                      :href="'https://reverb.com/my/selling/orders/' + record.order?.platform_order_num"
                      style="font-size:11px; color:var(--reverb)"
                      x-text="'↗ Order #' + record.order?.platform_order_num"></a>
-                  <a x-show="orderSite === 'Reverb'" target="_blank"
-                     :href="'https://reverb.com/my/orders/' + record.order?.platform_order_num + '/packing_slip.pdf'"
+                  <a x-show="orderSite === 'Reverb'" href="#"
+                     @click.prevent="() => { const w = window.open('https://reverb.com/my/orders/' + record.order?.platform_order_num + '/packing_slip.pdf', '_blank'); w.onload = () => w.print(); }"
                      style="font-size:11px; color:var(--muted)">↗ Packing Slip</a>
                   <a x-show="orderSite === 'eBay'" target="_blank"
                      :href="'https://www.ebay.com/sh/ord/details?orderid=' + record.order?.platform_order_num"
                      style="font-size:11px; color:var(--ebay)">↗ Order Details</a>
-                  <a x-show="orderSite === 'eBay'" target="_blank"
-                     :href="'https://www.ebay.com/sh/ord/prt?module=PACKING_SLIP_MODULE&orderId=' + record.order?.platform_order_num"
+                  <a x-show="orderSite === 'eBay'" href="#"
+                     @click.prevent="() => { const w = window.open('https://www.ebay.com/sh/ord/prt?module=PACKING_SLIP_MODULE&orderId=' + record.order?.platform_order_num, '_blank'); w.onload = () => { const iframe = w.document.getElementById('pdfFrame'); if (iframe) iframe.contentWindow.print(); else w.print(); }; }"
                      style="font-size:11px; color:var(--muted)">↗ Packing Slip</a>
                 </span>
               </div>
