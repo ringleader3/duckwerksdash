@@ -205,12 +205,36 @@ async function createOffer(sku, disc, policies, locationKey, headers) {
 }
 
 async function publishOffer(offerId, headers) {
-  const res  = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offerId}/publish`, {
-    method: 'POST', headers,
-  });
+  const attempt = async () => {
+    const res  = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offerId}/publish`, {
+      method: 'POST', headers,
+    });
+    const data = await res.json();
+    if (!res.ok) throw Object.assign(new Error(`offer publish ${res.status}: ${JSON.stringify(data)}`), { data });
+    return data.listingId;
+  };
+  try {
+    return await attempt();
+  } catch (e) {
+    // 25604 = transient "Product not found" — retry once
+    if (e.data?.errors?.some(err => err.errorId === 25604)) {
+      await new Promise(r => setTimeout(r, 3000));
+      return await attempt();
+    }
+    throw e;
+  }
+}
+
+async function getInventoryItem(sku, headers) {
+  const res  = await fetch(`${EBAY_API}/sell/inventory/v1/inventory_item/${encodeURIComponent(sku)}`, { headers });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+async function getOfferBySku(sku, headers) {
+  const res  = await fetch(`${EBAY_API}/sell/inventory/v1/offer?sku=${encodeURIComponent(sku)}`, { headers });
   const data = await res.json();
-  if (!res.ok) throw new Error(`offer publish ${res.status}: ${JSON.stringify(data)}`);
-  return data.listingId;
+  return data.offers?.[0] || null;
 }
 
 function dbWrite(disc, listingId) {
@@ -273,6 +297,79 @@ router.post('/bulk-list', (req, res, next) => {
     res.json({ discId: disc.id, sku, listingId, url: `https://ebay.com/itm/${listingId}` });
   } catch (e) {
     console.error('[ebay-listings] handler error:', e);
+    res.json({ discId: disc?.id, error: e.message });
+  }
+});
+
+// POST /api/ebay/bulk-update — update title, description, price on existing listings
+// Body: JSON { disc: { id, title, description, listPrice, ... } }
+// No photos required. Does not republish — changes take effect on active listing immediately.
+router.post('/bulk-update', async (req, res) => {
+  let disc;
+  try {
+    disc = typeof req.body.disc === 'string' ? JSON.parse(req.body.disc) : req.body.disc;
+  } catch {
+    return res.status(400).json({ error: 'Invalid disc JSON' });
+  }
+
+  try {
+    const headers = await ebayHeaders();
+    const sku     = `DWG-${String(disc.id).padStart(3, '0')}`;
+
+    // 1. GET existing inventory item to preserve imageUrls + condition
+    const existing = await getInventoryItem(sku, headers);
+    if (!existing) return res.json({ discId: disc.id, error: `No inventory item found for ${sku}` });
+    const imageUrls = existing.product?.imageUrls || [];
+    const condition = existing.condition || 'USED_EXCELLENT';
+
+    // 2. PUT inventory item — update title + description, preserve photos/condition
+    const itemBody = {
+      product: {
+        title:       disc.title.slice(0, 80),
+        description: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
+        imageUrls,
+        aspects: existing.product?.aspects || {},
+      },
+      condition,
+      availability: { shipToLocationAvailability: { quantity: 1 } },
+    };
+    const itemRes = await fetch(`${EBAY_API}/sell/inventory/v1/inventory_item/${encodeURIComponent(sku)}`, {
+      method: 'PUT', headers, body: JSON.stringify(itemBody),
+    });
+    if (itemRes.status !== 200 && itemRes.status !== 204) {
+      const text = await itemRes.text();
+      throw new Error(`inventory_item PUT ${itemRes.status}: ${text}`);
+    }
+
+    // 3. GET offer by SKU
+    const offer = await getOfferBySku(sku, headers);
+    if (!offer) return res.json({ discId: disc.id, error: `No offer found for ${sku}` });
+
+    // 4. PATCH offer — update price + description
+    const offerBody = {
+      sku,
+      marketplaceId:       MARKETPLACE,
+      format:              'FIXED_PRICE',
+      merchantLocationKey: offer.merchantLocationKey,
+      listingPolicies:     offer.listingPolicies,
+      pricingSummary: {
+        price: { value: String(disc.listPrice), currency: 'USD' },
+      },
+      categoryId:         DG_CATEGORY,
+      listingDescription: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
+      shipToLocations:    offer.shipToLocations,
+    };
+    const offerRes = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offer.offerId}`, {
+      method: 'PUT', headers, body: JSON.stringify(offerBody),
+    });
+    if (!offerRes.ok) {
+      const text = await offerRes.text();
+      throw new Error(`offer PUT ${offerRes.status}: ${text}`);
+    }
+
+    res.json({ discId: disc.id, sku, offerId: offer.offerId, listingId: offer.listing?.listingId });
+  } catch (e) {
+    console.error('[ebay-listings] bulk-update error:', e);
     res.json({ discId: disc?.id, error: e.message });
   }
 });
