@@ -183,10 +183,12 @@ async function createOffer(sku, disc, policies, locationKey, headers) {
       price: { value: String(disc.listPrice), currency: 'USD' },
     },
     categoryId:         DG_CATEGORY,
+    storeCategoryNames: ['Multiple Discounts'],
     listingDescription: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
     shipToLocations: {
       regionIncluded: [{ regionType: 'COUNTRY', regionName: 'US' }],
     },
+
   };
   const res  = await fetch(`${EBAY_API}/sell/inventory/v1/offer`, {
     method: 'POST', headers, body: JSON.stringify(body),
