@@ -81,7 +81,7 @@ async function main() {
     if ((row['Sold'] || '').toUpperCase() === 'TRUE') return { id, paddedId, row, title, skip: 'sold' };
 
     if (updateMode) {
-      return { id, paddedId, row, title, price, warnings: warnings.length ? warnings : null };
+      return { id, paddedId, row, title, price,  warnings: warnings.length ? warnings : null };
     }
 
     if (ebayUrl) return { id, paddedId, row, title, skip: 'already listed' };

@@ -11,6 +11,7 @@ const EBAY_API      = 'https://api.ebay.com';
 const EBAY_MEDIA    = 'https://apim.ebay.com/commerce/media/v1_beta';
 const PHOTOS_DIR    = path.join(__dirname, '..', 'public', 'dg-photos');
 const DG_CATEGORY   = '184356'; // eBay: Sporting Goods > Disc Golf > Discs
+const EBAY_STORE_CATEGORY = 'Multiple Discounts'; // optional store category to assign to all listings
 const MARKETPLACE   = 'EBAY_US';
 
 const VALID_COLORS = new Set([
@@ -183,7 +184,7 @@ async function createOffer(sku, disc, policies, locationKey, headers) {
       price: { value: String(disc.listPrice), currency: 'USD' },
     },
     categoryId:         DG_CATEGORY,
-    storeCategoryNames: ['Multiple Discounts'],
+    storeCategoryNames: [EBAY_STORE_CATEGORY],
     listingDescription: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
     shipToLocations: {
       regionIncluded: [{ regionType: 'COUNTRY', regionName: 'US' }],
@@ -373,7 +374,7 @@ router.post('/bulk-update', async (req, res) => {
         price: { value: String(disc.listPrice), currency: 'USD' },
       },
       categoryId:         DG_CATEGORY,
-      storeCategoryNames: ['Multiple Discounts'],
+      storeCategoryNames: [EBAY_STORE_CATEGORY],
       listingDescription: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
       shipToLocations:    offer.shipToLocations,
     };
