@@ -373,6 +373,7 @@ router.post('/bulk-update', async (req, res) => {
         price: { value: String(disc.listPrice), currency: 'USD' },
       },
       categoryId:         DG_CATEGORY,
+      storeCategoryNames: ['Multiple Discounts'],
       listingDescription: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
       shipToLocations:    offer.shipToLocations,
     };
