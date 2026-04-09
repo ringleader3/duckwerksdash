@@ -267,7 +267,7 @@ function dbWrite(disc, listingId) {
   if (!ebaySite) throw new Error('eBay site not found in DB — run server once to seed');
 
   const item = db.prepare(
-    "INSERT INTO items (name, status, category_id, cost) VALUES (?, 'Listed', ?, 0)"
+    "INSERT INTO items (name, status, category_id, cost, lot_id) VALUES (?, 'Listed', ?, 0, 9)" // lot_id=9 = Bulk-listed DG discs lot
   ).run(disc.title, cat.id);
 
   db.prepare(
