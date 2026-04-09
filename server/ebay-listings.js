@@ -126,6 +126,11 @@ function buildDescription(disc) {
   return lines.join('\n')
 }
 
+function descriptionHtml(disc) {
+  const body = disc.description || buildDescription(disc);
+  return `<p>${(body + LISTING_FOOTER).replace(/\n/g, '</p><p>')}</p>`;
+}
+
 async function savePhotos(files) {
   const urls = [];
   for (const file of files) {
@@ -142,7 +147,7 @@ async function putInventoryItem(sku, disc, photoUrls, headers) {
   const body = {
     product: {
       title:       disc.title.slice(0, 80),
-      description: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
+      description: descriptionHtml(disc),
       imageUrls:   photoUrls,
       aspects: {
         Type:                                        ['Disc Golf Disc'],
@@ -185,7 +190,7 @@ async function createOffer(sku, disc, policies, locationKey, headers) {
     },
     categoryId:         DG_CATEGORY,
     storeCategoryNames: [EBAY_STORE_CATEGORY],
-    listingDescription: `<p>${(disc.description + LISTING_FOOTER || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
+    listingDescription: descriptionHtml(disc),
     shipToLocations: {
       regionIncluded: [{ regionType: 'COUNTRY', regionName: 'US' }],
     },
@@ -336,7 +341,7 @@ router.post('/bulk-update', async (req, res) => {
     const itemBody = {
       product: {
         title:       disc.title.slice(0, 80),
-        description: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
+        description: descriptionHtml(disc),
         imageUrls,
         aspects: {
           Type:                                        ['Disc Golf Disc'],
@@ -375,7 +380,7 @@ router.post('/bulk-update', async (req, res) => {
       },
       categoryId:         DG_CATEGORY,
       storeCategoryNames: [EBAY_STORE_CATEGORY],
-      listingDescription: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
+      listingDescription: descriptionHtml(disc),
       shipToLocations:    offer.shipToLocations,
     };
     const offerRes = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offer.offerId}`, {
