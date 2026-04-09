@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-08 — v1.1.25 (lower default shipping estimate)
+
+**Default shipping estimate: $10 → $7**
+- Updated fallback shipping in `store.js` (3 places: `estNet`, `estProfit`, `payout`) and display label in `items.js`
+- Est. Upside on 122-item Disc Golf lot went from $1,562 to $1,976 — more accurate for current inventory
+
 ### 2026-04-07 — v1.1.24 (eBay aspect key fixes + Color + Sold skip)
 
 **eBay aspect key corrections (ref #91):**
