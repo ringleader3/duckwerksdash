@@ -13,7 +13,7 @@ const PHOTOS_DIR    = path.join(__dirname, '..', 'public', 'dg-photos');
 const DG_CATEGORY   = '184356'; // eBay: Sporting Goods > Disc Golf > Discs
 const EBAY_STORE_CATEGORY = 'Multiple Discounts'; // optional store category to assign to all listings
 const MARKETPLACE   = 'EBAY_US';
-
+const LISTING_FOOTER = '\nAll sales final and all items sold as is. Please ask questions before purchasing.\nAll my listings ship with Free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.\nI am a single person listing and selling 250 or so discs, so I might have missed a mark or two in my descriptions. Please ask if you want more photos or details about any of my discs, or let me know if you see any issues. \nThanks for looking!';
 const VALID_COLORS = new Set([
   'Beige', 'Black', 'Blue', 'Bronze', 'Brown', 'Gold', 'Gray', 'Green',
   'Multi-Color', 'Orange', 'Pink', 'Purple', 'Red', 'Silver', 'White', 'Yellow',
@@ -123,9 +123,6 @@ function buildDescription(disc) {
   if (disc.run)          lines.push(`Run/Edition: ${disc.run}`);
   if (disc.weight)       lines.push(`Weight: ${disc.weight}g`);
   if (disc.notes)        lines.push(`\nNotes: ${disc.notes}`);
-  lines.push('\nAll sales final and all items sold as is. Please ask questions before purchasing.');
-  lines.push('\nAll my listings ship with Free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.');
-  lines.push('\nI am a single person listing and selling 250 or so discs, so I might have missed a mark or two in my descriptions. Please ask if you want more photos or details about any of my discs, or let me know if you see any issues. \nThanks for looking!');
   return lines.join('\n')
 }
 
@@ -188,7 +185,7 @@ async function createOffer(sku, disc, policies, locationKey, headers) {
     },
     categoryId:         DG_CATEGORY,
     storeCategoryNames: [EBAY_STORE_CATEGORY],
-    listingDescription: `<p>${(disc.description || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
+    listingDescription: `<p>${(disc.description + LISTING_FOOTER || buildDescription(disc)).replace(/\n/g, '</p><p>')}</p>`,
     shipToLocations: {
       regionIncluded: [{ regionType: 'COUNTRY', regionName: 'US' }],
     },
