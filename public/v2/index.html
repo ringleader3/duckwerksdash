@@ -76,6 +76,11 @@
          :style="$store.dw.environment === 'Production' ? 'color:var(--green)' : 'color:var(--yellow)'"
          x-text="$store.dw.environment"></div>
     <div style="font-size:10px; color:#444; letter-spacing:1px; text-align:center; padding-bottom:4px" x-data x-text="$store.dw.hostname"></div>
+    <div style="text-align:center; padding-bottom:8px" x-data>
+      <a @click="$store.dw.activeView = 'catalog'"
+         :style="$store.dw.activeView === 'catalog' ? 'color:var(--blue)' : 'color:#444'"
+         style="font-size:10px; letter-spacing:1px; cursor:pointer; text-decoration:none">catalog</a>
+    </div>
 
   </aside>
 
@@ -629,6 +634,133 @@
 
       </div>
 
+    </div>
+
+    <!-- ── Catalog Intake View ──────────────────────────────────────────── -->
+    <div x-show="$store.dw.activeView === 'catalog'" x-data="catalogView" style="padding:24px; max-width:560px">
+
+      <h2 style="font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px; margin-bottom:20px; color:var(--white)">Catalog Disc</h2>
+
+      <!-- Toast -->
+      <div x-show="toast" x-transition
+           :style="toast?.ok ? 'background:var(--green)' : 'background:var(--red)'"
+           style="padding:8px 14px; border-radius:4px; margin-bottom:16px; color:#000; font-size:13px; font-weight:bold"
+           x-text="toast?.msg"></div>
+
+      <form @submit.prevent="submit" style="display:flex; flex-direction:column; gap:12px">
+
+        <!-- Disc # -->
+        <div style="display:flex; gap:16px; align-items:center">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">DISC #</label>
+          <span style="color:var(--yellow); font-family:'Bebas Neue',sans-serif; font-size:22px" x-text="nextDiscNum ?? '…'"></span>
+        </div>
+
+        <!-- Box -->
+        <div style="display:flex; gap:16px; align-items:center">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">BOX</label>
+          <input data-focus type="text" x-model="box" placeholder="e.g. S1"
+                 style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
+        </div>
+
+        <!-- Manufacturer -->
+        <div style="display:flex; gap:16px; align-items:center">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">MANUFACTURER</label>
+          <select x-model="manufacturer"
+                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
+            <option value="">— select —</option>
+            <template x-for="m in manufacturers" :key="m">
+              <option :value="m" x-text="m"></option>
+            </template>
+          </select>
+        </div>
+
+        <!-- Mold -->
+        <div style="display:flex; gap:16px; align-items:center">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">MOLD</label>
+          <input type="text" x-model="mold" placeholder="e.g. Envy"
+                 style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
+        </div>
+
+        <!-- Type -->
+        <div style="display:flex; gap:16px; align-items:center">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">TYPE</label>
+          <select x-model="type"
+                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
+            <option value="">— select —</option>
+            <template x-for="t in TYPES" :key="t">
+              <option :value="t" x-text="t"></option>
+            </template>
+          </select>
+        </div>
+
+        <!-- Plastic -->
+        <div style="display:flex; gap:16px; align-items:center">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">PLASTIC</label>
+          <input type="text" x-model="plastic" placeholder="e.g. Neutron"
+                 style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
+        </div>
+
+        <!-- Run/Edition -->
+        <div style="display:flex; gap:16px; align-items:center">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">RUN / EDITION</label>
+          <input type="text" x-model="run" placeholder="optional"
+                 style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
+        </div>
+
+        <!-- Notes -->
+        <div style="display:flex; gap:16px; align-items:center">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">NOTES</label>
+          <input type="text" x-model="notes" placeholder="optional"
+                 style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
+        </div>
+
+        <!-- Condition -->
+        <div style="display:flex; gap:16px; align-items:center">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">CONDITION</label>
+          <div style="display:flex; gap:0">
+            <button type="button" @click="condition = 'Unthrown'"
+                    :style="condition === 'Unthrown' ? 'background:var(--green); color:#000' : 'background:var(--surface); color:var(--muted)'"
+                    style="padding:6px 14px; border:1px solid var(--border); border-radius:4px 0 0 4px; font-family:inherit; font-size:13px; cursor:pointer">Unthrown</button>
+            <button type="button" @click="condition = 'Used'"
+                    :style="condition === 'Used' ? 'background:var(--yellow); color:#000' : 'background:var(--surface); color:var(--muted)'"
+                    style="padding:6px 14px; border:1px solid var(--border); border-left:none; border-radius:0 4px 4px 0; font-family:inherit; font-size:13px; cursor:pointer">Used</button>
+          </div>
+        </div>
+
+        <!-- Weight -->
+        <div style="display:flex; gap:16px; align-items:center">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">WEIGHT (g)</label>
+          <input type="number" x-model.number="weight" min="100" max="200"
+                 style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:100px">
+        </div>
+
+        <!-- Color -->
+        <div style="display:flex; gap:16px; align-items:center">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">COLOR</label>
+          <select x-model="color"
+                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
+            <option value="">— select —</option>
+            <template x-for="c in COLORS" :key="c">
+              <option :value="c" x-text="c"></option>
+            </template>
+          </select>
+        </div>
+
+        <!-- List Price -->
+        <div style="display:flex; gap:16px; align-items:center">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">LIST PRICE ($)</label>
+          <input type="number" x-model.number="listPrice" min="0" step="1"
+                 style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:100px">
+        </div>
+
+        <!-- Submit -->
+        <div style="margin-top:8px">
+          <button type="submit" :disabled="submitting"
+                  style="background:var(--blue); color:#fff; border:none; padding:10px 28px; border-radius:4px; font-family:inherit; font-size:14px; letter-spacing:1px; cursor:pointer"
+                  x-text="submitting ? 'Saving…' : 'Save Disc'"></button>
+        </div>
+
+      </form>
     </div>
 
   </main>
@@ -1961,6 +2093,7 @@
 <script src="js/views/lots.js"></script>
 <script src="js/views/analytics.js"></script>
 <script src="js/views/comps.js"></script>
+<script src="js/views/catalog.js"></script>
 <script src="js/modals/item-modal.js"></script>
 <script src="js/modals/add-modal.js"></script>
 <script src="js/modals/lot-modal.js"></script>
