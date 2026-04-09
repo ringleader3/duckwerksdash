@@ -123,7 +123,10 @@ function buildDescription(disc) {
   if (disc.run)          lines.push(`Run/Edition: ${disc.run}`);
   if (disc.weight)       lines.push(`Weight: ${disc.weight}g`);
   if (disc.notes)        lines.push(`\nNotes: ${disc.notes}`);
-  return lines.join('\n');
+  lines.push('\nAll sales final and all items sold as is. Please ask questions before purchasing.');
+  lines.push('\nAll my listings ship with Free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.');
+  lines.push('\nI am a single person listing and selling 250 or so discs, so I might have missed a mark or two in my descriptions. Please ask if you want more photos or details about any of my discs, or let me know if you see any issues. \nThanks for looking!');
+  return lines.join('\n')
 }
 
 async function savePhotos(files) {
