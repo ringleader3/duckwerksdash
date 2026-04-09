@@ -271,7 +271,7 @@ function dbWrite(disc, listingId) {
   ).run(disc.title, cat.id);
 
   db.prepare(
-    'INSERT INTO listings (item_id, site_id, platform_listing_id, list_price, url) VALUES (?, ?, ?, ?, ?)'
+    'INSERT INTO listings (item_id, site_id, platform_listing_id, list_price, shipping_estimate, url) VALUES (?, ?, ?, ?, 7, ?)'
   ).run(item.lastInsertRowid, ebaySite.id, String(listingId), disc.listPrice, `https://ebay.com/itm/${listingId}`);
 }
 
