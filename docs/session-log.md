@@ -1,6 +1,27 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-09 — v1.1.26 (catalog intake form + eBay listing footer)
+
+**Catalog intake form:**
+- New hidden view accessible via "catalog" link in sidebar footer
+- Form appends rows directly to the DG catalog Google Sheet via service account (`googleapis`)
+- Fields: Disc # (auto), Box (persists via localStorage), Manufacturer (dropdown seeded from sheet), Mold, Type, Plastic, Run/Edition, Notes, Condition (Unthrown/Used toggle), Weight (default 175g), Color (eBay enum dropdown), List Price (default $25)
+- Submit shows toast, resets form, increments Disc #, preserves Box
+- New server routes: `GET /api/catalog-intake/next-disc-num`, `GET /api/catalog-intake/manufacturers`, `POST /api/catalog-intake/disc`
+
+**eBay bulk listing description footer:**
+- Extracted footer text to `LISTING_FOOTER` constant in `server/ebay-listings.js`
+- Added `descriptionHtml(disc)` helper — used in both `putInventoryItem` and `createOffer`
+- Footer now appended to all listings (both custom `disc.description` and auto-generated paths)
+- Fixed stray label statement in `createOffer` that was causing lint errors
+
+**Bulk listing lot assignment:**
+- `dbWrite()` now assigns `lot_id=9` (Bulk-listed DG discs) on item create
+
+**Sheet titles:**
+- Generated and wrote titles for discs 135–167 (33 rows) via MCP google-sheets
+
 ### 2026-04-08 — v1.1.25 (lower default shipping estimate)
 
 **Default shipping estimate: $10 → $7**
