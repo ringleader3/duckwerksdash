@@ -787,7 +787,7 @@
               <div class="modal-row" x-show="$store.dw.activeListing(record)?.list_price > 0">
                 <span class="modal-field">Shipping</span>
                 <span class="modal-val" :class="$store.dw.activeListing(record)?.shipping_estimate != null ? 'red' : 'est'"
-                      x-text="$store.dw.activeListing(record)?.shipping_estimate != null ? $store.dw.fmt0($store.dw.activeListing(record).shipping_estimate) : '($10 est)'"></span>
+                      x-text="$store.dw.activeListing(record)?.shipping_estimate != null ? $store.dw.fmt0($store.dw.activeListing(record).shipping_estimate) : '($7 est)'"></span>
               </div>
               <div style="padding:8px 0" x-show="$store.dw.activeListing(record)?.list_price > 0">
                 <div class="modal-field" style="margin-bottom:6px"
