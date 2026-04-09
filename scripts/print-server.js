@@ -66,7 +66,10 @@ app.post('/print/label', async (req, res) => {
   if (!url) return res.status(400).json({ error: 'url required' });
   try {
     const file = await downloadToTmp(url);
-    await lpPrint(file, LABEL_PRINTER, ['media=Custom.4x6in', 'fit-to-page']);
+    await lpPrint(file, LABEL_PRINTER, [
+      'fit-to-page',
+      'media=4x6'
+    ]);
     fs.unlinkSync(file);
     res.json({ ok: true });
   } catch(e) {
