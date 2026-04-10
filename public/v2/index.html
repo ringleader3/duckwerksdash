@@ -1414,7 +1414,10 @@
   <div x-show="$store.dw.activeModal === 'label'" x-data="labelModal" class="modal-overlay" x-cloak>
     <div class="modal-box" style="max-width:560px" @keydown.escape.window="$store.dw.closeModal()" @keydown.tab.prevent="$store.dw.trapTab($event, $el)">
       <div class="modal-header">
-        <div class="modal-title" x-text="itemName"></div>
+        <div>
+          <div class="modal-title" x-text="itemName"></div>
+          <div x-show="itemSku" style="font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:2px" x-text="itemSku"></div>
+        </div>
         <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
       </div>
       <div class="modal-body">

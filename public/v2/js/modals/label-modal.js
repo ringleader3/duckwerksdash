@@ -132,6 +132,7 @@ document.addEventListener('alpine:init', () => {
     get itemName() {
       return this.record ? this.record.name || 'n/a' : 'n/a';
     },
+    get itemSku() { return this.record?.sku || null; },
 
     setType(type) {
       this.parcel.type = type;
