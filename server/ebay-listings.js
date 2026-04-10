@@ -353,6 +353,10 @@ router.post('/bulk-update', async (req, res) => {
     const imageUrls = existing.product?.imageUrls || [];
     const condition = disc.condition?.toLowerCase() === 'unthrown' ? 'NEW' : 'USED_EXCELLENT';
 
+    // Regenerate title and description from current metadata
+    disc.title       = generateTitle(disc);
+    disc.description = null;
+
     // 2. PUT inventory item — update title, description, condition, preserve photos
     const itemBody = {
       product: {
