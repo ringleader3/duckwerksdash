@@ -6,8 +6,8 @@
  * and updates each listing's description on Reverb via the API.
  *
  * Usage:
- *   node scripts/update-reverb-listings.js           # dry run (default)
- *   node scripts/update-reverb-listings.js --live    # actually update
+ *   node scripts/update-reverb-listings.js            # dry run (default)
+ *   node scripts/update-reverb-listings.js --confirm  # actually update
  */
 
 require('dotenv').config();
@@ -17,7 +17,7 @@ const path = require('path');
 
 const DOCX_PATH = path.join(__dirname, '..', 'duckwerks-listing-rewrites.docx');
 const REVERB_API = 'https://api.reverb.com/api';
-const DRY_RUN = !process.argv.includes('--live');
+const DRY_RUN = !process.argv.includes('--confirm');
 
 // --- Parse docx ---
 
@@ -186,7 +186,7 @@ function reverbPut(listingId, body) {
 
 async function main() {
   console.log(`\nDuckWerks — Reverb Listing Description Updater`);
-  console.log(`Mode: ${DRY_RUN ? 'DRY RUN (pass --live to actually update)' : '*** LIVE — will update Reverb listings ***'}\n`);
+  console.log(`Mode: ${DRY_RUN ? 'DRY RUN (pass --confirm to actually update)' : '*** LIVE — will update Reverb listings ***'}\n`);
 
   let paragraphs;
   try {
@@ -237,7 +237,7 @@ async function main() {
   if (!DRY_RUN) {
     console.log(`Done. ${successCount} updated, ${failCount} failed.`);
   } else {
-    console.log(`Dry run complete. Run with --live to push ${rewrites.length} updates.`);
+    console.log(`Dry run complete. Run with --confirm to push ${rewrites.length} updates.`);
   }
 }
 

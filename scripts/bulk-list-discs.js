@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // scripts/bulk-list-discs.js — eBay bulk listing/updating from CSV or Google Sheet
-// Usage: node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <start>-<end> [--api <url>] [--dry-run]
-//        node scripts/bulk-list-discs.js --csv <path>  --photos <dir> --ids <start>-<end> [--api <url>] [--dry-run]
-//        node scripts/bulk-list-discs.js --sheet <url> --ids <start>-<end> --update  (updates title/description/price on existing listings)
+// Usage: node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <ids> [--api <url>] [--confirm]
+//        node scripts/bulk-list-discs.js --csv <path>  --photos <dir> --ids <ids> [--api <url>] [--confirm]
+//        node scripts/bulk-list-discs.js --sheet <url> --ids <ids> --update [--confirm]  (updates title/description/price on existing listings)
 
 const fs   = require('fs');
 const path = require('path');
@@ -20,13 +20,14 @@ const csvPath   = arg('--csv');
 const photosDir = arg('--photos');
 const idsArg    = arg('--ids');
 const apiBase   = arg('--api') || 'http://localhost:3000';
-const dryRun    = process.argv.includes('--dry-run');
+const confirm    = process.argv.includes('--confirm');
 const updateMode = process.argv.includes('--update');
 
 if ((!sheetUrl && !csvPath) || !idsArg || (!updateMode && !photosDir)) {
-  console.error('Usage: node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <ids> [--api <url>] [--dry-run]');
-  console.error('       node scripts/bulk-list-discs.js --sheet <url> --ids <ids> --update');
+  console.error('Usage: node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <ids> [--api <url>] [--confirm]');
+  console.error('       node scripts/bulk-list-discs.js --sheet <url> --ids <ids> --update [--confirm]');
   console.error('       <ids> accepts ranges and lists: 1-20,25,30-35');
+  console.error('       Omit --confirm to do a dry run (default)');
   process.exit(1);
 }
 
@@ -107,7 +108,7 @@ async function main() {
 
   // ── Dry run ───────────────────────────────────────────────────────────────
 
-  if (dryRun) {
+  if (!confirm) {
     const action = updateMode ? 'updated' : 'listed';
     console.log(`\nDRY RUN — no listings will be ${action} (target: ${apiBase})\n`);
     let wouldAct = 0, wouldSkip = 0;

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // scripts/rename-disc-photos.js — rename raw disc photos to DWG-{id}-{n}.jpeg
-// Usage: node scripts/rename-disc-photos.js --dir <path> --start <id> [--per 3] [--dry-run]
+// Usage: node scripts/rename-disc-photos.js --dir <path> --start <id> [--per 3] [--confirm]
 //
 // Sorts files by creation time, groups them --per at a time, renames sequentially.
 // Example: 9 photos starting at disc 12 → DWG-12-1.jpeg, DWG-12-2.jpeg, DWG-12-3.jpeg,
@@ -17,10 +17,10 @@ function arg(name) {
 const dir    = arg('--dir');
 const startId = parseInt(arg('--start'), 10);
 const perDisc = parseInt(arg('--per') || '3', 10);
-const dryRun  = process.argv.includes('--dry-run');
+const confirm  = process.argv.includes('--confirm');
 
 if (!dir || isNaN(startId)) {
-  console.error('Usage: node scripts/rename-disc-photos.js --dir <path> --start <id> [--per 3] [--dry-run]');
+  console.error('Usage: node scripts/rename-disc-photos.js --dir <path> --start <id> [--per 3] [--confirm]');
   process.exit(1);
 }
 
@@ -40,7 +40,7 @@ if (files.length % perDisc !== 0) {
   console.warn(`Warning: ${files.length} files is not evenly divisible by ${perDisc} (${Math.ceil(files.length / perDisc)} discs, last disc will have ${files.length % perDisc} photo(s))`);
 }
 
-if (dryRun) console.log(`\nDRY RUN — no files will be renamed\n`);
+if (!confirm) console.log(`\nDRY RUN — no files will be renamed. Pass --confirm to apply.\n`);
 
 let discId = startId;
 let photoNum = 1;
@@ -52,7 +52,7 @@ for (const file of files) {
   const dest   = path.join(dir, newName);
 
   console.log(`${file.padEnd(40)} → ${newName}`);
-  if (!dryRun) fs.renameSync(src, dest);
+  if (confirm) fs.renameSync(src, dest);
 
   photoNum++;
   if (photoNum > perDisc) {
@@ -62,4 +62,4 @@ for (const file of files) {
 }
 
 const discCount = Math.ceil(files.length / perDisc);
-console.log(`\n${dryRun ? 'Would rename' : 'Renamed'} ${files.length} files across ${discCount} disc${discCount !== 1 ? 's' : ''} (IDs ${startId}–${discId - (photoNum === 1 ? 1 : 0)})`);
+console.log(`\n${confirm ? 'Renamed' : 'Would rename'} ${files.length} files across ${discCount} disc${discCount !== 1 ? 's' : ''} (IDs ${startId}–${discId - (photoNum === 1 ? 1 : 0)})`);
