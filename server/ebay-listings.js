@@ -316,7 +316,7 @@ router.post('/bulk-list', (req, res, next) => {
     const policies    = await fetchPolicies(headers);
     const locationKey = await getMerchantLocationKey(headers);
     const sku         = `DWG-${String(disc.id).padStart(3, '0')}`;
-    disc.title        = generateTitle(disc);
+    disc.title        = disc.title || generateTitle(disc);
     const photoUrls   = await savePhotos(req.files || []);
 
     await putInventoryItem(sku, disc, photoUrls, headers);
