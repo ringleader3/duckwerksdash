@@ -1,6 +1,6 @@
 # Duckwerks Dashboard
 
-Personal resale inventory dashboard for **Duckwerks Music** — tracks music gear, comics, and gaming items sold on eBay and Reverb.
+Personal resale inventory dashboard for **Duckwerks Music** — tracks disc golf, music gear, comics, and gaming items sold on eBay and Reverb.
 
 Designed and built by Geoff Goss with Claude.ai via Claude Code CLI and VS Code extension. This started as a single HTML file in Claude Desktop and evolved into a full-stack local web app over a few weeks of iterative development. I understand every decision made, can maintain it, and use it daily to run the business. It's a demonstration of what 20 years of software development and program management experience, combined with AI-assisted development tools, can produce quickly.
 
@@ -27,6 +27,8 @@ Designed and built by Geoff Goss with Claude.ai via Claude Code CLI and VS Code 
 - **Sortable tables** — click any column header to sort ASC/DESC across Items, Lots, and Analytics views
 - **Item drill-down** — click status, category, or site badges to jump to a filtered view; lot badge opens Lot detail modal
 - **Modal back-navigation** — opening an item from a lot modal returns to the lot on close
+- **Catalog intake form** — hidden sidebar view for adding disc golf items directly to the Google Sheet catalog; fields auto-populate disc #, persist box number, and validate against eBay enums
+- **eBay bulk listing** — `scripts/bulk-list-discs.js` reads disc catalog from Google Sheet, uploads photos to EasyPost Photo Studio, creates eBay Inventory API listings; supports comma-separated ID ranges (`1-20,25,30-35`); dry run by default, `--confirm` to go live; `--update` mode refreshes title/description/price/condition/aspects on existing listings
 
 ---
 
@@ -89,6 +91,8 @@ server/
   ebay.js               ← eBay Sell Fulfillment routes + OAuth flow
   ebay-auth.js          ← eBay token management + auto-refresh
   comps.js              ← Comp research: SerpAPI eBay search + Puppeteer Reverb scrape + Claude analysis
+  ebay-listings.js      ← eBay Inventory API bulk listing + update
+  catalog-intake.js     ← Catalog intake form — Google Sheets append via service account
   shippo.js             ← Shippo proxy (retained, inactive)
 public/v2/
   index.html            ← App shell
@@ -140,6 +144,7 @@ public/v2/
 | Mar 27 | Analytics view (v1.0.0) — Listed tab (Reverb + eBay traffic data); Sold tab (pending feedback orders); sortable columns; item click-through |
 | Mar 28–29 | Comp research view (v1.0.8) — SerpAPI eBay sold listings + Puppeteer Reverb scrape + Claude analysis; structured CSV + narrative output; launch from item modal or sidebar; copy/download results |
 | Mar 30 | Multi-listing per item (v1.0.9) — FB/CL support: checkbox site selection in Add Item, listings mini-table in item modal, per-row Mark Sold flow, contains-style site filter |
+| Apr 1–9 | eBay bulk listing system — `bulk-list-discs.js` + Inventory API integration; catalog intake form; comp research Reverb v2 research; label print alignment fixes; shipping estimate tuning; eBay aspect/condition fixes; comma-separated `--ids` support; `--confirm` pattern standardized across all scripts; project cleanup (removed v1 monolith, Airtable scripts, stale reference files) |
 
 ~3.5 weeks from first idea to v1.0.0 — production tool with dual-marketplace integration, shipping automation, and analytics. The v2 rebuild — clean architecture, full modal/shipping/sync workflow — took 2 days.
 

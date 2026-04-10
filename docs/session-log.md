@@ -1,6 +1,33 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-09 — v1.1.26 (eBay disc type + condition fixes; script cleanup)
+
+**eBay disc type normalization:**
+- Catalog intake form `TYPES` updated to eBay-correct values: "Midrange Disc", "Putting Disc"
+- `ebay-listings.js` now maps sheet values ("Putter" → "Putting Disc", "Midrange" → "Midrange Disc") via `normalizeDiscType()` — applied to both bulk-list and bulk-update paths, preserving the human-readable form in descriptions
+
+**Condition case-sensitivity fix:**
+- `disc.condition === 'Unthrown'` → `disc.condition?.toLowerCase() === 'unthrown'` — 61 discs were being listed as USED_EXCELLENT instead of NEW due to lowercase "unthrown" in the sheet
+- Applied to both `putInventoryItem` (new listings) and `bulk-update` path (now uses sheet condition instead of preserving from eBay)
+
+**bulk-list-discs.js improvements:**
+- `--ids` now accepts comma-separated ranges: `1-20,25,30-35` — no more multi-command workarounds for non-contiguous IDs
+- Dry run by default; `--confirm` to go live (standardized with other scripts)
+
+**Script cleanup:**
+- Standardized all scripts to `--confirm` pattern (dry run default): `rename-disc-photos.js`, `update-reverb-listings.js`, `assign-lot.js`
+- Deleted dead scripts: `update-reverb-listings.js` (one-off Reverb docx rewriter), `backfill-sold-dates.js`, `match-reverb-orders.js`, `migrate-airtable-to-sqlite.js`, `fix-sold-dates.js` (all Airtable-era)
+
+**Project root cleanup:**
+- Removed: `duckwerks-dashboard.html` (v1 monolith, 359KB), `buy_browse_v1_oas3.json` (eBay API spec, 383KB), `CLAUDE_duckwerks_website.md`, `claude-personal.md`, `duckwerks-dg-catalog.csv`
+
+**Google Sheets sold flag backfill:**
+- Used MCP connector + prod DB query to identify 15 sold discs missing `Sold=TRUE` in the sheet; batch-updated via MCP `batch_update_cells`
+
+**Bulk update run:**
+- Fixed 96 listings for disc type and/or condition; 6 correctly skipped as sold
+
 ### 2026-04-09 — v1.1.26 (catalog intake form + eBay listing footer)
 
 **Catalog intake form:**
