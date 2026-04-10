@@ -1,6 +1,15 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-10 — v1.1.30 (Auto-generate eBay listing title — issue #94)
+
+**Title generation at list time:**
+- `generateTitle()` added to `server/ebay-listings.js` — builds `{Manufacturer} {Mold} {Plastic} [Run] {Weight}g {Color} {Condition}`, truncates at last full word ≤80 chars
+- `/bulk-list` handler: `disc.title = disc.title || generateTitle(disc)` — sheet column C wins if populated (manual override), generates otherwise
+- `/bulk-update` handler: always regenerates title + description from current metadata (`disc.title = generateTitle(disc)`, `disc.description = null`) — update implies metadata was corrected, so everything derived from it regens
+- `scripts/bulk-list-discs.js`: removed "no List Title" warning — blank column C no longer blocks listing
+- Validated live on NUC: "MVP Uplink Neutron 176g Orange Unthrown", bulk-update fixed "proton"→"Proton" casing + picked up new note
+
 ### 2026-04-10 — v1.1.29 (Catalogue form QoL improvements)
 
 **Form enhancements:**
