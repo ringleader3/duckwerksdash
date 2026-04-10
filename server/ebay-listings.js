@@ -14,6 +14,9 @@ const DG_CATEGORY   = '184356'; // eBay: Sporting Goods > Disc Golf > Discs
 const EBAY_STORE_CATEGORY = 'Multiple Discounts'; // optional store category to assign to all listings
 const MARKETPLACE   = 'EBAY_US';
 const LISTING_FOOTER = '\nAll sales final and all items sold as is. Please ask questions before purchasing.\nAll my listings ship with Free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.\nI am a single person listing and selling 250 or so discs, so I might have missed a mark or two in my descriptions. Please ask if you want more photos or details about any of my discs, or let me know if you see any issues. \nThanks for looking!';
+const DISC_TYPE_MAP = { 'Putter': 'Putting Disc', 'Midrange': 'Midrange Disc' };
+function normalizeDiscType(type) { return DISC_TYPE_MAP[type] || type; }
+
 const VALID_COLORS = new Set([
   'Beige', 'Black', 'Blue', 'Bronze', 'Brown', 'Gold', 'Gray', 'Green',
   'Multi-Color', 'Orange', 'Pink', 'Purple', 'Red', 'Silver', 'White', 'Yellow',
@@ -153,7 +156,7 @@ async function putInventoryItem(sku, disc, photoUrls, headers) {
         Type:                                        ['Disc Golf Disc'],
         ...(disc.manufacturer && { Brand:            [disc.manufacturer] }),
         ...(disc.mold         && { Model:            [disc.mold] }),
-        ...(disc.type         && { 'Disc Type':      [disc.type] }),
+        ...(disc.type         && { 'Disc Type':      [normalizeDiscType(disc.type)] }),
         ...(disc.plastic      && { 'Disc Plastic Type': [disc.plastic] }),
         ...(disc.weight       && { 'Disc Weight':    [`${disc.weight}g`] }),
       },
@@ -347,7 +350,7 @@ router.post('/bulk-update', async (req, res) => {
           Type:                                        ['Disc Golf Disc'],
           ...(disc.manufacturer && { Brand:            [disc.manufacturer] }),
           ...(disc.mold         && { Model:            [disc.mold] }),
-          ...(disc.type         && { 'Disc Type':      [disc.type] }),
+          ...(disc.type         && { 'Disc Type':      [normalizeDiscType(disc.type)] }),
           ...(disc.plastic      && { 'Disc Plastic Type': [disc.plastic] }),
           ...(disc.weight       && { 'Disc Weight':    [`${disc.weight}g`] }),
           ...(disc.color && VALID_COLORS.has(disc.color) && { Color: [disc.color] }),

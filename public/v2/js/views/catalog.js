@@ -20,7 +20,7 @@ document.addEventListener('alpine:init', () => {
     toast:         null,   // { msg, ok }
     submitting:    false,
 
-    TYPES:  ['Distance Driver', 'Fairway Driver', 'Midrange', 'Putter'],
+    TYPES:  ['Distance Driver', 'Fairway Driver', 'Midrange Disc', 'Putting Disc'],
     COLORS: [
       'Beige','Black','Blue','Bronze','Brown','Gold','Gray','Green',
       'Multi-Color','Orange','Pink','Purple','Red','Silver','White','Yellow',

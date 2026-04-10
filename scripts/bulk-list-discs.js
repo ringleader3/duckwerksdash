@@ -24,16 +24,29 @@ const dryRun    = process.argv.includes('--dry-run');
 const updateMode = process.argv.includes('--update');
 
 if ((!sheetUrl && !csvPath) || !idsArg || (!updateMode && !photosDir)) {
-  console.error('Usage: node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <start>-<end> [--api <url>] [--dry-run]');
-  console.error('       node scripts/bulk-list-discs.js --sheet <url> --ids <start>-<end> --update');
+  console.error('Usage: node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <ids> [--api <url>] [--dry-run]');
+  console.error('       node scripts/bulk-list-discs.js --sheet <url> --ids <ids> --update');
+  console.error('       <ids> accepts ranges and lists: 1-20,25,30-35');
   process.exit(1);
 }
 
-const [startId, endId] = idsArg.split('-').map(Number);
-if (isNaN(startId) || isNaN(endId) || startId > endId) {
-  console.error(`Invalid --ids: "${idsArg}" — use format 1-20`);
-  process.exit(1);
+function parseIds(str) {
+  const ids = new Set();
+  for (const seg of str.split(',')) {
+    const parts = seg.trim().split('-').map(Number);
+    if (parts.length === 1 && !isNaN(parts[0])) {
+      ids.add(parts[0]);
+    } else if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1]) && parts[0] <= parts[1]) {
+      for (let i = parts[0]; i <= parts[1]; i++) ids.add(i);
+    } else {
+      console.error(`Invalid --ids segment: "${seg}" — use format 1-20,25,30-35`);
+      process.exit(1);
+    }
+  }
+  return ids;
 }
+
+const targetIds = parseIds(idsArg);
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
@@ -54,14 +67,11 @@ async function main() {
     process.exit(1);
   }
 
-  // Filter to the requested ID range
-  const rangeRows = records.filter(r => {
-    const id = parseInt(r['Disc #'], 10);
-    return id >= startId && id <= endId;
-  });
+  // Filter to the requested IDs
+  const rangeRows = records.filter(r => targetIds.has(parseInt(r['Disc #'], 10)));
 
   if (rangeRows.length === 0) {
-    console.error(`No rows found with Disc ID ${startId}–${endId}. Check the 'Disc ID' column.`);
+    console.error(`No rows found for the requested IDs. Check the 'Disc #' column.`);
     process.exit(1);
   }
 
