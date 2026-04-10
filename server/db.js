@@ -48,6 +48,7 @@ db.exec(`
     category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
     cost        REAL NOT NULL DEFAULT 0,
     notes       TEXT,
+    sku         TEXT,
     status      TEXT NOT NULL DEFAULT 'Prepping'
                      CHECK(status IN ('Prepping', 'Listed', 'Sold')),
     created_at  TEXT NOT NULL DEFAULT (datetime('now'))
