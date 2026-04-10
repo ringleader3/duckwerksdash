@@ -14,6 +14,15 @@ function getSheets() {
   return google.sheets({ version: 'v4', auth });
 }
 
+function generateTitle({ manufacturer, mold, plastic, run, weight, color, condition }) {
+  const parts = [manufacturer, mold, plastic];
+  if (run) parts.push(run);
+  parts.push(`${weight}g`, color, condition);
+  const title = parts.join(' ');
+  if (title.length <= 80) return title;
+  return title.slice(0, 81).replace(/\s+\S*$/, '');
+}
+
 // GET /api/catalog-intake/next-disc-num
 router.get('/next-disc-num', async (req, res) => {
   try {
@@ -83,13 +92,14 @@ router.get('/plastics', async (req, res) => {
 router.post('/disc', async (req, res) => {
   try {
     const { discNum, box, manufacturer, mold, type, plastic, run, notes, condition, weight, color, listPrice } = req.body;
-    // Column order: A=Disc#, B=Box, C=ListTitle(blank), D=Description(blank),
+    const title = generateTitle({ manufacturer, mold, plastic, run, weight, color, condition });
+    // Column order: A=Disc#, B=Box, C=ListTitle, D=Description(blank),
     // E=Sold, F=Manufacturer, G=Mold, H=Type, I=Plastic, J=Run/Edition,
     // K=Notes, L=Condition, M=Weight, N=Color, O=EstValue(blank), P=ListPrice, Q=Platform, R=Status(blank)
     const row = [
       discNum,       // A
       box,           // B
-      '',            // C List Title
+      title,         // C List Title
       '',            // D Description
       'FALSE',       // E Sold
       manufacturer,  // F
@@ -113,7 +123,7 @@ router.post('/disc', async (req, res) => {
       valueInputOption: 'USER_ENTERED',
       resource: { values: [row] },
     });
-    res.json({ discNum });
+    res.json({ discNum, title });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
