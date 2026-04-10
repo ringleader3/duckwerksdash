@@ -6,6 +6,7 @@ document.addEventListener('alpine:init', () => {
     box:           localStorage.getItem('catalog_box') || '',
     manufacturer:  '',
     mold:          '',
+    moldNew:       '',
     type:          '',
     plastic:       '',
     run:           '',
@@ -61,7 +62,7 @@ document.addEventListener('alpine:init', () => {
       const missing = [];
       if (!this.box)          missing.push('Box');
       if (!this.manufacturer) missing.push('Manufacturer');
-      if (!this.mold)         missing.push('Mold');
+      if (!this.moldNew && !this.mold) missing.push('Mold');
       if (!this.type)         missing.push('Type');
       if (!this.plastic)      missing.push('Plastic');
       if (!this.weight)       missing.push('Weight');
@@ -80,7 +81,7 @@ document.addEventListener('alpine:init', () => {
             discNum:      this.nextDiscNum,
             box:          this.box,
             manufacturer: this.manufacturer,
-            mold:         this.mold,
+            mold:         this.moldNew || this.mold,
             type:         this.type,
             plastic:      this.plastic,
             run:          this.run,
@@ -108,6 +109,7 @@ document.addEventListener('alpine:init', () => {
       this.nextDiscNum  = nextNum;
       this.manufacturer = '';
       this.mold         = '';
+      this.moldNew      = '';
       this.type         = '';
       this.plastic      = '';
       this.run          = '';

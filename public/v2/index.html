@@ -677,11 +677,15 @@
         <!-- Mold -->
         <div style="display:flex; gap:16px; align-items:center">
           <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">MOLD</label>
-          <select x-model="mold"
-                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
-            <option value="">— select —</option>
-            <template x-for="m in molds" :key="m"><option :value="m" x-text="m"></option></template>
-          </select>
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <select x-model="mold"
+                    style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
+              <option value="">— select —</option>
+              <template x-for="m in molds" :key="m"><option :value="m" x-text="m"></option></template>
+            </select>
+            <input type="text" x-model="moldNew" placeholder="or new mold"
+                   style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
+          </div>
         </div>
 
         <!-- Type -->
