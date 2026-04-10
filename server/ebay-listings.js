@@ -258,7 +258,7 @@ async function getOfferBySku(sku, headers) {
   return data.offers?.[0] || null;
 }
 
-function dbWrite(disc, listingId) {
+function dbWrite(disc, listingId, sku) {
   // Idempotent: skip if platform_listing_id already exists (handles crash-before-CSV-write)
   const existing = db.prepare(
     'SELECT id FROM listings WHERE platform_listing_id = ?'
@@ -278,8 +278,8 @@ function dbWrite(disc, listingId) {
   if (!ebaySite) throw new Error('eBay site not found in DB — run server once to seed');
 
   const item = db.prepare(
-    "INSERT INTO items (name, status, category_id, cost, lot_id) VALUES (?, 'Listed', ?, 0, 9)" // lot_id=9 = Bulk-listed DG discs lot
-  ).run(disc.title, cat.id);
+    "INSERT INTO items (name, status, category_id, cost, lot_id, sku) VALUES (?, 'Listed', ?, 0, 9, ?)" // lot_id=9 = Bulk-listed DG discs lot
+  ).run(disc.title, cat.id, sku || null);
 
   db.prepare(
     'INSERT INTO listings (item_id, site_id, platform_listing_id, list_price, shipping_estimate, url) VALUES (?, ?, ?, ?, 7, ?)'
@@ -313,7 +313,7 @@ router.post('/bulk-list', (req, res, next) => {
     const offerId   = await createOffer(sku, disc, policies, locationKey, headers);
     const listingId = await publishOffer(offerId, headers);
 
-    dbWrite(disc, listingId);
+    dbWrite(disc, listingId, sku);
 
     res.json({ discId: disc.id, sku, listingId, url: `https://ebay.com/itm/${listingId}` });
   } catch (e) {
