@@ -17,6 +17,9 @@ const LISTING_FOOTER = '\nAll sales final and all items sold as is. Please ask q
 const DISC_TYPE_MAP = { 'Putter': 'Putting Disc', 'Midrange': 'Midrange Disc' };
 function normalizeDiscType(type) { return DISC_TYPE_MAP[type] || type; }
 
+const MANUFACTURER_MAP = { 'Streamline': 'Streamline Discs' };
+function normalizeManufacturer(m) { return MANUFACTURER_MAP[m] || m; }
+
 const VALID_COLORS = new Set([
   'Beige', 'Black', 'Blue', 'Bronze', 'Brown', 'Gold', 'Gray', 'Green',
   'Multi-Color', 'Orange', 'Pink', 'Purple', 'Red', 'Silver', 'White', 'Yellow',
@@ -154,7 +157,7 @@ async function putInventoryItem(sku, disc, photoUrls, headers) {
       imageUrls:   photoUrls,
       aspects: {
         Type:                                        ['Disc Golf Disc'],
-        ...(disc.manufacturer && { Brand:            [disc.manufacturer] }),
+        ...(disc.manufacturer && { Brand:            [normalizeManufacturer(disc.manufacturer)] }),
         ...(disc.mold         && { Model:            [disc.mold] }),
         ...(disc.type         && { 'Disc Type':      [normalizeDiscType(disc.type)] }),
         ...(disc.plastic      && { 'Disc Plastic Type': [disc.plastic] }),
@@ -348,7 +351,7 @@ router.post('/bulk-update', async (req, res) => {
         imageUrls,
         aspects: {
           Type:                                        ['Disc Golf Disc'],
-          ...(disc.manufacturer && { Brand:            [disc.manufacturer] }),
+          ...(disc.manufacturer && { Brand:            [normalizeManufacturer(disc.manufacturer)] }),
           ...(disc.mold         && { Model:            [disc.mold] }),
           ...(disc.type         && { 'Disc Type':      [normalizeDiscType(disc.type)] }),
           ...(disc.plastic      && { 'Disc Plastic Type': [disc.plastic] }),
