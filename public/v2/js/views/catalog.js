@@ -11,7 +11,7 @@ document.addEventListener('alpine:init', () => {
     run:           '',
     notes:         '',
     condition:     'Unthrown',
-    weight:        175,
+    weight:        '',
     color:         '',
     listPrice:     '',
 
