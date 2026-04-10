@@ -60,7 +60,7 @@ function buildItem(row) {
 
   return {
     id: row.id, name: row.name, cost: row.cost,
-    notes: row.notes, status: row.status, created_at: row.created_at,
+    notes: row.notes, sku: row.sku, status: row.status, created_at: row.created_at,
     category, lot, listings, order, shipment,
   };
 }
