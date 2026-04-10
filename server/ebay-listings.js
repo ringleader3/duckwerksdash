@@ -146,7 +146,7 @@ async function savePhotos(files) {
 }
 
 async function putInventoryItem(sku, disc, photoUrls, headers) {
-  const condition = disc.condition === 'Unthrown' ? 'NEW' : 'USED_EXCELLENT';
+  const condition = disc.condition?.toLowerCase() === 'unthrown' ? 'NEW' : 'USED_EXCELLENT';
   const body = {
     product: {
       title:       disc.title.slice(0, 80),
@@ -334,13 +334,13 @@ router.post('/bulk-update', async (req, res) => {
     const headers = await ebayHeaders();
     const sku     = `DWG-${String(disc.id).padStart(3, '0')}`;
 
-    // 1. GET existing inventory item to preserve imageUrls + condition
+    // 1. GET existing inventory item to preserve imageUrls
     const existing = await getInventoryItem(sku, headers);
     if (!existing) return res.json({ discId: disc.id, error: `No inventory item found for ${sku}` });
     const imageUrls = existing.product?.imageUrls || [];
-    const condition = existing.condition || 'USED_EXCELLENT';
+    const condition = disc.condition?.toLowerCase() === 'unthrown' ? 'NEW' : 'USED_EXCELLENT';
 
-    // 2. PUT inventory item — update title + description, preserve photos/condition
+    // 2. PUT inventory item — update title, description, condition, preserve photos
     const itemBody = {
       product: {
         title:       disc.title.slice(0, 80),
