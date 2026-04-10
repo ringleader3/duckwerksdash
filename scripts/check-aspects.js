@@ -6,14 +6,14 @@
 //   node scripts/check-aspects.js 184356 Brand           # Brand values only
 //   node scripts/check-aspects.js 184356 "Disc Type"     # Disc Type values only
 require('dotenv').config();
-const { getAccessToken } = require('../server/ebay-auth');
+const { getAppToken } = require('../server/ebay-auth');
 const EBAY_API = 'https://api.ebay.com';
 
 async function main() {
   const categoryId  = process.argv[2] || '184356';
   const filterAspect = process.argv[3] || null;
 
-  const token = await getAccessToken();
+  const token = await getAppToken();
   const url = `${EBAY_API}/commerce/taxonomy/v1/category_tree/0/get_item_aspects_for_category?categoryId=${categoryId}`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   const data = await res.json();
