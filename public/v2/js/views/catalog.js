@@ -51,6 +51,19 @@ document.addEventListener('alpine:init', () => {
 
     async submit() {
       if (this.submitting) return;
+      const missing = [];
+      if (!this.box)          missing.push('Box');
+      if (!this.manufacturer) missing.push('Manufacturer');
+      if (!this.mold)         missing.push('Mold');
+      if (!this.type)         missing.push('Type');
+      if (!this.plastic)      missing.push('Plastic');
+      if (!this.weight)       missing.push('Weight');
+      if (!this.color)        missing.push('Color');
+      if (!this.listPrice)    missing.push('List Price');
+      if (missing.length) {
+        this._showToast(`Missing: ${missing.join(', ')}`, false);
+        return;
+      }
       this.submitting = true;
       try {
         const res  = await fetch('/api/catalog-intake/disc', {
