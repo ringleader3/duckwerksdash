@@ -20,6 +20,15 @@ function normalizeDiscType(type) { return DISC_TYPE_MAP[type] || type; }
 const MANUFACTURER_MAP = { 'Streamline': 'Streamline Discs' };
 function normalizeManufacturer(m) { return MANUFACTURER_MAP[m] || m; }
 
+function generateTitle({ manufacturer, mold, plastic, run, weight, color, condition }) {
+  const parts = [manufacturer, mold, plastic];
+  if (run) parts.push(run);
+  parts.push(`${weight}g`, color, condition);
+  const title = parts.join(' ');
+  if (title.length <= 80) return title;
+  return title.slice(0, 81).replace(/\s+\S*$/, '');
+}
+
 const VALID_COLORS = new Set([
   'Beige', 'Black', 'Blue', 'Bronze', 'Brown', 'Gold', 'Gray', 'Green',
   'Multi-Color', 'Orange', 'Pink', 'Purple', 'Red', 'Silver', 'White', 'Yellow',
@@ -307,6 +316,7 @@ router.post('/bulk-list', (req, res, next) => {
     const policies    = await fetchPolicies(headers);
     const locationKey = await getMerchantLocationKey(headers);
     const sku         = `DWG-${String(disc.id).padStart(3, '0')}`;
+    disc.title        = generateTitle(disc);
     const photoUrls   = await savePhotos(req.files || []);
 
     await putInventoryItem(sku, disc, photoUrls, headers);

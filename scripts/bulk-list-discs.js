@@ -85,7 +85,6 @@ async function main() {
     const ebayUrl  = (row['eBay URL'] || '').trim();
 
     const warnings = [];
-    if (!title)                                           warnings.push('no List Title');
     if (!row['List Price'] || isNaN(price) || price <= 0) warnings.push('no List Price');
 
     // Skip sold items in all modes
