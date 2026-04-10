@@ -40,28 +40,34 @@ async function main() {
     'Accept-Language':          'en-US',
   };
 
-  const offers = [];
+  // ── Step A: enumerate all SKUs via inventory_item (supports no-SKU pagination) ─
+  const skus = [];
   let offset = 0;
   const limit = 200;
 
   while (true) {
-    const res  = await fetch(`${EBAY_API}/sell/inventory/v1/offer?limit=${limit}&offset=${offset}`, { headers });
+    const res  = await fetch(`${EBAY_API}/sell/inventory/v1/inventory_item?limit=${limit}&offset=${offset}`, { headers });
     const data = await res.json();
-    if (!res.ok) throw new Error(`eBay offer fetch failed: ${JSON.stringify(data)}`);
-    const page = data.offers || [];
-    offers.push(...page);
-    if (offers.length >= (data.total || 0) || page.length < limit) break;
+    if (!res.ok) throw new Error(`eBay inventory_item fetch failed: ${JSON.stringify(data)}`);
+    const page = data.inventoryItems || [];
+    skus.push(...page.map(i => i.sku).filter(Boolean));
+    if (skus.length >= (data.total || 0) || page.length < limit) break;
     offset += limit;
   }
 
-  console.log(`\neBay returned ${offers.length} offers.`);
+  console.log(`\neBay returned ${skus.length} inventory items.`);
 
-  // ── 3. Build sku → listingId map from offers ─────────────────────────────────
+  // ── Step B: look up the listing ID for each SKU via offer endpoint ────────────
   const skuToListingId = {};
-  for (const offer of offers) {
-    const listingId = offer.listing?.listingId;
-    if (offer.sku && listingId) skuToListingId[offer.sku] = String(listingId);
+  for (const sku of skus) {
+    const res  = await fetch(`${EBAY_API}/sell/inventory/v1/offer?sku=${encodeURIComponent(sku)}`, { headers });
+    const data = await res.json();
+    if (!res.ok) { console.log(`  warn  could not fetch offer for ${sku}`); continue; }
+    const listingId = data.offers?.[0]?.listing?.listingId;
+    if (listingId) skuToListingId[sku] = String(listingId);
   }
+
+  console.log(`Matched ${Object.keys(skuToListingId).length} SKUs to eBay listing IDs.`);
 
   // ── 4. Match to local DB and collect updates ──────────────────────────────────
   const updates        = [];  // { itemId, sku }
