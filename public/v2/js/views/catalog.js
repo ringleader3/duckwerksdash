@@ -17,6 +17,7 @@ document.addEventListener('alpine:init', () => {
 
     // ui state
     manufacturers: [],
+    molds:         [],
     plastics:      [],
     toast:         null,   // { msg, ok }
     submitting:    false,
@@ -28,7 +29,7 @@ document.addEventListener('alpine:init', () => {
     ],
 
     async init() {
-      await Promise.all([this._fetchNextDiscNum(), this._fetchManufacturers(), this._fetchPlastics()]);
+      await Promise.all([this._fetchNextDiscNum(), this._fetchManufacturers(), this._fetchMolds(), this._fetchPlastics()]);
     },
 
     async _fetchNextDiscNum() {
@@ -41,6 +42,12 @@ document.addEventListener('alpine:init', () => {
       const res  = await fetch('/api/catalog-intake/manufacturers');
       const data = await res.json();
       this.manufacturers = data.manufacturers || [];
+    },
+
+    async _fetchMolds() {
+      const res  = await fetch('/api/catalog-intake/molds');
+      const data = await res.json();
+      this.molds = data.molds || [];
     },
 
     async _fetchPlastics() {
