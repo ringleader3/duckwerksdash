@@ -13,7 +13,7 @@ document.addEventListener('alpine:init', () => {
     condition:     'Unthrown',
     weight:        175,
     color:         '',
-    listPrice:     25,
+    listPrice:     '',
 
     // ui state
     manufacturers: [],
