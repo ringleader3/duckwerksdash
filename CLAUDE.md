@@ -50,6 +50,7 @@ npm start   # starts Express on http://localhost:3000
 - `server/ebay.js` — eBay Sell Fulfillment (`/api/ebay/*`)
 - `server/ebay-listings.js` — eBay Inventory API bulk listing (`POST /api/ebay/bulk-list`)
 - `scripts/bulk-list-discs.js` — bulk eBay lister; idempotent (safe to re-run)
+- `scripts/backfill-skus.js` — one-time SKU backfill from eBay Inventory API; dry-run by default, `--confirm` to write
 - `data/ebay-tokens.json` — eBay OAuth tokens (never commit)
 
 **Frontend**

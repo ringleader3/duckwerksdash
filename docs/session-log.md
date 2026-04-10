@@ -1,6 +1,23 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-10 — v1.1.27 (Disc SKU storage and display — issue #93)
+
+**SKU column added to items table:**
+- `server/db.js` CREATE TABLE items: added `sku TEXT` for fresh DB creation
+- `server/items.js`: `sku: row.sku` added to API response shape; `sku` intentionally excluded from allowed PATCH fields (immutable)
+- `server/ebay-listings.js`: `dbWrite()` now accepts and INSERTs `sku` at bulk-list time
+
+**Backfill script:**
+- `scripts/backfill-skus.js` — one-time admin script; runs `ALTER TABLE ... ADD COLUMN` (noop if exists), enumerates all 167 eBay inventory items via GET /inventory_item, resolves listing IDs via GET /offer?sku= per item, matches to local DB, writes SKUs
+- Default dry-run; `--confirm` to write
+- Reports non-matches in both directions (eBay SKUs with no local listing; local DG items still missing SKU after run)
+- All 167 DWG-XXX SKUs successfully backfilled and verified in production
+
+**Display:**
+- Item modal: SKU shown as muted subtext beneath item name (hidden if no SKU)
+- Label modal: same treatment — SKU visible when creating shipping label for grab-from-shelf context
+
 ### 2026-04-09 — v1.1.26 (eBay disc type + condition fixes; script cleanup)
 
 **eBay disc type normalization:**
