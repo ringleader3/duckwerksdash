@@ -115,9 +115,9 @@ document.addEventListener('alpine:init', () => {
       this.run          = '';
       this.notes        = '';
       this.condition    = 'Unthrown';
-      this.weight       = 175;
+      this.weight       = '';
       this.color        = '';
-      this.listPrice    = 25;
+      this.listPrice    = '';
       // box kept as-is
       this.$nextTick(() => this.$el.querySelector('[data-focus]')?.focus());
     },
