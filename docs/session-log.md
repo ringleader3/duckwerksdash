@@ -1,6 +1,16 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-10 — v1.1.29 (Catalogue form QoL improvements)
+
+**Form enhancements:**
+- Mold: select dropdown sourced from sheet column G + free-text "new mold" input below (new mold wins on submit)
+- Plastic: select dropdown sourced from sheet column I
+- Required field validation on submit: box, manufacturer, mold, type, plastic, weight, color, list price — notes and run/edition optional
+- Removed default weight (175) and list price (25) — must be entered explicitly, enforced on reset too
+
+**Opened issue #94:** Auto-generate eBay listing title from catalogue fields at save time
+
 ### 2026-04-10 — v1.1.28 (Catalogue view live testing + fixes)
 
 **Catalogue intake view first real use:**
