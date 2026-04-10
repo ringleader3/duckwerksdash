@@ -14,7 +14,7 @@ async function main() {
   const filterAspect = process.argv[3] || null;
 
   const token = await getAppToken();
-  const url = `${EBAY_API}/commerce/taxonomy/v1/category_tree/0/get_item_aspects_for_category?categoryId=${categoryId}`;
+  const url = `${EBAY_API}/commerce/taxonomy/v1/category_tree/0/get_item_aspects_for_category?category_id=${categoryId}`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   const data = await res.json();
 
