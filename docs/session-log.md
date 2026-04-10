@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-10 — v1.1.28 (Catalogue view live testing + fixes)
+
+**Catalogue intake view first real use:**
+- Deployed credentials file (`docs/handicaps-244e5d936e6c.json`) to NUC — gitignored, must be manually copied on fresh deploy
+- Fixed title: British spelling `catalogue`, `div` not `h2`, `view-title` class (not inline Bebas Neue)
+- Tested end-to-end: disc 168 (MVP Uplink) written to Google Sheet row 169, form reset, disc # incremented, Box persisted via localStorage
+- Tab order, typeahead dropdowns, condition toggle all verified working in production
+
 ### 2026-04-10 — v1.1.27 (Disc SKU storage and display — issue #93)
 
 **SKU column added to items table:**
