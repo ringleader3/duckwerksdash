@@ -26,6 +26,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     get isSold() { return this.record?.status === 'Sold'; },
+    get itemSku() { return this.record?.sku || null; },
 
     startEdit() {
       const r = this.record;

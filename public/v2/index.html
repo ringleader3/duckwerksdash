@@ -772,7 +772,10 @@
     <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()" @keydown.tab.prevent="$store.dw.trapTab($event, $el)">
 
       <div class="modal-header">
-        <div class="modal-title" x-text="record.name"></div>
+        <div>
+          <div class="modal-title" x-text="record.name"></div>
+          <div x-show="itemSku" style="font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:2px" x-text="itemSku"></div>
+        </div>
         <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
       </div>
 
