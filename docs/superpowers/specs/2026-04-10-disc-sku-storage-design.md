@@ -36,9 +36,13 @@ One-time script run manually on the NUC. Handles schema migration + data backfil
 
 **Flags:**
 - Default: dry-run — prints what would be written, no DB changes
-- `--apply`: commits updates to DB
+- `--confirm`: commits updates to DB
 
-**Non-matches:** Items in the DB with no corresponding eBay inventory item (manually entered eBay listings, ended listings with no local record) are silently skipped — correct behavior.
+**Non-match reporting (both directions):**
+- eBay SKU with no matching local `platform_listing_id` → logged as "eBay has SKU DWG-042, no local listing found"
+- Local items in the Disc Golf lot/category with no `sku` after the run → logged as "item #47 'Innova Destroyer' has no SKU"
+
+The second list is the most actionable — after `--confirm`, any remaining unmatched DG items are real discrepancies worth investigating.
 
 ### 3. Forward path — write SKU at bulk-list time
 
