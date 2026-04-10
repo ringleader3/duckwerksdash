@@ -47,6 +47,22 @@ router.get('/manufacturers', async (req, res) => {
   }
 });
 
+// GET /api/catalog-intake/plastics
+router.get('/plastics', async (req, res) => {
+  try {
+    const sheets = getSheets();
+    const resp   = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_NAME}!I:I`,
+    });
+    const rows  = (resp.data.values || []).slice(1);
+    const names = [...new Set(rows.map(r => r[0]).filter(Boolean))].sort();
+    res.json({ plastics: names });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /api/catalog-intake/disc
 router.post('/disc', async (req, res) => {
   try {

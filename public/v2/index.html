@@ -696,8 +696,11 @@
         <!-- Plastic -->
         <div style="display:flex; gap:16px; align-items:center">
           <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">PLASTIC</label>
-          <input type="text" x-model="plastic" placeholder="e.g. Neutron"
+          <input type="text" x-model="plastic" placeholder="e.g. Neutron" list="plastic-options"
                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
+          <datalist id="plastic-options">
+            <template x-for="p in plastics" :key="p"><option :value="p"></option></template>
+          </datalist>
         </div>
 
         <!-- Run/Edition -->
