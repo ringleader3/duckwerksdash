@@ -1,6 +1,18 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-11 — v1.1.32 (eBay sync SKU display + sold status → Google Sheet)
+
+**eBay sync modal shows SKU on awaiting shipment rows:**
+- `public/v2/index.html`: SKU from eBay order line item shown inline with order ID (e.g. `Order: 13-xxx · SKU: DWG-119`)
+
+**Sold status synced to Google Sheet automatically (issue #95):**
+- `server/catalog-intake.js`: `markDiscSold(sku)` exported — maps `DWG-XXX` → sheet row, sets col E = TRUE
+- `server/orders.js`: calls `markDiscSold` fire-and-forget on every `POST /api/orders` for items with a DWG SKU
+- `server.js`: updated catalog-intake require to use `.router`
+- `server/ebay.js`: collapsed `/orders/sold` into `/orders?filter=sold` — no behavior change for existing callers
+- Sheet backfilled manually via MCP for 26 sold discs from existing eBay order history
+
 ### 2026-04-10 — v1.1.31 (eBay fee rate update + site fee tooling)
 
 **eBay fee rate corrected to 13.6%:**
