@@ -103,7 +103,7 @@ const seedCategory = db.prepare(
 
 db.transaction(() => {
   seedSites.run('Reverb',     0.0819, 0.49, 0);
-  seedSites.run('eBay',       0.1325, 0.40, 1);
+  seedSites.run('eBay',       0.136,  0.40, 1);
   seedSites.run('Facebook',   0,      0,    0);
   seedSites.run('Craigslist', 0,      0,    0);
 
