@@ -66,7 +66,7 @@ router.get('/orders', async (req, res) => {
 router.get('/orders/sold', async (req, res) => {
   try {
     const headers  = await ebayHeaders();
-    const url      = `${EBAY_API}/sell/fulfillment/v1/order?filter=orderfulfillmentstatus:{FULFILLED|IN_PROGRESS}&limit=110`;
+    const url      = `${EBAY_API}/sell/fulfillment/v1/order?filter=orderfulfillmentstatus:{FULFILLED|IN_PROGRESS}&limit=50`;
     const response = await fetch(url, { headers });
     const data     = await response.json();
     res.status(response.status).json(data);
