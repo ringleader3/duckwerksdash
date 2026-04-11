@@ -63,6 +63,18 @@ router.get('/orders', async (req, res) => {
   }
 });
 
+router.get('/orders/sold', async (req, res) => {
+  try {
+    const headers  = await ebayHeaders();
+    const url      = `${EBAY_API}/sell/fulfillment/v1/order?filter=orderfulfillmentstatus:{FULFILLED|IN_PROGRESS}&limit=110`;
+    const response = await fetch(url, { headers });
+    const data     = await response.json();
+    res.status(response.status).json(data);
+  } catch (e) {
+    res.status(502).json({ error: 'eBay orders request failed', detail: e.message });
+  }
+});
+
 // GET /api/ebay/orders/:id — single order (address + payout lookup)
 router.get('/orders/:id', async (req, res) => {
   try {
