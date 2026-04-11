@@ -33,7 +33,7 @@ if (CONFIRM) {
 } else {
   console.log('\nPending updates:');
   UPDATES.forEach(u => {
-    console.log(`  ${u.name.padEnd(12)} → ${(u.fee_rate * 100).toFixed(2)}% + $${u.fee_flat.toFixed(2)} flat`);
+    console.log(`  ${u.name.padEnd(12)} → ${(u.fee_rate * 100).toFixed(2)}% + $${u.fee_flat.toFixed(2)} flat  (on_shipping: ${u.fee_on_shipping})`);
   });
   console.log('\nDry run — pass --confirm to apply');
 }
