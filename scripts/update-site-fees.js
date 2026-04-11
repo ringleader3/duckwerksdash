@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// scripts/ebay-fee-report.js
+// scripts/update-site-fees.js
 // Updates site fee rates in the local DB.
 //
 // Usage:
-//   node scripts/ebay-fee-report.js           # dry-run — shows current rates
-//   node scripts/ebay-fee-report.js --confirm  # applies updates
+//   node scripts/update-site-fees.js           # dry-run — shows current rates
+//   node scripts/update-site-fees.js --confirm  # applies updates
 
 const path     = require('path');
 const Database = require('better-sqlite3');
@@ -13,7 +13,7 @@ const CONFIRM  = process.argv.includes('--confirm');
 const DB_PATH  = path.join(__dirname, '../data/duckwerks.db');
 
 const UPDATES = [
-  { name: 'eBay', fee_rate: 0.136, fee_flat: 0.40, fee_on_shipping: 1 },
+  { name: 'eBay', fee_rate: 0.136, fee_flat: 0.40, fee_on_shipping: 0 },
 ];
 
 const db = new Database(DB_PATH);
