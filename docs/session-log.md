@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-10 — v1.1.31 (eBay fee rate update + site fee tooling)
+
+**eBay fee rate corrected to 13.6%:**
+- `server/db.js`: seed updated from 13.25% → 13.6% (for fresh DBs)
+- `scripts/update-site-fees.js`: new script to view and update site fee rates in production DB; edit `UPDATES` array for future changes; dry-run by default, `--confirm` to apply
+
 ### 2026-04-10 — v1.1.30 (Auto-generate eBay listing title — issue #94)
 
 **Title generation at list time:**
