@@ -50,23 +50,14 @@ router.post('/auth/exchange', async (req, res) => {
 // ── Fulfillment routes ────────────────────────────────────────────────────────
 
 // GET /api/ebay/orders — orders awaiting fulfillment
-// Filter passed as raw string — URLSearchParams would encode { } | which eBay rejects
+// ?filter=sold → FULFILLED orders instead; filter passed as raw string (URLSearchParams encodes { } | which eBay rejects)
 router.get('/orders', async (req, res) => {
   try {
-    const headers  = await ebayHeaders();
-    const url      = `${EBAY_API}/sell/fulfillment/v1/order?filter=orderfulfillmentstatus:{NOT_STARTED|IN_PROGRESS}&limit=50`;
-    const response = await fetch(url, { headers });
-    const data     = await response.json();
-    res.status(response.status).json(data);
-  } catch (e) {
-    res.status(502).json({ error: 'eBay orders request failed', detail: e.message });
-  }
-});
-
-router.get('/orders/sold', async (req, res) => {
-  try {
-    const headers  = await ebayHeaders();
-    const url      = `${EBAY_API}/sell/fulfillment/v1/order?filter=orderfulfillmentstatus:{FULFILLED|IN_PROGRESS}&limit=50`;
+    const headers = await ebayHeaders();
+    const status  = req.query.filter === 'sold'
+      ? 'FULFILLED|IN_PROGRESS'
+      : 'NOT_STARTED|IN_PROGRESS';
+    const url      = `${EBAY_API}/sell/fulfillment/v1/order?filter=orderfulfillmentstatus:{${status}}&limit=50`;
     const response = await fetch(url, { headers });
     const data     = await response.json();
     res.status(response.status).json(data);

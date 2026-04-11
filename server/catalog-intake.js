@@ -119,4 +119,20 @@ router.post('/disc', async (req, res) => {
   }
 });
 
-module.exports = router;
+// markDiscSold(sku) — sets column E = TRUE for a DWG-XXX SKU
+// Exported for use by orders.js when an item is marked Sold
+async function markDiscSold(sku) {
+  const match = sku && sku.match(/^DWG-(\d+)$/i);
+  if (!match) return;
+  const discNum = parseInt(match[1], 10);
+  const row     = discNum + 1; // row 1 is header
+  const sheets  = getSheets();
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: SHEET_ID,
+    range:         `${SHEET_NAME}!E${row}`,
+    valueInputOption: 'RAW',
+    requestBody:   { values: [['TRUE']] },
+  });
+}
+
+module.exports = { router, markDiscSold };

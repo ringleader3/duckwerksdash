@@ -1,7 +1,8 @@
 // server/orders.js — POST/PATCH /api/orders
-const express = require('express');
-const router  = express.Router();
-const db      = require('./db');
+const express           = require('express');
+const router            = express.Router();
+const db                = require('./db');
+const { markDiscSold }  = require('./catalog-intake');
 
 // POST create order (sale received — also sets item.status = 'Sold' and listing.status = 'sold')
 router.post('/', (req, res) => {
@@ -17,6 +18,9 @@ router.post('/', (req, res) => {
   if (listing) {
     db.prepare("UPDATE items SET status = 'Sold' WHERE id = ?").run(listing.item_id);
     db.prepare("UPDATE listings SET status = 'sold', ended_at = datetime('now') WHERE id = ?").run(listing_id);
+    // Fire-and-forget: sync sold status to Google Sheet for DWG items
+    const item = db.prepare('SELECT sku FROM items WHERE id = ?').get(listing.item_id);
+    if (item?.sku) markDiscSold(item.sku).catch(e => console.error('markDiscSold failed:', e.message));
   }
   res.status(201).json(db.prepare('SELECT * FROM orders WHERE id = ?').get(result.lastInsertRowid));
 });

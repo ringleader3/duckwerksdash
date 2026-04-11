@@ -34,7 +34,7 @@ app.use('/api/ebay',      require('./server/ebay'));
 app.use('/api/ebay',      require('./server/ebay-listings'));
 app.use('/api/comps',     require('./server/comps').router);
 app.use('/api/print',          require('./server/print'));
-app.use('/api/catalog-intake', require('./server/catalog-intake'));
+app.use('/api/catalog-intake', require('./server/catalog-intake').router);
 
 // ── START ─────────────────────────────────────────────────────────────────────
 
