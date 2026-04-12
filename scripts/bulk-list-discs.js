@@ -22,6 +22,7 @@ const idsArg    = arg('--ids');
 const apiBase   = arg('--api') || 'http://localhost:3000';
 const confirm    = process.argv.includes('--confirm');
 const updateMode = process.argv.includes('--update');
+const maxRetries = parseInt(arg('--retries') || '3', 10);
 
 if ((!sheetUrl && !csvPath) || !idsArg || (!updateMode && !photosDir)) {
   console.error('Usage: node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <ids> [--api <url>] [--confirm]');
@@ -134,82 +135,100 @@ async function main() {
 
   // ── Live run ──────────────────────────────────────────────────────────────
 
-  let listed = 0, skipped = 0, errorIds = [];
+  async function runBatch(batch, cycleLabel) {
+    let listed = 0, skipped = 0, errorIds = [];
+    const batchTotal = batch.length;
+    for (let i = 0; i < batchTotal; i++) {
+      const p     = batch[i];
+      const label = `${cycleLabel}[${i + 1}/${batchTotal}] DWG-${p.paddedId}`;
+      const t     = (p.title || '').slice(0, 42).padEnd(42);
 
-  for (let i = 0; i < plan.length; i++) {
-    const p     = plan[i];
-    const label = `[${i + 1}/${total}] DWG-${p.paddedId}`;
-    const t     = (p.title || '').slice(0, 42).padEnd(42);
-
-    if (p.skip || p.warnings) {
-      console.log(`${label}  ${t}  skipped — ${p.skip || p.warnings.join(', ')}`);
-      skipped++;
-      continue;
-    }
-
-    try {
-      const disc = {
-        id:           p.id,
-        title:        p.title,
-        listPrice:    p.price,
-        description:  p.row['Description']    || '',
-        condition:    p.row['Condition']      || '',
-        manufacturer: p.row['Manufacturer']   || '',
-        mold:         p.row['Mold']           || '',
-        type:         p.row['Type']           || '',
-        plastic:      p.row['Plastic']        || '',
-        color:        p.row['Color']          || '',
-        run:          p.row['Run / Edition']  || '',
-        weight:       p.row['Weight (g)']     || '',
-        notes:        p.row['Notes']          || '',
-      };
-
-      let response, result;
-
-      if (updateMode) {
-        response = await fetch(`${apiBase}/api/ebay/bulk-update`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ disc }),
-        });
-        result = await response.json();
-        if (result.error) {
-          console.log(`${label}  ${t}  ERROR — ${result.error}`);
-          errorIds.push(p.id);
-          skipped++;
-          continue;
-        }
-        console.log(`${label}  ${t}  updated`);
-        listed++;
-      } else {
-        const formData = new FormData();
-        formData.set('disc', JSON.stringify(disc));
-        for (const filename of p.photoFiles) {
-          const buf  = fs.readFileSync(path.join(photosDir, filename));
-          const blob = new Blob([buf], { type: 'image/jpeg' });
-          formData.set(`photos[${filename.replace(/\.jpe?g$/i, '')}]`, blob, filename);
-        }
-        response = await fetch(`${apiBase}/api/ebay/bulk-list`, { method: 'POST', body: formData });
-        result = await response.json();
-        if (result.error) {
-          console.log(`${label}  ${t}  ERROR — ${result.error}`);
-          errorIds.push(p.id);
-          skipped++;
-          continue;
-        }
-        console.log(`${label}  ${t}  listed  ${result.url}`);
-        listed++;
+      if (p.skip || p.warnings) {
+        console.log(`${label}  ${t}  skipped — ${p.skip || p.warnings.join(', ')}`);
+        skipped++;
+        continue;
       }
-    } catch (e) {
-      console.log(`${label}  ${t}  ERROR — ${e.message}`);
-      errorIds.push(p.id);
-      skipped++;
+
+      try {
+        const disc = {
+          id:           p.id,
+          title:        p.title,
+          listPrice:    p.price,
+          description:  p.row['Description']    || '',
+          condition:    p.row['Condition']      || '',
+          manufacturer: p.row['Manufacturer']   || '',
+          mold:         p.row['Mold']           || '',
+          type:         p.row['Type']           || '',
+          plastic:      p.row['Plastic']        || '',
+          color:        p.row['Color']          || '',
+          run:          p.row['Run / Edition']  || '',
+          weight:       p.row['Weight (g)']     || '',
+          notes:        p.row['Notes']          || '',
+        };
+
+        let response, result;
+
+        if (updateMode) {
+          response = await fetch(`${apiBase}/api/ebay/bulk-update`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ disc }),
+          });
+          result = await response.json();
+          if (result.error) {
+            console.log(`${label}  ${t}  ERROR — ${result.error}`);
+            errorIds.push(p.id);
+            skipped++;
+            continue;
+          }
+          console.log(`${label}  ${t}  updated`);
+          listed++;
+        } else {
+          const formData = new FormData();
+          formData.set('disc', JSON.stringify(disc));
+          for (const filename of p.photoFiles) {
+            const buf  = fs.readFileSync(path.join(photosDir, filename));
+            const blob = new Blob([buf], { type: 'image/jpeg' });
+            formData.set(`photos[${filename.replace(/\.jpe?g$/i, '')}]`, blob, filename);
+          }
+          response = await fetch(`${apiBase}/api/ebay/bulk-list`, { method: 'POST', body: formData });
+          result = await response.json();
+          if (result.error) {
+            console.log(`${label}  ${t}  ERROR — ${result.error}`);
+            errorIds.push(p.id);
+            skipped++;
+            continue;
+          }
+          console.log(`${label}  ${t}  listed  ${result.url}`);
+          listed++;
+        }
+      } catch (e) {
+        console.log(`${label}  ${t}  ERROR — ${e.message}`);
+        errorIds.push(p.id);
+        skipped++;
+      }
     }
+    return { listed, skipped, errorIds };
   }
 
   const action = updateMode ? 'updated' : 'listed';
-  console.log(`\nDone: ${listed} ${action}, ${skipped} skipped`);
-  if (errorIds.length) console.log(`Retry: --ids ${errorIds.join(',')}`);
+  let totalListed = 0, totalSkipped = 0;
+  let { listed, skipped, errorIds } = await runBatch(plan, '');
+  totalListed  += listed;
+  totalSkipped += skipped;
+
+  // Auto-retry error IDs up to maxRetries times with a short delay
+  for (let cycle = 1; cycle <= maxRetries && errorIds.length > 0; cycle++) {
+    console.log(`\nRetrying ${errorIds.length} error(s) — cycle ${cycle}/${maxRetries} (waiting 10s)...`);
+    await new Promise(r => setTimeout(r, 10000));
+    const retryPlan = plan.filter(p => errorIds.includes(p.id));
+    ({ listed, skipped, errorIds } = await runBatch(retryPlan, `[retry ${cycle}] `));
+    totalListed  += listed;
+    totalSkipped += skipped;
+  }
+
+  console.log(`\nDone: ${totalListed} ${action}, ${totalSkipped} skipped`);
+  if (errorIds.length) console.log(`Still failing after ${maxRetries} retries: --ids ${errorIds.join(',')}`);
 }
 
 main().catch(e => { console.error(e.message); process.exit(1); });
