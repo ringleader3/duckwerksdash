@@ -134,7 +134,7 @@ async function main() {
 
   // ── Live run ──────────────────────────────────────────────────────────────
 
-  let listed = 0, skipped = 0;
+  let listed = 0, skipped = 0, errorIds = [];
 
   for (let i = 0; i < plan.length; i++) {
     const p     = plan[i];
@@ -175,6 +175,7 @@ async function main() {
         result = await response.json();
         if (result.error) {
           console.log(`${label}  ${t}  ERROR — ${result.error}`);
+          errorIds.push(p.id);
           skipped++;
           continue;
         }
@@ -192,6 +193,7 @@ async function main() {
         result = await response.json();
         if (result.error) {
           console.log(`${label}  ${t}  ERROR — ${result.error}`);
+          errorIds.push(p.id);
           skipped++;
           continue;
         }
@@ -200,12 +202,14 @@ async function main() {
       }
     } catch (e) {
       console.log(`${label}  ${t}  ERROR — ${e.message}`);
+      errorIds.push(p.id);
       skipped++;
     }
   }
 
   const action = updateMode ? 'updated' : 'listed';
   console.log(`\nDone: ${listed} ${action}, ${skipped} skipped`);
+  if (errorIds.length) console.log(`Retry: --ids ${errorIds.join(',')}`);
 }
 
 main().catch(e => { console.error(e.message); process.exit(1); });
