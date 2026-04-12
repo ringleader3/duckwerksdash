@@ -165,7 +165,7 @@ router.post('/traffic', async (req, res) => {
     const headers    = await ebayHeaders();
     const end        = new Date();
     const start      = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const fmt        = d => d.toISOString().split('.')[0] + 'Z';
+    const fmt        = d => d.toISOString().slice(0, 10).replace(/-/g, '');
     const allIds     = req.body.listingIds || [];
     const listings   = {};
 
