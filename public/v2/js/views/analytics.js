@@ -107,23 +107,18 @@ document.addEventListener('alpine:init', () => {
       this.listedLoading = true;
       this.listedError   = null;
       try {
-        // Collect active eBay listing IDs from store for traffic request
-        const dw = Alpine.store('dw');
-        const activeEbayIds = dw.records.flatMap(r =>
-          (r.listings || [])
-            .filter(l => l.status === 'active' && l.site?.name === 'eBay' && l.platform_listing_id)
-            .map(l => String(l.platform_listing_id))
-        );
+        // Fetch eBay listings first — need IDs before firing traffic request
+        const ebayListings  = await fetch('/api/ebay/listings').then(r => r.json()).catch(() => ({}));
+        const activeEbayIds = (ebayListings.listings || []).map(l => l.legacyItemId).filter(Boolean);
 
         // Fetch Reverb listings + eBay traffic in parallel
-        const [reverbListings, ebayTraffic, ebayListings] = await Promise.all([
+        const [reverbListings, ebayTraffic] = await Promise.all([
           this._fetchReverbListings(),
           fetch('/api/ebay/traffic', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify({ listingIds: activeEbayIds }),
           }).then(r => r.json()).catch(() => ({})),
-          fetch('/api/ebay/listings').then(r => r.json()).catch(() => ({})),
         ]);
 
         // ebayTraffic.listings: { [legacyListingId]: { views, impressions, ctr } }
