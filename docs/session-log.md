@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-11 — v1.1.34 (bulk-list fixes + auto-retry)
+
+**bulk-list script improvements:**
+- `scripts/bulk-list-discs.js`: auto-retry errored IDs up to 3 cycles (configurable via `--retries N`) with 10s delay between cycles — handles eBay's intermittent 500s without manual re-runs
+- `scripts/bulk-list-discs.js`: print `Retry: --ids ...` at end of run for any still-failing IDs after all cycles
+- `server/ebay-listings.js`: bulk-update now respects curated title/description from sheet cols C+D instead of always regenerating from metadata
+
 ### 2026-04-11 — v1.1.33 (eBay analytics traffic — full listing coverage)
 
 **Analytics page now shows traffic data for all listings:**
