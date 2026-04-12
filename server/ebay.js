@@ -157,38 +157,33 @@ router.get('/listings', async (req, res) => {
   }
 });
 
-// GET /api/ebay/traffic — eBay Sell Analytics traffic report, last 30 days, per listing
+// POST /api/ebay/traffic — eBay Sell Analytics traffic report, last 30 days
+// Body: { listingIds: string[] } — batched 200 at a time (eBay hard limit)
 // Returns { listings: { [listingId]: { views, impressions, ctr } } }
-// dimension=LISTING; metric order may vary — normalized server-side using header.metrics
-router.get('/traffic', async (req, res) => {
+router.post('/traffic', async (req, res) => {
   try {
-    const headers  = await ebayHeaders();
-    const end      = new Date();
-    const start    = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const fmt      = d => d.toISOString().split('.')[0] + 'Z';
-    const limit    = 200;
-    const listings = {};
-    let offset     = 0;
-    let metricKeys = null;
+    const headers    = await ebayHeaders();
+    const end        = new Date();
+    const start      = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const fmt        = d => d.toISOString().split('.')[0] + 'Z';
+    const allIds     = req.body.listingIds || [];
+    const listings   = {};
 
-    // eBay traffic report max 200/page — paginate until all records fetched
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
+    // Chunk into batches of 200 and fire one request per batch
+    for (let i = 0; i < allIds.length; i += 200) {
+      const chunk   = allIds.slice(i, i + 200);
+      const idList  = chunk.join('|');
       // Build URL manually — URLSearchParams encodes [ ] { } which eBay rejects
       const url = `${EBAY_API}/sell/analytics/v1/traffic_report`
         + `?dimension=LISTING`
         + `&metric=LISTING_VIEWS_TOTAL,LISTING_IMPRESSION_TOTAL,CLICK_THROUGH_RATE`
-        + `&filter=marketplace_ids:{EBAY_US},date_range:[${fmt(start)}..${fmt(end)}]`
-        + `&limit=${limit}&offset=${offset}`;
+        + `&filter=marketplace_ids:{EBAY_US},date_range:[${fmt(start)}..${fmt(end)}],listing_ids:{${idList}}`;
       const response = await fetch(url, { headers });
       const data     = await response.json();
       if (data.errors) return res.status(400).json(data);
 
-      // Resolve metric positions once from first page header
-      if (!metricKeys) metricKeys = (data.header?.metrics || []).map(m => m.key);
-
-      const records = data.records || [];
-      for (const rec of records) {
+      const metricKeys = (data.header?.metrics || []).map(m => m.key);
+      for (const rec of (data.records || [])) {
         const lid  = rec.dimensionValues?.[0]?.value;
         if (!lid) continue;
         const vals = rec.metricValues || [];
@@ -202,10 +197,6 @@ router.get('/traffic', async (req, res) => {
           ctr:         get('CLICK_THROUGH_RATE'),
         };
       }
-
-      const total = data.header?.dimensionValueCount ?? records.length;
-      if (records.length < limit || offset + limit >= total) break;
-      offset += limit;
     }
 
     res.json({ listings });
