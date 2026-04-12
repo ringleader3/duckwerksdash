@@ -1,6 +1,15 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-11 — v1.1.33 (eBay analytics traffic — full listing coverage)
+
+**Analytics page now shows traffic data for all listings:**
+- `server/ebay.js`: switched traffic route from GET to POST, accepts `listingIds[]`, batches 200 at a time using `listing_ids:{...}` filter — bypasses eBay's 200-record cap on dimension=LISTING
+- `server/ebay.js`: fixed date format to `YYYYMMDD` per eBay docs; use yesterday as end date to avoid LA timezone future-date error
+- `analytics.js`: fetch `/api/ebay/listings` first, derive IDs from response (not store — store not ready on init), then POST to traffic
+- `analytics.js`: fixed Reverb 502 taking down entire eBay load — `_fetchReverbListings` now breaks on non-ok response instead of throwing
+- `analytics.js`: restored missing `dw` store reference after refactor
+
 ### 2026-04-11 — v1.1.32 (eBay sync SKU display + sold status → Google Sheet)
 
 **eBay sync modal shows SKU on awaiting shipment rows:**
