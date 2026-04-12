@@ -73,11 +73,14 @@ document.addEventListener('alpine:init', () => {
         .reduce((sum, r) => sum + dw.estProfit(r), 0);
     },
 
-    estTotalProfit() {
-      const soldProfit = this.items
+    realizedProfit() {
+      return this.items
         .filter(r => r.status === 'Sold')
         .reduce((sum, r) => sum + (r.order?.profit || 0), 0);
-      return soldProfit + this.estUpside();
+    },
+
+    estTotalProfit() {
+      return this.realizedProfit() + this.estUpside();
     },
 
     totalRecovered() {

@@ -124,6 +124,10 @@
 .stat-card.blue .stat-card-value { color: var(--blue); }
 .stat-card.purple .stat-card-value { color: var(--purple); }
 
+/* Compact variant for tight 5-across layouts */
+.stat-grid-compact .stat-card { padding: 12px; }
+.stat-grid-compact .stat-card-value { font-size: 22px; }
+
 /* ── Panels ──────────────────────────────────────────────────────────────── */
 
 .panel {

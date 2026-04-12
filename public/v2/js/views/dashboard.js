@@ -66,12 +66,19 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       return dw.records.filter(r => r.status === 'Listed').reduce((s, r) => s + dw.estProfit(r), 0);
     },
-    get grossPending() {
-      const dw = Alpine.store('dw');
-      return dw.records.filter(r => r.status === 'Listed').reduce((s, r) => s + dw.payout(r), 0);
+    get forecastedProfit() {
+      return this.profit + this.pipeline;
     },
-    get notListed() {
-      return Alpine.store('dw').records.filter(r => r.status !== 'Listed' && r.status !== 'Sold').length;
+    get preppingCount() {
+      return Alpine.store('dw').records.filter(r => r.status === 'Prepping').length;
+    },
+    get ebayListed() {
+      const dw = Alpine.store('dw');
+      return dw.listedRecords.filter(r => dw.siteLabel(r) === 'eBay').length;
+    },
+    get reverbListed() {
+      const dw = Alpine.store('dw');
+      return dw.listedRecords.filter(r => dw.siteLabel(r) === 'Reverb').length;
     },
 
     get lotRows() {

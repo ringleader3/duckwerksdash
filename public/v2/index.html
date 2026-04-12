@@ -105,34 +105,31 @@
         <!-- KPI Stat Cards -->
         <div class="stat-grid" style="margin-bottom: 24px">
           <div class="stat-card red">
-            <div class="stat-card-label">Total Invested</div>
+            <div class="stat-card-label">Total Cost</div>
             <div class="stat-card-value" x-text="$store.dw.fmtK(totalInvested)"></div>
-            <div class="stat-card-sub" x-text="$store.dw.records.length + ' items'"></div>
+            <div class="stat-card-sub">sum of cost basis</div>
           </div>
           <div class="stat-card green">
-            <div class="stat-card-label">Revenue</div>
+            <div class="stat-card-label">Recovered</div>
             <div class="stat-card-value" x-text="$store.dw.fmtK(revenue)"></div>
-            <div class="stat-card-sub" x-text="$store.dw.soldRecords.length + ' sold'"></div>
+            <div class="stat-card-sub">gross sold revenue</div>
           </div>
           <div class="stat-card green">
-            <div class="stat-card-label">Profit</div>
+            <div class="stat-card-label">Realized Profit</div>
             <div class="stat-card-value" x-text="$store.dw.fmtK(profit)"></div>
+            <div class="stat-card-sub">sold after all fees</div>
             <div class="stat-card-sub" x-text="'ROI ' + $store.dw.pct(profit, totalInvested) + '%'"></div>
           </div>
           <div class="stat-card yellow">
-            <div class="stat-card-label">Gross Pending</div>
-            <div class="stat-card-value" x-text="$store.dw.fmtK(grossPending)"></div>
-            <div class="stat-card-sub" x-text="$store.dw.listedRecords.length + ' listed · after fees'"></div>
-          </div>
-          <div class="stat-card yellow">
-            <div class="stat-card-label">Upside Pending</div>
-            <div class="stat-card-value" x-text="$store.dw.fmtK(pipeline)"></div>
-            <div class="stat-card-sub" x-text="$store.dw.listedRecords.length + ' listed · after cost+fees'"></div>
+            <div class="stat-card-label">Forecasted Profit</div>
+            <div class="stat-card-value" x-text="$store.dw.fmtK(forecastedProfit)"></div>
+            <div class="stat-card-sub">realized + listed est.</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-label">Inventory</div>
             <div class="stat-card-value" x-text="$store.dw.records.length"></div>
-            <div class="stat-card-sub" x-text="$store.dw.soldRecords.length + ' sold · ' + $store.dw.listedRecords.length + ' listed · ' + notListed + ' other'"></div>
+            <div class="stat-card-sub" x-text="$store.dw.soldRecords.length + ' sold · ' + $store.dw.listedRecords.length + ' listed'"></div>
+            <div class="stat-card-sub" x-text="ebayListed + ' eBay · ' + reverbListed + ' Reverb'"></div>
           </div>
         </div>
 
@@ -1298,20 +1295,23 @@
           <div class="stat-card red">
             <div class="stat-card-label">TOTAL COST</div>
             <div class="stat-card-value" x-text="$store.dw.fmt0(totalCost())"></div>
+            <div class="stat-card-sub">sum of cost basis</div>
           </div>
           <div class="stat-card green">
             <div class="stat-card-label">RECOVERED</div>
             <div class="stat-card-value" x-text="$store.dw.fmt0(recovered())"></div>
+            <div class="stat-card-sub">gross sold revenue</div>
           </div>
-          <div class="stat-card yellow">
-            <div class="stat-card-label">EST. UPSIDE</div>
-            <div class="stat-card-value" x-text="estUpside() > 0 ? $store.dw.fmt0(estUpside()) : 'n/a'"></div>
-            <div class="stat-card-sub">listed items @ EAF</div>
+          <div class="stat-card" :class="realizedProfit() >= 0 ? 'green' : 'red'">
+            <div class="stat-card-label">REALIZED PROFIT</div>
+            <div class="stat-card-value" x-text="(realizedProfit() >= 0 ? '+' : '') + $store.dw.fmt0(realizedProfit())"></div>
+            <div class="stat-card-sub">sold after all fees</div>
+            <div class="stat-card-sub" x-text="totalCost() > 0 ? 'ROI ' + $store.dw.pct(realizedProfit(), totalCost()) + '%' : ''"></div>
           </div>
           <div class="stat-card" :class="estTotalProfit() >= 0 ? 'green' : 'red'">
-            <div class="stat-card-label">EST. TOTAL PROFIT</div>
+            <div class="stat-card-label">FORECASTED PROFIT</div>
             <div class="stat-card-value" x-text="(estTotalProfit() >= 0 ? '+' : '') + $store.dw.fmt0(estTotalProfit())"></div>
-            <div class="stat-card-sub">if all listed sell</div>
+            <div class="stat-card-sub">realized + listed est.</div>
           </div>
         </div>
 

@@ -1,6 +1,20 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-11 — v1.1.35 (KPI normalization — dashboard + lot modal)
+
+**Dashboard KPI row:**
+- Renamed: Total Invested → Total Cost, Revenue → Recovered, Profit → Realized Profit, Upside Pending → Forecasted Profit (= realized + listed est.)
+- Dropped Gross Pending card (redundant intermediate value)
+- Realized Profit now shows ROI % sub-line
+- Inventory card: cleaned up to "X sold · Y listed" + "N eBay · N Reverb" platform breakdown; dropped prepping/other
+
+**Lot detail modal (ref #96):**
+- Added Realized Profit KPI (sum of sold item profit after all fees)
+- Dropped Est. Upside card; renamed Est. Total Profit → Forecasted Profit (realized + listed est.)
+- Normalized all sub-labels: sum of cost basis, gross sold revenue, sold after all fees, realized + listed est.
+- Realized Profit shows ROI % when lot has a cost basis
+
 ### 2026-04-11 — v1.1.34 (bulk-list fixes + auto-retry)
 
 **bulk-list script improvements:**
