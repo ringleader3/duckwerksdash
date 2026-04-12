@@ -195,7 +195,9 @@ document.addEventListener('alpine:init', () => {
       const listings = [];
       let nextPath   = 'my/listings?per_page=100&state=live';
       while (nextPath) {
-        const data = await fetch('/api/reverb/' + nextPath).then(r => r.json());
+        const res  = await fetch('/api/reverb/' + nextPath);
+        if (!res.ok) break;
+        const data = await res.json();
         (data.listings || []).forEach(l => listings.push(l));
         const nextHref = data._links?.next?.href || '';
         nextPath = nextHref ? nextHref.replace('https://api.reverb.com/api/', '') : null;
