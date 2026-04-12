@@ -130,6 +130,7 @@ document.addEventListener('alpine:init', () => {
           if (l.legacyItemId) watchMap[l.legacyItemId] = l.watchCount;
         }
 
+        const dw   = Alpine.store('dw');
         const rows = [];
 
         // Reverb rows
