@@ -162,37 +162,52 @@ router.get('/listings', async (req, res) => {
 // dimension=LISTING; metric order may vary — normalized server-side using header.metrics
 router.get('/traffic', async (req, res) => {
   try {
-    const headers = await ebayHeaders();
-    const end     = new Date();
-    const start   = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const fmt     = d => d.toISOString().split('.')[0] + 'Z';
-    // Build URL manually — URLSearchParams encodes [ ] { } which eBay rejects
-    const url = `${EBAY_API}/sell/analytics/v1/traffic_report`
-      + `?dimension=LISTING`
-      + `&metric=LISTING_VIEWS_TOTAL,LISTING_IMPRESSION_TOTAL,CLICK_THROUGH_RATE`
-      + `&filter=marketplace_ids:{EBAY_US},date_range:[${fmt(start)}..${fmt(end)}]`;
-    const response = await fetch(url, { headers });
-    const data     = await response.json();
-    if (data.errors) return res.status(400).json(data);
+    const headers  = await ebayHeaders();
+    const end      = new Date();
+    const start    = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const fmt      = d => d.toISOString().split('.')[0] + 'Z';
+    const limit    = 200;
+    const listings = {};
+    let offset     = 0;
+    let metricKeys = null;
 
-    // Normalize: map keyed by listing ID with named fields
-    // eBay may reorder metrics vs. param order — use header.metrics to resolve positions
-    const metricKeys = (data.header?.metrics || []).map(m => m.key);
-    const listings   = {};
-    for (const rec of (data.records || [])) {
-      const lid  = rec.dimensionValues?.[0]?.value;
-      if (!lid) continue;
-      const vals = rec.metricValues || [];
-      const get  = key => {
-        const idx = metricKeys.indexOf(key);
-        return idx >= 0 ? (vals[idx]?.value ?? null) : null;
-      };
-      listings[lid] = {
-        views:       get('LISTING_VIEWS_TOTAL'),
-        impressions: get('LISTING_IMPRESSION_TOTAL'),
-        ctr:         get('CLICK_THROUGH_RATE'),
-      };
+    // eBay traffic report max 200/page — paginate until all records fetched
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      // Build URL manually — URLSearchParams encodes [ ] { } which eBay rejects
+      const url = `${EBAY_API}/sell/analytics/v1/traffic_report`
+        + `?dimension=LISTING`
+        + `&metric=LISTING_VIEWS_TOTAL,LISTING_IMPRESSION_TOTAL,CLICK_THROUGH_RATE`
+        + `&filter=marketplace_ids:{EBAY_US},date_range:[${fmt(start)}..${fmt(end)}]`
+        + `&limit=${limit}&offset=${offset}`;
+      const response = await fetch(url, { headers });
+      const data     = await response.json();
+      if (data.errors) return res.status(400).json(data);
+
+      // Resolve metric positions once from first page header
+      if (!metricKeys) metricKeys = (data.header?.metrics || []).map(m => m.key);
+
+      const records = data.records || [];
+      for (const rec of records) {
+        const lid  = rec.dimensionValues?.[0]?.value;
+        if (!lid) continue;
+        const vals = rec.metricValues || [];
+        const get  = key => {
+          const idx = metricKeys.indexOf(key);
+          return idx >= 0 ? (vals[idx]?.value ?? null) : null;
+        };
+        listings[lid] = {
+          views:       get('LISTING_VIEWS_TOTAL'),
+          impressions: get('LISTING_IMPRESSION_TOTAL'),
+          ctr:         get('CLICK_THROUGH_RATE'),
+        };
+      }
+
+      const total = data.header?.dimensionValueCount ?? records.length;
+      if (records.length < limit || offset + limit >= total) break;
+      offset += limit;
     }
+
     res.json({ listings });
   } catch (e) {
     res.status(502).json({ error: 'eBay traffic report failed', detail: e.message });
