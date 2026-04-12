@@ -79,6 +79,18 @@ document.addEventListener('alpine:init', () => {
         .reduce((sum, r) => sum + (r.order?.profit || 0), 0);
     },
 
+    soldCost() {
+      return this.items
+        .filter(r => r.status === 'Sold')
+        .reduce((sum, r) => sum + (r.cost || 0), 0);
+    },
+
+    soldShipping() {
+      return this.items
+        .filter(r => r.status === 'Sold')
+        .reduce((sum, r) => sum + (r.shipment?.shipping_cost || 0), 0);
+    },
+
     estTotalProfit() {
       return this.realizedProfit() + this.estUpside();
     },

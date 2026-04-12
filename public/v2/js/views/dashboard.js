@@ -69,6 +69,12 @@ document.addEventListener('alpine:init', () => {
     get forecastedProfit() {
       return this.profit + this.pipeline;
     },
+    get soldCost() {
+      return Alpine.store('dw').soldRecords.reduce((s, r) => s + (r.cost || 0), 0);
+    },
+    get soldShipping() {
+      return Alpine.store('dw').soldRecords.reduce((s, r) => s + (r.shipment?.shipping_cost || 0), 0);
+    },
     get preppingCount() {
       return Alpine.store('dw').records.filter(r => r.status === 'Prepping').length;
     },

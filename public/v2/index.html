@@ -113,6 +113,7 @@
             <div class="stat-card-label">Recovered</div>
             <div class="stat-card-value" x-text="$store.dw.fmtK(revenue)"></div>
             <div class="stat-card-sub">gross sold revenue</div>
+            <div class="stat-card-sub" x-text="$store.dw.fmtK(soldCost) + ' cost · ' + $store.dw.fmtK(soldShipping) + ' ship · ' + $store.dw.fmtK(profit) + ' profit'"></div>
           </div>
           <div class="stat-card green">
             <div class="stat-card-label">Realized Profit</div>
@@ -124,6 +125,7 @@
             <div class="stat-card-label">Forecasted Profit</div>
             <div class="stat-card-value" x-text="$store.dw.fmtK(forecastedProfit)"></div>
             <div class="stat-card-sub">realized + listed est.</div>
+            <div class="stat-card-sub" x-text="'+' + $store.dw.fmtK(pipeline) + ' listed est.'"></div>
           </div>
           <div class="stat-card">
             <div class="stat-card-label">Inventory</div>
@@ -1301,6 +1303,7 @@
             <div class="stat-card-label">RECOVERED</div>
             <div class="stat-card-value" x-text="$store.dw.fmt0(recovered())"></div>
             <div class="stat-card-sub">gross sold revenue</div>
+            <div class="stat-card-sub" x-text="$store.dw.fmt0(soldCost()) + ' cost · ' + $store.dw.fmt0(soldShipping()) + ' ship · ' + $store.dw.fmt0(realizedProfit()) + ' profit'"></div>
           </div>
           <div class="stat-card" :class="realizedProfit() >= 0 ? 'green' : 'red'">
             <div class="stat-card-label">REALIZED PROFIT</div>
@@ -1312,6 +1315,7 @@
             <div class="stat-card-label">FORECASTED PROFIT</div>
             <div class="stat-card-value" x-text="(estTotalProfit() >= 0 ? '+' : '') + $store.dw.fmt0(estTotalProfit())"></div>
             <div class="stat-card-sub">realized + listed est.</div>
+            <div class="stat-card-sub" x-text="'+' + $store.dw.fmt0(estUpside()) + ' listed est.'"></div>
           </div>
         </div>
 
