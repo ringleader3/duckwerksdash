@@ -143,7 +143,7 @@ function buildDescription(disc) {
 
 function descriptionHtml(disc) {
   const body = disc.description || buildDescription(disc);
-  return `<p>${(body + LISTING_FOOTER).replace(/\n/g, '</p><p>')}</p>`;
+  return (body + LISTING_FOOTER).replace(/\n/g, '<br>');
 }
 
 async function savePhotos(files) {
