@@ -146,11 +146,13 @@ function descriptionHtml(disc) {
   const footer      = footerLines.map(l => `<p>${l}</p>`).join('');
 
   if (disc.description) {
-    // Curated prose description — paragraphs on desktop, plain text on mobile
+    // Curated: specs | prose on mobile (eBay truncates at 800 chars), prose + spec list + footer on desktop
     const paraLines  = disc.description.split('\n').filter(Boolean);
-    const mobileText = paraLines.join(' ');
+    const specLines  = buildDescription(disc).split('\n').filter(Boolean);
+    const mobileText = specLines.join('  |  ') + '  |  ' + paraLines.join(' ');
+    const specList   = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
     const fullHtml   = paraLines.map(l => `<p>${l}</p>`).join('');
-    return `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileText}</span></div>${fullHtml}${footer}`;
+    return `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileText}</span></div>${fullHtml}${specList}${footer}`;
   }
 
   // Generated description — pipe-separated on mobile, bullet list on desktop
