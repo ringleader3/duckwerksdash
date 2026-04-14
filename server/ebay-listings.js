@@ -142,15 +142,21 @@ function buildDescription(disc) {
 }
 
 function descriptionHtml(disc) {
-  const body = disc.description || buildDescription(disc);
-  const specLines   = body.split('\n').filter(Boolean);
   const footerLines = LISTING_FOOTER.split('\n').filter(Boolean);
-  // Mobile snippet: plain text with bullet symbols — eBay strips HTML in the preview,
-  // so Unicode bullets give the cleanest readable result in the snippet box.
-  const mobileText  = specLines.join('  |  ');
-  // Full HTML: rendered on desktop and in the "see full description" tap on mobile.
-  const specList    = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
   const footer      = footerLines.map(l => `<p>${l}</p>`).join('');
+
+  if (disc.description) {
+    // Curated prose description — paragraphs on desktop, plain text on mobile
+    const paraLines  = disc.description.split('\n').filter(Boolean);
+    const mobileText = paraLines.join(' ');
+    const fullHtml   = paraLines.map(l => `<p>${l}</p>`).join('');
+    return `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileText}</span></div>${fullHtml}${footer}`;
+  }
+
+  // Generated description — pipe-separated on mobile, bullet list on desktop
+  const specLines  = buildDescription(disc).split('\n').filter(Boolean);
+  const mobileText = specLines.join('  |  ');
+  const specList   = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
   return `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileText}</span></div>${specList}${footer}`;
 }
 
