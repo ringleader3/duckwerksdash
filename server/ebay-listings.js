@@ -143,7 +143,12 @@ function buildDescription(disc) {
 
 function descriptionHtml(disc) {
   const body = disc.description || buildDescription(disc);
-  return `<p>${(body + LISTING_FOOTER).replace(/\n/g, '</p><p>')}</p>`;
+  // Mobile snippet: eBay schema.org Product spec — <li> items render on mobile,
+  // hidden on desktop via display:none so the full HTML description shows there instead.
+  const allLines = (body + LISTING_FOOTER).split('\n').filter(Boolean);
+  const mobileDiv = `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description"><ul>${allLines.map(l => `<li>${l}</li>`).join('')}</ul></span></div>`;
+  const fullHtml  = `<p>${(body + LISTING_FOOTER).replace(/\n/g, '</p><p>')}</p>`;
+  return mobileDiv + fullHtml;
 }
 
 async function savePhotos(files) {
