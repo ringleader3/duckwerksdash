@@ -149,7 +149,7 @@ function descriptionHtml(disc) {
   const footerLines = LISTING_FOOTER.split('\n').filter(Boolean);
   const specList    = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
   const footer      = footerLines.map(l => `<p>${l}</p>`).join('');
-  return `<div vocab="https://schema.org/" typeof="Product"><span property="description">${specList}${footerLines.join('<br>')}</span></div>${footer}`;
+  return `<div vocab="https://schema.org/" typeof="Product"><span property="description">${specList}</span></div>${footer}`;
 }
 
 async function savePhotos(files) {
