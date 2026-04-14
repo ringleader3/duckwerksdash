@@ -65,8 +65,20 @@ function buildItem(row) {
   };
 }
 
-// GET all items
-router.get('/', (_req, res) => {
+// GET all items (optional filters: category, status, lot_id, since)
+router.get('/', (req, res) => {
+  const { category, status, lot_id, since } = req.query;
+
+  const where = [];
+  const params = [];
+
+  if (category) { where.push('c.name = ?');        params.push(category); }
+  if (status)   { where.push('i.status = ?');       params.push(status); }
+  if (lot_id)   { where.push('i.lot_id = ?');       params.push(lot_id); }
+  if (since)    { where.push('i.created_at >= ?');  params.push(since); }
+
+  const whereClause = where.length ? `WHERE ${where.join(' AND ')}` : '';
+
   const rows = db.prepare(`
     SELECT i.*,
       c.name as cat_name, c.color as cat_color, c.badge_class as cat_badge,
@@ -74,8 +86,9 @@ router.get('/', (_req, res) => {
     FROM items i
     LEFT JOIN categories c ON c.id = i.category_id
     LEFT JOIN lots l ON l.id = i.lot_id
+    ${whereClause}
     ORDER BY i.created_at DESC
-  `).all();
+  `).all(params);
   res.json(rows.map(buildItem));
 });
 
