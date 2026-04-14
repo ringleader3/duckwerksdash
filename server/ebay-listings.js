@@ -14,11 +14,17 @@ const DG_CATEGORY   = '184356'; // eBay: Sporting Goods > Disc Golf > Discs
 const EBAY_STORE_CATEGORY = 'Multiple Discounts'; // optional store category to assign to all listings
 const MARKETPLACE   = 'EBAY_US';
 const LISTING_FOOTER = '\nAll sales final and all items sold as is. Please ask questions before purchasing.\nAll my listings ship with Free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.\nI am a single person listing and selling 250 or so discs, so I might have missed a mark or two in my descriptions. Please ask if you want more photos or details about any of my discs, or let me know if you see any issues. \nThanks for looking!';
+const MIN_OFFER_PCT = 0.75; // auto-decline offers below this fraction of list price
+
 const DISC_TYPE_MAP = { 'Putter': 'Putting Disc', 'Midrange': 'Midrange Disc' };
 function normalizeDiscType(type) { return DISC_TYPE_MAP[type] || type; }
 
 const MANUFACTURER_MAP = { 'Streamline': 'Streamline Discs' };
 function normalizeManufacturer(m) { return MANUFACTURER_MAP[m] || m; }
+
+function minOffer(listPrice) {
+  return Math.floor(parseFloat(listPrice) * MIN_OFFER_PCT);
+}
 
 function generateTitle({ manufacturer, mold, plastic, run, weight, color, condition }) {
   const parts = [manufacturer, mold, plastic];
@@ -214,6 +220,7 @@ async function createOffer(sku, disc, policies, locationKey, headers) {
       paymentPolicyId:     policies.paymentPolicyId,
       bestOfferTerms: {
         bestOfferEnabled: true,
+        autoDeclinePrice: { value: String(minOffer(disc.listPrice)), currency: 'USD' },
       },
     },
     pricingSummary: {
@@ -410,7 +417,13 @@ router.post('/bulk-update', async (req, res) => {
       marketplaceId:       MARKETPLACE,
       format:              'FIXED_PRICE',
       merchantLocationKey: offer.merchantLocationKey,
-      listingPolicies:     offer.listingPolicies,
+      listingPolicies: {
+        ...offer.listingPolicies,
+        bestOfferTerms: {
+          bestOfferEnabled: true,
+          autoDeclinePrice: { value: String(minOffer(disc.listPrice)), currency: 'USD' },
+        },
+      },
       pricingSummary: {
         price: { value: String(disc.listPrice), currency: 'USD' },
       },
