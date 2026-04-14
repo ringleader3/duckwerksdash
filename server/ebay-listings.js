@@ -147,7 +147,7 @@ function descriptionHtml(disc) {
   const footerLines = LISTING_FOOTER.split('\n').filter(Boolean);
   // Mobile snippet: plain text with bullet symbols — eBay strips HTML in the preview,
   // so Unicode bullets give the cleanest readable result in the snippet box.
-  const mobileText  = specLines.map(l => `● ${l}`).join('  ');
+  const mobileText  = specLines.join('  |  ');
   // Full HTML: rendered on desktop and in the "see full description" tap on mobile.
   const specList    = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
   const footer      = footerLines.map(l => `<p>${l}</p>`).join('');
