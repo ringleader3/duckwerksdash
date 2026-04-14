@@ -143,13 +143,15 @@ function buildDescription(disc) {
 
 function descriptionHtml(disc) {
   const body = disc.description || buildDescription(disc);
-  // Wrap entire description in eBay's schema.org mobile snippet div/span.
-  // This controls the mobile display; desktop renders the same HTML normally.
   const specLines   = body.split('\n').filter(Boolean);
   const footerLines = LISTING_FOOTER.split('\n').filter(Boolean);
+  // Mobile snippet: plain text with bullet symbols — eBay strips HTML in the preview,
+  // so Unicode bullets give the cleanest readable result in the snippet box.
+  const mobileText  = specLines.map(l => `● ${l}`).join('  ');
+  // Full HTML: rendered on desktop and in the "see full description" tap on mobile.
   const specList    = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
   const footer      = footerLines.map(l => `<p>${l}</p>`).join('');
-  return `<div vocab="https://schema.org/" typeof="Product"><span property="description">${specList}</span></div>${footer}`;
+  return `<div vocab="https://schema.org/" typeof="Product"><span property="description">${mobileText}</span></div>${specList}${footer}`;
 }
 
 async function savePhotos(files) {
