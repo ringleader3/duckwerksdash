@@ -145,8 +145,11 @@ function descriptionHtml(disc) {
   const body = disc.description || buildDescription(disc);
   // Mobile snippet: eBay schema.org Product spec — <li> items render on mobile,
   // hidden on desktop via display:none so the full HTML description shows there instead.
-  const allLines = (body + LISTING_FOOTER).split('\n').filter(Boolean);
-  const mobileDiv = `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description"><ul>${allLines.map(l => `<li>${l}</li>`).join('')}</ul></span></div>`;
+  const specLines = body.split('\n').filter(Boolean);
+  const footerLines = LISTING_FOOTER.split('\n').filter(Boolean);
+  const mobileList   = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
+  const mobileFooter = footerLines.join('<br>');
+  const mobileDiv = `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileList}${mobileFooter}</span></div>`;
   const fullHtml  = `<p>${(body + LISTING_FOOTER).replace(/\n/g, '</p><p>')}</p>`;
   return mobileDiv + fullHtml;
 }
