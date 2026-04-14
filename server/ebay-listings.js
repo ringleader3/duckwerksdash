@@ -143,15 +143,13 @@ function buildDescription(disc) {
 
 function descriptionHtml(disc) {
   const body = disc.description || buildDescription(disc);
-  // Mobile snippet: eBay schema.org Product spec — <li> items render on mobile,
-  // hidden on desktop via display:none so the full HTML description shows there instead.
-  const specLines = body.split('\n').filter(Boolean);
+  // Wrap entire description in eBay's schema.org mobile snippet div/span.
+  // This controls the mobile display; desktop renders the same HTML normally.
+  const specLines   = body.split('\n').filter(Boolean);
   const footerLines = LISTING_FOOTER.split('\n').filter(Boolean);
-  const mobileList   = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
-  const mobileFooter = footerLines.join('<br>');
-  const mobileDiv = `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileList}${mobileFooter}</span></div>`;
-  const fullHtml  = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>${footerLines.map(l => `<p>${l}</p>`).join('')}`;
-  return mobileDiv + fullHtml;
+  const specList    = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
+  const footer      = footerLines.map(l => `<p>${l}</p>`).join('');
+  return `<div vocab="https://schema.org/" typeof="Product"><span property="description">${specList}${footerLines.join('<br>')}</span></div>${footer}`;
 }
 
 async function savePhotos(files) {
