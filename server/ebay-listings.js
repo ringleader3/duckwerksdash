@@ -150,7 +150,7 @@ function descriptionHtml(disc) {
   const mobileList   = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
   const mobileFooter = footerLines.join('<br>');
   const mobileDiv = `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileList}${mobileFooter}</span></div>`;
-  const fullHtml  = `<p>${(body + LISTING_FOOTER).replace(/\n/g, '</p><p>')}</p>`;
+  const fullHtml  = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>${footerLines.map(l => `<p>${l}</p>`).join('')}`;
   return mobileDiv + fullHtml;
 }
 
