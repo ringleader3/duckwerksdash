@@ -151,7 +151,7 @@ function descriptionHtml(disc) {
   // Full HTML: rendered on desktop and in the "see full description" tap on mobile.
   const specList    = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
   const footer      = footerLines.map(l => `<p>${l}</p>`).join('');
-  return `<div vocab="https://schema.org/" typeof="Product"><span property="description">${mobileText}</span></div>${specList}${footer}`;
+  return `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileText}</span></div>${specList}${footer}`;
 }
 
 async function savePhotos(files) {
