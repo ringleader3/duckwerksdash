@@ -1,6 +1,16 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-13 — v1.1.36 (eBay description formatting — mobile + desktop)
+
+**eBay listing description overhaul (`server/ebay-listings.js`):**
+- Replaced `<p>` paragraph format with schema.org `<div>/<span>` mobile snippet pattern per eBay Inventory API docs
+- Mobile preview: pipe-separated spec fields (`Brand: X  |  Mold: Y  |  ...`), truncated by eBay at 800 chars
+- Desktop / "see full description": `<ul><li>` spec bullet list + `<p>` footer paragraphs
+- Curated descriptions: mobile preview = spec pipes + prose (eBay truncates mid-sentence); full = prose paragraphs + spec bullet list + footer
+- Sanitized Google Sheet col D (74 cells, rows 2–71, 147–149, 158) — stripped embedded spec lines and footer from curated descriptions, leaving prose-only intros
+- Bulk-updated all active listings via `--update` run; one listing skipped (active offer outstanding)
+
 ### 2026-04-11 — v1.1.35 (KPI normalization — dashboard + lot modal)
 
 **Dashboard KPI row:**
