@@ -355,6 +355,52 @@ router.post('/bulk-list', (req, res, next) => {
   }
 });
 
+// POST /api/ebay/bulk-photos — replace photos on an existing listing; skips offer update entirely
+// Avoids the "item is part of a sale" error when price updates are blocked.
+router.post('/bulk-photos', (req, res, next) => {
+  upload.any()(req, res, err => {
+    if (err) return res.json({ error: `Upload error: ${err.message}` });
+    next();
+  });
+}, async (req, res) => {
+  let disc;
+  try {
+    disc = typeof req.body.disc === 'string' ? JSON.parse(req.body.disc) : req.body.disc;
+  } catch {
+    return res.status(400).json({ error: 'Invalid disc JSON' });
+  }
+
+  try {
+    const headers  = await ebayHeaders();
+    const sku      = `DWG-${String(disc.id).padStart(3, '0')}`;
+    const photos   = (req.files || []).filter(f => f.fieldname.startsWith('photos['));
+    if (photos.length === 0) return res.json({ discId: disc.id, error: 'No photos provided' });
+
+    const imageUrls = await savePhotos(photos);
+
+    const existing = await getInventoryItem(sku, headers);
+    if (!existing) return res.json({ discId: disc.id, error: `No inventory item found for ${sku}` });
+
+    const itemBody = {
+      product:      { ...existing.product, imageUrls },
+      condition:    existing.condition,
+      availability: existing.availability,
+    };
+    const itemRes = await fetch(`${EBAY_API}/sell/inventory/v1/inventory_item/${encodeURIComponent(sku)}`, {
+      method: 'PUT', headers, body: JSON.stringify(itemBody),
+    });
+    if (itemRes.status !== 200 && itemRes.status !== 204) {
+      const text = await itemRes.text();
+      throw new Error(`inventory_item PUT ${itemRes.status}: ${text}`);
+    }
+
+    res.json({ discId: disc.id, sku, photoCount: imageUrls.length });
+  } catch (e) {
+    console.error('[ebay-listings] bulk-photos error:', e);
+    res.json({ discId: disc?.id, error: e.message });
+  }
+});
+
 // POST /api/ebay/bulk-update — update title, description, price on existing listings
 // Body: JSON { disc: { id, title, description, listPrice, ... } }
 // No photos required. Does not republish — changes take effect on active listing immediately.

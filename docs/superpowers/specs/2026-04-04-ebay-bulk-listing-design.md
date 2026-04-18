@@ -16,8 +16,8 @@ scripts/bulk-list-discs.js          POST /api/ebay/bulk-list
   reads CSV                     →    save photos → public/dg-photos/
   filters by --ids range              PUT  inventory_item/{sku}       →   create item
   sends disc data + photos            POST offer                      →   create offer
-  skips rows with eBay URL set        POST offer/{id}/publish         →   go live
-  writes eBay URL + ID to CSV   ←    INSERT items + listings into DB
+  skips sold rows                     POST offer/{id}/publish         →   go live
+                                 ←    INSERT items + listings into DB
                                       return { discId, listingId, url }
 ```
 
@@ -39,7 +39,7 @@ Target API base is configurable: `--api http://localhost:3000` (dev, default) or
 
 ### Idempotency
 
-Rows with an existing value in the `eBay URL` column are skipped silently. Safe to re-run the same `--ids` range after adding prices/titles to previously skipped rows.
+Safe to re-run the same `--ids` range. DB writes are gated on `platform_listing_id` uniqueness; eBay deduplicates inventory items by SKU.
 
 ### Per-disc validation (skip with warning if any fail)
 
@@ -56,15 +56,6 @@ Rows with an existing value in the `eBay URL` column are skipped silently. Safe 
 
 Done: 9 listed, 1 skipped
 ```
-
-### CSV columns written on success
-
-Two columns added (or updated) by the script:
-
-| Column | Value |
-|---|---|
-| `eBay Listing ID` | eBay legacy item ID (numeric) |
-| `eBay URL` | Full `https://ebay.com/itm/{id}` URL |
 
 ---
 

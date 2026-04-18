@@ -20,15 +20,22 @@ const csvPath   = arg('--csv');
 const photosDir = arg('--photos');
 const idsArg    = arg('--ids');
 const apiBase   = arg('--api') || 'http://localhost:3000';
-const confirm    = process.argv.includes('--confirm');
-const updateMode = process.argv.includes('--update');
-const maxRetries = parseInt(arg('--retries') || '3', 10);
+const confirm       = process.argv.includes('--confirm');
+const updateMode    = process.argv.includes('--update');
+const photosOnlyMode = process.argv.includes('--photos-only');
+const maxRetries    = parseInt(arg('--retries') || '3', 10);
 
 if ((!sheetUrl && !csvPath) || !idsArg || (!updateMode && !photosDir)) {
   console.error('Usage: node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <ids> [--api <url>] [--confirm]');
   console.error('       node scripts/bulk-list-discs.js --sheet <url> --ids <ids> --update [--confirm]');
+  console.error('       node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <ids> --photos-only [--confirm]');
   console.error('       <ids> accepts ranges and lists: 1-20,25,30-35');
   console.error('       Omit --confirm to do a dry run (default)');
+  process.exit(1);
+}
+
+if (photosOnlyMode && updateMode) {
+  console.error('--photos-only and --update are mutually exclusive');
   process.exit(1);
 }
 
@@ -83,7 +90,6 @@ async function main() {
     const paddedId = String(id).padStart(3, '0');
     const title    = (row['List Title'] || '').trim();
     const price    = parseFloat((row['List Price'] || '').replace(/[$,]/g, ''));
-    const ebayUrl  = (row['eBay URL'] || '').trim();
 
     const warnings = [];
     if (!row['List Price'] || isNaN(price) || price <= 0) warnings.push('no List Price');
@@ -92,10 +98,15 @@ async function main() {
     if ((row['Sold'] || '').toUpperCase() === 'TRUE') return { id, paddedId, row, title, skip: 'sold' };
 
     if (updateMode) {
-      return { id, paddedId, row, title, price,  warnings: warnings.length ? warnings : null };
+      return { id, paddedId, row, title, price, warnings: warnings.length ? warnings : null };
     }
 
-    if (ebayUrl) return { id, paddedId, row, title, skip: 'already listed' };
+    if (photosOnlyMode) {
+      const photoPattern = new RegExp(`^DWG-${id}-.*\\.jpe?g$`, 'i');
+      const photoFiles   = fs.readdirSync(photosDir).filter(f => photoPattern.test(f));
+      if (photoFiles.length === 0) return { id, paddedId, row, title, skip: 'no photos' };
+      return { id, paddedId, row, title, photoFiles };
+    }
 
     const photoPattern = new RegExp(`^DWG-${id}-.*\\.jpe?g$`, 'i');
     const photoFiles   = fs.readdirSync(photosDir).filter(f => photoPattern.test(f));
@@ -109,7 +120,7 @@ async function main() {
   // ── Dry run ───────────────────────────────────────────────────────────────
 
   if (!confirm) {
-    const action = updateMode ? 'updated' : 'listed';
+    const action = updateMode ? 'updated' : photosOnlyMode ? 'photos updated' : 'listed';
     console.log(`\nDRY RUN — no listings will be ${action} (target: ${apiBase})\n`);
     let wouldAct = 0, wouldSkip = 0;
     plan.forEach((p, i) => {
@@ -123,6 +134,9 @@ async function main() {
         wouldSkip++;
       } else if (updateMode) {
         console.log(`${label}  ${t}  would update @ $${p.price}`);
+        wouldAct++;
+      } else if (photosOnlyMode) {
+        console.log(`${label}  ${t}  would update photos  (${p.photoFiles.length} photo${p.photoFiles.length !== 1 ? 's' : ''})`);
         wouldAct++;
       } else {
         console.log(`${label}  ${t}  would list @ $${p.price}  (${p.photoFiles.length} photo${p.photoFiles.length !== 1 ? 's' : ''})`);
@@ -183,6 +197,24 @@ async function main() {
           }
           console.log(`${label}  ${t}  updated`);
           listed++;
+        } else if (photosOnlyMode) {
+          const formData = new FormData();
+          formData.set('disc', JSON.stringify(disc));
+          for (const filename of p.photoFiles) {
+            const buf  = fs.readFileSync(path.join(photosDir, filename));
+            const blob = new Blob([buf], { type: 'image/jpeg' });
+            formData.set(`photos[${filename.replace(/\.jpe?g$/i, '')}]`, blob, filename);
+          }
+          response = await fetch(`${apiBase}/api/ebay/bulk-photos`, { method: 'POST', body: formData });
+          result = await response.json();
+          if (result.error) {
+            console.log(`${label}  ${t}  ERROR — ${result.error}`);
+            errorIds.push(p.id);
+            skipped++;
+            continue;
+          }
+          console.log(`${label}  ${t}  photos updated  (${result.photoCount})`);
+          listed++;
         } else {
           const formData = new FormData();
           formData.set('disc', JSON.stringify(disc));
@@ -211,7 +243,7 @@ async function main() {
     return { listed, skipped, errorIds };
   }
 
-  const action = updateMode ? 'updated' : 'listed';
+  const action = updateMode ? 'updated' : photosOnlyMode ? 'photos updated' : 'listed';
   let totalListed = 0, totalSkipped = 0;
   let { listed, skipped, errorIds } = await runBatch(plan, '');
   totalListed  += listed;
