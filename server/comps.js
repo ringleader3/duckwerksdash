@@ -3,8 +3,7 @@ const router     = express.Router();
 const Anthropic  = require('@anthropic-ai/sdk');
 const fs         = require('fs');
 const path       = require('path');
-const puppeteerExtra = require('puppeteer-extra');
-puppeteerExtra.use(require('puppeteer-extra-plugin-stealth')());
+const { spawn }  = require('child_process');
 const CHROME_PATH = process.env.CHROME_PATH;
 const SERPAPI     = 'https://serpapi.com/search.json';
 const anthropic   = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -125,50 +124,29 @@ async function searchItem(item) {
   return { name: item.name, hints: item, listings };
 }
 
-async function searchReverb(name, minPrice) {
-  const url = `https://reverb.com/marketplace?query=${encodeURIComponent(name)}&show_only_sold=true&sort=published_at|desc`;
+function searchReverb(name, minPrice) {
+  return new Promise((resolve, reject) => {
+    const script = path.join(__dirname, '../scripts/reverb-scrape.js');
+    const child  = spawn(process.execPath, [script, name, String(minPrice || 0), CHROME_PATH], {
+      timeout: 45000,
+    });
 
-  const browser = await puppeteerExtra.launch({
-    executablePath: CHROME_PATH,
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', d => { stdout += d; });
+    child.stderr.on('data', d => { stderr += d; });
+
+    child.on('close', code => {
+      if (code !== 0) return reject(new Error(stderr || `reverb-scrape exited ${code}`));
+      try {
+        resolve(JSON.parse(stdout));
+      } catch (e) {
+        reject(new Error(`reverb-scrape JSON parse failed: ${e.message}`));
+      }
+    });
+
+    child.on('error', reject);
   });
-  try {
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2' });
-    const pageTitle = await page.title();
-    await page.waitForSelector('ul.rc-listing-grid', { timeout: 10000 }).catch(e => {
-      throw new Error(`selector not found (page title: "${pageTitle}") — ${e.message}`);
-    });
-
-    const listings = await page.evaluate(() => {
-      return [...document.querySelectorAll('li.rc-listing-grid__item')].map(el => {
-        const title     = el.querySelector('h2.rc-listing-card__title')?.textContent?.trim() || '';
-        const condition = el.querySelector('div.rc-listing-card__condition')?.textContent?.trim() || '';
-        const priceRaw  = el.querySelector('div.rc-price-block__price')?.textContent?.trim() || '';
-        const shipRaw   = el.querySelector('div.rc-price-block__shipping')?.textContent?.trim() || '';
-        const price     = parseFloat(priceRaw.replace(/[^\d.]/g, '')) || 0;
-        const shipping  = parseFloat(shipRaw.replace(/[^\d.]/g, '')) || 0;
-        return {
-          query: '',  // filled below
-          title, condition,
-          sold_price:      price,
-          shipping,
-          total_landed:    +(price + shipping).toFixed(2),
-          sale_type:       'BIN',
-          end_date:        '',
-          listing_status:  'sold',
-          source:          'Reverb',
-        };
-      });
-    });
-
-    return listings
-      .map(l => ({ ...l, query: name }))
-      .filter(l => !minPrice || l.sold_price >= minPrice);
-  } finally {
-    await browser.close();
-  }
 }
 
 // POST /api/comps/analyze
