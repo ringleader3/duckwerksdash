@@ -128,7 +128,11 @@ async function searchItem(item) {
 async function searchReverb(name, minPrice) {
   const url = `https://reverb.com/marketplace?query=${encodeURIComponent(name)}&show_only_sold=true&sort=published_at|desc`;
 
-  const browser = await puppeteerExtra.launch({ executablePath: CHROME_PATH, headless: true });
+  const browser = await puppeteerExtra.launch({
+    executablePath: CHROME_PATH,
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
   try {
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle2' });
