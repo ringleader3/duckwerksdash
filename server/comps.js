@@ -129,6 +129,7 @@ function searchReverb(name, minPrice) {
     const script = path.join(__dirname, '../scripts/reverb-scrape.js');
     const child  = spawn(process.execPath, [script, name, String(minPrice || 0), CHROME_PATH], {
       timeout: 45000,
+      detached: true,
     });
 
     let stdout = '';
