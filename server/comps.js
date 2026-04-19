@@ -131,7 +131,7 @@ async function searchReverb(name, minPrice) {
   const browser = await puppeteerExtra.launch({
     executablePath: CHROME_PATH,
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
   });
   try {
     const page = await browser.newPage();
