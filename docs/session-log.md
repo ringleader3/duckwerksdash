@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-19 — v1.1.38 (Puppeteer crash fix on Fedora after OS upgrade)
+
+**Comp scraper 502 on production (dash.duckwerks.com):**
+- Root cause: Fedora OS upgrade changed Chromium's behavior — headless Chromium now requires `--no-sandbox`, `--disable-setuid-sandbox`, `--disable-dev-shm-usage`, `--disable-gpu` flags or it crashes the Node process hard (SIGSEGV-level crash that bypasses JS try/catch)
+- `/dev/shm` exhaustion was the main killer — Chromium uses shared memory by default; `--disable-dev-shm-usage` redirects to `/tmp`
+- Debugged via cloudflared journal logs (confirmed EOF = Node died mid-request) and PM2 logs (multiple restarts + Puppeteer "Navigating frame was detached" errors)
+- CHROME_PATH was a red herring — original value `/usr/lib64/chromium-browser/chromium-browser` was already correct
+
 ### 2026-04-13 — v1.1.36 (eBay description formatting — mobile + desktop)
 
 **eBay listing description overhaul (`server/ebay-listings.js`):**

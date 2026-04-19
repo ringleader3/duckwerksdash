@@ -202,7 +202,6 @@ ${JSON.stringify(item.listings, null, 2)}`;
 
     res.json({ name: item.name, analysis, csv });
   } catch (e) {
-    console.error('[comps/analyze] Claude API error:', e.message, e.status, e.error);
     res.status(502).json({ error: 'Claude API error', detail: e.message });
   }
 });
