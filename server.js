@@ -3,6 +3,15 @@ const express = require('express');
 const path    = require('path');
 const app     = express();
 
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION:', err.stack || err);
+  process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('UNHANDLED REJECTION:', reason?.stack || reason);
+  process.exit(1);
+});
+
 app.use(express.json());
 const noCache = { setHeaders: (res) => res.set('Cache-Control', 'no-store') };
 app.use(express.static(path.join(__dirname, 'public/v2'), noCache));
