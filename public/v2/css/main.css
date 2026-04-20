@@ -2,36 +2,53 @@
 
 [x-cloak] { display: none !important; }
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Azeret+Mono:wght@400;500;700;800;900&display=swap');
 
 :root {
-  /* Color palette — same as v1 */
-  --green:   #4caf82;
-  --yellow:  #f0c040;
-  --red:     #e05c5c;
-  --blue:    #5b9cf6;
-  --purple:  #a87cf3;
-  --orange:  #f0954a;
-  --muted:   #999;
-  --white:   #f0f0f0;
-
   /* Surfaces */
-  --bg:       #0f0f0f;
-  --surface:  #1a1a1a;
-  --surface2: #222;
-  --border:   #2a2a2a;
-  --border2:  #333;
+  --bg:      #070707;
+  --panel:   #0d0d0d;
+  --panel-2: #121212;
+  --line:    #1b1b1b;
+  --line-2:  #262626;
 
-  /* Platform colors */
-  --ebay:   #e43137;
-  --reverb: #5b9cf6;
+  /* Text tiers */
+  --ink:   #f2f2f2;
+  --ink-2: #d4d4d4;
+  --ink-3: #a0a0a0;
+  --ink-4: #6a6a6a;
 
-  /* Sidebar */
-  --sidebar-w: 220px;
+  /* Semantic */
+  --pos:        #5ed39a;
+  --neg:        #ff6b6b;
+  --warn:       #ffcf5c;
+  --accent:     #ffcf5c;
+  --accent-ink: #0a0a0a;
+
+  /* Platform */
+  --ebay:   #e53238;
+  --reverb: #f57a32;
 
   /* Typography */
-  --font-body: 'Space Mono', monospace;
-  --font-big:  'Bebas Neue', sans-serif;
+  --mono:    'IBM Plex Mono', ui-monospace, monospace;
+  --sans:    'Space Grotesk', system-ui, sans-serif;
+  --display: 'Azeret Mono', ui-monospace, monospace;
+
+  /* Legacy aliases — keep while HTML still uses old names */
+  --surface:   var(--panel);
+  --surface2:  var(--panel-2);
+  --border:    var(--line);
+  --border2:   var(--line-2);
+  --green:     var(--pos);
+  --red:       var(--neg);
+  --yellow:    var(--warn);
+  --muted:     var(--ink-3);
+  --white:     var(--ink);
+  --blue:      #7bb4ff;
+  --purple:    #a87cf3;
+  --orange:    #f0954a;
+  --font-body: var(--mono);
+  --font-big:  var(--display);
 }
 
 /* ── Reset ───────────────────────────────────────────────────────────────── */
@@ -40,11 +57,12 @@
 
 body {
   background: var(--bg);
-  color: #e0e0e0;
-  font-family: var(--font-body);
-  font-size: 15px;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
   line-height: 1.5;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 a { color: var(--blue); text-decoration: none; }
