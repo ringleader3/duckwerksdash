@@ -166,8 +166,8 @@
             </div>
           </div>
 
-          <!-- Income waterfall — 8 cols -->
-          <div class="dw-cell" style="grid-column:span 8">
+          <!-- Income waterfall — 7 cols -->
+          <div class="dw-cell" style="grid-column:span 7">
             <div class="cell-head">
               <span class="cell-title">Income</span>
               <span class="cell-meta">gross → cost → ship → net · goal $3k/mo</span>
@@ -204,8 +204,8 @@
             </div>
           </div>
 
-          <!-- In Transit — 4 cols -->
-          <div class="dw-cell" style="grid-column:span 4">
+          <!-- In Transit — 5 cols, spans 2 rows -->
+          <div class="dw-cell" style="grid-column:span 5;grid-row:span 2;overflow-y:auto;max-height:480px">
             <div class="cell-head">
               <span class="cell-title">In Transit</span>
               <span class="cell-meta" x-text="inTransitRows.length + ' pkg'"></span>
@@ -227,8 +227,31 @@
             </template>
           </div>
 
-          <!-- Recently Sold — 7 cols -->
+          <!-- Lot Recovery — 7 cols (below income, In Transit rowspans beside it) -->
           <div class="dw-cell" style="grid-column:span 7">
+            <div class="cell-head">
+              <span class="cell-title">Lot Recovery</span>
+              <span class="cell-meta" x-text="lotRows.length + ' active'"></span>
+            </div>
+            <div class="cell-body-flush">
+              <template x-for="lot in lotRows" :key="lot.name">
+                <div class="lot-mini">
+                  <div>
+                    <div class="nm" x-text="lot.name"></div>
+                    <div class="sub" x-text="'$' + lot.cost.toLocaleString('en-US',{maximumFractionDigits:0})"></div>
+                  </div>
+                  <div class="lbar" :class="{ warn: lot.pct >= 50 && lot.pct < 100, neg: lot.pct < 50 }">
+                    <span :style="'width:' + Math.min(lot.pct, 100) + '%'"></span>
+                  </div>
+                  <div class="lpct" :class="{ warn: lot.pct >= 50 && lot.pct < 100, neg: lot.pct < 50 }"
+                    x-text="lot.pct + '%'"></div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Recently Sold — 6 cols -->
+          <div class="dw-cell" style="grid-column:span 6">
             <div class="cell-head">
               <span class="cell-title">Recently Sold</span>
               <span class="cell-meta" x-text="recentlySold.length + ' items'"></span>
@@ -246,7 +269,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <template x-for="r in recentlySold.slice(0,8)" :key="r.id">
+                  <template x-for="r in recentlySold" :key="r.id">
                     <tr>
                       <td class="date" x-text="soldDate(r)"></td>
                       <td class="nm" x-text="r.name"></td>
@@ -262,31 +285,8 @@
             </div>
           </div>
 
-          <!-- Lot Recovery — 5 cols -->
-          <div class="dw-cell" style="grid-column:span 5">
-            <div class="cell-head">
-              <span class="cell-title">Lot Recovery</span>
-              <span class="cell-meta" x-text="lotRows.length + ' active'"></span>
-            </div>
-            <div class="cell-body-flush">
-              <template x-for="lot in lotRows.slice(0,6)" :key="lot.name">
-                <div class="lot-mini">
-                  <div>
-                    <div class="nm" x-text="lot.name"></div>
-                    <div class="sub" x-text="'$' + lot.cost.toLocaleString('en-US',{maximumFractionDigits:0})"></div>
-                  </div>
-                  <div class="lbar" :class="{ warn: lot.pct >= 50 && lot.pct < 100, neg: lot.pct < 50 }">
-                    <span :style="'width:' + Math.min(lot.pct, 100) + '%'"></span>
-                  </div>
-                  <div class="lpct" :class="{ warn: lot.pct >= 50 && lot.pct < 100, neg: lot.pct < 50 }"
-                    x-text="lot.pct + '%'"></div>
-                </div>
-              </template>
-            </div>
-          </div>
-
-          <!-- Recently Listed — full width -->
-          <div class="dw-cell" style="grid-column:span 12">
+          <!-- Recently Listed — 6 cols -->
+          <div class="dw-cell" style="grid-column:span 6">
             <div class="cell-head">
               <span class="cell-title">Recently Listed</span>
               <span class="cell-meta" x-text="recentlyListed.length + ' items · $' + $store.dw.fmtK(pipeline) + ' pipeline'"></span>
@@ -299,9 +299,7 @@
                     <th>Item</th>
                     <th style="width:28px"></th>
                     <th style="width:58px">Site</th>
-                    <th style="width:80px">Status</th>
                     <th class="r" style="width:80px">List</th>
-                    <th class="r" style="width:100px">Est. Payout</th>
                     <th class="r" style="width:100px">Est. Profit</th>
                     <th class="r" style="width:54px">Days</th>
                   </tr>
@@ -313,9 +311,7 @@
                       <td class="nm" x-text="r.name"></td>
                       <td><span class="ctag" :class="ctag(r)" x-text="ctagLetter(r)"></span></td>
                       <td><span class="pmark" :class="platformMark(r)" x-text="platformLabel(r)"></span></td>
-                      <td><span class="smark listed">Listed</span></td>
                       <td class="num r" x-text="$store.dw.activeListing(r)?.list_price ? '$' + $store.dw.activeListing(r).list_price.toLocaleString('en-US',{maximumFractionDigits:0}) : '—'"></td>
-                      <td class="num r est" x-text="$store.dw.payout(r) > 0 ? $store.dw.payout(r).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}) : '—'"></td>
                       <td class="num r est" x-text="$store.dw.estProfit(r) !== 0 ? (($store.dw.estProfit(r)>0?'+':'')+$store.dw.estProfit(r).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0})) : '—'"></td>
                       <td class="num r" style="color:var(--ink-4)"
                         x-text="Math.floor((Date.now()-new Date(r.created_at))/(86400000)) + 'd'"></td>
