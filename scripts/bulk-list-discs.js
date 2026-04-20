@@ -178,6 +178,11 @@ async function main() {
           run:          p.row['Run / Edition']  || '',
           weight:       p.row['Weight (g)']     || '',
           notes:        p.row['Notes']          || '',
+          speed:        p.row['speed']          || '',
+          glide:        p.row['glide']          || '',
+          turn:         p.row['turn']           || '',
+          fade:         p.row['fade']           || '',
+          stability:    p.row['stability']      || '',
         };
 
         let response, result;
