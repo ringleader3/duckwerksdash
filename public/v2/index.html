@@ -10,78 +10,69 @@
 </head>
 <body>
 
+<!-- ── Tape ────────────────────────────────────────────────────────────────── -->
+<div class="tape" x-data>
+  <div class="tape-brand"><div class="mark">DW</div></div>
+  <div class="tape-live">
+    <div class="tape-item">cost
+      <b class="dn" x-text="'$' + Alpine.store('dw').records.reduce((s,r)=>s+(r.cost||0),0).toLocaleString('en-US',{maximumFractionDigits:0})"></b>
+    </div>
+    <div class="tape-item">recov
+      <b class="up" x-text="'$' + Alpine.store('dw').soldRecords.reduce((s,r)=>s+(r.order?.sale_price||0),0).toLocaleString('en-US',{maximumFractionDigits:0})"></b>
+    </div>
+    <div class="tape-item">profit
+      <b class="up" x-text="(()=>{const p=Alpine.store('dw').soldRecords.reduce((s,r)=>s+(r.order?.profit||0),0);return(p>=0?'+':'')+' $'+Math.abs(p).toLocaleString('en-US',{maximumFractionDigits:0})})()"></b>
+    </div>
+    <div class="tape-item">inv
+      <b x-text="Alpine.store('dw').records.length"></b>
+    </div>
+    <div class="tape-item">listed
+      <b x-text="Alpine.store('dw').listedRecords.length"></b>
+    </div>
+    <div class="tape-item">sold
+      <b x-text="Alpine.store('dw').soldRecords.length"></b>
+    </div>
+  </div>
+  <div class="tape-sys">
+    <span class="tape-pulse"></span>
+    <span x-data x-text="$store.dw.environment || 'local'"></span>
+    <span>·</span>
+    <span x-text="new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})"></span>
+  </div>
+</div>
+
 <div id="app" x-data>
 
-  <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+  <!-- ── Rail Nav ───────────────────────────────────────────────────────────── -->
   <aside id="sidebar" x-data="sidebar">
-
-    <div class="sidebar-logo">
-      <img src="duckwerksheader.jpeg" alt="The DuckWerks" class="sidebar-logo-img">
-      <div class="sidebar-logo-name">Duckwerks Dashboard</div>
-    </div>
-
-    <!-- Add Item -->
-    <button class="btn btn-add" @click="$store.dw.openModal('add')">+ ADD ITEM</button>
-
-    <!-- Quick Find -->
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Quick Find</div>
-      <div class="sidebar-search">
-        <input
-          type="text"
-          placeholder="/ to search..."
-          x-model="query"
-          @input="search()"
-          @keydown.escape="clear()"
-          @keydown="navigate($event)"
-          x-ref="searchInput"
-        >
-        <div class="search-results" x-show="results.length > 0" x-ref="searchResults">
-          <template x-for="(r, i) in results" :key="r.key">
-            <div
-              class="search-result-row"
-              :class="{ dimmed: r.dimmed, 'search-result-active': i === selectedIndex }"
-              @click="pick(r)"
-            >
-              <span x-text="r.typeIcon"></span>
-              <span x-text="r.label"></span>
-              <span x-show="r.badge" class="badge" :class="r.badgeClass" x-text="r.badge"></span>
-            </div>
-          </template>
-        </div>
-      </div>
-    </div>
-
-    <!-- Nav -->
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Nav</div>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'dashboard' }" @click="$store.dw.activeView = 'dashboard'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'dashboard' ? '◉' : '○'"></span> Dashboard</button>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'items' }"     @click="$store.dw.activeView = 'items'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'items' ? '◉' : '○'"></span> Inventory</button>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'lots' }"      @click="$store.dw.activeView = 'lots'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'lots' ? '◉' : '○'"></span> Lots</button>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'analytics' }" @click="$store.dw.activeView = 'analytics'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'analytics' ? '◉' : '○'"></span> Analytics</button>
-      <button class="nav-pill" :class="{ active: $store.dw.activeView === 'comps' }"     @click="$store.dw.activeView = 'comps'; $store.dw.categoryFilter = null"><span x-text="$store.dw.activeView === 'comps' ? '◉' : '○'"></span> Comps</button>
-    </div>
-
-    <!-- Actions -->
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Actions</div>
-      <a class="sidebar-action" @click="$store.dw.openModal('reverb')">Sync Reverb</a>
-      <a class="sidebar-action" @click="$store.dw.openModal('ebay')">Sync eBay</a>
-      <a class="sidebar-action" @click="$store.dw.openModal('shipping')">Shipping</a>
-    </div>
-
-    <div class="sidebar-spacer"></div>
-    <div class="sidebar-version" x-data x-text="'Duckwerks Dashboard v' + APP_VERSION"></div>
-    <div style="font-size:10px; letter-spacing:1px; text-align:center; padding-bottom:2px" x-data
-         :style="$store.dw.environment === 'Production' ? 'color:var(--green)' : 'color:var(--yellow)'"
-         x-text="$store.dw.environment"></div>
-    <div style="font-size:10px; color:#444; letter-spacing:1px; text-align:center; padding-bottom:4px" x-data x-text="$store.dw.hostname"></div>
-    <div style="text-align:center; padding-bottom:8px" x-data>
-      <a @click="$store.dw.activeView = 'catalog'"
-         :style="$store.dw.activeView === 'catalog' ? 'color:var(--blue)' : 'color:#444'"
-         style="font-size:10px; letter-spacing:1px; cursor:pointer; text-decoration:none">catalogue</a>
-    </div>
-
+    <button class="rail-link" :class="{ active: $store.dw.activeView === 'dashboard' }"
+      @click="$store.dw.activeView = 'dashboard'; $store.dw.categoryFilter = null">
+      <span class="gl">◉</span>Home
+    </button>
+    <button class="rail-link" :class="{ active: $store.dw.activeView === 'items' }"
+      @click="$store.dw.activeView = 'items'; $store.dw.categoryFilter = null">
+      <span class="gl">▤</span>Inv
+    </button>
+    <button class="rail-link" :class="{ active: $store.dw.activeView === 'lots' }"
+      @click="$store.dw.activeView = 'lots'; $store.dw.categoryFilter = null">
+      <span class="gl">▦</span>Lots
+    </button>
+    <button class="rail-link" :class="{ active: $store.dw.activeView === 'analytics' }"
+      @click="$store.dw.activeView = 'analytics'; $store.dw.categoryFilter = null">
+      <span class="gl">⎐</span>Anlx
+    </button>
+    <button class="rail-link" :class="{ active: $store.dw.activeView === 'comps' }"
+      @click="$store.dw.activeView = 'comps'; $store.dw.categoryFilter = null">
+      <span class="gl">⌕</span>Comp
+    </button>
+    <button class="rail-link" :class="{ active: $store.dw.activeView === 'catalog' }"
+      @click="$store.dw.activeView = 'catalog'; $store.dw.categoryFilter = null">
+      <span class="gl">⚌</span>Cat
+    </button>
+    <div class="rail-spacer"></div>
+    <div class="rail-env" x-data
+      :style="$store.dw.environment === 'Production' ? 'color:var(--pos)' : 'color:var(--warn)'"
+      x-text="$store.dw.environment === 'Production' ? '● PROD' : '● DEV'"></div>
   </aside>
 
   <!-- ── Main Content ──────────────────────────────────────────────────────── -->
