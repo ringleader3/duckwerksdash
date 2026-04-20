@@ -28,8 +28,13 @@ document.addEventListener('alpine:init', () => {
       const saved = dwSortable.load('items', 'createdTime', 'desc');
       this.sortKey = saved.col;
       this.sortDir = saved.dir;
-      this.$watch('statusFilter',              () => this._pushFilteredKpis());
-      this.$watch('siteFilter',                () => this._pushFilteredKpis());
+      try {
+        const f = JSON.parse(localStorage.getItem('dw_filter_items') || '{}');
+        if (f.status) this.statusFilter = f.status;
+        if (f.site)   this.siteFilter   = f.site;
+      } catch {}
+      this.$watch('statusFilter',              () => { this._saveFilters(); this._pushFilteredKpis(); });
+      this.$watch('siteFilter',                () => { this._saveFilters(); this._pushFilteredKpis(); });
       this.$watch('$store.dw.categoryFilter',  () => this._pushFilteredKpis());
       this.$watch('$store.dw.activeView',      v  => { if (v !== 'items') Alpine.store('dw').clearFilteredKpis(); });
       this._pushFilteredKpis();
@@ -171,6 +176,10 @@ document.addEventListener('alpine:init', () => {
       a.download = `dw-inventory-${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
+    },
+
+    _saveFilters() {
+      try { localStorage.setItem('dw_filter_items', JSON.stringify({ status: this.statusFilter, site: this.siteFilter })); } catch {}
     },
 
     _pushFilteredKpis() {
