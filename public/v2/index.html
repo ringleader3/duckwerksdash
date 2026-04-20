@@ -733,23 +733,23 @@
                     <tr>
                       <th style="text-align:left">Title</th>
                       <th>Cond</th>
-                      <th class="num-col">Sold</th>
+                      <th class="num-col sortable" :class="{'sort-active': sortKey==='sold_price'}" @click="sortBy('sold_price')">Sold<span x-text="sortGlyph('sold_price')"></span></th>
                       <th class="num-col">Ship</th>
                       <th class="num-col">Landed</th>
-                      <th>Type</th>
+                      <th x-show="showTypeCol">Type</th>
                       <th>Status</th>
                       <th style="text-align:left">Notes</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <template x-for="(row, ri) in csvRows(result.csv)" :key="ri">
+                    <template x-for="(row, ri) in sortedComps(csvRows(result.csv))" :key="ri">
                       <tr>
                         <td x-text="row.title" style="max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis"></td>
                         <td x-text="row.condition" style="color:var(--muted)"></td>
                         <td class="num-col" x-text="row.sold_price ? '$' + parseFloat(row.sold_price).toFixed(2) : 'n/a'" style="color:var(--green)"></td>
                         <td class="num-col" x-text="parseFloat(row.shipping) > 0 ? '$' + parseFloat(row.shipping).toFixed(2) : 'Free'" style="color:var(--muted)"></td>
                         <td class="num-col" x-text="row.total_landed ? '$' + parseFloat(row.total_landed).toFixed(2) : 'n/a'" style="color:var(--white); font-weight:bold"></td>
-                        <td x-text="row.sale_type" style="color:var(--muted)"></td>
+                        <td x-show="showTypeCol" x-text="row.sale_type" style="color:var(--muted)"></td>
                         <td x-text="row.listing_status" :style="row.listing_status === 'sold' ? 'color:var(--green)' : 'color:var(--yellow)'"></td>
                         <td x-text="row.notes" style="color:var(--muted); max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis"></td>
                       </tr>
