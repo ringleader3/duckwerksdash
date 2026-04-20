@@ -205,26 +205,28 @@
           </div>
 
           <!-- In Transit — 5 cols, spans 2 rows -->
-          <div class="dw-cell" style="grid-column:span 5;grid-row:span 2;overflow-y:auto;max-height:480px">
+          <div class="dw-cell" style="grid-column:span 5;grid-row:span 2">
             <div class="cell-head">
               <span class="cell-title">In Transit</span>
               <span class="cell-meta" x-text="inTransitRows.length + ' pkg'"></span>
             </div>
-            <div x-show="trackingLoading" style="padding:12px 14px;color:var(--ink-4);font:500 11px/1 var(--mono)">Loading…</div>
-            <div x-show="!trackingLoading && inTransitRows.length === 0" style="padding:12px 14px;color:var(--ink-4);font:500 11px/1 var(--mono)">No packages in transit</div>
-            <template x-for="r in inTransitRows" :key="r.id">
-              <div class="ship-row">
-                <div>
-                  <div class="ship-nm" x-text="r.name"></div>
-                  <div class="ship-sub" x-text="soldDate(r) + ' · ' + (r.order?.buyer_city || '—')"></div>
+            <div style="flex:1;overflow-y:auto">
+              <div x-show="trackingLoading" style="padding:12px 14px;color:var(--ink-4);font:500 11px/1 var(--mono)">Loading…</div>
+              <div x-show="!trackingLoading && inTransitRows.length === 0" style="padding:12px 14px;color:var(--ink-4);font:500 11px/1 var(--mono)">No packages in transit</div>
+              <template x-for="r in inTransitRows" :key="r.id">
+                <div class="ship-row">
+                  <div>
+                    <div class="ship-nm" x-text="r.name"></div>
+                    <div class="ship-sub" x-text="soldDate(r) + ' · ' + (r.order?.buyer_city || '—')"></div>
+                  </div>
+                  <div class="ship-r">
+                    <div class="ship-st" :class="{ deliv: trackStatus(r) === 'out_for_delivery' || trackStatus(r) === 'delivered' }"
+                      x-text="'◉ ' + trackStatusLabel(trackStatus(r))"></div>
+                    <div class="ship-ar" x-text="trackCarrier(r) + ' · ' + trackEstDelivery(r)"></div>
+                  </div>
                 </div>
-                <div class="ship-r">
-                  <div class="ship-st" :class="{ deliv: trackStatus(r) === 'out_for_delivery' || trackStatus(r) === 'delivered' }"
-                    x-text="'◉ ' + trackStatusLabel(trackStatus(r))"></div>
-                  <div class="ship-ar" x-text="trackCarrier(r) + ' · ' + trackEstDelivery(r)"></div>
-                </div>
-              </div>
-            </template>
+              </template>
+            </div>
           </div>
 
           <!-- Lot Recovery — 7 cols (below income, In Transit rowspans beside it) -->
