@@ -4,7 +4,7 @@
 ssh geoff@fedora.local "
   cd /home/geoff/projects/duckwerksdash &&
   git pull &&
-  pm2 restart duckwerk &&
+  pm2 restart duckwerks &&
   sudo systemctl restart cloudflared &&
   echo 'Done.'
 "
