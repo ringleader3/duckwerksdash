@@ -1,6 +1,15 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-19 — v1.1.43 (CSS size token system)
+
+- Completed #100: added `--text-xs/sm/base/lg` size tokens to `:root`
+- Replaced all hardcoded 10px/12px/15px font sizes in main.css + components.css with tokens
+- Bumped scale for 3440x1440 readability: xs→11, sm→13, base→17, lg→19
+- Content text (table rows, ship-nm, lot-mini nm, rail icons) now scales off `--text-base`
+- Chrome/UI (tape, cell-head, badges, labels) uses `--text-xs/sm`
+- Next: other views (Inventory, Lots, Analytics, Comps) IA + design revs, targeting v2.0
+
 ### 2026-04-19 — v1.1.42 (font size bump + misc polish)
 
 - Bumped body to 15px, bumped hardcoded 13px → 15px on table.tb, ship-nm, lot-mini nm
