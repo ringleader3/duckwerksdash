@@ -283,12 +283,14 @@ document.addEventListener('alpine:init', () => {
         const idx = this.records.findIndex(r => r.id === id);
         if (idx !== -1) this.records[idx] = updated;
       }
+      this.notify('Saved', 'success');
     },
 
     async deleteItem(id) {
       const res = await fetch(`/api/items/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
       this.records = this.records.filter(r => r.id !== id);
+      this.notify('Deleted', 'success');
     },
 
     async createItem(fields) {
@@ -300,6 +302,7 @@ document.addEventListener('alpine:init', () => {
       if (!res.ok) throw new Error(`Create failed: ${res.status}`);
       const created = await res.json();
       this.records.push(created);
+      this.notify('Item added', 'success');
       return created;
     },
 
