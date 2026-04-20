@@ -390,11 +390,13 @@
 
         <!-- Controls -->
         <div class="controls-row">
+          <span class="filter-group-label">Status:</span>
           <div class="pill-row">
             <template x-for="s in ['All','Listed','Sold','Prepping']" :key="s">
               <button class="pill" :class="{ active: statusFilter === s }" @click="statusFilter = s; $store.dw.categoryFilter = null" x-text="s"></button>
             </template>
           </div>
+          <span class="filter-group-label">Sites:</span>
           <div class="pill-row">
             <button class="pill" :class="{ active: siteFilter === 'All' }" @click="siteFilter = 'All'; $store.dw.categoryFilter = null">All</button>
             <template x-for="s in $store.dw.sites" :key="s.id">
@@ -531,7 +533,8 @@
 
         <!-- Listed Tab -->
         <div x-show="activeTab === 'listed'">
-          <div style="display:flex; gap:6px; margin-bottom:12px">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:12px">
+            <span class="filter-group-label">Sites:</span>
             <template x-for="site in ['eBay', 'Reverb']" :key="site">
               <button class="btn" :class="listedSiteFilter.includes(site) ? 'btn-active' : 'btn-muted'"
                       @click="toggleListedSite(site)" x-text="site"></button>
@@ -579,7 +582,8 @@
 
         <!-- Sold Tab -->
         <div x-show="activeTab === 'sold'">
-          <div style="display:flex; gap:6px; margin-bottom:12px">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:12px">
+            <span class="filter-group-label">Sites:</span>
             <template x-for="site in ['eBay', 'Reverb']" :key="site">
               <button class="btn" :class="soldSiteFilter.includes(site) ? 'btn-active' : 'btn-muted'"
                       @click="toggleSoldSite(site)" x-text="site"></button>
