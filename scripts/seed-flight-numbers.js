@@ -31,16 +31,17 @@ const run = db.transaction(() => {
   let inserted = 0;
   for (const r of records) {
     if (!r.manufacturer || !r.name) continue;
+    const pf = v => { const n = parseFloat(v); return isNaN(n) ? null : n; };
     upsert.run(
       normalize(r.manufacturer),
       normalize(r.name),
       r.manufacturer,
       r.name,
-      parseFloat(r.speed)     || null,
-      parseFloat(r.glide)     || null,
-      parseFloat(r.turn)      || null,
-      parseFloat(r.fade)      || null,
-      parseFloat(r.stability) || null,
+      pf(r.speed),
+      pf(r.glide),
+      pf(r.turn),
+      pf(r.fade),
+      pf(r.stability),
     );
     inserted++;
   }
