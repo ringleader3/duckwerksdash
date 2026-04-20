@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-19 — v1.1.41 (dashboard layout polish)
+
+**Post-refresh layout fixes:**
+- Dashboard grid rearranged: Lot Recovery stacked under Income, In Transit absolutely-positioned beside both (fills height, scrolls within)
+- Sold + Listed panels 50/50 side-by-side, uncapped rows
+- deploy-nuc.sh: pm2 process name fixed duckwerk → duckwerks
+- Breathing room: 20px side padding on #main, hero-band bleeds full width, 20px margin-bottom below hero-band on all views
+
 ### 2026-04-19 — v1.1.40 (B design system refresh — complete, Tasks 4–6)
 
 **Plan:** `docs/superpowers/plans/2026-04-19-design-system-refresh.md`
