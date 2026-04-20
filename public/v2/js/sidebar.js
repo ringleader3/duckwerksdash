@@ -50,7 +50,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     _scrollActiveIntoView() {
-      const el = this.$refs.searchResults?.querySelector('.search-result-active');
+      const el = this.$refs.searchResults?.querySelector('.search-result.active');
       if (el) el.scrollIntoView({ block: 'nearest' });
     },
 
