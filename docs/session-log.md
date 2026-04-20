@@ -1,13 +1,21 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
-### 2026-04-19 — v1.1.38 (Puppeteer crash fix on Fedora after OS upgrade)
+### 2026-04-19 — v1.1.38 (systemd PM2 crash loop fix + Puppeteer isolation)
 
-**Comp scraper 502 on production (dash.duckwerks.com):**
-- Root cause: Fedora OS upgrade changed Chromium's behavior — headless Chromium now requires `--no-sandbox`, `--disable-setuid-sandbox`, `--disable-dev-shm-usage`, `--disable-gpu` flags or it crashes the Node process hard (SIGSEGV-level crash that bypasses JS try/catch)
-- `/dev/shm` exhaustion was the main killer — Chromium uses shared memory by default; `--disable-dev-shm-usage` redirects to `/tmp`
-- Debugged via cloudflared journal logs (confirmed EOF = Node died mid-request) and PM2 logs (multiple restarts + Puppeteer "Navigating frame was detached" errors)
-- CHROME_PATH was a red herring — original value `/usr/lib64/chromium-browser/chromium-browser` was already correct
+**Root cause of all server instability (502s, random restarts, homepage crashes):**
+- systemd was killing PM2 every ~45 seconds via SIGTERM due to a broken `PIDFile=` directive in `/etc/systemd/system/pm2-geoff.service`
+- systemd couldn't read `/home/geoff/.pm2/pm2.pid` (Permission denied, or file missing after PM2 daemonized), declared start timeout, killed the process, restarted — 1,367+ times
+- This was probably exacerbated by the Fedora OS upgrade changing file ownership on the PID file
+- **Fix:** removed `PIDFile=` and changed `Type=forking` → `Type=oneshot` + `RemainAfterExit=yes` in the service file. This tells systemd not to verify a PID file — just trust the daemon is running after `pm2 resurrect` exits.
+- **Next time symptoms appear:** immediately check `sudo journalctl -u pm2-geoff.service -n 20` for "Can't open PID file" or "Scheduled restart job, restart counter is at N". High N = this problem.
+- **Diagnosis commands:** `sudo systemctl status pm2-geoff.service` (look for restart counter), `sudo journalctl -u pm2-geoff.service --since "5 minutes ago"`
+
+**Comp scraper Puppeteer isolation (also fixed this session):**
+- Moved Reverb scraping out of the Express process into a child process (`scripts/reverb-scrape.js`) so Chromium crashes can't kill the server
+- Chromium on Fedora requires `--no-sandbox`, `--disable-setuid-sandbox`, `--disable-dev-shm-usage`, `--disable-gpu`
+- Added `uncaughtException` / `unhandledRejection` handlers to `server.js` for crash visibility
+- CHROME_PATH `/usr/lib64/chromium-browser/chromium-browser` is correct (it's a shell wrapper, that's fine)
 
 ### 2026-04-13 — v1.1.36 (eBay description formatting — mobile + desktop)
 
