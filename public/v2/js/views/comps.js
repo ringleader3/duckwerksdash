@@ -5,6 +5,8 @@ document.addEventListener('alpine:init', () => {
     items:   [{ name: '', sources: 'ebay', minPrice: '', notes: '', searchQuery: '' }],
     results: [],   // [{ name, status, analysis, csv, error }]
     running: false,
+    sortKey: 'sold_price',
+    sortDir: 'desc',
 
     init() {
       this.$watch('$store.dw.pendingComp', val => {
@@ -13,6 +15,9 @@ document.addEventListener('alpine:init', () => {
         this.results = [];
         this.$store.dw.pendingComp = null;
       });
+      const saved = dwSortable.load('comps', 'sold_price', 'desc');
+      this.sortKey = saved.col;
+      this.sortDir = saved.dir;
     },
 
     addItem() {
@@ -102,6 +107,37 @@ document.addEventListener('alpine:init', () => {
         }
         return headers.reduce((obj, h, i) => { obj[h] = cols[i] || ''; return obj; }, {});
       });
+    },
+
+    sortBy(key) {
+      if (this.sortKey === key) { this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'; }
+      else { this.sortKey = key; this.sortDir = 'asc'; }
+      dwSortable.save('comps', this.sortKey, this.sortDir);
+    },
+    sortGlyph(key) {
+      if (this.sortKey !== key) return '↕';
+      return this.sortDir === 'asc' ? '↑' : '↓';
+    },
+    sortedComps(rows) {
+      if (!rows?.length) return [];
+      const key = this.sortKey, dir = this.sortDir;
+      return [...rows].sort((a, b) => {
+        let av = a[key], bv = b[key];
+        if (key === 'sold_price') { av = parseFloat(av) || 0; bv = parseFloat(bv) || 0; }
+        if (av < bv) return dir === 'asc' ? -1 : 1;
+        if (av > bv) return dir === 'asc' ?  1 : -1;
+        return 0;
+      });
+    },
+    get showTypeCol() {
+      const allRows = this.results.flatMap(r => {
+        const lines = (r.csv || '').split('\n').filter(Boolean);
+        return lines.slice(1).map(line => {
+          const cols = line.split(',');
+          return { sale_type: cols[3]?.trim() || '' };
+        });
+      });
+      return !Alpine.store('dw').allSame(allRows, 'sale_type');
     },
 
     copyCSV(csv) {

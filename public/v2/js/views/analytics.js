@@ -27,6 +27,9 @@ document.addEventListener('alpine:init', () => {
         if (tab === 'sold'   && !this.soldLoaded)   this._loadSold();
       });
       this._loadListed();
+      const saved = dwSortable.load('analytics', 'views', 'desc');
+      this.sortKey = saved.col;
+      this.sortDir = saved.dir;
     },
 
     sortBy(key) {
@@ -36,11 +39,12 @@ document.addEventListener('alpine:init', () => {
         this.sortKey = key;
         this.sortDir = 'asc';
       }
+      dwSortable.save('analytics', this.sortKey, this.sortDir);
     },
 
-    sortIndicator(key) {
-      if (this.sortKey !== key) return '';
-      return this.sortDir === 'asc' ? ' ↑' : ' ↓';
+    sortGlyph(key) {
+      if (this.sortKey !== key) return '↕';
+      return this.sortDir === 'asc' ? '↑' : '↓';
     },
 
     soldSortBy(key) {

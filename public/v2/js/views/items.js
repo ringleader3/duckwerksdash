@@ -25,6 +25,9 @@ document.addEventListener('alpine:init', () => {
       });
       const dw = Alpine.store('dw');
       if ((this.statusFilter === 'Sold' || this.statusFilter === 'All') && !dw.loading && dw.records.length > 0) this._loadTracking();
+      const saved = dwSortable.load('items', 'createdTime', 'desc');
+      this.sortKey = saved.col;
+      this.sortDir = saved.dir;
     },
 
     get rows() {
@@ -73,10 +76,11 @@ document.addEventListener('alpine:init', () => {
     sortBy(key) {
       if (this.sortKey === key) { this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'; }
       else { this.sortKey = key; this.sortDir = 'asc'; }
+      dwSortable.save('items', this.sortKey, this.sortDir);
     },
-    sortIndicator(key) {
-      if (this.sortKey !== key) return '';
-      return this.sortDir === 'asc' ? ' ↑' : ' ↓';
+    sortGlyph(key) {
+      if (this.sortKey !== key) return '↕';
+      return this.sortDir === 'asc' ? '↑' : '↓';
     },
 
     badgeClass(status) {

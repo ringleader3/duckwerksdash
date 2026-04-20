@@ -4,6 +4,12 @@ document.addEventListener('alpine:init', () => {
     sortKey: 'name',
     sortDir: 'asc',
 
+    init() {
+      const saved = dwSortable.load('lots', 'name', 'asc');
+      this.sortKey = saved.col;
+      this.sortDir = saved.dir;
+    },
+
     get rows() {
       const dw = Alpine.store('dw');
       const key = this.sortKey, dir = this.sortDir;
@@ -37,10 +43,11 @@ document.addEventListener('alpine:init', () => {
     sortBy(key) {
       if (this.sortKey === key) { this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'; }
       else { this.sortKey = key; this.sortDir = 'asc'; }
+      dwSortable.save('lots', this.sortKey, this.sortDir);
     },
-    sortIndicator(key) {
-      if (this.sortKey !== key) return '';
-      return this.sortDir === 'asc' ? ' ↑' : ' ↓';
+    sortGlyph(key) {
+      if (this.sortKey !== key) return '↕';
+      return this.sortDir === 'asc' ? '↑' : '↓';
     },
 
     countByStatus(lot, status) { return lot.items.filter(r => r.status === status).length; },

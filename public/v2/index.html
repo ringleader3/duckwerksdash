@@ -409,17 +409,17 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th class="sortable" :class="{'sort-active': sortKey==='createdTime'}" @click="sortBy('createdTime')">Added<span x-text="sortIndicator('createdTime')"></span></th>
-              <th class="sortable" :class="{'sort-active': sortKey==='name'}" @click="sortBy('name')">Name<span x-text="sortIndicator('name')"></span></th>
-              <th class="sortable" :class="{'sort-active': sortKey==='lot'}" @click="sortBy('lot')">Lot<span x-text="sortIndicator('lot')"></span></th>
-              <th class="sortable" :class="{'sort-active': sortKey==='category'}" @click="sortBy('category')">Cat<span x-text="sortIndicator('category')"></span></th>
-              <th class="sortable" :class="{'sort-active': sortKey==='site'}" @click="sortBy('site')">Site<span x-text="sortIndicator('site')"></span></th>
-              <th class="sortable" :class="{'sort-active': sortKey==='status'}" @click="sortBy('status')">Status<span x-text="sortIndicator('status')"></span></th>
-              <th class="num sortable" :class="{'sort-active': sortKey==='listPrice'}" @click="sortBy('listPrice')">List Price<span x-text="sortIndicator('listPrice')"></span></th>
-              <th class="num sortable" :class="{'sort-active': sortKey==='eaf'}" @click="sortBy('eaf')">EAF Payout<span x-text="sortIndicator('eaf')"></span></th>
-              <th class="num sortable" :class="{'sort-active': sortKey==='profit'}" @click="sortBy('profit')">Est. Profit<span x-text="sortIndicator('profit')"></span></th>
-              <th class="num sortable" :class="{'sort-active': sortKey==='shipping'}" @click="sortBy('shipping')">Shipping<span x-text="sortIndicator('shipping')"></span></th>
-              <th x-show="statusFilter === 'Sold' || statusFilter === 'All'" class="num sortable" :class="{'sort-active': sortKey==='soldDate'}" @click="sortBy('soldDate')">Date Sold<span x-text="sortIndicator('soldDate')"></span></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='createdTime'}" @click="sortBy('createdTime')">Added<span x-text="sortGlyph('createdTime')"></span></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='name'}" @click="sortBy('name')">Name<span x-text="sortGlyph('name')"></span></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='lot'}" @click="sortBy('lot')">Lot<span x-text="sortGlyph('lot')"></span></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='category'}" @click="sortBy('category')">Cat<span x-text="sortGlyph('category')"></span></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='site'}" @click="sortBy('site')">Site<span x-text="sortGlyph('site')"></span></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='status'}" @click="sortBy('status')">Status<span x-text="sortGlyph('status')"></span></th>
+              <th class="num sortable" :class="{'sort-active': sortKey==='listPrice'}" @click="sortBy('listPrice')">List Price<span x-text="sortGlyph('listPrice')"></span></th>
+              <th class="num sortable" :class="{'sort-active': sortKey==='eaf'}" @click="sortBy('eaf')">EAF Payout<span x-text="sortGlyph('eaf')"></span></th>
+              <th class="num sortable" :class="{'sort-active': sortKey==='profit'}" @click="sortBy('profit')">Est. Profit<span x-text="sortGlyph('profit')"></span></th>
+              <th class="num sortable" :class="{'sort-active': sortKey==='shipping'}" @click="sortBy('shipping')">Shipping<span x-text="sortGlyph('shipping')"></span></th>
+              <th x-show="statusFilter === 'Sold' || statusFilter === 'All'" class="num sortable" :class="{'sort-active': sortKey==='soldDate'}" @click="sortBy('soldDate')">Date Sold<span x-text="sortGlyph('soldDate')"></span></th>
               <th x-show="statusFilter === 'Sold' || statusFilter === 'All'" style="white-space:nowrap">Tracking</th>
             </tr>
           </thead>
@@ -479,12 +479,12 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th class="sortable" style="text-align:left" :class="{'sort-active': sortKey==='lotName'}" @click="sortBy('lotName')">Lot<span x-text="sortIndicator('lotName')"></span></th>
-              <th class="num-col sortable" :class="{'sort-active': sortKey==='items'}" @click="sortBy('items')">Items<span x-text="sortIndicator('items')"></span></th>
-              <th class="num-col sortable" :class="{'sort-active': sortKey==='cost'}" @click="sortBy('cost')">Cost<span x-text="sortIndicator('cost')"></span></th>
-              <th class="num-col sortable" :class="{'sort-active': sortKey==='recovered'}" @click="sortBy('recovered')">Recovered<span x-text="sortIndicator('recovered')"></span></th>
-              <th class="sortable" style="min-width:120px" :class="{'sort-active': sortKey==='recovery'}" @click="sortBy('recovery')">Recovery<span x-text="sortIndicator('recovery')"></span></th>
-              <th class="num-col sortable" :class="{'sort-active': sortKey==='estUpside'}" @click="sortBy('estUpside')">Est. Upside<span x-text="sortIndicator('estUpside')"></span></th>
+              <th class="sortable" style="text-align:left" :class="{'sort-active': sortKey==='lotName'}" @click="sortBy('lotName')">Lot<span x-text="sortGlyph('lotName')"></span></th>
+              <th class="num-col sortable" :class="{'sort-active': sortKey==='items'}" @click="sortBy('items')">Items<span x-text="sortGlyph('items')"></span></th>
+              <th class="num-col sortable" :class="{'sort-active': sortKey==='cost'}" @click="sortBy('cost')">Cost<span x-text="sortGlyph('cost')"></span></th>
+              <th class="num-col sortable" :class="{'sort-active': sortKey==='recovered'}" @click="sortBy('recovered')">Recovered<span x-text="sortGlyph('recovered')"></span></th>
+              <th class="sortable" style="min-width:120px" :class="{'sort-active': sortKey==='recovery'}" @click="sortBy('recovery')">Recovery<span x-text="sortGlyph('recovery')"></span></th>
+              <th class="num-col sortable" :class="{'sort-active': sortKey==='estUpside'}" @click="sortBy('estUpside')">Est. Upside<span x-text="sortGlyph('estUpside')"></span></th>
             </tr>
           </thead>
           <tbody>
@@ -542,14 +542,14 @@
           <table class="data-table" x-show="!listedLoading && !listedError">
             <thead>
               <tr>
-                <th style="text-align:left" class="sortable" :class="{'sort-active': sortKey==='name'}"        @click="sortBy('name')">Item<span x-text="sortIndicator('name')"></span></th>
-                <th class="sortable"                          :class="{'sort-active': sortKey==='site'}"        @click="sortBy('site')">Site<span x-text="sortIndicator('site')"></span></th>
-                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='listPrice'}"   @click="sortBy('listPrice')">Price<span x-text="sortIndicator('listPrice')"></span></th>
-                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='daysListed'}"  @click="sortBy('daysListed')">Days Listed<span x-text="sortIndicator('daysListed')"></span></th>
-                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='views'}"       @click="sortBy('views')">Views<span x-text="sortIndicator('views')"></span></th>
-                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='watchers'}"    @click="sortBy('watchers')">Watchers<span x-text="sortIndicator('watchers')"></span></th>
-                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='impressions'}" @click="sortBy('impressions')">Impressions<span x-text="sortIndicator('impressions')"></span></th>
-                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='ctr'}"         @click="sortBy('ctr')">CTR<span x-text="sortIndicator('ctr')"></span></th>
+                <th style="text-align:left" class="sortable" :class="{'sort-active': sortKey==='name'}"        @click="sortBy('name')">Item<span x-text="sortGlyph('name')"></span></th>
+                <th class="sortable"                          :class="{'sort-active': sortKey==='site'}"        @click="sortBy('site')">Site<span x-text="sortGlyph('site')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='listPrice'}"   @click="sortBy('listPrice')">Price<span x-text="sortGlyph('listPrice')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='daysListed'}"  @click="sortBy('daysListed')">Days Listed<span x-text="sortGlyph('daysListed')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='views'}"       @click="sortBy('views')">Views<span x-text="sortGlyph('views')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='watchers'}"    @click="sortBy('watchers')">Watchers<span x-text="sortGlyph('watchers')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='impressions'}" @click="sortBy('impressions')">Impressions<span x-text="sortGlyph('impressions')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='ctr'}"         @click="sortBy('ctr')">CTR<span x-text="sortGlyph('ctr')"></span></th>
                 <th></th>
               </tr>
             </thead>
@@ -1464,13 +1464,13 @@
         <table class="data-table" x-show="!reallocMode">
           <thead>
             <tr>
-              <th class="sortable" :class="{'sort-active': sortKey==='name'}"      @click="sortBy('name')"      x-text="'Name'       + sortIndicator('name')"></th>
-              <th class="sortable" :class="{'sort-active': sortKey==='status'}"    @click="sortBy('status')"    style="white-space:nowrap" x-text="'Status'     + sortIndicator('status')"></th>
-              <th class="sortable num-col" :class="{'sort-active': sortKey==='cost'}"      @click="sortBy('cost')"      style="white-space:nowrap" x-text="'Cost'       + sortIndicator('cost')"></th>
-              <th class="sortable num-col" :class="{'sort-active': sortKey==='listPrice'}" @click="sortBy('listPrice')" style="white-space:nowrap" x-text="'List'       + sortIndicator('listPrice')"></th>
-              <th class="sortable num-col" :class="{'sort-active': sortKey==='eaf'}"       @click="sortBy('eaf')"       style="white-space:nowrap" x-text="'EAF'        + sortIndicator('eaf')"></th>
-              <th class="sortable num-col" :class="{'sort-active': sortKey==='estProfit'}" @click="sortBy('estProfit')" style="white-space:nowrap" x-text="'Profit'     + sortIndicator('estProfit')"></th>
-              <th class="sortable num-col" :class="{'sort-active': sortKey==='sale'}"      @click="sortBy('sale')"      style="white-space:nowrap" x-text="'Sale'       + sortIndicator('sale')"></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='name'}"      @click="sortBy('name')"      x-text="'Name'       + sortGlyph('name')"></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='status'}"    @click="sortBy('status')"    style="white-space:nowrap" x-text="'Status'     + sortGlyph('status')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='cost'}"      @click="sortBy('cost')"      style="white-space:nowrap" x-text="'Cost'       + sortGlyph('cost')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='listPrice'}" @click="sortBy('listPrice')" style="white-space:nowrap" x-text="'List'       + sortGlyph('listPrice')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='eaf'}"       @click="sortBy('eaf')"       style="white-space:nowrap" x-text="'EAF'        + sortGlyph('eaf')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='estProfit'}" @click="sortBy('estProfit')" style="white-space:nowrap" x-text="'Profit'     + sortGlyph('estProfit')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='sale'}"      @click="sortBy('sale')"      style="white-space:nowrap" x-text="'Sale'       + sortGlyph('sale')"></th>
             </tr>
           </thead>
           <tbody>
@@ -2233,6 +2233,7 @@
 
 <!-- Component data definitions -->
 <script src="js/sidebar.js"></script>
+<script src="js/sortable.js"></script>
 <script src="js/views/dashboard.js"></script>
 <script src="js/views/items.js"></script>
 <script src="js/views/lots.js"></script>
