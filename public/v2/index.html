@@ -398,6 +398,7 @@
               <span x-show="$store.dw.categoryFilter" style="font:500 11px/1 var(--mono);letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase">
                 filter: <b x-text="$store.dw.categoryFilter" style="color:var(--ink)"></b>
               </span>
+              <button class="tool-btn" @click="exportCsv()">⬇ Export</button>
               <button class="tool-btn primary" @click="$store.dw.openModal('add')">+ Add Item</button>
             </div>
           </div>

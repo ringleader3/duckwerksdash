@@ -144,6 +144,35 @@ document.addEventListener('alpine:init', () => {
     needsAttention(r) { return r.status === 'Listed' && this.daysListed(r) >= 20; },
     openItem(r) { Alpine.store('dw').openModal('item', r.id); },
 
+    exportCsv() {
+      const dw    = Alpine.store('dw');
+      const rows  = this.rows;
+      const headers = ['SKU','Name','Category','Status','Site','Cost','List Price','Sale Price','Profit','Date Added'];
+      const escape  = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+      const lines   = [
+        headers.join(','),
+        ...rows.map(r => [
+          escape(r.sku || ''),
+          escape(r.name || ''),
+          escape(r.category?.name || ''),
+          escape(r.status || ''),
+          escape(dw.siteLabel(r) || ''),
+          r.cost ?? '',
+          dw.activeListing(r)?.list_price ?? '',
+          r.order?.sale_price ?? '',
+          r.order?.profit ?? '',
+          escape(r.created_at ? new Date(r.created_at).toLocaleDateString('en-US') : ''),
+        ].join(','))
+      ];
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `dw-inventory-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+
     _pushFilteredKpis() {
       const dw = Alpine.store('dw');
       const noFilter = this.statusFilter === 'All' && this.siteFilter === 'All' && !dw.categoryFilter;
