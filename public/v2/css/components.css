@@ -863,7 +863,7 @@ table.tbl tbody tr:hover { background: #111; }
 
 /* ── Dashboard tables ─────────────────────────────────────────────────── */
 
-table.tb { width: 100%; border-collapse: collapse; font-size: 13px; font-family: var(--sans); }
+table.tb { width: 100%; border-collapse: collapse; font-size: 15px; font-family: var(--sans); }
 table.tb thead th {
   font: 500 10px/1 var(--mono);
   letter-spacing: .14em;
@@ -945,7 +945,7 @@ table.tb td.num.est::before { content: "~"; color: var(--ink-4); margin-right: 1
   border-bottom: 1px solid var(--line);
 }
 .ship-row:last-child { border-bottom: none; }
-.ship-nm { font-size: 13px; color: var(--ink); font-weight: 500; }
+.ship-nm { font-size: 15px; color: var(--ink); font-weight: 500; }
 .ship-sub { font: 500 10px/1 var(--mono); letter-spacing: .08em; color: var(--ink-4); margin-top: 4px; }
 .ship-r { text-align: right; }
 .ship-st { font: 500 10px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
@@ -963,7 +963,7 @@ table.tb td.num.est::before { content: "~"; color: var(--ink-4); margin-right: 1
   border-bottom: 1px solid var(--line);
 }
 .lot-mini:last-child { border-bottom: none; }
-.lot-mini .nm { font-size: 13px; color: var(--ink); font-weight: 500; }
+.lot-mini .nm { font-size: 15px; color: var(--ink); font-weight: 500; }
 .lot-mini .sub { font: 500 10px/1 var(--mono); color: var(--ink-4); margin-top: 3px; letter-spacing: .08em; }
 .lot-mini .lbar { width: 80px; height: 6px; background: #1a1a1a; position: relative; overflow: hidden; }
 .lot-mini .lbar > span { display: block; height: 100%; background: var(--accent); }
