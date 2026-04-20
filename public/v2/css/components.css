@@ -612,6 +612,7 @@ input[type=number] { -moz-appearance: textfield; }
   grid-template-columns: 200px 1fr;
   border-bottom: 1px solid var(--line);
   background: var(--panel);
+  margin-bottom: 20px;
 }
 .hero-photo {
   height: 100px;
