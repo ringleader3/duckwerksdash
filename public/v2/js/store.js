@@ -240,6 +240,35 @@ document.addEventListener('alpine:init', () => {
     fmt0(n)  { return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
     fmtK(n)  { return Math.abs(n) >= 1000 ? (n < 0 ? '-' : '') + '$' + (Math.abs(n) / 1000).toFixed(1) + 'K' : this.fmt0(n); },
     pct(a, b){ return b > 0 ? Math.round((a / b) * 100) : 0; },
+    fmtMoney(val) {
+      if (val == null) return '—';
+      if (val === 0)   return '$0';
+      return '$' + Math.abs(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
+    },
+    isZero(val) { return val === 0; },
+    allSame(rows, field) {
+      if (!rows || rows.length === 0) return true;
+      const first = rows[0]?.[field];
+      return rows.every(r => r[field] === first);
+    },
+
+    filteredKpis: null,
+    setFilteredKpis(kpis) { this.filteredKpis = kpis; },
+    clearFilteredKpis()   { this.filteredKpis = null; },
+
+    toastMsg:    null,
+    toastType:   'success',
+    _toastTimer: null,
+
+    notify(msg, type = 'success') {
+      clearTimeout(this._toastTimer);
+      this.toastMsg  = msg;
+      this.toastType = type;
+      if (type === 'success') {
+        this._toastTimer = setTimeout(() => { this.toastMsg = null; }, 3000);
+      }
+    },
+    dismissToast() { this.toastMsg = null; },
 
     // ── Writes ────────────────────────────────────────────────────────────────
     async updateItem(id, fields, { skipRefresh = false } = {}) {
