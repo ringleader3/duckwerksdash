@@ -147,10 +147,10 @@ function buildDescription(disc) {
   const hasVal = v => v != null && v !== '';
   if (hasVal(disc.speed) || hasVal(disc.glide) || hasVal(disc.turn) || hasVal(disc.fade)) {
     const parts = [];
-    if (hasVal(disc.speed)) parts.push(`Speed - ${disc.speed}`);
-    if (hasVal(disc.glide)) parts.push(`Glide - ${disc.glide}`);
-    if (hasVal(disc.turn))  parts.push(`Turn - ${disc.turn}`);
-    if (hasVal(disc.fade))  parts.push(`Fade - ${disc.fade}`);
+    if (hasVal(disc.speed)) parts.push(`Speed: ${disc.speed}`);
+    if (hasVal(disc.glide)) parts.push(`Glide: ${disc.glide}`);
+    if (hasVal(disc.turn))  parts.push(`Turn: ${disc.turn}`);
+    if (hasVal(disc.fade))  parts.push(`Fade: ${disc.fade}`);
     lines.push(`Flight Numbers: ${parts.join(' | ')}`);
   }
   if (disc.notes)        lines.push(`\nNotes: ${disc.notes}`);
