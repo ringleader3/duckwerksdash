@@ -133,5 +133,98 @@ document.addEventListener('alpine:init', () => {
     },
     itemProfit(r) { return r.order?.profit || 0; },
 
+    // ── Income windows ────────────────────────────────────────────────────────
+
+    soldInWindow(days) {
+      const dw     = Alpine.store('dw');
+      const cutoff = days === 'ytd'
+        ? new Date(new Date().getFullYear(), 0, 1)
+        : new Date(Date.now() - days * 86400000);
+      return dw.soldRecords.filter(r => {
+        if (!r.order?.date_sold) return false;
+        return new Date(r.order.date_sold) >= cutoff;
+      });
+    },
+
+    get incomeWindows() {
+      const goal30 = 3000;
+      const windows = [
+        { label: '7d',  days: 7,     goalAmt: Math.round(goal30 * 7 / 30) },
+        { label: '30d', days: 30,    goalAmt: goal30 },
+        { label: '90d', days: 90,    goalAmt: goal30 * 3 },
+        { label: 'YTD', days: 'ytd', goalAmt: null },
+      ];
+      const rows = windows.map(w => {
+        const items = this.soldInWindow(w.days);
+        const gross = items.reduce((s, r) => s + (r.order?.sale_price      || 0), 0);
+        const cost  = items.reduce((s, r) => s + (r.cost                   || 0), 0);
+        const ship  = items.reduce((s, r) => s + (r.shipment?.shipping_cost || 0), 0);
+        const net   = items.reduce((s, r) => s + (r.order?.profit          || 0), 0);
+        return { ...w, gross, cost, ship, net };
+      });
+      const maxGross = Math.max(...rows.map(r => r.gross), 1);
+      return rows.map(r => ({
+        ...r,
+        costPct:  Math.round((r.cost  / maxGross) * 100),
+        shipPct:  Math.round((r.ship  / maxGross) * 100),
+        netPct:   Math.max(0, Math.round((r.net   / maxGross) * 100)),
+        goalPct:  r.goalAmt ? Math.round((r.goalAmt / maxGross) * 100) : null,
+        overGoal: r.goalAmt ? r.net >= r.goalAmt : null,
+        deltaPct: r.goalAmt && r.goalAmt > 0 ? Math.round(((r.net - r.goalAmt) / r.goalAmt) * 100) : null,
+      }));
+    },
+
+    get tape24h() {
+      return this.soldInWindow(1).reduce((s, r) => s + (r.order?.profit || 0), 0);
+    },
+
+    // ── Rendering helpers ─────────────────────────────────────────────────────
+
+    fmtWnd(n) {
+      if (n === 0) return '$0';
+      const abs = Math.abs(n);
+      const sign = n < 0 ? '-' : '';
+      if (abs >= 1000) return sign + '$' + (abs / 1000).toFixed(1) + 'k';
+      return sign + '$' + abs.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    },
+
+    verdictText(w) {
+      if (w.goalAmt === null) {
+        const rentTimes = w.net > 0 ? (w.net / 3000).toFixed(2) : 0;
+        return rentTimes > 0 ? `${rentTimes}× rent · YTD` : 'no sales YTD';
+      }
+      if (w.label === '7d')  return w.overGoal
+        ? `↑ ${Math.abs(w.deltaPct)}% over weekly pace`
+        : `↓ ${Math.abs(w.deltaPct)}% under weekly pace`;
+      if (w.label === '30d') return w.overGoal
+        ? `✓ rent covered · +$${Math.round(w.net - w.goalAmt).toLocaleString()}`
+        : `✗ $${Math.round(w.goalAmt - w.net).toLocaleString()} short of goal`;
+      const rentTimes = (w.net / 3000).toFixed(2);
+      return `${rentTimes}× rent · 90 days`;
+    },
+
+    ctag(r) {
+      const cat = (r.category || '').toLowerCase();
+      if (cat.includes('music') || cat.includes('instrument') || cat.includes('audio') || cat.includes('synth') || cat.includes('guitar')) return 'music';
+      if (cat.includes('computer') || cat.includes('laptop') || cat.includes('mac') || cat.includes('pc')) return 'comp';
+      if (cat.includes('gaming') || cat.includes('game') || cat.includes('console')) return 'gaming';
+      if (cat.includes('camera') || cat.includes('photo') || cat.includes('lens')) return 'camera';
+      if (cat.includes('av') || cat.includes('receiver') || cat.includes('hifi') || cat.includes('stereo') || cat.includes('turntable')) return 'av';
+      if (cat.includes('vinyl') || cat.includes('record') || cat.includes('media') || cat.includes('book') || cat.includes('disc')) return 'media';
+      return 'other';
+    },
+    ctagLetter(r) {
+      const map = { music: 'M', comp: 'C', gaming: 'G', camera: 'C', av: 'A', media: 'D', other: '?' };
+      return map[this.ctag(r)] || '?';
+    },
+    platformMark(r) {
+      const lbl = (Alpine.store('dw').siteLabel(r) || '').toLowerCase();
+      return lbl === 'ebay' ? 'ebay' : lbl === 'reverb' ? 'reverb' : 'other';
+    },
+    platformLabel(r) {
+      const lbl = (Alpine.store('dw').siteLabel(r) || '').toLowerCase();
+      return lbl === 'ebay' ? 'EBY' : lbl === 'reverb' ? 'RVB' : '—';
+    },
+
   }));
 });
