@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-19 — v1.1.42 (font size bump + misc polish)
+
+- Bumped body to 15px, bumped hardcoded 13px → 15px on table.tb, ship-nm, lot-mini nm
+- Browser tab title: Duckwerks v2 → Duckwerks Dash
+- Version number added to rail nav below PROD/DEV indicator
+- Filed #100: replace hardcoded font sizes with CSS size tokens (--text-xs/sm/base/lg)
+
 ### 2026-04-19 — v1.1.41 (dashboard layout polish)
 
 **Post-refresh layout fixes:**
