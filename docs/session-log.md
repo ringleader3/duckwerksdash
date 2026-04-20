@@ -1,6 +1,20 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-19 — v1.1.39 (B design system refresh — partial, Tasks 1–3)
+
+**Plan:** `docs/superpowers/plans/2026-04-19-design-system-refresh.md`
+
+**Completed this session:**
+- Task 1: Replaced CSS token system — IBM Plex Mono + Space Grotesk + Azeret Mono fonts, new `--ink` hierarchy, amber `--accent`, legacy aliases for backward compat
+- Task 2: Replaced 220px sidebar with tape strip + 64px icon rail nav; tape shows live cost/recov/profit/inv/listed/sold stats; old sidebar CSS stripped
+- Task 3: Added `incomeWindows` (7d/30d/90d/YTD rolling aggregates), `tape24h`, and all rendering helpers (`fmtWnd`, `verdictText`, `ctag`, `ctagLetter`, `platformMark`, `platformLabel`) to `dashboard.js`
+
+**Remaining (next session):**
+- Task 4: Dashboard HTML rewrite — hero band + photo, KPI grid, income waterfall, in-transit, sold/listed/lot-recovery panels
+- Task 5: Reskin remaining views (hero-band headers for items/lots/analytics/comps/catalog)
+- Task 6: Final version bump
+
 ### 2026-04-19 — v1.1.38 (systemd PM2 crash loop fix + Puppeteer isolation)
 
 **Root cause of all server instability (502s, random restarts, homepage crashes):**
