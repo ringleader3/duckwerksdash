@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-19 — v1.1.44 (search overlay restore)
+
+- Restored search bar lost in B design rewrite — `/` and `Cmd+K` open overlay, `Esc`/backdrop to close
+- Added `⌕ Srch` rail button as clickable trigger
+- Fixed `x-teleport` to body so overlay escapes sidebar `overflow:hidden` — full backdrop, no clipping
+- Fixed `_scrollActiveIntoView` selector mismatch (`.search-result-active` → `.search-result.active`)
+- Results list capped at `360px` with scroll
+
 ### 2026-04-19 — v1.1.43 (CSS size token system)
 
 - Completed #100: added `--text-xs/sm/base/lg` size tokens to `:root`
