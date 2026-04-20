@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-20 — cross-cutting design foundations brainstorm + plan (#107)
+- Ran full brainstorm for #107 — 10 cross-cutting themes: empty-states, sortable columns w/ localStorage, slim hero-band, filter chip labels, filter-aware tape KPIs, row-click affordance, auto-hide uniform columns, toast, catalog page shell, inventory export
+- Deferred: row selection/bulk actions (replaced by export button), search upgrade (separate ticket), analytics row selection (pending view split)
+- Spec: `docs/superpowers/specs/2026-04-20-cross-cutting-foundations-design.md`
+- Plan: `docs/superpowers/plans/2026-04-20-cross-cutting-foundations.md` (10 tasks, all independently commit-able)
+- No code changes this session — execute plan next session
+
 ### 2026-04-19 — v1.1.45 (duck mark + favicon)
 
 - Replaced yellow DW square mark with vectorized rubber duck SVG (traced from PNG via vectorizer.io)
