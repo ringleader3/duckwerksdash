@@ -427,7 +427,7 @@
           </thead>
           <tbody>
             <template x-for="r in rows" :key="r.id">
-              <tr @click="openItem(r)">
+              <tr class="clickable" @click="openItem(r)">
                 <td style="color:var(--muted); white-space:nowrap" x-text="dateAdded(r)"></td>
                 <td style="text-align:left">
                   <span x-text="r.name"></span>
@@ -491,7 +491,7 @@
           </thead>
           <tbody>
             <template x-for="lot in rows" :key="lot.name">
-              <tr class="clickable-row" @click="openLot(lot)">
+              <tr class="clickable" @click="openLot(lot)">
                 <td style="text-align:left" x-text="lot.name"></td>
                 <td class="num-col">
                   <span x-text="lot.items.length"></span>
