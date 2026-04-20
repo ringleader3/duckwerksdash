@@ -1,6 +1,15 @@
 const { google } = require('googleapis');
 const path       = require('path');
 const router     = require('express').Router();
+const db         = require('./db');
+
+function normalize(s) {
+  return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+const lookupFlight = db.prepare(
+  'SELECT speed, glide, turn, fade, stability FROM flight_numbers WHERE manufacturer_key = ? AND mold_key = ?'
+);
 
 const SHEET_ID   = '1Gmdw2qcHRA_9wz29CXul3pTCT92pX56V4FPLkrhNnHE';
 const SHEET_NAME = 'duckwerks-dg-catalog';
@@ -83,33 +92,41 @@ router.get('/plastics', async (req, res) => {
 router.post('/disc', async (req, res) => {
   try {
     const { discNum, box, manufacturer, mold, type, plastic, run, notes, condition, weight, color, listPrice } = req.body;
+    const flight = lookupFlight.get(normalize(manufacturer), normalize(mold)) || {};
     // Column order: A=Disc#, B=Box, C=ListTitle(blank), D=Description(blank),
     // E=Sold, F=Manufacturer, G=Mold, H=Type, I=Plastic, J=Run/Edition,
     // K=Notes, L=Condition, M=Weight, N=Color, O=EstValue(blank), P=ListPrice, Q=Platform, R=Status(blank)
+    // S=Comp Pull, T=speed, U=glide, V=turn, W=fade, X=stability
     const row = [
-      discNum,       // A
-      box,           // B
-      '',            // C List Title
-      '',            // D Description
-      'FALSE',       // E Sold
-      manufacturer,  // F
-      mold,          // G
-      type,          // H
-      plastic,       // I
-      run || '',     // J Run/Edition
-      notes || '',   // K Notes
-      condition,     // L
-      weight,        // M
-      color,         // N
-      '',            // O Est. Value
-      listPrice,     // P
-      'Ebay',        // Q Platform
-      '',            // R Status
+      discNum,              // A
+      box,                  // B
+      '',                   // C List Title
+      '',                   // D Description
+      'FALSE',              // E Sold
+      manufacturer,         // F
+      mold,                 // G
+      type,                 // H
+      plastic,              // I
+      run || '',            // J Run/Edition
+      notes || '',          // K Notes
+      condition,            // L
+      weight,               // M
+      color,                // N
+      '',                   // O Est. Value
+      listPrice,            // P
+      'Ebay',               // Q Platform
+      '',                   // R Status
+      '',                   // S Comp Pull
+      flight.speed     ?? '', // T
+      flight.glide     ?? '', // U
+      flight.turn      ?? '', // V
+      flight.fade      ?? '', // W
+      flight.stability ?? '', // X
     ];
     const sheets = getSheets();
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!A:R`,
+      range: `${SHEET_NAME}!A:X`,
       valueInputOption: 'USER_ENTERED',
       resource: { values: [row] },
     });
