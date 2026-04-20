@@ -90,6 +90,19 @@ db.exec(`
     shipped_at       TEXT,
     created_at       TEXT NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS flight_numbers (
+    manufacturer_key TEXT NOT NULL,
+    mold_key         TEXT NOT NULL,
+    manufacturer     TEXT NOT NULL,
+    mold             TEXT NOT NULL,
+    speed            REAL,
+    glide            REAL,
+    turn             REAL,
+    fade             REAL,
+    stability        REAL,
+    PRIMARY KEY (manufacturer_key, mold_key)
+  );
 `);
 
 // ── Seed reference data (idempotent) ──────────────────────────────────────────
