@@ -144,12 +144,13 @@ function buildDescription(disc) {
   if (disc.run)          lines.push(`Run/Edition: ${disc.run}`);
   if (disc.weight)       lines.push(`Weight: ${disc.weight}g`);
   if (disc.stability)    lines.push(`Stability: ${disc.stability}`);
-  if (disc.speed || disc.glide || disc.turn || disc.fade) {
+  const hasVal = v => v != null && v !== '';
+  if (hasVal(disc.speed) || hasVal(disc.glide) || hasVal(disc.turn) || hasVal(disc.fade)) {
     const parts = [];
-    if (disc.speed) parts.push(`Speed - ${disc.speed}`);
-    if (disc.glide) parts.push(`Glide - ${disc.glide}`);
-    if (disc.turn)  parts.push(`Turn - ${disc.turn}`);
-    if (disc.fade)  parts.push(`Fade - ${disc.fade}`);
+    if (hasVal(disc.speed)) parts.push(`Speed - ${disc.speed}`);
+    if (hasVal(disc.glide)) parts.push(`Glide - ${disc.glide}`);
+    if (hasVal(disc.turn))  parts.push(`Turn - ${disc.turn}`);
+    if (hasVal(disc.fade))  parts.push(`Fade - ${disc.fade}`);
     lines.push(`Flight Numbers: ${parts.join(' | ')}`);
   }
   if (disc.notes)        lines.push(`\nNotes: ${disc.notes}`);
@@ -202,10 +203,10 @@ async function putInventoryItem(sku, disc, photoUrls, headers) {
         ...(disc.type         && { 'Disc Type':      [normalizeDiscType(disc.type)] }),
         ...(disc.plastic      && { 'Disc Plastic Type': [disc.plastic] }),
         ...(disc.weight       && { 'Disc Weight':    [`${disc.weight} grams`] }),
-        ...(disc.speed        && { 'Speed Rating':        [String(disc.speed)] }),
-        ...(disc.glide        && { 'Glide Rating':        [String(disc.glide)] }),
-        ...(disc.turn         && { 'Turn (Right) Rating': [String(disc.turn)] }),
-        ...(disc.fade         && { 'Fade (Left) Rating':  [String(disc.fade)] }),
+        ...(disc.speed != null && disc.speed !== '' && { 'Speed Rating':        [String(disc.speed)] }),
+        ...(disc.glide != null && disc.glide !== '' && { 'Glide Rating':        [String(disc.glide)] }),
+        ...(disc.turn  != null && disc.turn  !== '' && { 'Turn (Right) Rating': [String(disc.turn)] }),
+        ...(disc.fade  != null && disc.fade  !== '' && { 'Fade (Left) Rating':  [String(disc.fade)] }),
       },
     },
     condition,
@@ -453,10 +454,10 @@ router.post('/bulk-update', async (req, res) => {
           ...(disc.plastic      && { 'Disc Plastic Type': [disc.plastic] }),
           ...(disc.weight       && { 'Disc Weight':    [`${disc.weight} grams`] }),
           ...(disc.color && VALID_COLORS.has(disc.color) && { Color: [disc.color] }),
-          ...(disc.speed        && { 'Speed Rating':        [String(disc.speed)] }),
-          ...(disc.glide        && { 'Glide Rating':        [String(disc.glide)] }),
-          ...(disc.turn         && { 'Turn (Right) Rating': [String(disc.turn)] }),
-          ...(disc.fade         && { 'Fade (Left) Rating':  [String(disc.fade)] }),
+          ...(disc.speed != null && disc.speed !== '' && { 'Speed Rating':        [String(disc.speed)] }),
+          ...(disc.glide != null && disc.glide !== '' && { 'Glide Rating':        [String(disc.glide)] }),
+          ...(disc.turn  != null && disc.turn  !== '' && { 'Turn (Right) Rating': [String(disc.turn)] }),
+          ...(disc.fade  != null && disc.fade  !== '' && { 'Fade (Left) Rating':  [String(disc.fade)] }),
         },
       },
       condition,
