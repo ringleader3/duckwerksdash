@@ -1,6 +1,21 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-20 — v1.1.47 cross-cutting design foundations implementation (#107)
+
+- Executed all 10 tasks from the cross-cutting foundations plan
+- **Task 1:** `fmtMoney`, `isZero`, `allSame`, `filteredKpis`, `notify`/`dismissToast` added to store
+- **Task 2:** CSS primitives — slim hero-band, filter-group-label, row-click affordance, tape-filtered, toast
+- **Task 3:** `sortable.js` util + localStorage sort persistence across items/lots/analytics/comps; `sortGlyph` replaces `sortIndicator`
+- **Task 4:** Slim hero-band applied to all 5 non-dashboard views
+- **Task 5:** "Status:" / "Sites:" labels on inventory and analytics filter chips
+- **Task 6:** `clickable` class on inventory and lots table rows (pointer + hover affordance)
+- **Task 7:** Filter-aware KPI tape — filtered secondary values on cost/recov/profit/inv/listed
+- **Task 8:** Comps type column auto-hides when all rows share same sale type; comps sort + glyph wired
+- **Task 9:** Toast markup + auto-dismiss; success toasts on item save/delete/create
+- **Task 10:** `exportCsv()` on items view + "⬇ Export" button in hero-band
+- **Polish:** Slim hero-band photo zoom to 160%, removed redundant page title (breadcrumb only); inventory status+site filters persisted to localStorage
+
 ### 2026-04-20 — cross-cutting design foundations brainstorm + plan (#107)
 - Ran full brainstorm for #107 — 10 cross-cutting themes: empty-states, sortable columns w/ localStorage, slim hero-band, filter chip labels, filter-aware tape KPIs, row-click affordance, auto-hide uniform columns, toast, catalog page shell, inventory export
 - Deferred: row selection/bulk actions (replaced by export button), search upgrade (separate ticket), analytics row selection (pending view split)
