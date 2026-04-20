@@ -1,6 +1,17 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-20 — v1.1.48 flight numbers for disc golf eBay listings (#108)
+
+- `flight_numbers` SQLite table seeded from `docs/tmp/all_discs.csv` (1918 discs, upsertable)
+- `GET /api/flight-numbers?manufacturer=X&mold=Y` lookup endpoint
+- `scripts/backfill-flight-numbers.js` — populated T:X on 249 existing sheet rows; dynamic header discovery
+- `scripts/bulk-list-discs.js` — passes speed/glide/turn/fade/stability from sheet columns T:X
+- `server/catalog-intake.js` — DB lookup at intake time, writes flight numbers to sheet (A:X range)
+- `public/v2/js/views/catalog.js` + `index.html` — auto-displays flight numbers when mfg+mold selected
+- `server/ebay-listings.js` — Stability + Flight Numbers lines in description; Speed/Glide/Turn/Fade as eBay item aspects (both bulk-list and bulk-update routes)
+- Fixed: `|| null` → `!= null` checks so turn=0 and fade=0 are not silently dropped from aspects/description
+
 ### 2026-04-20 — v1.1.47 cross-cutting design foundations implementation (#107)
 
 - Executed all 10 tasks from the cross-cutting foundations plan
