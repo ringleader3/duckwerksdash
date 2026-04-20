@@ -16,6 +16,9 @@ document.addEventListener('alpine:init', () => {
     color:         '',
     listPrice:     '',
 
+    // flight number display (read-only, from DB lookup)
+    flightData:    null,
+
     // ui state
     manufacturers: [],
     molds:         [],
@@ -31,6 +34,9 @@ document.addEventListener('alpine:init', () => {
 
     async init() {
       await Promise.all([this._fetchNextDiscNum(), this._fetchManufacturers(), this._fetchMolds(), this._fetchPlastics()]);
+      this.$watch('manufacturer', () => this._fetchFlightNumbers());
+      this.$watch('mold',         () => this._fetchFlightNumbers());
+      this.$watch('moldNew',      () => this._fetchFlightNumbers());
     },
 
     async _fetchNextDiscNum() {
@@ -105,6 +111,17 @@ document.addEventListener('alpine:init', () => {
       }
     },
 
+    async _fetchFlightNumbers() {
+      const mfg  = this.manufacturer;
+      const mold = this.moldNew || this.mold;
+      if (!mfg || !mold) { this.flightData = null; return; }
+      try {
+        const res  = await fetch(`/api/flight-numbers?manufacturer=${encodeURIComponent(mfg)}&mold=${encodeURIComponent(mold)}`);
+        const data = await res.json();
+        this.flightData = data.found ? data : null;
+      } catch { this.flightData = null; }
+    },
+
     _reset(nextNum) {
       this.nextDiscNum  = nextNum;
       this.manufacturer = '';
@@ -118,6 +135,7 @@ document.addEventListener('alpine:init', () => {
       this.weight       = '';
       this.color        = '';
       this.listPrice    = '';
+      this.flightData   = null;
       // box kept as-is
       this.$nextTick(() => this.$el.querySelector('[data-focus]')?.focus());
     },
