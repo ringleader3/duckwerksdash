@@ -34,6 +34,12 @@
   --sans:    'Space Grotesk', system-ui, sans-serif;
   --display: 'Azeret Mono', ui-monospace, monospace;
 
+  /* Size scale */
+  --text-xs:   10px;
+  --text-sm:   12px;
+  --text-base: 15px;
+  --text-lg:   17px;
+
   /* Legacy aliases — keep while HTML still uses old names */
   --surface:   var(--panel);
   --surface2:  var(--panel-2);
@@ -59,7 +65,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--sans);
-  font-size: 15px;
+  font-size: var(--text-base);
   line-height: 1.5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
