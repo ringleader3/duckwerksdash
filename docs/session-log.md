@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-19 — v1.1.45 (duck mark + favicon)
+
+- Replaced yellow DW square mark with vectorized rubber duck SVG (traced from PNG via vectorizer.io)
+- Duck is accent yellow (#ffcf5c), DW text in body, positioned in tape-brand slot
+- Updated favicon.svg to match duck mark
+- Next: devil horns on duck (deferred), remaining views IA + design revs targeting v2.0
+
 ### 2026-04-19 — v1.1.44 (search overlay restore)
 
 - Restored search bar lost in B design rewrite — `/` and `Cmd+K` open overlay, `Esc`/backdrop to close
