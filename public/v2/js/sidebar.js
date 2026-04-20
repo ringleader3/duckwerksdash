@@ -4,20 +4,33 @@ document.addEventListener('alpine:init', () => {
     query: '',
     results: [],
     selectedIndex: -1,
+    searching: false,
 
     init() {
-      // '/' focuses search when not already in an input
+      // '/' or Cmd+K focuses search when not already in an input
       document.addEventListener('keydown', (e) => {
         const inInput = ['INPUT','TEXTAREA'].includes(document.activeElement.tagName);
         if (e.key === '/' && !inInput) {
           e.preventDefault();
-          this.$refs.searchInput.focus();
+          this.searching = true;
+          this.$nextTick(() => this.$refs.searchInput.focus());
         }
         if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
           e.preventDefault();
-          this.$refs.searchInput.focus();
+          this.searching = true;
+          this.$nextTick(() => this.$refs.searchInput.focus());
         }
       });
+    },
+
+    openSearch() {
+      this.searching = true;
+      this.$nextTick(() => this.$refs.searchInput.focus());
+    },
+
+    closeSearch() {
+      this.clear();
+      this.searching = false;
     },
 
     navigate(e) {

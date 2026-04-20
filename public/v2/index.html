@@ -70,10 +70,43 @@
       <span class="gl">⚌</span>Cat
     </button>
     <div class="rail-spacer"></div>
+    <button class="rail-link" @click="openSearch()">
+      <span class="gl" style="font-size:16px">⌕</span>Srch
+    </button>
     <div class="rail-env" x-data
       :style="$store.dw.environment === 'Production' ? 'color:var(--pos)' : 'color:var(--warn)'"
       x-text="$store.dw.environment === 'Production' ? '● PROD' : '● DEV'"></div>
     <div style="text-align:center;padding:6px 4px 10px;font:500 9px/1 var(--mono);letter-spacing:.1em;color:var(--ink-4)" x-data x-text="'v' + APP_VERSION"></div>
+
+    <!-- ── Search overlay ──────────────────────────────────────────────── -->
+    <div class="search-overlay" x-show="searching" x-cloak @click.self="closeSearch()" @keydown.escape.window="closeSearch()">
+      <div class="search-box">
+        <div class="search-input-row">
+          <span class="search-icon">⌕</span>
+          <input
+            x-ref="searchInput"
+            type="text"
+            x-model="query"
+            @input="search()"
+            @keydown="navigate($event)"
+            @keydown.escape="closeSearch()"
+            placeholder="Search items, lots, categories…"
+            class="search-input"
+            autocomplete="off">
+          <span class="search-hint">esc</span>
+        </div>
+        <div class="search-results" x-ref="searchResults" x-show="results.length">
+          <template x-for="(r, i) in results" :key="r.key">
+            <div class="search-result" :class="{ active: i === selectedIndex }" @click="pick(r); closeSearch()">
+              <span class="search-result-icon" x-text="r.typeIcon"></span>
+              <span class="search-result-label" :class="{ dimmed: r.dimmed }" x-text="r.label"></span>
+              <span class="search-result-badge badge" :class="r.badgeClass" x-show="r.badge" x-text="r.badge"></span>
+            </div>
+          </template>
+        </div>
+        <div class="search-empty" x-show="query.length > 0 && results.length === 0">No matches</div>
+      </div>
+    </div>
   </aside>
 
   <!-- ── Main Content ──────────────────────────────────────────────────────── -->
