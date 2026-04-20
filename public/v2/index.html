@@ -166,91 +166,93 @@
             </div>
           </div>
 
-          <!-- Income waterfall — 7 cols -->
-          <div class="dw-cell" style="grid-column:span 7">
-            <div class="cell-head">
-              <span class="cell-title">Income</span>
-              <span class="cell-meta">gross → cost → ship → net · goal $3k/mo</span>
-            </div>
-            <div class="inc" x-show="incomeWindows.length">
-              <template x-for="w in incomeWindows" :key="w.label">
-                <div class="inc-row">
-                  <div class="inc-lbl">
-                    <span x-text="w.label"></span>
-                    <span x-text="w.gross > 0 ? fmtWnd(w.gross) + ' gross' : 'no data'"></span>
-                  </div>
-                  <div class="inc-track">
-                    <div class="inc-seg cost" :style="'width:' + w.costPct + '%'" x-text="w.cost > 500 ? 'cost ' + fmtWnd(w.cost) : ''"></div>
-                    <div class="inc-seg ship" :style="'width:' + w.shipPct + '%'" x-text="w.ship > 200 ? 'ship ' + fmtWnd(w.ship) : ''"></div>
-                    <div class="inc-seg net"  :style="'width:' + w.netPct  + '%'" x-text="w.net  > 500 ? 'net '  + fmtWnd(w.net)  : ''"></div>
-                    <div class="inc-empty"></div>
-                    <div class="inc-goal" x-show="w.goalPct" :style="'left:' + w.goalPct + '%'">
-                      <span class="inc-goal-lbl" x-text="'$' + (w.goalAmt/1000).toFixed(0) + 'k · ' + w.label"></span>
+          <!-- Income + Lot Recovery (left 7) | In Transit (right 5) — full-width flex row -->
+          <div class="dw-cell" style="grid-column:span 12;flex-direction:row;padding:0;min-height:0">
+
+            <!-- Left col: Income waterfall + Lot Recovery stacked -->
+            <div style="flex:7;display:flex;flex-direction:column;border-right:1px solid var(--line);min-width:0;overflow:hidden">
+              <div class="cell-head">
+                <span class="cell-title">Income</span>
+                <span class="cell-meta">gross → cost → ship → net · goal $3k/mo</span>
+              </div>
+              <div class="inc" x-show="incomeWindows.length">
+                <template x-for="w in incomeWindows" :key="w.label">
+                  <div class="inc-row">
+                    <div class="inc-lbl">
+                      <span x-text="w.label"></span>
+                      <span x-text="w.gross > 0 ? fmtWnd(w.gross) + ' gross' : 'no data'"></span>
+                    </div>
+                    <div class="inc-track">
+                      <div class="inc-seg cost" :style="'width:' + w.costPct + '%'" x-text="w.cost > 500 ? 'cost ' + fmtWnd(w.cost) : ''"></div>
+                      <div class="inc-seg ship" :style="'width:' + w.shipPct + '%'" x-text="w.ship > 200 ? 'ship ' + fmtWnd(w.ship) : ''"></div>
+                      <div class="inc-seg net"  :style="'width:' + w.netPct  + '%'" x-text="w.net  > 500 ? 'net '  + fmtWnd(w.net)  : ''"></div>
+                      <div class="inc-empty"></div>
+                      <div class="inc-goal" x-show="w.goalPct" :style="'left:' + w.goalPct + '%'">
+                        <span class="inc-goal-lbl" x-text="'$' + (w.goalAmt/1000).toFixed(0) + 'k · ' + w.label"></span>
+                      </div>
+                    </div>
+                    <div class="inc-right">
+                      <div class="inc-net" x-text="(w.net >= 0 ? '+' : '') + fmtWnd(w.net)"><span>net</span></div>
+                      <div class="inc-verdict" :class="{ under: !w.overGoal && w.goalAmt !== null, future: w.goalAmt === null }"
+                        x-text="verdictText(w) || '—'"></div>
                     </div>
                   </div>
-                  <div class="inc-right">
-                    <div class="inc-net" x-text="(w.net >= 0 ? '+' : '') + fmtWnd(w.net)"><span>net</span></div>
-                    <div class="inc-verdict" :class="{ under: !w.overGoal && w.goalAmt !== null, future: w.goalAmt === null }"
-                      x-text="verdictText(w) || '—'"></div>
+                </template>
+              </div>
+              <div class="inc-legend">
+                <span><span class="sw" style="background:#2a1e1e"></span>Cost basis</span>
+                <span><span class="sw" style="background:#2a2418"></span>Shipping</span>
+                <span><span class="sw" style="background:var(--accent)"></span>Net (post-FVF)</span>
+                <span style="margin-left:auto"><span class="sw" style="background:rgba(255,255,255,.8)"></span>$3k/mo goal</span>
+              </div>
+              <!-- Lot Recovery below income -->
+              <div class="cell-head" style="border-top:1px solid var(--line)">
+                <span class="cell-title">Lot Recovery</span>
+                <span class="cell-meta" x-text="lotRows.length + ' active'"></span>
+              </div>
+              <div class="cell-body-flush">
+                <template x-for="lot in lotRows" :key="lot.name">
+                  <div class="lot-mini">
+                    <div>
+                      <div class="nm" x-text="lot.name"></div>
+                      <div class="sub" x-text="'$' + lot.cost.toLocaleString('en-US',{maximumFractionDigits:0})"></div>
+                    </div>
+                    <div class="lbar" :class="{ warn: lot.pct >= 50 && lot.pct < 100, neg: lot.pct < 50 }">
+                      <span :style="'width:' + Math.min(lot.pct, 100) + '%'"></span>
+                    </div>
+                    <div class="lpct" :class="{ warn: lot.pct >= 50 && lot.pct < 100, neg: lot.pct < 50 }"
+                      x-text="lot.pct + '%'"></div>
                   </div>
-                </div>
-              </template>
+                </template>
+              </div>
             </div>
-            <div class="inc-legend">
-              <span><span class="sw" style="background:#2a1e1e"></span>Cost basis</span>
-              <span><span class="sw" style="background:#2a2418"></span>Shipping</span>
-              <span><span class="sw" style="background:var(--accent)"></span>Net (post-FVF)</span>
-              <span style="margin-left:auto"><span class="sw" style="background:rgba(255,255,255,.8)"></span>$3k/mo goal</span>
-            </div>
-          </div>
 
-          <!-- In Transit — 5 cols, spans 2 rows -->
-          <div class="dw-cell" style="grid-column:span 5;grid-row:span 2;overflow:hidden">
-            <div class="cell-head">
-              <span class="cell-title">In Transit</span>
-              <span class="cell-meta" x-text="inTransitRows.length + ' pkg'"></span>
-            </div>
-            <div style="flex:1;overflow-y:auto">
-              <div x-show="trackingLoading" style="padding:12px 14px;color:var(--ink-4);font:500 11px/1 var(--mono)">Loading…</div>
-              <div x-show="!trackingLoading && inTransitRows.length === 0" style="padding:12px 14px;color:var(--ink-4);font:500 11px/1 var(--mono)">No packages in transit</div>
-              <template x-for="r in inTransitRows" :key="r.id">
-                <div class="ship-row">
-                  <div>
-                    <div class="ship-nm" x-text="r.name"></div>
-                    <div class="ship-sub" x-text="soldDate(r) + ' · ' + (r.order?.buyer_city || '—')"></div>
+            <!-- Right col: In Transit, scrollable -->
+            <div style="flex:5;display:flex;flex-direction:column;overflow:hidden;min-width:0">
+              <div class="cell-head">
+                <span class="cell-title">In Transit</span>
+                <span class="cell-meta" x-text="inTransitRows.length + ' pkg'"></span>
+              </div>
+              <div style="flex:1;overflow-y:auto">
+                <div x-show="trackingLoading" style="padding:12px 14px;color:var(--ink-4);font:500 11px/1 var(--mono)">Loading…</div>
+                <div x-show="!trackingLoading && inTransitRows.length === 0" style="padding:12px 14px;color:var(--ink-4);font:500 11px/1 var(--mono)">No packages in transit</div>
+                <template x-for="r in inTransitRows" :key="r.id">
+                  <div class="ship-row">
+                    <div>
+                      <div class="ship-nm" x-text="r.name"></div>
+                      <div class="ship-sub" x-text="soldDate(r) + ' · ' + (r.order?.buyer_city || '—')"></div>
+                    </div>
+                    <div class="ship-r">
+                      <div class="ship-st" :class="{ deliv: trackStatus(r) === 'out_for_delivery' || trackStatus(r) === 'delivered' }"
+                        x-text="'◉ ' + trackStatusLabel(trackStatus(r))"></div>
+                      <div class="ship-ar" x-text="trackCarrier(r) + ' · ' + trackEstDelivery(r)"></div>
+                    </div>
                   </div>
-                  <div class="ship-r">
-                    <div class="ship-st" :class="{ deliv: trackStatus(r) === 'out_for_delivery' || trackStatus(r) === 'delivered' }"
-                      x-text="'◉ ' + trackStatusLabel(trackStatus(r))"></div>
-                    <div class="ship-ar" x-text="trackCarrier(r) + ' · ' + trackEstDelivery(r)"></div>
-                  </div>
-                </div>
-              </template>
+                </template>
+              </div>
             </div>
-          </div>
 
-          <!-- Lot Recovery — 7 cols (below income, In Transit rowspans beside it) -->
-          <div class="dw-cell" style="grid-column:span 7">
-            <div class="cell-head">
-              <span class="cell-title">Lot Recovery</span>
-              <span class="cell-meta" x-text="lotRows.length + ' active'"></span>
-            </div>
-            <div class="cell-body-flush">
-              <template x-for="lot in lotRows" :key="lot.name">
-                <div class="lot-mini">
-                  <div>
-                    <div class="nm" x-text="lot.name"></div>
-                    <div class="sub" x-text="'$' + lot.cost.toLocaleString('en-US',{maximumFractionDigits:0})"></div>
-                  </div>
-                  <div class="lbar" :class="{ warn: lot.pct >= 50 && lot.pct < 100, neg: lot.pct < 50 }">
-                    <span :style="'width:' + Math.min(lot.pct, 100) + '%'"></span>
-                  </div>
-                  <div class="lpct" :class="{ warn: lot.pct >= 50 && lot.pct < 100, neg: lot.pct < 50 }"
-                    x-text="lot.pct + '%'"></div>
-                </div>
-              </template>
-            </div>
-          </div>
+          </div><!-- /income+lot+transit row -->
 
           <!-- Recently Sold — 6 cols -->
           <div class="dw-cell" style="grid-column:span 6">
