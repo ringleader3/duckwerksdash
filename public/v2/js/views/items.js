@@ -28,6 +28,11 @@ document.addEventListener('alpine:init', () => {
       const saved = dwSortable.load('items', 'createdTime', 'desc');
       this.sortKey = saved.col;
       this.sortDir = saved.dir;
+      this.$watch('statusFilter',              () => this._pushFilteredKpis());
+      this.$watch('siteFilter',                () => this._pushFilteredKpis());
+      this.$watch('$store.dw.categoryFilter',  () => this._pushFilteredKpis());
+      this.$watch('$store.dw.activeView',      v  => { if (v !== 'items') Alpine.store('dw').clearFilteredKpis(); });
+      this._pushFilteredKpis();
     },
 
     get rows() {
@@ -138,6 +143,23 @@ document.addEventListener('alpine:init', () => {
     },
     needsAttention(r) { return r.status === 'Listed' && this.daysListed(r) >= 20; },
     openItem(r) { Alpine.store('dw').openModal('item', r.id); },
+
+    _pushFilteredKpis() {
+      const dw = Alpine.store('dw');
+      const noFilter = this.statusFilter === 'All' && this.siteFilter === 'All' && !dw.categoryFilter;
+      if (noFilter) {
+        dw.clearFilteredKpis();
+        return;
+      }
+      const rows = this.rows;
+      dw.setFilteredKpis({
+        cost:    rows.reduce((s, r) => s + (r.cost || 0), 0),
+        revenue: rows.filter(r => r.status === 'Sold').reduce((s, r) => s + (r.order?.sale_price || 0), 0),
+        profit:  rows.filter(r => r.status === 'Sold').reduce((s, r) => s + (r.order?.profit || 0), 0),
+        inv:     rows.length,
+        listed:  rows.filter(r => r.status === 'Listed').length,
+      });
+    },
 
     async _loadTracking() {
       const dw = Alpine.store('dw');

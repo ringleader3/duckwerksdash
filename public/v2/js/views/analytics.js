@@ -30,6 +30,9 @@ document.addEventListener('alpine:init', () => {
       const saved = dwSortable.load('analytics', 'views', 'desc');
       this.sortKey = saved.col;
       this.sortDir = saved.dir;
+      this.$watch('listedSiteFilter', () => this._pushFilteredKpis());
+      this.$watch('soldSiteFilter',   () => this._pushFilteredKpis());
+      this.$watch('$store.dw.activeView', v => { if (v !== 'analytics') Alpine.store('dw').clearFilteredKpis(); });
     },
 
     sortBy(key) {
@@ -104,6 +107,26 @@ document.addEventListener('alpine:init', () => {
         if (av < bv) return this.soldSortDir === 'asc' ? -1 : 1;
         if (av > bv) return this.soldSortDir === 'asc' ?  1 : -1;
         return 0;
+      });
+    },
+
+    _pushFilteredKpis() {
+      const dw = Alpine.store('dw');
+      const defaultSites = ['eBay', 'Reverb'];
+      const listedFiltered = this.listedSiteFilter.length !== defaultSites.length
+        || this.soldSiteFilter.length !== defaultSites.length;
+      if (!listedFiltered) {
+        dw.clearFilteredKpis();
+        return;
+      }
+      const listed = this.sortedListedRows;
+      const sold   = this.sortedSoldRows;
+      dw.setFilteredKpis({
+        cost:    0,
+        revenue: sold.reduce((s, r) => s + (r.sale_price || 0), 0),
+        profit:  sold.reduce((s, r) => s + (r.profit || 0), 0),
+        inv:     listed.length + sold.length,
+        listed:  listed.length,
       });
     },
 
