@@ -482,18 +482,7 @@ input[type=number] { -moz-appearance: textfield; }
   flex-shrink: 0;
   justify-content: center;
 }
-.tape-brand .mark {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  display: grid;
-  place-items: center;
-  font: 800 11px/1 var(--mono);
-  letter-spacing: 0;
-  flex-shrink: 0;
-}
+.dw-mark { flex-shrink: 0; display: block; }
 .tape-live {
   display: flex;
   align-items: center;

@@ -12,7 +12,23 @@
 
 <!-- ── Tape ────────────────────────────────────────────────────────────────── -->
 <div class="tape" x-data>
-  <div class="tape-brand"><div class="mark">DW</div></div>
+  <div class="tape-brand">
+    <svg class="dw-mark" viewBox="0 0 36 36" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+      <!-- body -->
+      <ellipse cx="16" cy="27" rx="14" ry="9" fill="var(--accent)"/>
+      <!-- head -->
+      <circle cx="23" cy="15" r="8" fill="var(--accent)"/>
+      <!-- bill -->
+      <polygon points="31,12 36,15 31,18" fill="var(--accent)"/>
+      <!-- devil horns -->
+      <polygon points="18,8 20,1 23,8" fill="var(--accent)"/>
+      <polygon points="25,8 27,1 30,8" fill="var(--accent)"/>
+      <!-- DW -->
+      <text x="16" y="30" text-anchor="middle" dominant-baseline="middle"
+            font-family="'IBM Plex Mono',monospace" font-size="8" font-weight="800"
+            fill="#0a0a0a" letter-spacing="0">DW</text>
+    </svg>
+  </div>
   <div class="tape-live">
     <div class="tape-item">cost
       <b class="dn" x-text="'$' + Alpine.store('dw').records.reduce((s,r)=>s+(r.cost||0),0).toLocaleString('en-US',{maximumFractionDigits:0})"></b>
