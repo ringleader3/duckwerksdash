@@ -35,10 +35,10 @@
   --display: 'Azeret Mono', ui-monospace, monospace;
 
   /* Size scale */
-  --text-xs:   10px;
-  --text-sm:   12px;
-  --text-base: 15px;
-  --text-lg:   17px;
+  --text-xs:   11px;
+  --text-sm:   13px;
+  --text-base: 17px;
+  --text-lg:   19px;
 
   /* Legacy aliases — keep while HTML still uses old names */
   --surface:   var(--panel);
