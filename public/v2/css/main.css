@@ -73,6 +73,14 @@ a:hover { text-decoration: underline; }
 #main {
   min-width: 0;
   overflow-y: auto;
+  padding: 0 20px 32px;
+}
+
+/* Hero-band and dw-grid break out of the padding to stay full-width */
+.hero-band,
+.dw-grid {
+  margin-left: -20px;
+  margin-right: -20px;
 }
 
 /* ── Loading / Error States ──────────────────────────────────────────────── */
