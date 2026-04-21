@@ -1,6 +1,17 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-21 — v1.1.55 lots view + modal improvements (#103)
+
+- KPI overflow fixed: compact stat grid + fmt0 now rounds to whole dollars (affects all views)
+- Lot modal header actions: RENAME (inline input), + ITEM (opens add modal with lot pre-selected), DELETE (only when empty)
+- Normalized empty states: `$0.00` red → `—`, `n/a` → `—` throughout lot view and modal
+- KPI order restructured: Cost → Recovered → Realized Profit → Forecasted Profit
+- Add Lot CTA added to lots view hero
+- Action row promoted: REALLOCATE COSTS + EXPORT CSV buttons above item table
+- Server: added `DELETE /api/lots/:id` (rejects if lot has items)
+- Closed #103
+
 ### 2026-04-21 — v1.1.54 index.html partial refactor (#116)
 
 - Split index.html (2235 lines) into 12 partials: 7 views + 5 modals under `public/v2/partials/`
