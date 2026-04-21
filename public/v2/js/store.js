@@ -21,6 +21,9 @@ document.addEventListener('alpine:init', () => {
     activeReverbOrderNum: null,
     activeLotName:    null,
     previousModal:    null,
+    previousView:     null,
+    orderCount:       null,
+    checkingOrders:   false,
     categoryFilter:   null,
     pendingFilters:   null,
     pendingComp:      null,
@@ -103,6 +106,14 @@ document.addEventListener('alpine:init', () => {
       }
     },
     closeModal() {
+      if (this.previousView) {
+        const view = this.previousView;
+        this.previousView   = null;
+        this.activeModal    = null;
+        this.activeRecordId = null;
+        this.activeView     = view;
+        return;
+      }
       if (this.previousModal) {
         const prev = this.previousModal;
         this.previousModal  = null;
@@ -114,6 +125,29 @@ document.addEventListener('alpine:init', () => {
       this.activeModal    = null;
       this.activeRecordId = null;
       this.activeLotName  = null;
+    },
+
+    async checkOrders() {
+      if (this.checkingOrders) return;
+      this.checkingOrders = true;
+      try {
+        const [ebayRes, reverbRes] = await Promise.all([
+          fetch('/api/ebay/orders'),
+          fetch('/api/reverb/my/orders/selling/awaiting_shipment'),
+        ]);
+        const ebayData   = ebayRes.ok   ? await ebayRes.json()   : { orders: [] };
+        const reverbData = reverbRes.ok ? await reverbRes.json() : { orders: [] };
+        const ebayCount   = (ebayData.orders   || []).filter(o => (o.lineItems || []).length > 0).length;
+        const reverbCount = (reverbData.orders || []).length;
+        this.orderCount = ebayCount + reverbCount;
+        if (this.orderCount === 0) {
+          setTimeout(() => { if (this.orderCount === 0) this.orderCount = null; }, 2000);
+        }
+      } catch(e) {
+        this.orderCount = null;
+      } finally {
+        this.checkingOrders = false;
+      }
     },
 
     navToComp(r) {
