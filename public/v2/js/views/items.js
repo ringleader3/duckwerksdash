@@ -2,7 +2,8 @@
 document.addEventListener('alpine:init', () => {
   Alpine.data('itemsView', () => ({
     statusFilter: 'Listed',
-    siteFilter:   'All',
+    siteFilters:  [],
+    dateRange:    'all',
     nameSearch:   '',
     openStatusId: null,
     sortKey:      'createdTime',
@@ -30,11 +31,13 @@ document.addEventListener('alpine:init', () => {
       this.sortDir = saved.dir;
       try {
         const f = JSON.parse(localStorage.getItem('dw_filter_items') || '{}');
-        if (f.status) this.statusFilter = f.status;
-        if (f.site)   this.siteFilter   = f.site;
+        if (f.status)     this.statusFilter = f.status;
+        if (f.siteFilters && Array.isArray(f.siteFilters)) this.siteFilters = f.siteFilters;
+        if (f.dateRange)  this.dateRange    = f.dateRange;
       } catch {}
       this.$watch('statusFilter',              () => { this._saveFilters(); this._pushFilteredKpis(); });
-      this.$watch('siteFilter',                () => { this._saveFilters(); this._pushFilteredKpis(); });
+      this.$watch('siteFilters',               () => { this._saveFilters(); this._pushFilteredKpis(); });
+      this.$watch('dateRange',                 () => { this._saveFilters(); this._pushFilteredKpis(); });
       this.$watch('$store.dw.categoryFilter',  () => this._pushFilteredKpis());
       this.$watch('$store.dw.activeView',      v  => { if (v !== 'items') Alpine.store('dw').clearFilteredKpis(); });
       this._pushFilteredKpis();
@@ -50,16 +53,33 @@ document.addEventListener('alpine:init', () => {
       if (this.statusFilter !== 'All') {
         recs = recs.filter(r => r.status === this.statusFilter);
       }
-      if (this.siteFilter !== 'All') {
+      if (this.siteFilters.length > 0) {
         const sites = dw.sites || [];
-        recs = recs.filter(r => {
-          const targetSite = sites.find(s => s.name === this.siteFilter);
-          if (!targetSite) return false;
-          return (r.listings || []).some(l => l.site?.id === targetSite.id);
-        });
+        recs = recs.filter(r =>
+          this.siteFilters.some(siteName => {
+            const target = sites.find(s => s.name === siteName);
+            return target && (r.listings || []).some(l => l.site?.id === target.id);
+          })
+        );
+      }
+      if (this.dateRange !== 'all') {
+        const hours = { '24h': 24, '7d': 168, '30d': 720 }[this.dateRange];
+        const cutoff = new Date(Date.now() - hours * 3600 * 1000);
+        if (this.statusFilter === 'Sold') {
+          recs = recs.filter(r => r.order?.date_sold && new Date(r.order.date_sold) >= cutoff);
+        } else {
+          recs = recs.filter(r => r.created_at && new Date(r.created_at) >= cutoff);
+        }
       }
       const q = this.nameSearch.trim().toLowerCase();
-      if (q) recs = recs.filter(r => r.name.toLowerCase().includes(q));
+      if (q) {
+        recs = recs.filter(r =>
+          (r.name        || '').toLowerCase().includes(q) ||
+          (r.sku         || '').toLowerCase().includes(q) ||
+          (r.lot?.name   || '').toLowerCase().includes(q) ||
+          (r.notes       || '').toLowerCase().includes(q)
+        );
+      }
 
       const key = this.sortKey, dir = this.sortDir;
       recs = [...recs].sort((a, b) => {
@@ -91,6 +111,14 @@ document.addEventListener('alpine:init', () => {
     sortGlyph(key) {
       if (this.sortKey !== key) return '↕';
       return this.sortDir === 'asc' ? '↑' : '↓';
+    },
+    toggleSite(name) {
+      const idx = this.siteFilters.indexOf(name);
+      if (idx === -1) this.siteFilters = [...this.siteFilters, name];
+      else            this.siteFilters = this.siteFilters.filter(s => s !== name);
+    },
+    clearSites() {
+      this.siteFilters = [];
     },
 
     badgeClass(status) {
@@ -179,12 +207,18 @@ document.addEventListener('alpine:init', () => {
     },
 
     _saveFilters() {
-      try { localStorage.setItem('dw_filter_items', JSON.stringify({ status: this.statusFilter, site: this.siteFilter })); } catch {}
+      try {
+        localStorage.setItem('dw_filter_items', JSON.stringify({
+          status:      this.statusFilter,
+          siteFilters: this.siteFilters,
+          dateRange:   this.dateRange,
+        }));
+      } catch {}
     },
 
     _pushFilteredKpis() {
       const dw = Alpine.store('dw');
-      const noFilter = this.statusFilter === 'All' && this.siteFilter === 'All' && !dw.categoryFilter;
+      const noFilter = this.statusFilter === 'All' && this.siteFilters.length === 0 && this.dateRange === 'all' && !dw.categoryFilter;
       if (noFilter) {
         dw.clearFilteredKpis();
         return;
