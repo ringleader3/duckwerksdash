@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-21 — v2.0.0 design system complete (#104 #105 #107)
+
+- Analytics sold mode: added Revenue + Profit columns, sortable
+- Closed #104 (analytics), #105 (comps), #107 (cross-cutting foundations) — design system refresh complete
+- Bumped to v2.0.0
+
 ### 2026-04-21 — v1.1.56 dashboard income + analytics fixes (#101 #111)
 
 - #101: eBay traffic API now only called on analytics view, not app load

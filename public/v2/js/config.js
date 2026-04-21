@@ -1,6 +1,6 @@
 // ── Duckwerks v2 — Config ─────────────────────────────────────────────────────
 
-const APP_VERSION = '1.1.56';
+const APP_VERSION = '2.0.0';
 
 // Category display config — keyed by category name
 // badge_class matches server/db.js seed data
