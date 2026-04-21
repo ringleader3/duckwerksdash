@@ -76,8 +76,10 @@
                 <th style="text-align:left" class="sortable" :class="{'sort-active': soldSortKey==='name'}"      @click="soldSortBy('name')">Item<span x-text="soldSortIndicator('name')"></span></th>
                 <th class="sortable"                          :class="{'sort-active': soldSortKey==='site'}"      @click="soldSortBy('site')">Site<span x-text="soldSortIndicator('site')"></span></th>
                 <th class="sortable"                          :class="{'sort-active': soldSortKey==='soldDate'}"  @click="soldSortBy('soldDate')">Sold Date<span x-text="soldSortIndicator('soldDate')"></span></th>
-                <th class="num-col sortable"                  :class="{'sort-active': soldSortKey==='daysSince'}" @click="soldSortBy('daysSince')">Days Since Sale<span x-text="soldSortIndicator('daysSince')"></span></th>
-                <th>Order Link</th>
+                <th class="num-col sortable"                  :class="{'sort-active': soldSortKey==='daysSince'}" @click="soldSortBy('daysSince')">Days Since<span x-text="soldSortIndicator('daysSince')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': soldSortKey==='salePrice'}" @click="soldSortBy('salePrice')">Revenue<span x-text="soldSortIndicator('salePrice')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': soldSortKey==='profit'}"    @click="soldSortBy('profit')">Profit<span x-text="soldSortIndicator('profit')"></span></th>
+                <th>Order</th>
               </tr>
             </thead>
             <tbody>
@@ -87,14 +89,16 @@
                   <td><span :class="row.site === 'Reverb' ? 'badge-reverb' : 'badge-ebay'" x-text="row.site"></span></td>
                   <td style="color:var(--muted); white-space:nowrap" x-text="row.soldDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })"></td>
                   <td class="num-col" x-text="row.daysSince + 'd'"></td>
+                  <td class="num-col green" x-text="row.salePrice ? $store.dw.fmt0(row.salePrice) : '—'"></td>
+                  <td class="num-col" :class="row.profit > 0 ? 'green' : row.profit < 0 ? 'red' : ''" x-text="row.profit != null ? (row.profit >= 0 ? '+' : '') + $store.dw.fmt0(row.profit) : '—'"></td>
                   <td @click.stop>
-                    <a x-show="row.orderUrl" :href="row.orderUrl" target="_blank" style="color:var(--blue)">View Order</a>
+                    <a x-show="row.orderUrl" :href="row.orderUrl" target="_blank" style="color:var(--blue)">View</a>
                     <span x-show="!row.orderUrl" style="color:var(--muted)">—</span>
                   </td>
                 </tr>
               </template>
               <tr x-show="sortedSoldRows.length === 0 && !soldLoading">
-                <td colspan="5" style="color:var(--muted); text-align:center">No orders pending feedback</td>
+                <td colspan="7" style="color:var(--muted); text-align:center">No orders pending feedback</td>
               </tr>
             </tbody>
           </table>

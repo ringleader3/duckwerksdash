@@ -257,6 +257,8 @@ document.addEventListener('alpine:init', () => {
             soldDate,
             daysSince,
             orderUrl:   order._links?.web?.href || null,
+            salePrice:  local?.order?.sale_price || null,
+            profit:     local?.order?.profit     || null,
           });
         }
 
@@ -282,6 +284,8 @@ document.addEventListener('alpine:init', () => {
             soldDate,
             daysSince,
             orderUrl,
+            salePrice:  local?.order?.sale_price || null,
+            profit:     local?.order?.profit     || null,
           });
         }
 
