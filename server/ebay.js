@@ -84,7 +84,7 @@ router.get('/orders/:id', async (req, res) => {
 // POST /api/ebay/orders/:id/tracking — push tracking, marks order shipped
 router.post('/orders/:id/tracking', async (req, res) => {
   const { id } = req.params;
-  const { lineItemId, quantity, trackingNumber, shippingCarrierCode } = req.body;
+  const { lineItemIds, trackingNumber, shippingCarrierCode } = req.body;
   const ebayCarrier = EBAY_CARRIER_CODES[shippingCarrierCode] || shippingCarrierCode;
   try {
     const headers  = await ebayHeaders();
@@ -94,7 +94,7 @@ router.post('/orders/:id/tracking', async (req, res) => {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          lineItems:           [{ lineItemId, quantity: quantity || 1 }],
+          lineItems:           lineItemIds.map(id => ({ lineItemId: id, quantity: 1 })),
           trackingNumber,
           shippingCarrierCode: ebayCarrier,
           shippedDate:         new Date().toISOString(),
