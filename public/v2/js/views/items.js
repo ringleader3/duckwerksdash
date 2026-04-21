@@ -63,7 +63,7 @@ document.addEventListener('alpine:init', () => {
         );
       }
       if (this.dateRange !== 'all') {
-        const hours = { '24h': 24, '3d': 72, '7d': 168, '30d': 720 }[this.dateRange];
+        const hours = { '24h': 30, '3d': 72, '7d': 168, '30d': 720 }[this.dateRange];
         const cutoff = new Date(Date.now() - hours * 3600 * 1000);
         if (this.statusFilter === 'Sold') {
           recs = recs.filter(r => r.order?.date_sold && new Date(r.order.date_sold + 'T00:00:00') >= cutoff);
