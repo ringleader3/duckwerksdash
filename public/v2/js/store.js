@@ -273,7 +273,7 @@ document.addEventListener('alpine:init', () => {
       return lp - fee;
     },
 
-    fmt0(n)  { return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
+    fmt0(n)  { return '$' + Math.round(Math.abs(n)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); },
     fmtK(n)  { return Math.abs(n) >= 1000 ? (n < 0 ? '-' : '') + '$' + (Math.abs(n) / 1000).toFixed(1) + 'K' : this.fmt0(n); },
     pct(a, b){ return b > 0 ? Math.round((a / b) * 100) : 0; },
     fmtMoney(val) {
