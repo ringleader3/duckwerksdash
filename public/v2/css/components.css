@@ -852,7 +852,7 @@ table.tbl tbody tr:hover { background: #111; }
 
 /* ── Dashboard tables ─────────────────────────────────────────────────── */
 
-table.tb { width: 100%; border-collapse: collapse; font-size: var(--text-base); font-family: var(--sans); }
+table.tb { width: 100%; border-collapse: collapse; font-size: 14px; font-family: var(--sans); }
 table.tb thead th {
   font: 500 var(--text-xs)/1 var(--mono);
   letter-spacing: .14em;
