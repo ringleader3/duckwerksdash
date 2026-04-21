@@ -1,0 +1,225 @@
+  <!-- ── Sites View ───────────────────────────────────────────────────────── -->
+  <div x-show="$store.dw.activeView === 'sites'" x-data="sitesView">
+    <div class="hero-band slim">
+      <div class="hero-photo"></div>
+      <div class="hero-head">
+        <div class="hero-crumbs">DW<span class="sep">/</span><b>sites</b></div>
+      </div>
+    </div>
+
+      <!-- ── ORDERS ──────────────────────────────────────────────────────── -->
+      <div style="margin-bottom:40px">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+          <div class="modal-section-label" style="margin-bottom:0">Orders</div>
+          <button @click="fetchOrders()" :disabled="ordersLoading"
+            style="padding:4px 12px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);font:700 9px/1 var(--mono);letter-spacing:.12em;cursor:pointer"
+            x-text="ordersLoading ? 'CHECKING...' : 'CHECK FOR NEW ORDERS'">
+          </button>
+        </div>
+
+        <div x-show="ordersLoading" style="padding:20px 0;color:var(--muted);font-size:11px;letter-spacing:2px">FETCHING ORDERS...</div>
+
+        <template x-if="!ordersLoading">
+          <div>
+            <!-- eBay block -->
+            <div style="margin-bottom:24px">
+              <div style="font:700 10px/1 var(--mono);letter-spacing:.15em;color:var(--ebay);margin-bottom:10px">EBAY</div>
+              <div x-show="ebayOrdersErr" x-text="ebayOrdersErr" style="color:var(--red);font-size:11px;letter-spacing:1px;margin-bottom:8px"></div>
+              <div x-show="!ebayOrdersErr && ebayOrders.length === 0" style="color:var(--muted);font-size:11px;letter-spacing:1px">nothing to ship on eBay</div>
+              <template x-for="entry in ebayOrders" :key="entry.order.orderId">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)">
+                  <div>
+                    <div style="font-size:12px;font-weight:700;letter-spacing:.05em" x-text="ebayBuyerName(entry.order)"></div>
+                    <template x-for="item in entry.items" :key="item.lineItem.lineItemId">
+                      <div style="font-size:11px;color:var(--ink-2);margin-top:2px">
+                        <span x-text="item.lineItem.title"></span>
+                        <template x-if="item.rec?.sku">
+                          <span style="color:var(--muted);margin-left:6px" x-text="'· ' + item.rec.sku"></span>
+                        </template>
+                      </div>
+                    </template>
+                    <div style="font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.05em" x-text="'Order ' + entry.order.orderId"></div>
+                  </div>
+                  <button @click="openEbayShip(entry)"
+                    style="padding:5px 14px;background:var(--blue);color:#fff;border:none;font:700 10px/1 var(--mono);letter-spacing:.12em;cursor:pointer;flex-shrink:0;margin-left:16px">
+                    SHIP
+                  </button>
+                </div>
+              </template>
+            </div>
+
+            <!-- Reverb block -->
+            <div>
+              <div style="font:700 10px/1 var(--mono);letter-spacing:.15em;color:var(--reverb);margin-bottom:10px">REVERB</div>
+              <div x-show="reverbOrdersErr" x-text="reverbOrdersErr" style="color:var(--red);font-size:11px;letter-spacing:1px;margin-bottom:8px"></div>
+              <div x-show="!reverbOrdersErr && reverbOrders.length === 0" style="color:var(--muted);font-size:11px;letter-spacing:1px">nothing to ship on Reverb</div>
+              <template x-for="entry in reverbOrders" :key="entry.order.order_number">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)">
+                  <div>
+                    <div style="font-size:12px;font-weight:700;letter-spacing:.05em" x-text="entry.order.shipping_address?.name || entry.order.order_number"></div>
+                    <div style="font-size:11px;color:var(--ink-2);margin-top:2px" x-text="entry.order.title"></div>
+                    <template x-if="entry.rec?.sku">
+                      <div style="font-size:10px;color:var(--muted);margin-top:2px" x-text="entry.rec.sku"></div>
+                    </template>
+                    <div style="font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.05em" x-text="'Order #' + entry.order.order_number"></div>
+                  </div>
+                  <button @click="openReverbShip(entry)"
+                    style="padding:5px 14px;background:var(--blue);color:#fff;border:none;font:700 10px/1 var(--mono);letter-spacing:.12em;cursor:pointer;flex-shrink:0;margin-left:16px">
+                    SHIP
+                  </button>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- ── LISTINGS ─────────────────────────────────────────────────────── -->
+      <div style="margin-bottom:40px">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+          <div class="modal-section-label" style="margin-bottom:0">Listings</div>
+          <button @click="fetchListings()" :disabled="listingsLoading"
+            style="padding:4px 12px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);font:700 9px/1 var(--mono);letter-spacing:.12em;cursor:pointer"
+            x-text="listingsLoading ? 'FETCHING...' : 'SYNC LISTINGS'">
+          </button>
+        </div>
+
+        <div x-show="listingsLoading" style="color:var(--muted);font-size:11px;letter-spacing:2px">FETCHING LISTINGS...</div>
+        <div x-show="listingsErr" x-text="listingsErr" style="color:var(--red);font-size:11px;letter-spacing:1px"></div>
+        <div x-show="!listingsLoading && !listingsErr && !listingsSynced" style="color:var(--muted);font-size:11px;letter-spacing:1px">press SYNC LISTINGS to check</div>
+
+        <template x-if="listingsSynced && !listingsLoading && !listingsErr">
+          <div>
+            <div x-show="unlinkedListings.length === 0" style="color:var(--muted);font-size:11px;letter-spacing:1px">✓ all listings linked</div>
+
+            <template x-if="unlinkedListings.length > 0">
+              <div>
+                <!-- Import controls -->
+                <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px">
+                  <div>
+                    <div style="font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">CATEGORY</div>
+                    <select class="modal-input" x-model="importCategory" style="min-width:120px">
+                      <option value="">None</option>
+                      <template x-for="cat in $store.dw.categories" :key="cat.id">
+                        <option :value="cat.id" x-text="cat.name"></option>
+                      </template>
+                    </select>
+                  </div>
+                  <div>
+                    <div style="font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">LOT</div>
+                    <select class="modal-input" x-model="importLot" style="min-width:120px">
+                      <option value="">None</option>
+                      <template x-for="lot in $store.dw.lots" :key="lot.id">
+                        <option :value="lot.name" x-text="lot.name"></option>
+                      </template>
+                    </select>
+                  </div>
+                  <div>
+                    <div style="font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px">OR NEW LOT</div>
+                    <input class="modal-input" type="text" x-model="importNewLot" placeholder="e.g. EBAY-APR26" style="min-width:140px">
+                  </div>
+                </div>
+
+                <!-- Unlinked listing rows -->
+                <template x-for="listing in unlinkedListings" :key="listing.id">
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+                    <div style="flex:1">
+                      <span style="font-size:10px;letter-spacing:.1em;margin-right:8px"
+                        :style="listing.platform === 'eBay' ? 'color:var(--ebay)' : 'color:var(--reverb)'"
+                        x-text="listing.platform"></span>
+                      <span style="font-size:11px" x-text="listing.title"></span>
+                      <span style="font-size:10px;color:var(--muted);margin-left:8px" x-text="'$' + listing.price.toFixed(2)"></span>
+                    </div>
+                    <div style="flex-shrink:0;margin-left:16px">
+                      <select class="modal-input" x-model="linkSelections[listing.id]" style="font-size:10px;padding:3px 6px">
+                        <option value="">Import as new item</option>
+                        <template x-for="rec in $store.dw.records.filter(r => r.status !== 'Sold')" :key="rec.id">
+                          <option :value="rec.id" x-text="rec.name"></option>
+                        </template>
+                      </select>
+                    </div>
+                  </div>
+                </template>
+
+                <div style="display:flex;gap:12px;align-items:center;margin-top:16px;flex-wrap:wrap">
+                  <button @click="importAll()" :disabled="importingNew"
+                    style="padding:8px 20px;background:var(--accent);color:#000;border:none;font:700 10px/1 var(--mono);letter-spacing:.12em;cursor:pointer"
+                    x-text="importingNew ? 'IMPORTING...' : 'IMPORT ALL'">
+                  </button>
+                  <button @click="saveLinks()" :disabled="savingLinks"
+                    x-show="Object.values(linkSelections).some(v => v)"
+                    style="padding:8px 20px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);font:700 10px/1 var(--mono);letter-spacing:.12em;cursor:pointer"
+                    x-text="savingLinks ? 'SAVING...' : 'SAVE LINKS'">
+                  </button>
+                  <span x-show="importMsg || linksMsg"
+                    x-text="importMsg || linksMsg"
+                    :style="(importMsg || linksMsg).startsWith('✓') ? 'color:var(--green)' : 'color:var(--red)'"
+                    style="font-size:11px;letter-spacing:1px"></span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+
+      <!-- ── DETAILS ──────────────────────────────────────────────────────── -->
+      <div style="margin-bottom:40px">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+          <div class="modal-section-label" style="margin-bottom:0">Listing Details</div>
+          <button @click="fetchDetails()" :disabled="detailsLoading"
+            style="padding:4px 12px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);font:700 9px/1 var(--mono);letter-spacing:.12em;cursor:pointer"
+            x-text="detailsLoading ? 'CHECKING...' : 'CHECK DETAILS'">
+          </button>
+        </div>
+
+        <div x-show="detailsLoading" style="color:var(--muted);font-size:11px;letter-spacing:2px">FETCHING LISTING DATA...</div>
+        <div x-show="detailsErr" x-text="detailsErr" style="color:var(--red);font-size:11px;letter-spacing:1px"></div>
+        <div x-show="!detailsLoading && !detailsErr && !detailsChecked" style="color:var(--muted);font-size:11px;letter-spacing:1px">press CHECK DETAILS to compare</div>
+
+        <template x-if="detailsChecked && !detailsLoading && !detailsErr">
+          <div>
+            <div x-show="detailDiffs.length === 0 && !detailsMsg" style="color:var(--green);font-size:11px;letter-spacing:1px">✓ all listing details in sync</div>
+
+            <template x-if="detailDiffs.length > 0">
+              <div>
+                <div style="font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:12px"
+                  x-text="detailDiffs.length + ' item' + (detailDiffs.length > 1 ? 's' : '') + ' out of sync'">
+                </div>
+                <template x-for="diff in detailDiffs" :key="diff.rec.id + '-' + diff.listing.id">
+                  <div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:11px">
+                    <span style="letter-spacing:.1em;margin-right:8px"
+                      :style="diff.platform === 'eBay' ? 'color:var(--ebay)' : 'color:var(--reverb)'"
+                      x-text="diff.platform"></span>
+                    <span x-text="diff.rec.name"></span>
+                    <template x-if="diff.oldName !== diff.newName">
+                      <div style="margin-top:4px;color:var(--muted)">
+                        title: <span style="color:var(--red)" x-text="diff.oldName"></span>
+                        → <span style="color:var(--green)" x-text="diff.newName"></span>
+                      </div>
+                    </template>
+                    <template x-if="diff.oldPrice !== diff.newPrice">
+                      <div style="margin-top:2px;color:var(--muted)">
+                        price: <span style="color:var(--red)" x-text="'$' + diff.oldPrice.toFixed(2)"></span>
+                        → <span style="color:var(--green)" x-text="'$' + diff.newPrice.toFixed(2)"></span>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+                <div style="display:flex;gap:12px;align-items:center;margin-top:16px">
+                  <button @click="syncAllDetails()" :disabled="syncingDetails"
+                    style="padding:8px 20px;background:var(--accent);color:#000;border:none;font:700 10px/1 var(--mono);letter-spacing:.12em;cursor:pointer"
+                    x-text="syncingDetails ? 'SYNCING...' : 'SYNC ALL'">
+                  </button>
+                  <span x-show="detailsMsg"
+                    x-text="detailsMsg"
+                    :style="detailsMsg.startsWith('✓') ? 'color:var(--green)' : 'color:var(--red)'"
+                    style="font-size:11px;letter-spacing:1px"></span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+
+  </div>
+

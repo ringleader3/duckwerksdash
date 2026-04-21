@@ -1,0 +1,241 @@
+      <div x-show="$store.dw.activeView === 'dashboard'" x-data="dashView">
+
+        <!-- Hero band -->
+        <div class="hero-band">
+          <div class="hero-photo"></div>
+          <div class="hero-head">
+            <div class="hero-crumbs">DW<span class="sep">/</span><b>dashboard</b></div>
+            <div class="hero-title">Overview</div>
+            <div class="hero-tools">
+              <button class="tool-btn" @click="$store.dw.activeView = 'sites'; $store.dw.orderCount = null">⟳ Sites</button>
+              <button class="tool-btn primary" @click="$store.dw.openModal('add')">+ Add</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid -->
+        <div class="dw-grid">
+
+          <!-- KPI: Cost -->
+          <div class="dw-cell" style="grid-column:span 3">
+            <div class="cell-head"><span class="cell-title">Cost</span><span class="cell-meta">basis</span></div>
+            <div class="cell-body">
+              <div class="kpi-val neg">
+                <span class="kpi-curr">$</span>
+                <span x-text="Math.round(totalInvested).toLocaleString('en-US')"></span>
+              </div>
+              <div class="kpi-meta">
+                <span x-text="$store.dw.lots.length + ' lots'"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI: Recovered -->
+          <div class="dw-cell" style="grid-column:span 3">
+            <div class="cell-head"><span class="cell-title">Recovered</span><span class="cell-meta">gross</span></div>
+            <div class="cell-body">
+              <div class="kpi-val pos">
+                <span class="kpi-curr">$</span>
+                <span x-text="Math.round(revenue).toLocaleString('en-US')"></span>
+              </div>
+              <div class="kpi-meta">
+                <span x-text="$store.dw.soldRecords.length + ' sold'"></span>
+                <span class="pos" x-show="tape24h > 0" x-text="'+$' + Math.round(tape24h).toLocaleString() + ' · 24h'"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI: Realized profit -->
+          <div class="dw-cell" style="grid-column:span 3">
+            <div class="cell-head"><span class="cell-title">Realized</span><span class="cell-meta">net · roi</span></div>
+            <div class="cell-body">
+              <div class="kpi-val pos">
+                <span class="kpi-curr">$</span>
+                <span x-text="Math.round(profit).toLocaleString('en-US')"></span>
+              </div>
+              <div class="kpi-meta">
+                <span>after fees</span>
+                <span class="pos" x-show="soldCost > 0" x-text="'ROI +' + Math.round((profit / soldCost) * 100) + '%'"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI: Forecast -->
+          <div class="dw-cell" style="grid-column:span 3">
+            <div class="cell-head"><span class="cell-title">Forecast</span><span class="cell-meta">est</span></div>
+            <div class="cell-body">
+              <div class="kpi-val est">
+                <span class="kpi-curr">$</span>
+                <span x-text="Math.round(forecastedProfit).toLocaleString('en-US')"></span>
+              </div>
+              <div class="kpi-meta">
+                <span>realized + pipeline</span>
+                <span x-text="'+$' + $store.dw.fmtK(pipeline)"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Income + Lot Recovery (left 7) | In Transit (right 5) — full-width flex row -->
+          <div class="dw-cell" style="grid-column:span 12;flex-direction:row;padding:0;position:relative">
+
+            <!-- Left col: Income waterfall + Lot Recovery stacked — drives container height -->
+            <div style="width:58.33%;display:flex;flex-direction:column;border-right:1px solid var(--line)">
+              <div class="cell-head">
+                <span class="cell-title">Income</span>
+                <span class="cell-meta">gross → cost → ship → net · goal $3k/mo</span>
+              </div>
+              <div class="inc" x-show="incomeWindows.length">
+                <template x-for="w in incomeWindows" :key="w.label">
+                  <div class="inc-row">
+                    <div class="inc-lbl">
+                      <span x-text="w.label"></span>
+                      <span x-text="w.gross > 0 ? fmtWnd(w.gross) + ' gross' : 'no data'"></span>
+                    </div>
+                    <div class="inc-track">
+                      <div class="inc-seg cost" :style="'width:' + w.costPct + '%'" x-text="w.cost > 500 ? 'cost ' + fmtWnd(w.cost) : ''"></div>
+                      <div class="inc-seg ship" :style="'width:' + w.shipPct + '%'" x-text="w.ship > 200 ? 'ship ' + fmtWnd(w.ship) : ''"></div>
+                      <div class="inc-seg net"  :style="'width:' + w.netPct  + '%'" x-text="w.net  > 500 ? 'net '  + fmtWnd(w.net)  : ''"></div>
+                      <div class="inc-empty"></div>
+                      <div class="inc-goal" x-show="w.goalPct" :style="'left:' + w.goalPct + '%'">
+                        <span class="inc-goal-lbl" x-text="'$' + (w.goalAmt/1000).toFixed(0) + 'k · ' + w.label"></span>
+                      </div>
+                    </div>
+                    <div class="inc-right">
+                      <div class="inc-net" x-text="(w.net >= 0 ? '+' : '') + fmtWnd(w.net)"><span>net</span></div>
+                      <div class="inc-verdict" :class="{ under: !w.overGoal && w.goalAmt !== null, future: w.goalAmt === null }"
+                        x-text="verdictText(w) || '—'"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="inc-legend">
+                <span><span class="sw" style="background:#2a1e1e"></span>Cost basis</span>
+                <span><span class="sw" style="background:#2a2418"></span>Shipping</span>
+                <span><span class="sw" style="background:var(--accent)"></span>Net (post-FVF)</span>
+                <span style="margin-left:auto"><span class="sw" style="background:rgba(255,255,255,.8)"></span>$3k/mo goal</span>
+              </div>
+              <!-- Lot Recovery below income -->
+              <div class="cell-head" style="border-top:1px solid var(--line)">
+                <span class="cell-title">Lot Recovery</span>
+                <span class="cell-meta" x-text="lotRows.length + ' active'"></span>
+              </div>
+              <div class="cell-body-flush">
+                <template x-for="lot in lotRows" :key="lot.name">
+                  <div class="lot-mini" @click="$store.dw.openModal('lot', null, lot.name)" style="cursor:pointer">
+                    <div>
+                      <div class="nm" x-text="lot.name"></div>
+                      <div class="sub" x-text="'$' + lot.cost.toLocaleString('en-US',{maximumFractionDigits:0})"></div>
+                    </div>
+                    <div class="lbar" :class="{ warn: lot.pct >= 50 && lot.pct < 100, neg: lot.pct < 50 }">
+                      <span :style="'width:' + Math.min(lot.pct, 100) + '%'"></span>
+                    </div>
+                    <div class="lpct" :class="{ warn: lot.pct >= 50 && lot.pct < 100, neg: lot.pct < 50 }"
+                      x-text="lot.pct + '%'"></div>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Right col: absolutely positioned — fills left col's height, doesn't add to it -->
+            <div style="position:absolute;top:0;right:0;bottom:0;width:41.67%;display:flex;flex-direction:column;overflow:hidden;background:var(--panel);border-left:1px solid var(--line)">
+              <div class="cell-head">
+                <span class="cell-title">In Transit</span>
+                <span class="cell-meta" x-text="inTransitRows.length + ' pkg'"></span>
+              </div>
+              <div style="flex:1;overflow-y:auto">
+                <div x-show="trackingLoading" style="padding:12px 14px;color:var(--ink-4);font:500 11px/1 var(--mono)">Loading…</div>
+                <div x-show="!trackingLoading && inTransitRows.length === 0" style="padding:12px 14px;color:var(--ink-4);font:500 11px/1 var(--mono)">No packages in transit</div>
+                <template x-for="r in inTransitRows" :key="r.id">
+                  <div class="ship-row" @click="$store.dw.openModal('item', r.id)" style="cursor:pointer">
+                    <div>
+                      <div class="ship-nm" x-text="r.name"></div>
+                      <div class="ship-sub" x-text="soldDate(r) + ' · ' + (r.order?.buyer_city || '—')"></div>
+                    </div>
+                    <div class="ship-r">
+                      <div class="ship-st" :class="{ deliv: trackStatus(r) === 'out_for_delivery' || trackStatus(r) === 'delivered' }"
+                        x-text="'◉ ' + trackStatusLabel(trackStatus(r))"></div>
+                      <div class="ship-ar" x-text="trackCarrier(r) + ' · ' + trackEstDelivery(r)"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+          </div><!-- /income+lot+transit row -->
+
+          <!-- Recently Sold — 6 cols -->
+          <div class="dw-cell" style="grid-column:span 6">
+            <div class="cell-head">
+              <span class="cell-title">Recently Sold</span>
+              <span class="cell-meta" x-text="recentlySold.length + ' items'"></span>
+            </div>
+            <div class="cell-body-flush">
+              <table class="tb">
+                <thead>
+                  <tr>
+                    <th style="width:64px">Sold</th>
+                    <th>Item</th>
+                    <th style="width:28px"></th>
+                    <th style="width:58px">Site</th>
+                    <th class="r" style="width:78px">Sale</th>
+                    <th class="r" style="width:84px">Profit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="r in recentlySold" :key="r.id">
+                    <tr @click="$store.dw.openModal('item', r.id)" style="cursor:pointer">
+                      <td class="date" x-text="soldDate(r)"></td>
+                      <td class="nm" x-text="r.name"></td>
+                      <td><span class="ctag" :class="ctag(r)" x-text="ctagLetter(r)"></span></td>
+                      <td><span class="pmark" :class="platformMark(r)" x-text="platformLabel(r)"></span></td>
+                      <td class="num r pos" x-text="r.order?.sale_price ? '$' + r.order.sale_price.toLocaleString('en-US',{maximumFractionDigits:0}) : '—'"></td>
+                      <td class="num r" :class="{ pos: itemProfit(r) > 0, neg: itemProfit(r) < 0 }"
+                        x-text="itemProfit(r) !== 0 ? (itemProfit(r) > 0 ? '+' : '−') + '$' + Math.abs(itemProfit(r)).toLocaleString('en-US',{maximumFractionDigits:0}) : '—'"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Recently Listed — 6 cols -->
+          <div class="dw-cell" style="grid-column:span 6">
+            <div class="cell-head">
+              <span class="cell-title">Recently Listed</span>
+              <span class="cell-meta" x-text="recentlyListed.length + ' items · $' + $store.dw.fmtK(pipeline) + ' pipeline'"></span>
+            </div>
+            <div class="cell-body-flush">
+              <table class="tb">
+                <thead>
+                  <tr>
+                    <th style="width:64px">Added</th>
+                    <th>Item</th>
+                    <th style="width:28px"></th>
+                    <th style="width:58px">Site</th>
+                    <th class="r" style="width:80px">List</th>
+                    <th class="r" style="width:100px">Est. Profit</th>
+                    <th class="r" style="width:54px">Days</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="r in recentlyListed" :key="r.id">
+                    <tr @click="$store.dw.openModal('item', r.id)" style="cursor:pointer">
+                      <td class="date" x-text="listedDate(r)"></td>
+                      <td class="nm" x-text="r.name"></td>
+                      <td><span class="ctag" :class="ctag(r)" x-text="ctagLetter(r)"></span></td>
+                      <td><span class="pmark" :class="platformMark(r)" x-text="platformLabel(r)"></span></td>
+                      <td class="num r" x-text="$store.dw.activeListing(r)?.list_price ? '$' + $store.dw.activeListing(r).list_price.toLocaleString('en-US',{maximumFractionDigits:0}) : '—'"></td>
+                      <td class="num r est" x-text="$store.dw.estProfit(r) !== 0 ? (($store.dw.estProfit(r)>0?'+':'')+$store.dw.estProfit(r).toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0})) : '—'"></td>
+                      <td class="num r" style="color:var(--ink-4)"
+                        x-text="Math.floor((Date.now()-new Date(r.created_at))/(86400000)) + 'd'"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div><!-- /dw-grid -->
+      </div><!-- /dashboard view -->
+
+      <!-- Items -->

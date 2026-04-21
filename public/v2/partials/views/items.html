@@ -1,0 +1,202 @@
+      <div x-show="$store.dw.activeView === 'items'" x-data="itemsView">
+        <div class="hero-band slim">
+          <div class="hero-photo"></div>
+          <div class="hero-head">
+            <div class="hero-crumbs">DW<span class="sep">/</span><b>inventory</b></div>
+            <div class="hero-tools">
+              <span x-show="$store.dw.categoryFilter" style="font:500 11px/1 var(--mono);letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase">
+                filter: <b x-text="$store.dw.categoryFilter" style="color:var(--ink)"></b>
+              </span>
+              <button class="tool-btn" @click="exportCsv()">⬇ Export</button>
+              <button class="tool-btn primary" @click="$store.dw.openModal('add')">+ Add Item</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-row">
+          <span class="filter-group-label">Status:</span>
+          <div class="pill-row">
+            <template x-for="s in ['All','Listed','Sold','Prepping']" :key="s">
+              <button class="pill" :class="{ active: statusFilter === s }"
+                @click="statusFilter = s; $store.dw.categoryFilter = null; dateRange = 'all'" x-text="s"></button>
+            </template>
+          </div>
+          <span class="filter-group-label">Sites:</span>
+          <div class="pill-row">
+            <button class="pill" :class="{ active: siteFilters.length === 0 }" @click="clearSites()">All</button>
+            <template x-for="s in $store.dw.sites" :key="s.id">
+              <button class="pill" :class="{ active: siteFilters.includes(s.name) }"
+                @click="toggleSite(s.name)" x-text="s.name"></button>
+            </template>
+          </div>
+          <template x-if="statusFilter === 'Listed' || statusFilter === 'Sold'">
+            <div class="pill-row">
+              <span class="filter-group-label">When:</span>
+              <template x-for="d in ['all','24h','3d','7d','30d']" :key="d">
+                <button class="pill" :class="{ active: dateRange === d }" @click="dateRange = d"
+                  x-text="d === 'all' ? 'All time' : d"></button>
+              </template>
+            </div>
+          </template>
+          <input class="controls-search" type="text" placeholder="search name, SKU, lot…" x-model="nameSearch">
+          <button class="btn btn-ghost" x-show="$store.dw.categoryFilter" @click="$store.dw.categoryFilter = null" style="font-size:11px; padding:4px 10px">✕ Category</button>
+        </div>
+
+        <!-- Table: Listed mode -->
+        <template x-if="statusFilter === 'Listed'">
+          <div>
+            <table class="tb" style="width:100%">
+              <thead>
+                <tr>
+                  <th class="sortable" :class="{'sort-active': sortKey==='createdTime'}" @click="sortBy('createdTime')" style="width:64px">Added<span x-text="sortGlyph('createdTime')"></span></th>
+                  <th class="sortable" :class="{'sort-active': sortKey==='name'}" @click="sortBy('name')">Name<span x-text="sortGlyph('name')"></span></th>
+                  <th style="width:32px"></th>
+                  <th class="sortable" :class="{'sort-active': sortKey==='site'}" @click="sortBy('site')" style="width:72px">Site<span x-text="sortGlyph('site')"></span></th>
+                  <th style="width:80px">Status</th>
+                  <th class="sortable r" :class="{'sort-active': sortKey==='listPrice'}" @click="sortBy('listPrice')" style="width:90px">List<span x-text="sortGlyph('listPrice')"></span></th>
+                  <th class="sortable r" :class="{'sort-active': sortKey==='eaf'}" @click="sortBy('eaf')" style="width:90px">Payout<span x-text="sortGlyph('eaf')"></span></th>
+                  <th class="sortable r" :class="{'sort-active': sortKey==='profit'}" @click="sortBy('profit')" style="width:90px">Profit<span x-text="sortGlyph('profit')"></span></th>
+                  <th class="r" style="width:54px">Days</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="r in rows" :key="r.id">
+                  <tr @click="openItem(r)" style="cursor:pointer">
+                    <td class="date" x-text="dateAdded(r)"></td>
+                    <td class="nm">
+                      <span x-text="r.name"></span>
+                      <span x-show="needsAttention(r)" :title="daysListed(r) + ' days listed'" style="margin-left:6px;color:var(--warn);font-size:11px;cursor:default">⚑</span>
+                    </td>
+                    <td><span class="badge" :class="r.category?.badge_class" x-text="r.category?.name"></span></td>
+                    <td><span class="badge" :class="$store.dw.siteBadgeClass($store.dw.siteLabel(r))" x-text="$store.dw.siteLabel(r)"></span></td>
+                    <td style="position:relative">
+                      <span class="badge" :class="badgeClass(r.status)" x-text="r.status"
+                        @click.stop="toggleStatusMenu(r.id, $event)" style="cursor:pointer" title="Click to change status"></span>
+                      <div x-show="openStatusId === r.id" class="status-dropdown" @click.stop>
+                        <template x-for="s in ['Listed','Sold','Prepping']" :key="s">
+                          <div class="status-option" x-text="s" @click="changeStatus(r, s, $event)"></div>
+                        </template>
+                      </div>
+                    </td>
+                    <td class="num r" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : '—'"></td>
+                    <td class="num r est" x-text="eafDisplay(r)"></td>
+                    <td class="num r" :class="$store.dw.estProfit(r) >= 0 ? 'pos' : 'neg'"
+                      style="font-weight:600" x-text="profitDisplay(r)"></td>
+                    <td class="num r" style="color:var(--ink-4)" x-text="daysListed(r) + 'd'"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+            <div x-show="rows.length === 0" style="padding:40px;text-align:center;color:var(--ink-4);font:500 13px/1 var(--mono)">No items match your filters</div>
+          </div>
+        </template>
+
+        <!-- Table: Sold mode -->
+        <template x-if="statusFilter === 'Sold'">
+          <div>
+            <table class="tb" style="width:100%">
+              <thead>
+                <tr>
+                  <th class="sortable" :class="{'sort-active': sortKey==='soldDate'}" @click="sortBy('soldDate')" style="width:72px">Sold<span x-text="sortGlyph('soldDate')"></span></th>
+                  <th class="sortable" :class="{'sort-active': sortKey==='name'}" @click="sortBy('name')">Name<span x-text="sortGlyph('name')"></span></th>
+                  <th style="width:32px"></th>
+                  <th class="sortable" :class="{'sort-active': sortKey==='site'}" @click="sortBy('site')" style="width:72px">Site<span x-text="sortGlyph('site')"></span></th>
+                  <th class="sortable r" :class="{'sort-active': sortKey==='listPrice'}" @click="sortBy('listPrice')" style="width:90px">Sale<span x-text="sortGlyph('listPrice')"></span></th>
+                  <th class="r" style="width:90px">Profit</th>
+                  <th class="r" style="width:90px">Shipping</th>
+                  <th style="width:110px">Tracking</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="r in rows" :key="r.id">
+                  <tr @click="openItem(r)" style="cursor:pointer">
+                    <td class="date" x-text="r.order?.date_sold ? new Date(r.order.date_sold + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'"></td>
+                    <td class="nm" x-text="r.name"></td>
+                    <td><span class="badge" :class="r.category?.badge_class" x-text="r.category?.name"></span></td>
+                    <td><span class="badge" :class="$store.dw.siteBadgeClass($store.dw.siteLabel(r))" x-text="$store.dw.siteLabel(r)"></span></td>
+                    <td class="num r pos" x-text="r.order?.sale_price ? $store.dw.fmt0(r.order.sale_price) : '—'"></td>
+                    <td class="num r" :class="(r.order?.profit || 0) >= 0 ? 'pos' : 'neg'"
+                      style="font-weight:600"
+                      x-text="r.order?.profit != null ? ((r.order.profit >= 0 ? '+' : '') + $store.dw.fmt0(r.order.profit)) : '—'"></td>
+                    <td class="num r" x-text="r.shipment?.shipping_cost != null ? $store.dw.fmt0(r.shipment.shipping_cost) : '—'"></td>
+                    <td>
+                      <span x-show="r.shipment?.tracking_id && trackingData[r.id]"
+                        :class="'badge ' + trackStatusBadge(trackingData[r.id]?.status)"
+                        x-text="trackStatusLabel(trackingData[r.id]?.status)"></span>
+                      <span x-show="r.shipment?.tracking_id && !trackingData[r.id] && !trackingLoading"
+                        style="color:var(--ink-4);font-size:11px">—</span>
+                      <span x-show="!r.shipment?.tracking_id"
+                        style="color:var(--ink-4);font-size:11px">—</span>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+            <div x-show="rows.length === 0" style="padding:40px;text-align:center;color:var(--ink-4);font:500 13px/1 var(--mono)">No items match your filters</div>
+          </div>
+        </template>
+
+        <!-- Table: All / Prepping fallback -->
+        <template x-if="statusFilter === 'All' || statusFilter === 'Prepping'">
+          <div>
+            <table class="tb" style="width:100%">
+              <thead>
+                <tr>
+                  <th class="sortable" :class="{'sort-active': sortKey==='createdTime'}" @click="sortBy('createdTime')" style="width:64px">Added<span x-text="sortGlyph('createdTime')"></span></th>
+                  <th class="sortable" :class="{'sort-active': sortKey==='name'}" @click="sortBy('name')">Name<span x-text="sortGlyph('name')"></span></th>
+                  <th class="sortable" :class="{'sort-active': sortKey==='lot'}" @click="sortBy('lot')" style="width:100px">Lot<span x-text="sortGlyph('lot')"></span></th>
+                  <th style="width:32px"></th>
+                  <th class="sortable" :class="{'sort-active': sortKey==='site'}" @click="sortBy('site')" style="width:72px">Site<span x-text="sortGlyph('site')"></span></th>
+                  <th class="sortable" :class="{'sort-active': sortKey==='status'}" @click="sortBy('status')" style="width:80px">Status<span x-text="sortGlyph('status')"></span></th>
+                  <th class="sortable r" :class="{'sort-active': sortKey==='listPrice'}" @click="sortBy('listPrice')" style="width:90px">List<span x-text="sortGlyph('listPrice')"></span></th>
+                  <th class="sortable r" :class="{'sort-active': sortKey==='eaf'}" @click="sortBy('eaf')" style="width:90px">Payout<span x-text="sortGlyph('eaf')"></span></th>
+                  <th class="sortable r" :class="{'sort-active': sortKey==='profit'}" @click="sortBy('profit')" style="width:90px">Profit<span x-text="sortGlyph('profit')"></span></th>
+                  <th class="sortable r" :class="{'sort-active': sortKey==='shipping'}" @click="sortBy('shipping')" style="width:80px">Ship<span x-text="sortGlyph('shipping')"></span></th>
+                  <th x-show="statusFilter === 'All'" class="sortable r" :class="{'sort-active': sortKey==='soldDate'}" @click="sortBy('soldDate')" style="width:72px">Sold<span x-text="sortGlyph('soldDate')"></span></th>
+                  <th x-show="statusFilter === 'All'" style="width:110px">Tracking</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="r in rows" :key="r.id">
+                  <tr @click="openItem(r)" style="cursor:pointer">
+                    <td class="date" x-text="dateAdded(r)"></td>
+                    <td class="nm">
+                      <span x-text="r.name"></span>
+                      <span x-show="needsAttention(r)" :title="daysListed(r) + ' days listed'" style="margin-left:6px;color:var(--warn);font-size:11px;cursor:default">⚑</span>
+                    </td>
+                    <td style="color:var(--ink-4);font-size:11px" x-text="r.lot?.name"></td>
+                    <td><span class="badge" :class="r.category?.badge_class" x-text="r.category?.name"></span></td>
+                    <td><span class="badge" :class="$store.dw.siteBadgeClass($store.dw.siteLabel(r))" x-text="$store.dw.siteLabel(r)"></span></td>
+                    <td style="position:relative">
+                      <span class="badge" :class="badgeClass(r.status)" x-text="r.status"
+                        @click.stop="toggleStatusMenu(r.id, $event)" style="cursor:pointer" title="Click to change status"></span>
+                      <div x-show="openStatusId === r.id" class="status-dropdown" @click.stop>
+                        <template x-for="s in ['Listed','Sold','Prepping']" :key="s">
+                          <div class="status-option" x-text="s" @click="changeStatus(r, s, $event)"></div>
+                        </template>
+                      </div>
+                    </td>
+                    <td class="num r" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : '—'"></td>
+                    <td class="num r est" x-text="eafDisplay(r)"></td>
+                    <td class="num r est" x-text="profitDisplay(r)"></td>
+                    <td class="num r" :class="shipIsEst(r) ? 'est' : ''" x-text="shipDisplay(r)"></td>
+                    <td x-show="statusFilter === 'All'" class="date"
+                      x-text="r.order?.date_sold ? new Date(r.order.date_sold + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'"></td>
+                    <td x-show="statusFilter === 'All'">
+                      <span x-show="r.shipment?.tracking_id">
+                        <span x-show="trackingData[r.id]" :class="'badge ' + trackStatusBadge(trackingData[r.id]?.status)" x-text="trackStatusLabel(trackingData[r.id]?.status)"></span>
+                        <span x-show="!trackingData[r.id] && !trackingLoading" style="color:var(--ink-4);font-size:11px">—</span>
+                      </span>
+                      <span x-show="!r.shipment?.tracking_id" style="color:var(--ink-4);font-size:11px">—</span>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+            <div x-show="rows.length === 0" style="padding:40px;text-align:center;color:var(--ink-4);font:500 13px/1 var(--mono)">No items match your filters</div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Lots -->

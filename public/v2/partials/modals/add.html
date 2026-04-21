@@ -1,0 +1,91 @@
+  <div x-data="addModal" class="modal-overlay">
+    <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()" @keydown.tab.prevent="$store.dw.trapTab($event, $el)">
+
+      <div class="modal-header">
+        <div class="modal-title">Add Item</div>
+        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-section-label">Item Details</div>
+        <div class="modal-row">
+          <span class="modal-field">Name <span style="color:var(--red)">*</span></span>
+          <span class="modal-val" style="flex:1; margin-left:16px">
+            <input class="modal-input" type="text" x-model="form.name" placeholder="Item name..." @keydown.enter="save()">
+          </span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Status</span>
+          <span class="modal-val">
+            <select class="modal-select" x-model="form.status">
+              <template x-for="s in ['Prepping','Listed','Sold']" :key="s">
+                <option :value="s" x-text="s"></option>
+              </template>
+            </select>
+          </span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Category</span>
+          <span class="modal-val">
+            <select class="modal-select" x-model="form.category">
+              <option value="">n/a</option>
+              <template x-for="c in $store.dw.categories" :key="c.id">
+                <option :value="c.name" x-text="c.name"></option>
+              </template>
+            </select>
+          </span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Sites</span>
+          <span class="modal-val" style="display:flex; flex-wrap:wrap; gap:10px">
+            <template x-for="s in $store.dw.sites" :key="s.id">
+              <label style="display:flex; align-items:center; gap:4px; cursor:pointer; font-size:12px">
+                <input type="checkbox" :value="s.name" x-model="form.sites">
+                <span x-text="s.name"></span>
+              </label>
+            </template>
+          </span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Lot</span>
+          <span class="modal-val">
+            <select class="modal-select" x-model="form.lot" :disabled="form.newLot.trim().length > 0">
+              <option value="">none</option>
+              <template x-for="l in $store.dw.lots" :key="l.name">
+                <option :value="l.name" x-text="l.name"></option>
+              </template>
+            </select>
+          </span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Or New Lot</span>
+          <span class="modal-val" style="flex:1; margin-left:16px">
+            <input class="modal-input" type="text" x-model="form.newLot" placeholder="e.g. FB-APR26">
+          </span>
+        </div>
+        <hr class="modal-divider">
+        <div class="modal-section-label">Financials</div>
+        <div class="modal-row">
+          <span class="modal-field">List Price</span>
+          <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.listPrice" style="width:120px"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Cost Basis</span>
+          <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.cost" style="width:120px"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Est. Shipping</span>
+          <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.shipping" style="width:120px" placeholder="optional"></span>
+        </div>
+
+        <div class="modal-save-row">
+          <button class="btn btn-save" @click="save()" :disabled="saving" x-text="saving ? 'SAVING...' : 'ADD ITEM'"></button>
+          <button class="btn btn-ghost" @click="save(true)" :disabled="saving">+ ADD ANOTHER</button>
+          <span class="save-msg" :class="saveMsg.startsWith('ERROR') ? 'error' : ''" x-text="saveMsg"></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </template>
+  <!-- Lot Modal -->

@@ -1,0 +1,217 @@
+  <!-- ── LABEL MODAL ──────────────────────────────────────────────────────── -->
+  <div x-show="$store.dw.activeModal === 'label'" x-data="labelModal" class="modal-overlay" x-cloak>
+    <div class="modal-box" style="max-width:560px" @keydown.escape.window="$store.dw.closeModal()" @keydown.tab.prevent="$store.dw.trapTab($event, $el)">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" x-text="itemName"></div>
+          <div x-show="itemSku" style="font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:2px" x-text="itemSku"></div>
+        </div>
+        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Loading -->
+        <div x-show="loading" style="padding:40px;text-align:center;color:#aaa;letter-spacing:2px;font-size:13px">LOADING...</div>
+
+        <!-- STEP: form -->
+        <div x-show="step === 'form' && !loading">
+          <div class="modal-section-label">To Address</div>
+          <div class="modal-row" style="flex-direction:column;align-items:stretch;gap:6px">
+            <textarea x-model="addrText" rows="5"
+              placeholder="Name&#10;Street Address&#10;City State Zip&#10;Country (optional)"
+              style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:10px;resize:vertical;box-sizing:border-box;line-height:1.6"></textarea>
+          </div>
+
+          <div class="modal-divider"></div>
+          <div class="modal-section-label">Package</div>
+
+          <div class="modal-row">
+            <span class="modal-field">TYPE</span>
+            <span class="modal-val" style="display:flex;gap:8px">
+              <button @click="setType('box')"
+                :style="parcel.type==='box' ? 'border-color:var(--blue);color:var(--blue)' : 'border-color:var(--border2);color:var(--muted)'"
+                style="padding:5px 14px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;background:transparent">BOX</button>
+              <button @click="setType('poly')"
+                :style="parcel.type==='poly' ? 'border-color:var(--blue);color:var(--blue)' : 'border-color:var(--border2);color:var(--muted)'"
+                style="padding:5px 14px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;background:transparent">POLY BAG</button>
+            </span>
+          </div>
+
+          <div class="modal-row">
+            <span class="modal-field">WEIGHT</span>
+            <span class="modal-val" style="display:flex;gap:8px;align-items:center">
+              <input x-model="parcel.weightLbs" type="number" min="0" step="1" placeholder="0"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              <span style="color:var(--muted);font-size:11px">LBS</span>
+              <input x-model="parcel.weightOz" type="number" min="0" max="15" step="1" placeholder="0"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              <span style="color:var(--muted);font-size:11px">OZ</span>
+            </span>
+          </div>
+
+          <div class="modal-row" x-show="parcel.type === 'box'">
+            <span class="modal-field">DIMENSIONS (IN)</span>
+            <span class="modal-val" style="display:flex;gap:8px;align-items:center">
+              <input x-model="parcel.length" type="number" step="0.5" min="0.1" placeholder="L"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              <span style="color:var(--muted)">×</span>
+              <input x-model="parcel.width" type="number" step="0.5" min="0.1" placeholder="W"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              <span style="color:var(--muted)">×</span>
+              <input x-model="parcel.height" type="number" step="0.5" min="0.1" placeholder="H"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+            </span>
+          </div>
+
+          <div x-show="parcel.type === 'poly'">
+            <div class="modal-row">
+              <span class="modal-field">LENGTH (IN)</span>
+              <span class="modal-val">
+                <input x-model="parcel.length" type="number" step="0.5" min="0.1" placeholder="e.g. 12"
+                  style="width:100px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              </span>
+            </div>
+            <div class="modal-row" style="margin-top:-8px">
+              <span class="modal-field" style="font-size:10px;color:#555">WIDTH &amp; HEIGHT not required for poly bags</span>
+            </div>
+          </div>
+
+          <div class="modal-row">
+            <span class="modal-field">INSURED ($)</span>
+            <span class="modal-val">
+              <input x-model="insuredAmount" type="number" min="0" step="50" placeholder="100"
+                style="width:100px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+            </span>
+          </div>
+
+          <div class="modal-divider"></div>
+          <div style="display:flex;gap:10px;align-items:center;padding:4px 0 8px">
+            <button @click="getRates()" :disabled="loading"
+              style="padding:10px 28px;background:var(--blue);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer">
+              GET RATES
+            </button>
+            <span x-show="errMsg" x-text="errMsg" style="font-size:12px;color:var(--red);letter-spacing:1px"></span>
+          </div>
+        </div>
+
+        <!-- STEP: rates -->
+        <div x-show="step === 'rates' && !loading">
+          <div class="modal-section-label">Select A Rate</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+            <template x-for="r in rates" :key="r.object_id">
+              <div @click="purchase(r.object_id, r.price, r.carrier)"
+                style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border:1px solid var(--border2);cursor:pointer;transition:border-color .15s"
+                @mouseover="$el.style.borderColor='var(--blue)'" @mouseout="$el.style.borderColor='var(--border2)'">
+                <div>
+                  <div style="font-size:13px;letter-spacing:1px">
+                    <span :style="'color:' + carrierColor(r.carrier)" x-text="r.carrier"></span>
+                    <span style="color:var(--white)" x-text="' - ' + r.service"></span>
+                  </div>
+                  <div x-show="r.days" style="font-size:11px;color:#888;margin-top:3px;letter-spacing:1px"
+                    x-text="r.days + ' BUSINESS DAY' + (r.days !== 1 ? 'S' : '')"></div>
+                </div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green)" x-text="'$' + r.price.toFixed(2)"></div>
+              </div>
+            </template>
+          </div>
+          <template x-if="carrierWarnings.length">
+            <div style="margin-bottom:12px">
+              <template x-for="w in carrierWarnings" :key="w">
+                <div x-text="w" style="font-size:11px;color:var(--yellow);letter-spacing:1px;margin-bottom:4px"></div>
+              </template>
+            </div>
+          </template>
+          <button @click="step = 'form'"
+            style="padding:8px 20px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer">
+            ← BACK
+          </button>
+        </div>
+
+        <!-- STEP: result -->
+        <div x-show="step === 'result' && !loading">
+          <div style="padding:16px 0 8px;text-align:center">
+            <div style="font-size:11px;letter-spacing:3px;color:var(--green);margin-bottom:8px">LABEL CREATED</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green)" x-text="'$' + (purchaseResult?.totalCost ?? ratePrice).toFixed(2)"></div>
+          </div>
+          <div class="modal-divider"></div>
+
+          <div class="modal-row">
+            <span class="modal-field">TRACKING #</span>
+            <span class="modal-val" style="display:flex;gap:8px;align-items:center">
+              <span style="font-size:12px;color:var(--white)" x-text="purchaseResult?.trackingNumber || 'n/a'"></span>
+              <button x-show="purchaseResult?.trackingNumber"
+                @click="navigator.clipboard.writeText(purchaseResult.trackingNumber); $el.textContent='✓'"
+                style="padding:3px 8px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;cursor:pointer">
+                COPY
+              </button>
+            </span>
+          </div>
+
+          <div class="modal-row">
+            <span class="modal-field">LABEL</span>
+            <span class="modal-val" style="display:flex;gap:10px;align-items:center">
+              <button @click="printLabel()"
+                style="padding:6px 16px;background:var(--blue);color:#fff;border:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer">
+                PRINT LABEL
+              </button>
+              <a :href="purchaseResult?.labelUrl" target="_blank"
+                style="font-size:11px;color:var(--muted)">↗ raw</a>
+            </span>
+          </div>
+
+          <div class="modal-row" x-show="purchaseResult?.trackingUrl">
+            <span class="modal-field">TRACK</span>
+            <span class="modal-val">
+              <a :href="purchaseResult?.trackingUrl" target="_blank" style="color:var(--muted);font-size:11px">↗ TRACKING PAGE</a>
+            </span>
+          </div>
+
+          <div class="modal-divider"></div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:4px 0 8px">
+            <button @click="saveShipping()" :disabled="savingShip || saveMsg.startsWith('✓')"
+              x-text="savingShip ? 'SAVING...' : saveMsg.startsWith('✓') ? '✓ SAVED' : 'SAVE SHIPPING COST'"
+              :style="saveMsg.startsWith('✓') ? 'background:var(--surface);border:1px solid var(--green);color:var(--green);cursor:default' : 'background:var(--green);color:#000;border:none;cursor:pointer'"
+              style="padding:10px 24px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px">
+            </button>
+            <button x-show="reverbLinks?.ship && purchaseResult?.trackingNumber"
+              @click="markShipped()"
+              :disabled="reverbShipMsg === 'Notifying Reverb...' || reverbShipMsg === '✓ buyer notified'"
+              :style="reverbShipMsg === '✓ buyer notified' ? 'background:var(--surface);border:1px solid var(--reverb);color:var(--reverb);cursor:default;opacity:.6' : 'background:transparent;border:1px solid var(--reverb);color:var(--reverb);cursor:pointer'"
+              x-text="reverbShipMsg === 'Notifying Reverb...' ? 'NOTIFYING...' : reverbShipMsg === '✓ buyer notified' ? '✓ SHIPPED ON REVERB' : 'MARK SHIPPED ON REVERB'"
+              style="padding:10px 24px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px">
+            </button>
+            <button x-show="reverbLinks?.packing_slip"
+              @click="window.open(reverbLinks.packing_slip.web.href, '_blank')"
+              style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
+              PACKING SLIP
+            </button>
+            <button x-show="ebayOrderId && purchaseResult?.trackingNumber"
+              @click="markShippedEbay()"
+              :disabled="ebayShipMsg === 'Notifying eBay...' || ebayShipMsg === '✓ buyer notified'"
+              :style="ebayShipMsg === '✓ buyer notified' ? 'background:var(--surface);border:1px solid var(--green);color:var(--green);cursor:default' : 'background:transparent;border:1px solid var(--ebay);color:var(--ebay);cursor:pointer'"
+              x-text="ebayShipMsg === 'Notifying eBay...' ? 'NOTIFYING...' : ebayShipMsg === '✓ buyer notified' ? '✓ SHIPPED ON EBAY' : 'MARK SHIPPED ON EBAY'"
+              style="padding:10px 24px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px">
+            </button>
+            <button x-show="ebayOrderId && ebayShipMsg !== '✓ buyer notified'"
+              @click="window.open(`https://www.ebay.com/sh/ord/details?orderid=${ebayOrderId}`, '_blank')"
+              style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
+              ORDER DETAILS
+            </button>
+            <button x-show="ebayOrderId"
+              @click="window.open(`https://www.ebay.com/sh/ord/prt?module=PACKING_SLIP_MODULE&orderId=${ebayOrderId}`, '_blank')"
+              style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
+              PACKING SLIP
+            </button>
+            <span x-show="saveMsg && !saveMsg.startsWith('✓')" x-text="saveMsg"
+              style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
+            <span x-show="reverbShipMsg && reverbShipMsg !== 'Notifying Reverb...' && reverbShipMsg !== '✓ buyer notified'"
+              x-text="reverbShipMsg" style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
+            <span x-show="ebayShipMsg && ebayShipMsg !== 'Notifying eBay...' && ebayShipMsg !== '✓ buyer notified'"
+              x-text="ebayShipMsg" style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+

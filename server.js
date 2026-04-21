@@ -14,6 +14,27 @@ process.on('unhandledRejection', (reason) => {
 
 app.use(express.json());
 const noCache = { setHeaders: (res) => res.set('Cache-Control', 'no-store') };
+
+// ── HTML assembler — inlines partials into index.html shell ──────────────────
+const fs             = require('fs');
+const PARTIALS_DIR   = path.join(__dirname, 'public/v2/partials');
+const SHELL_PATH     = path.join(__dirname, 'public/v2/index.html');
+const PARTIAL_RE     = /[ \t]*<!-- partial: ([\w/]+) -->/g;
+
+function assembleHTML() {
+  let shell = fs.readFileSync(SHELL_PATH, 'utf8');
+  return shell.replace(PARTIAL_RE, (_match, name) => {
+    const filePath = path.join(PARTIALS_DIR, name + '.html');
+    return fs.readFileSync(filePath, 'utf8');
+  });
+}
+
+app.get('/',             (_req, res) => { res.set('Cache-Control', 'no-store').type('html').send(assembleHTML()); });
+app.get('/index.html',   (_req, res) => { res.set('Cache-Control', 'no-store').type('html').send(assembleHTML()); });
+app.get('/v2',           (_req, res) => { res.set('Cache-Control', 'no-store').type('html').send(assembleHTML()); });
+app.get('/v2/',          (_req, res) => { res.set('Cache-Control', 'no-store').type('html').send(assembleHTML()); });
+app.get('/v2/index.html',(_req, res) => { res.set('Cache-Control', 'no-store').type('html').send(assembleHTML()); });
+
 app.use(express.static(path.join(__dirname, 'public/v2'), noCache));
 app.use('/v2', express.static(path.join(__dirname, 'public/v2'), noCache));
 app.use('/dg-photos', express.static(path.join(__dirname, 'public/dg-photos')));

@@ -1,0 +1,48 @@
+      <div x-show="$store.dw.activeView === 'lots'" x-data="lotsView">
+        <div class="hero-band slim">
+          <div class="hero-photo"></div>
+          <div class="hero-head">
+            <div class="hero-crumbs">DW<span class="sep">/</span><b>lots</b></div>
+            <div class="hero-tools"></div>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="sortable" style="text-align:left" :class="{'sort-active': sortKey==='lotName'}" @click="sortBy('lotName')">Lot<span x-text="sortGlyph('lotName')"></span></th>
+              <th class="num-col sortable" :class="{'sort-active': sortKey==='items'}" @click="sortBy('items')">Items<span x-text="sortGlyph('items')"></span></th>
+              <th class="num-col sortable" :class="{'sort-active': sortKey==='cost'}" @click="sortBy('cost')">Cost<span x-text="sortGlyph('cost')"></span></th>
+              <th class="num-col sortable" :class="{'sort-active': sortKey==='recovered'}" @click="sortBy('recovered')">Recovered<span x-text="sortGlyph('recovered')"></span></th>
+              <th class="sortable" style="min-width:120px" :class="{'sort-active': sortKey==='recovery'}" @click="sortBy('recovery')">Recovery<span x-text="sortGlyph('recovery')"></span></th>
+              <th class="num-col sortable" :class="{'sort-active': sortKey==='estUpside'}" @click="sortBy('estUpside')">Est. Upside<span x-text="sortGlyph('estUpside')"></span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="lot in rows" :key="lot.name">
+              <tr class="clickable" @click="openLot(lot)">
+                <td style="text-align:left" x-text="lot.name"></td>
+                <td class="num-col">
+                  <span x-text="lot.items.length"></span>
+                  <span class="muted-detail" x-text="'(' + countByStatus(lot,'Sold') + 's/' + countByStatus(lot,'Listed') + 'l)'"></span>
+                </td>
+                <td class="num-col red" x-text="$store.dw.fmt0(totalCost(lot))"></td>
+                <td class="num-col green" x-text="$store.dw.fmt0(totalRecovered(lot))"></td>
+                <td>
+                  <div style="display:flex; align-items:center; gap:8px">
+                    <div class="progress-bar" style="flex:1">
+                      <div class="progress-fill" :class="recoveryBarClass(recoveryPct(lot))" :style="'width:' + recoveryPct(lot) + '%'"></div>
+                    </div>
+                    <span class="num-col" :class="recoveryBarClass(recoveryPct(lot))" x-text="recoveryPct(lot) + '%'"></span>
+                  </div>
+                </td>
+                <td class="num-col yellow" x-text="estUpside(lot) > 0 ? $store.dw.fmt0(estUpside(lot)) : 'n/a'"></td>
+              </tr>
+            </template>
+            <tr x-show="rows.length === 0">
+              <td colspan="6" style="color:var(--muted); text-align:center">No lots found</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Analytics -->

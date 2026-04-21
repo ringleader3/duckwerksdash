@@ -1,0 +1,105 @@
+      <div x-show="$store.dw.activeView === 'analytics'" x-data="analyticsView">
+        <div class="hero-band slim">
+          <div class="hero-photo"></div>
+          <div class="hero-head">
+            <div class="hero-crumbs">DW<span class="sep">/</span><b>analytics</b></div>
+            <div class="hero-tools">
+              <button class="tool-btn" :class="activeTab === 'listed' ? 'primary' : ''" @click="activeTab = 'listed'">Listed</button>
+              <button class="tool-btn" :class="activeTab === 'sold'   ? 'primary' : ''" @click="activeTab = 'sold'">Sold</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Listed Tab -->
+        <div x-show="activeTab === 'listed'">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:12px">
+            <span class="filter-group-label">Sites:</span>
+            <template x-for="site in ['eBay', 'Reverb']" :key="site">
+              <button class="btn" :class="listedSiteFilter.includes(site) ? 'btn-active' : 'btn-muted'"
+                      @click="toggleListedSite(site)" x-text="site"></button>
+            </template>
+          </div>
+          <div x-show="listedLoading" style="padding:40px; text-align:center; color:var(--muted)">Loading…</div>
+          <div x-show="listedError" x-text="listedError" style="padding:20px; color:var(--red)"></div>
+          <table class="data-table" x-show="!listedLoading && !listedError">
+            <thead>
+              <tr>
+                <th style="text-align:left" class="sortable" :class="{'sort-active': sortKey==='name'}"        @click="sortBy('name')">Item<span x-text="sortGlyph('name')"></span></th>
+                <th class="sortable"                          :class="{'sort-active': sortKey==='site'}"        @click="sortBy('site')">Site<span x-text="sortGlyph('site')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='listPrice'}"   @click="sortBy('listPrice')">Price<span x-text="sortGlyph('listPrice')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='daysListed'}"  @click="sortBy('daysListed')">Days Listed<span x-text="sortGlyph('daysListed')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='views'}"       @click="sortBy('views')">Views<span x-text="sortGlyph('views')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='watchers'}"    @click="sortBy('watchers')">Watchers<span x-text="sortGlyph('watchers')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='impressions'}" @click="sortBy('impressions')">Impressions<span x-text="sortGlyph('impressions')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': sortKey==='ctr'}"         @click="sortBy('ctr')">CTR<span x-text="sortGlyph('ctr')"></span></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="row in sortedListedRows" :key="row.site + row.listingId">
+                <tr :style="row.itemId ? 'cursor:pointer' : ''" @click="openItem(row.itemId)">
+                  <td style="text-align:left" x-text="row.name"></td>
+                  <td><span :class="row.site === 'Reverb' ? 'badge-reverb' : 'badge-ebay'" x-text="row.site"></span></td>
+                  <td class="num-col" x-text="row.listPrice != null ? '$' + row.listPrice.toFixed(2) : 'n/a'"></td>
+                  <td class="num-col" x-text="row.daysListed != null ? row.daysListed + 'd' : 'n/a'"></td>
+                  <td class="num-col" x-text="row.views    != null ? row.views    : 'n/a'"></td>
+                  <td class="num-col" x-text="row.watchers != null ? row.watchers : 'n/a'"></td>
+                  <td class="num-col" x-text="row.impressions != null ? row.impressions : 'n/a'"></td>
+                  <td class="num-col" x-text="row.ctr != null ? row.ctr + '%' : 'n/a'"></td>
+                  <td @click.stop x-show="row.itemId">
+                    <button class="btn btn-muted" style="font-size:11px; padding:3px 8px; white-space:nowrap"
+                            @click="$store.dw.navToComp($store.dw.records.find(r => r.id === row.itemId))">Comp</button>
+                  </td>
+                </tr>
+              </template>
+              <tr x-show="sortedListedRows.length === 0 && !listedLoading">
+                <td colspan="9" style="color:var(--muted); text-align:center">No listings found</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Sold Tab -->
+        <div x-show="activeTab === 'sold'">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:12px">
+            <span class="filter-group-label">Sites:</span>
+            <template x-for="site in ['eBay', 'Reverb']" :key="site">
+              <button class="btn" :class="soldSiteFilter.includes(site) ? 'btn-active' : 'btn-muted'"
+                      @click="toggleSoldSite(site)" x-text="site"></button>
+            </template>
+          </div>
+          <div x-show="soldLoading" style="padding:40px; text-align:center; color:var(--muted)">Loading…</div>
+          <div x-show="soldError" x-text="soldError" style="padding:20px; color:var(--red)"></div>
+          <table class="data-table" x-show="!soldLoading && !soldError">
+            <thead>
+              <tr>
+                <th style="text-align:left" class="sortable" :class="{'sort-active': soldSortKey==='name'}"      @click="soldSortBy('name')">Item<span x-text="soldSortIndicator('name')"></span></th>
+                <th class="sortable"                          :class="{'sort-active': soldSortKey==='site'}"      @click="soldSortBy('site')">Site<span x-text="soldSortIndicator('site')"></span></th>
+                <th class="sortable"                          :class="{'sort-active': soldSortKey==='soldDate'}"  @click="soldSortBy('soldDate')">Sold Date<span x-text="soldSortIndicator('soldDate')"></span></th>
+                <th class="num-col sortable"                  :class="{'sort-active': soldSortKey==='daysSince'}" @click="soldSortBy('daysSince')">Days Since Sale<span x-text="soldSortIndicator('daysSince')"></span></th>
+                <th>Order Link</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="row in sortedSoldRows" :key="row.site + row.orderNum">
+                <tr :style="row.itemId ? 'cursor:pointer' : ''" @click="openItem(row.itemId)">
+                  <td style="text-align:left" x-text="row.name"></td>
+                  <td><span :class="row.site === 'Reverb' ? 'badge-reverb' : 'badge-ebay'" x-text="row.site"></span></td>
+                  <td style="color:var(--muted); white-space:nowrap" x-text="row.soldDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })"></td>
+                  <td class="num-col" x-text="row.daysSince + 'd'"></td>
+                  <td @click.stop>
+                    <a x-show="row.orderUrl" :href="row.orderUrl" target="_blank" style="color:var(--blue)">View Order</a>
+                    <span x-show="!row.orderUrl" style="color:var(--muted)">—</span>
+                  </td>
+                </tr>
+              </template>
+              <tr x-show="sortedSoldRows.length === 0 && !soldLoading">
+                <td colspan="5" style="color:var(--muted); text-align:center">No orders pending feedback</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Comps -->

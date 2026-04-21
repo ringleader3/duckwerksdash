@@ -1,0 +1,50 @@
+  <!-- ── REVERB SYNC MODAL ─────────────────────────────────────────────────── -->
+
+  <div x-show="$store.dw.activeModal === 'shipping'" x-data="shippingModal" class="modal-overlay" x-cloak>
+    <div class="modal-box" style="max-width:540px" @keydown.escape.window="$store.dw.closeModal()">
+      <div class="modal-header">
+        <div class="modal-title">In Transit</div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <button class="btn-sm" @click="refreshAll()" :disabled="refreshing" style="font-size:11px;letter-spacing:1px">
+            <span x-text="refreshing ? 'REFRESHING...' : '↺ REFRESH ALL'"></span>
+          </button>
+          <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div x-show="loading" style="color:var(--muted);font-size:12px;padding:16px 0">Loading...</div>
+        <div x-show="errMsg" style="color:var(--red);font-size:12px" x-text="errMsg"></div>
+        <div x-show="!loading && inTransitRecords.length === 0" style="color:var(--muted);font-size:12px;padding:16px 0">
+          No shipments with tracking data.
+        </div>
+        <template x-if="!loading && inTransitRecords.length > 0">
+          <table class="data-table" style="width:100%;table-layout:fixed">
+            <thead>
+              <tr>
+                <th style="text-align:left">Item</th>
+                <th style="white-space:nowrap;width:130px">Status</th>
+                <th style="white-space:nowrap;width:80px">Carrier</th>
+                <th style="white-space:nowrap;width:110px">Est. Delivery</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="r in inTransitRecords" :key="r.id">
+                <tr style="cursor:pointer" @click="openItem(r)">
+                  <td style="text-align:left" x-text="r.name"></td>
+                  <td>
+                    <span x-show="trackStatus(r)" :class="'badge ' + statusBadgeClass(trackStatus(r))" x-text="statusLabel(trackStatus(r))"></span>
+                    <span x-show="!trackStatus(r)" style="color:var(--muted);font-size:11px">—</span>
+                  </td>
+                  <td style="color:var(--muted);font-size:12px" x-text="trackCarrier(r)"></td>
+                  <td style="color:var(--muted);font-size:12px" x-text="trackEstDelivery(r) || 'n/a'"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EBAY SYNC MODAL ───────────────────────────────────────────────────── -->
+
