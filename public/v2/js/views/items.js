@@ -225,11 +225,12 @@ document.addEventListener('alpine:init', () => {
       }
       const rows = this.rows;
       dw.setFilteredKpis({
-        cost:    rows.reduce((s, r) => s + (r.cost || 0), 0),
-        revenue: rows.filter(r => r.status === 'Sold').reduce((s, r) => s + (r.order?.sale_price || 0), 0),
-        profit:  rows.filter(r => r.status === 'Sold').reduce((s, r) => s + (r.order?.profit || 0), 0),
-        inv:     rows.length,
-        listed:  rows.filter(r => r.status === 'Listed').length,
+        cost:     rows.reduce((s, r) => s + (r.cost || 0), 0),
+        revenue:  rows.filter(r => r.status === 'Sold').reduce((s, r) => s + (r.order?.sale_price || 0), 0),
+        profit:   rows.filter(r => r.status === 'Sold').reduce((s, r) => s + (r.order?.profit || 0), 0),
+        inv:      rows.length,
+        listed:   rows.filter(r => r.status === 'Listed').length,
+        forecast: rows.filter(r => r.status === 'Listed').reduce((s, r) => s + dw.estProfit(r), 0),
       });
     },
 

@@ -41,6 +41,9 @@
     </div>
     <div class="tape-item">forecast
       <b class="up" x-text="(()=>{const p=Alpine.store('dw').pipeline;return(p>=0?'+':'')+' $'+Math.round(Math.abs(p)).toLocaleString('en-US',{maximumFractionDigits:0})})()"></b>
+      <template x-if="Alpine.store('dw').filteredKpis">
+        <span class="tape-filtered">· <b x-text="(Alpine.store('dw').filteredKpis.forecast >= 0 ? '+' : '-') + '$' + Math.round(Math.abs(Alpine.store('dw').filteredKpis.forecast)).toLocaleString('en-US',{maximumFractionDigits:0})"></b> flt</span>
+      </template>
     </div>
     <div class="tape-item">inv
       <b x-text="Alpine.store('dw').records.length"></b>
