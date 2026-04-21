@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-21 — v1.1.53 post-sites fixes
+
+- Fixed: `sortGlyph` not defined in lot modal — renamed from `sortIndicator` during #107 but HTML wasn't updated
+- Fixed: `r.category.toLowerCase is not a function` in dashboard — `r.category` is now an object; changed to `r.category?.name`
+- Fixed: Sites view doesn't refresh after shipping — added `activeModal` watcher to re-fetch orders when modal closes while on sites view
+- Filed #116: refactor index.html into per-view/per-modal partials served by Express
+
 ### 2026-04-21 — v1.1.52 Sites view (#115)
 
 - Removed redundant "Save Match" button from Reverb sync modal (label modal already writes `platform_order_num` on ship)
