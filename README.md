@@ -156,7 +156,6 @@ public/v2/
 | Mar 28–29 | Comp research view (v1.0.8) — SerpAPI eBay sold listings + Puppeteer Reverb scrape + Claude analysis; structured CSV + narrative output; launch from item modal or sidebar; copy/download results |
 | Mar 30 | Multi-listing per item (v1.0.9) — FB/CL support: checkbox site selection in Add Item, listings mini-table in item modal, per-row Mark Sold flow, contains-style site filter |
 | Apr 1–9 | eBay bulk listing system — `bulk-list-discs.js` + Inventory API integration; catalog intake form; comp research Reverb v2 research; label print alignment fixes; shipping estimate tuning; eBay aspect/condition fixes; comma-separated `--ids` support; `--confirm` pattern standardized across all scripts; project cleanup (removed v1 monolith, Airtable scripts, stale reference files) |
-
 | Apr 9–19 | Design system refresh (v1.1.x) — slim hero bands on all views, sortable columns with localStorage persistence, filter-aware KPI tape, filter chip labels, row-click affordance, toast notifications, inventory export CSV, comps auto-hide uniform columns, catalog view parity |
 | Apr 19 | Multi-item eBay order support (v1.1.49) — label modal handles multiple line items, proportional payout split, single tracking push marks all items shipped |
 | Apr 20 | Inventory workbench (v1.1.50) — mode-switching tables (Listed/Sold/All), multi-select site filter pills, date range filter, expanded search (name + SKU + lot + notes), forecast stat in tape |
