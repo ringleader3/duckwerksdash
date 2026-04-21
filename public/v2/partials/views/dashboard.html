@@ -89,12 +89,13 @@
                   <div class="inc-row">
                     <div class="inc-lbl">
                       <span x-text="w.label"></span>
+                      <span style="font-size:9px;color:var(--muted)" x-text="windowDateRange(w.days)"></span>
                       <span x-text="w.gross > 0 ? fmtWnd(w.gross) + ' gross' : 'no data'"></span>
                     </div>
                     <div class="inc-track">
-                      <div class="inc-seg cost" :style="'width:' + w.costPct + '%'" x-text="w.cost > 500 ? 'cost ' + fmtWnd(w.cost) : ''"></div>
-                      <div class="inc-seg ship" :style="'width:' + w.shipPct + '%'" x-text="w.ship > 200 ? 'ship ' + fmtWnd(w.ship) : ''"></div>
-                      <div class="inc-seg net"  :style="'width:' + w.netPct  + '%'" x-text="w.net  > 500 ? 'net '  + fmtWnd(w.net)  : ''"></div>
+                      <div class="inc-seg cost" :style="'width:' + w.costPct + '%'" :title="'Cost: ' + fmtWnd(w.cost)" x-text="w.cost > 500 ? 'cost ' + fmtWnd(w.cost) : ''"></div>
+                      <div class="inc-seg ship" :style="'width:' + w.shipPct + '%'" :title="'Ship: ' + fmtWnd(w.ship)" x-text="w.ship > 200 ? 'ship ' + fmtWnd(w.ship) : ''"></div>
+                      <div class="inc-seg net"  :style="'width:' + w.netPct  + '%'" :title="'Net: '  + fmtWnd(w.net)"  x-text="w.net  > 500 ? 'net '  + fmtWnd(w.net)  : ''"></div>
                       <div class="inc-empty"></div>
                       <div class="inc-goal" x-show="w.goalPct" :style="'left:' + w.goalPct + '%'">
                         <span class="inc-goal-lbl" x-text="'$' + (w.goalAmt/1000).toFixed(0) + 'k · ' + w.label"></span>
@@ -102,8 +103,7 @@
                     </div>
                     <div class="inc-right">
                       <div class="inc-net" x-text="(w.net >= 0 ? '+' : '') + fmtWnd(w.net)"><span>net</span></div>
-                      <div class="inc-verdict" :class="{ under: !w.overGoal && w.goalAmt !== null, future: w.goalAmt === null }"
-                        x-text="verdictText(w) || '—'"></div>
+                      <div class="inc-verdict" :class="{ under: !w.overGoal }" x-text="verdictText(w) || '—'"></div>
                     </div>
                   </div>
                 </template>

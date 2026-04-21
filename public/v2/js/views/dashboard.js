@@ -136,22 +136,27 @@ document.addEventListener('alpine:init', () => {
 
     soldInWindow(days) {
       const dw     = Alpine.store('dw');
-      const cutoff = days === 'ytd'
-        ? new Date(new Date().getFullYear(), 0, 1)
-        : new Date(Date.now() - days * 86400000);
+      const cutoff = new Date(Date.now() - days * 86400000);
       return dw.soldRecords.filter(r => {
         if (!r.order?.date_sold) return false;
         return new Date(r.order.date_sold) >= cutoff;
       });
     },
 
+    windowDateRange(days) {
+      const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const end   = new Date();
+      const start = new Date(Date.now() - days * 86400000);
+      return fmt(start) + '–' + fmt(end);
+    },
+
     get incomeWindows() {
       const goal30 = 3000;
       const windows = [
-        { label: '7d',  days: 7,     goalAmt: Math.round(goal30 * 7 / 30) },
-        { label: '30d', days: 30,    goalAmt: goal30 },
-        { label: '90d', days: 90,    goalAmt: goal30 * 3 },
-        { label: 'YTD', days: 'ytd', goalAmt: null },
+        { label: '7d',  days: 7,  goalAmt: Math.round(goal30 * 7  / 30) },
+        { label: '30d', days: 30, goalAmt: goal30 },
+        { label: '60d', days: 60, goalAmt: goal30 * 2 },
+        { label: '90d', days: 90, goalAmt: goal30 * 3 },
       ];
       const rows = windows.map(w => {
         const items = this.soldInWindow(w.days);
@@ -188,10 +193,6 @@ document.addEventListener('alpine:init', () => {
     },
 
     verdictText(w) {
-      if (w.goalAmt === null) {
-        const rentTimes = w.net > 0 ? (w.net / 3000).toFixed(2) : 0;
-        return rentTimes > 0 ? `${rentTimes}× rent · YTD` : 'no sales YTD';
-      }
       if (w.label === '7d')  return w.overGoal
         ? `↑ ${Math.abs(w.deltaPct)}% over weekly pace`
         : `↓ ${Math.abs(w.deltaPct)}% under weekly pace`;
@@ -199,7 +200,7 @@ document.addEventListener('alpine:init', () => {
         ? `✓ rent covered · +$${Math.round(w.net - w.goalAmt).toLocaleString()}`
         : `✗ $${Math.round(w.goalAmt - w.net).toLocaleString()} short of goal`;
       const rentTimes = (w.net / 3000).toFixed(2);
-      return `${rentTimes}× rent · 90 days`;
+      return `${rentTimes}× rent · ${w.label}`;
     },
 
     ctag(r) {
