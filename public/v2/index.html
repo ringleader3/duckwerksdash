@@ -1266,6 +1266,923 @@
 
   </main>
 
+  <!-- ── Modal Containers ──────────────────────────────────────────────────── -->
+  <!-- Item Modal -->
+  <div x-show="$store.dw.activeModal === 'item'" x-data="itemModal" class="modal-overlay" x-cloak>
+    <template x-if="record">
+    <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()" @keydown.tab.prevent="$store.dw.trapTab($event, $el)">
+
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" x-text="record.name"></div>
+          <div x-show="itemSku" style="font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:2px" x-text="itemSku"></div>
+        </div>
+        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- READ VIEW -->
+        <div x-show="!editMode">
+          <div class="modal-section-label">Item Details</div>
+
+          <div class="modal-row">
+            <span class="modal-field">Status</span>
+            <span class="modal-val">
+              <span class="badge" :class="badgeClass(record.status)" x-text="record.status || 'n/a'"
+                    style="cursor:pointer" title="View all with this status"
+                    @click="$store.dw.navToItems(record.status, null)"></span>
+            </span>
+          </div>
+          <div class="modal-row">
+            <span class="modal-field">Category</span>
+            <span class="modal-val">
+              <span class="badge" :class="record.category?.badge_class" x-text="record.category?.name || 'n/a'"
+                    style="cursor:pointer" title="View all in this category"
+                    @click="$store.dw.navToItems(null, record.category?.name)"></span>
+            </span>
+          </div>
+          <div class="modal-row" x-show="record.listings?.length" style="align-items:flex-start">
+            <span class="modal-field" style="padding-top:5px">Listings</span>
+            <div style="flex:1; margin-left:16px">
+              <table style="width:100%; border-collapse:collapse">
+                <template x-for="l in record.listings" :key="l.id">
+                  <tr style="border-bottom:1px solid var(--border)">
+                    <td style="padding:4px 8px 4px 0; width:1%; white-space:nowrap">
+                      <span class="badge" :class="$store.dw.siteBadgeClass(l.site?.name)" x-text="l.site?.name"></span>
+                    </td>
+                    <td style="padding:4px 8px; width:1%; white-space:nowrap">
+                      <span class="badge" :class="listingStatusBadge(l.status)" x-text="l.status"></span>
+                    </td>
+                    <td style="padding:4px 8px; width:1%; white-space:nowrap; text-align:right; font-size:12px"
+                        :style="l.list_price > 0 ? 'color:var(--yellow)' : 'color:var(--muted)'"
+                        x-text="l.list_price > 0 ? '$' + l.list_price.toFixed(0) : '—'"></td>
+                    <td style="padding:4px 0 4px 6px; font-size:11px; color:var(--muted); text-align:right">
+                      <a x-show="listingUrl(l)" :href="listingUrl(l)" target="_blank" style="color:var(--muted)"
+                         x-text="l.platform_listing_id ? '↗ #' + l.platform_listing_id : '↗ link'"></a>
+                      <span x-show="!listingUrl(l) && !l.platform_listing_id">—</span>
+                    </td>
+                    <td style="padding:4px 0 4px 6px; text-align:right; width:1%; white-space:nowrap" x-show="l.status === 'active' && !isSold">
+                      <template x-if="markSoldId !== l.id">
+                        <button class="btn btn-muted" style="font-size:11px; padding:2px 8px"
+                                @click="markSold(l.id)">Mark Sold</button>
+                      </template>
+                      <template x-if="markSoldId === l.id">
+                        <div style="display:flex; gap:4px; align-items:center; justify-content:flex-end">
+                          <input class="modal-input" type="number" step="0.01" x-model="markSoldPrice"
+                                 style="width:70px; padding:2px 6px; font-size:11px" placeholder="Sale $">
+                          <button class="btn btn-green" style="font-size:11px; padding:2px 8px"
+                                  @click="confirmMarkSold(l.id)">OK</button>
+                          <button class="btn btn-muted" style="font-size:11px; padding:2px 8px"
+                                  @click="cancelMarkSold()">✕</button>
+                        </div>
+                      </template>
+                    </td>
+                  </tr>
+                </template>
+              </table>
+            </div>
+          </div>
+          <div class="modal-row" x-show="record.lot?.name">
+            <span class="modal-field">Lot</span>
+            <span class="modal-val" x-text="record.lot?.name"
+                  style="cursor:pointer; color:var(--blue)" title="Open lot detail"
+                  @click="$store.dw.openModal('lot', null, record.lot?.name)"></span>
+          </div>
+          <template x-if="record && record.order?.platform_order_num">
+            <div>
+              <hr class="modal-divider">
+              <div class="modal-section-label">Order</div>
+              <div class="modal-row" x-data="{ get orderSite() { return record.listings?.find(l => l.status === 'sold')?.site?.name || ''; } }">
+                <span class="modal-field" x-text="orderSite"></span>
+                <span class="modal-val" style="display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end">
+                  <a x-show="orderSite === 'Reverb'" target="_blank"
+                     :href="'https://reverb.com/my/selling/orders/' + record.order?.platform_order_num"
+                     style="font-size:11px; color:var(--reverb)"
+                     x-text="'↗ Order #' + record.order?.platform_order_num"></a>
+                  <a x-show="orderSite === 'Reverb'" target="_blank"
+                     :href="'https://reverb.com/my/orders/' + record.order?.platform_order_num + '/packing_slip.pdf'"
+                     style="font-size:11px; color:var(--muted)">↗ Packing Slip</a>
+                  <a x-show="orderSite === 'eBay'" target="_blank"
+                     :href="'https://www.ebay.com/sh/ord/details?orderid=' + record.order?.platform_order_num"
+                     style="font-size:11px; color:var(--ebay)">↗ Order Details</a>
+                  <a x-show="orderSite === 'eBay'" target="_blank"
+                     :href="'https://www.ebay.com/sh/ord/prt?module=PACKING_SLIP_MODULE&orderId=' + record.order?.platform_order_num"
+                     style="font-size:11px; color:var(--muted)">↗ Packing Slip</a>
+                </span>
+              </div>
+            </div>
+          </template>
+
+          <hr class="modal-divider">
+          <div class="modal-section-label">Financials</div>
+
+          <div class="modal-row">
+            <span class="modal-field">List Price</span>
+            <span class="modal-val" x-text="$store.dw.activeListing(record)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(record).list_price) : 'n/a'"></span>
+          </div>
+          <div class="modal-row" x-show="$store.dw.activeListing(record)?.list_price > 0 && !isSold">
+            <span class="modal-field">Earnings After Fees</span>
+            <span class="modal-val est" x-text="$store.dw.fmt0($store.dw.payout(record))"></span>
+          </div>
+          <div class="modal-row">
+            <span class="modal-field">Cost Basis</span>
+            <span class="modal-val red" x-text="record.cost > 0 ? $store.dw.fmt0(record.cost) : 'n/a'"></span>
+          </div>
+
+          <!-- SOLD state -->
+          <template x-if="record && isSold">
+            <div>
+              <div class="modal-row">
+                <span class="modal-field">Actual Payout</span>
+                <span class="modal-val green" x-text="$store.dw.fmt0(record.order?.sale_price)"></span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">Shipping Cost</span>
+                <span class="modal-val red" x-text="$store.dw.fmt0(record.shipment?.shipping_cost || record.listings?.find(l => l.status === 'sold')?.shipping_estimate) || 'n/a'"></span>
+              </div>
+              <hr class="modal-divider">
+              <div style="display:flex; justify-content:space-between; align-items:flex-end; padding:8px 0">
+                <div>
+                  <div class="modal-field" style="margin-bottom:6px">Net Profit</div>
+                  <div class="modal-big-profit" :class="record.order?.profit >= 0 ? 'green' : 'red'" x-text="(record.order?.profit >= 0 ? '+' : '') + $store.dw.fmt0(record.order?.profit)"></div>
+                </div>
+                <div style="text-align:right">
+                  <div class="modal-field" style="margin-bottom:6px">Margin</div>
+                  <div style="font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--muted)"
+                       x-text="record.cost > 0 ? Math.round((record.order?.profit / record.cost) * 100) + '%' : 'n/a'"></div>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- LISTED/PENDING state -->
+          <template x-if="record && !isSold">
+            <div>
+              <hr class="modal-divider" x-show="$store.dw.activeListing(record)?.list_price > 0">
+              <div class="modal-row" x-show="$store.dw.activeListing(record)?.list_price > 0">
+                <span class="modal-field">Shipping</span>
+                <span class="modal-val" :class="$store.dw.activeListing(record)?.shipping_estimate != null ? 'red' : 'est'"
+                      x-text="$store.dw.activeListing(record)?.shipping_estimate != null ? $store.dw.fmt0($store.dw.activeListing(record).shipping_estimate) : '($7 est)'"></span>
+              </div>
+              <div style="padding:8px 0" x-show="$store.dw.activeListing(record)?.list_price > 0">
+                <div class="modal-field" style="margin-bottom:6px"
+                     x-text="record.listings?.filter(l => l.status === 'active').length > 1 ? 'Est. Profit (' + $store.dw.activeListing(record)?.site?.name + ', best net)' : 'Est. Profit'"></div>
+                <div class="modal-big-profit est" x-text="$store.dw.fmt0($store.dw.estProfit(record))"></div>
+              </div>
+            </div>
+          </template>
+
+          <hr class="modal-divider">
+          <div class="modal-row" style="padding:4px 0">
+            <span class="modal-field" style="font-size:11px">Date Added</span>
+            <span style="font-size:11px; color:var(--muted)" x-text="record ? new Date(record.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : 'n/a'"></span>
+          </div>
+          <div class="modal-row" x-show="record.order?.date_sold" style="padding:4px 0">
+            <span class="modal-field" style="font-size:11px">Date Sold</span>
+            <span style="font-size:11px; color:var(--muted)" x-text="record.order?.date_sold ? new Date(record.order.date_sold + 'T00:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : ''"></span>
+          </div>
+          <template x-if="record && (record.shipment?.tracking_id || record.shipment?.tracking_number || record.shipment?.tracker_url)">
+            <div>
+              <hr class="modal-divider">
+              <div class="modal-section-label">Shipment</div>
+              <div class="modal-row" x-show="trackingLoading">
+                <span style="color:var(--muted);font-size:12px">Loading tracking...</span>
+              </div>
+              <template x-if="trackingInfo && !trackingLoading">
+                <div>
+                  <div class="modal-row">
+                    <span class="modal-field">Status</span>
+                    <span class="modal-val">
+                      <span :class="'badge ' + trackStatusBadgeClass" x-text="trackStatusLabel"></span>
+                    </span>
+                  </div>
+                  <div class="modal-row" x-show="trackingInfo.carrier">
+                    <span class="modal-field">Carrier</span>
+                    <span class="modal-val" style="color:var(--muted)" x-text="trackingInfo.carrier"></span>
+                  </div>
+                  <div class="modal-row" x-show="trackEstDelivery">
+                    <span class="modal-field">Est. Delivery</span>
+                    <span class="modal-val" style="color:var(--muted)" x-text="trackEstDelivery"></span>
+                  </div>
+                  <div class="modal-row" x-show="trackingInfo.publicUrl">
+                    <span class="modal-field">Track</span>
+                    <span class="modal-val">
+                      <a :href="trackingInfo.publicUrl" target="_blank" style="font-size:11px">↗ View Tracker</a>
+                    </span>
+                  </div>
+                  <template x-if="trackingInfo.events && trackingInfo.events.length > 0">
+                    <div style="margin-top:8px">
+                      <div class="modal-field" style="margin-bottom:6px;font-size:10px">TIMELINE</div>
+                      <template x-for="(evt, i) in trackingInfo.events.slice().reverse()" :key="i">
+                        <div style="display:flex;gap:8px;align-items:flex-start;padding:4px 0;border-top:1px solid var(--border)">
+                          <div style="font-size:10px;color:var(--muted);white-space:nowrap;min-width:60px" x-text="evt.datetime ? new Date(evt.datetime).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : ''"></div>
+                          <div style="font-size:11px;color:var(--muted)" x-text="evt.message"></div>
+                        </div>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+              </template>
+              <div x-show="!trackingInfo && !trackingLoading">
+                <div class="modal-row" x-show="record.shipment?.tracking_number">
+                  <span class="modal-field">Tracking #</span>
+                  <span class="modal-val" style="color:var(--muted);font-size:12px" x-text="record.shipment?.tracking_number"></span>
+                </div>
+                <div class="modal-row">
+                  <a x-show="record.shipment?.tracker_url" :href="record.shipment?.tracker_url" target="_blank" style="font-size:11px">↗ View Tracker</a>
+                  <span x-show="!record.shipment?.tracker_url && !record.shipment?.tracking_number" style="color:var(--muted);font-size:11px">Tracking unavailable</span>
+                </div>
+              </div>
+              <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+                <button @click="clearTracking()" style="padding:4px 10px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer">CLEAR TRACKING</button>
+                <button x-show="record.shipment?.label_url" @click="$store.dw.printLabel(record.shipment.label_url)"
+                  style="font-size:11px;background:none;border:none;color:var(--blue);cursor:pointer;font-family:'Space Mono',monospace;padding:0">↗ Reprint Label</button>
+              </div>
+            </div>
+          </template>
+          <div style="font-size:10px; color:#555; letter-spacing:2px; margin-top:4px" x-text="record ? 'ID: ' + record.id : ''"></div>
+        </div>
+
+        <!-- EDIT VIEW -->
+        <div x-show="editMode">
+          <div class="modal-section-label">Item Details</div>
+
+          <div class="modal-row">
+            <span class="modal-field">Name</span>
+            <span class="modal-val" style="flex:1; margin-left:16px">
+              <input class="modal-input" type="text" x-model="form.name">
+            </span>
+          </div>
+          <div class="modal-row">
+            <span class="modal-field">Status</span>
+            <span class="modal-val">
+              <select class="modal-select" x-model="form.status">
+                <template x-for="s in ['Prepping','Listed','Sold']" :key="s">
+                  <option :value="s" x-text="s"></option>
+                </template>
+              </select>
+            </span>
+          </div>
+          <div class="modal-row">
+            <span class="modal-field">Category</span>
+            <span class="modal-val">
+              <select class="modal-select" x-model="form.category">
+                <option value="">n/a</option>
+                <template x-for="c in $store.dw.categories" :key="c.id">
+                  <option :value="c.name" x-text="c.name"></option>
+                </template>
+              </select>
+            </span>
+          </div>
+          <div class="modal-row">
+            <span class="modal-field">Lot</span>
+            <span class="modal-val">
+              <select class="modal-select" x-model="form.lot">
+                <option value="">none</option>
+                <template x-for="l in $store.dw.lots" :key="l.name">
+                  <option :value="l.name" x-text="l.name"></option>
+                </template>
+              </select>
+            </span>
+          </div>
+
+          <hr class="modal-divider">
+          <div class="modal-section-label">Listings</div>
+          <template x-for="(lf, idx) in form.listings" :key="lf.id || idx">
+            <div style="border:1px solid var(--border2); border-radius:4px; padding:10px 12px; margin-bottom:8px">
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px">
+                <span class="badge" :class="$store.dw.siteBadgeClass(lf.site)" x-text="lf.site"></span>
+                <span class="badge badge-other" x-text="lf.status"></span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">List Price</span>
+                <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="lf.list_price" style="width:120px"></span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">Shipping Est.</span>
+                <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="lf.shipping_estimate" style="width:120px"></span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">URL</span>
+                <span class="modal-val" style="flex:1; margin-left:16px">
+                  <input class="modal-input" type="text" x-model="lf.url">
+                </span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">Listing ID</span>
+                <span class="modal-val" style="flex:1; margin-left:16px">
+                  <input class="modal-input" type="text" x-model="lf.platform_listing_id">
+                </span>
+              </div>
+            </div>
+          </template>
+          <template x-for="(pl, idx) in form.pendingListings" :key="idx">
+            <div style="border:1px solid var(--border2); border-radius:4px; padding:10px 12px; margin-bottom:8px">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px">
+                <span style="font-size:11px; color:var(--muted)">NEW LISTING</span>
+                <button class="btn btn-ghost" @click="form.pendingListings.splice(idx, 1)" style="font-size:10px; padding:2px 8px; color:var(--muted)">remove</button>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">Site</span>
+                <span class="modal-val">
+                  <select class="modal-select" x-model="pl.site">
+                    <option value="">— select —</option>
+                    <template x-for="s in $store.dw.sites" :key="s.id">
+                      <option :value="s.name" x-text="s.name"></option>
+                    </template>
+                  </select>
+                </span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">List Price</span>
+                <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="pl.list_price" style="width:120px"></span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">Shipping Est.</span>
+                <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="pl.shipping_estimate" style="width:120px"></span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">URL</span>
+                <span class="modal-val" style="flex:1; margin-left:16px">
+                  <input class="modal-input" type="text" x-model="pl.url">
+                </span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">Listing ID</span>
+                <span class="modal-val" style="flex:1; margin-left:16px">
+                  <input class="modal-input" type="text" x-model="pl.platform_listing_id">
+                </span>
+              </div>
+            </div>
+          </template>
+          <div style="margin-top:2px">
+            <button class="btn btn-ghost" @click="form.pendingListings.push({ site: '', list_price: '', shipping_estimate: '', url: '', platform_listing_id: '' })" style="font-size:11px; padding:4px 10px">+ ADD LISTING</button>
+          </div>
+
+          <hr class="modal-divider">
+          <div class="modal-section-label">Financials</div>
+
+          <div class="modal-row">
+            <span class="modal-field">Cost Basis</span>
+            <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.cost" style="width:120px"></span>
+          </div>
+          <div class="modal-row">
+            <span class="modal-field">Payout</span>
+            <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.sale" style="width:120px"></span>
+          </div>
+
+          <template x-if="form.shipment">
+            <div>
+              <hr class="modal-divider">
+              <div class="modal-section-label">Shipment</div>
+              <div class="modal-row">
+                <span class="modal-field">Tracker ID</span>
+                <span class="modal-val" style="flex:1; margin-left:16px">
+                  <input class="modal-input" type="text" x-model="form.shipment.tracking_id" placeholder="trk_...">
+                </span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">Tracking #</span>
+                <span class="modal-val" style="flex:1; margin-left:16px">
+                  <input class="modal-input" type="text" x-model="form.shipment.tracking_number">
+                </span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">Tracker URL</span>
+                <span class="modal-val" style="flex:1; margin-left:16px">
+                  <input class="modal-input" type="text" x-model="form.shipment.tracker_url">
+                </span>
+              </div>
+              <div class="modal-row">
+                <span class="modal-field">Ship Cost</span>
+                <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.shipment.shipping_cost" style="width:120px"></span>
+              </div>
+            </div>
+          </template>
+
+        </div>
+
+      </div><!-- .modal-body -->
+
+      <div class="modal-footer">
+        <button class="btn btn-ghost" x-show="editMode" @click="cancelEdit()">CANCEL</button>
+        <button class="btn btn-save"  x-show="editMode" @click="save()" :disabled="saving" x-text="saving ? 'SAVING...' : 'SAVE'"></button>
+        <span class="save-msg" x-show="editMode" :class="saveMsg.startsWith('ERROR') ? 'error' : ''" x-text="saveMsg"></span>
+        <button class="btn btn-ghost" x-show="!editMode" @click="startEdit()">EDIT</button>
+        <button class="btn btn-primary" x-show="!editMode" @click="$store.dw.openModal('label', record.id)">SHIP</button>
+        <button class="btn btn-ghost" x-show="!editMode" style="margin-left:auto"
+          @click="if(confirm('Delete this item and all associated listings/orders/shipments?')) { $store.dw.deleteItem(record.id); $store.dw.closeModal(); }">
+          DELETE
+        </button>
+      </div>
+
+    </div>
+    </template>
+  </div>
+
+  <!-- Add Modal -->
+  <template x-if="$store.dw.activeModal === 'add'">
+  <div x-data="addModal" class="modal-overlay">
+    <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()" @keydown.tab.prevent="$store.dw.trapTab($event, $el)">
+
+      <div class="modal-header">
+        <div class="modal-title">Add Item</div>
+        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-section-label">Item Details</div>
+        <div class="modal-row">
+          <span class="modal-field">Name <span style="color:var(--red)">*</span></span>
+          <span class="modal-val" style="flex:1; margin-left:16px">
+            <input class="modal-input" type="text" x-model="form.name" placeholder="Item name..." @keydown.enter="save()">
+          </span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Status</span>
+          <span class="modal-val">
+            <select class="modal-select" x-model="form.status">
+              <template x-for="s in ['Prepping','Listed','Sold']" :key="s">
+                <option :value="s" x-text="s"></option>
+              </template>
+            </select>
+          </span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Category</span>
+          <span class="modal-val">
+            <select class="modal-select" x-model="form.category">
+              <option value="">n/a</option>
+              <template x-for="c in $store.dw.categories" :key="c.id">
+                <option :value="c.name" x-text="c.name"></option>
+              </template>
+            </select>
+          </span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Sites</span>
+          <span class="modal-val" style="display:flex; flex-wrap:wrap; gap:10px">
+            <template x-for="s in $store.dw.sites" :key="s.id">
+              <label style="display:flex; align-items:center; gap:4px; cursor:pointer; font-size:12px">
+                <input type="checkbox" :value="s.name" x-model="form.sites">
+                <span x-text="s.name"></span>
+              </label>
+            </template>
+          </span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Lot</span>
+          <span class="modal-val">
+            <select class="modal-select" x-model="form.lot" :disabled="form.newLot.trim().length > 0">
+              <option value="">none</option>
+              <template x-for="l in $store.dw.lots" :key="l.name">
+                <option :value="l.name" x-text="l.name"></option>
+              </template>
+            </select>
+          </span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Or New Lot</span>
+          <span class="modal-val" style="flex:1; margin-left:16px">
+            <input class="modal-input" type="text" x-model="form.newLot" placeholder="e.g. FB-APR26">
+          </span>
+        </div>
+        <hr class="modal-divider">
+        <div class="modal-section-label">Financials</div>
+        <div class="modal-row">
+          <span class="modal-field">List Price</span>
+          <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.listPrice" style="width:120px"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Cost Basis</span>
+          <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.cost" style="width:120px"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-field">Est. Shipping</span>
+          <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.shipping" style="width:120px" placeholder="optional"></span>
+        </div>
+
+        <div class="modal-save-row">
+          <button class="btn btn-save" @click="save()" :disabled="saving" x-text="saving ? 'SAVING...' : 'ADD ITEM'"></button>
+          <button class="btn btn-ghost" @click="save(true)" :disabled="saving">+ ADD ANOTHER</button>
+          <span class="save-msg" :class="saveMsg.startsWith('ERROR') ? 'error' : ''" x-text="saveMsg"></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </template>
+  <!-- Lot Modal -->
+  <div x-show="$store.dw.activeModal === 'lot'" x-data="lotModal" class="modal-overlay" x-cloak>
+    <div class="modal-box modal-box-wide" x-show="lot" @keydown.escape.window="$store.dw.activeModal === 'lot' && $store.dw.closeModal()">
+
+      <div class="modal-header">
+        <div class="modal-title" x-text="lot ? lot.name : ''"></div>
+        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Lot stat cards -->
+        <div class="stat-grid" style="margin-bottom:16px">
+          <div class="stat-card red">
+            <div class="stat-card-label">TOTAL COST</div>
+            <div class="stat-card-value" x-text="$store.dw.fmt0(totalCost())"></div>
+            <div class="stat-card-sub">sum of cost basis</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-card-label">RECOVERED</div>
+            <div class="stat-card-value" x-text="$store.dw.fmt0(recovered())"></div>
+            <div class="stat-card-sub">gross sold revenue</div>
+            <div class="stat-card-sub" x-text="$store.dw.fmt0(soldCost()) + ' cost · ' + $store.dw.fmt0(soldShipping()) + ' ship · ' + $store.dw.fmt0(realizedProfit()) + ' profit'"></div>
+          </div>
+          <div class="stat-card" :class="realizedProfit() >= 0 ? 'green' : 'red'">
+            <div class="stat-card-label">REALIZED PROFIT</div>
+            <div class="stat-card-value" x-text="(realizedProfit() >= 0 ? '+' : '') + $store.dw.fmt0(realizedProfit())"></div>
+            <div class="stat-card-sub">sold after all fees</div>
+            <div class="stat-card-sub" x-text="totalCost() > 0 ? 'ROI ' + $store.dw.pct(realizedProfit(), totalCost()) + '%' : ''"></div>
+          </div>
+          <div class="stat-card" :class="estTotalProfit() >= 0 ? 'green' : 'red'">
+            <div class="stat-card-label">FORECASTED PROFIT</div>
+            <div class="stat-card-value" x-text="(estTotalProfit() >= 0 ? '+' : '') + $store.dw.fmt0(estTotalProfit())"></div>
+            <div class="stat-card-sub">realized + listed est.</div>
+            <div class="stat-card-sub" x-text="'+' + $store.dw.fmt0(estUpside()) + ' listed est.'"></div>
+          </div>
+        </div>
+
+        <!-- Break-even progress bar -->
+        <div style="margin-bottom:20px">
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-bottom:6px">
+            <span>RECOVERY PROGRESS</span>
+            <span :class="recoveryBarClass()" x-text="recoveryPct() + '%'"></span>
+          </div>
+          <div class="progress-bar" style="height:10px">
+            <div class="progress-fill" :class="recoveryBarClass()" :style="'width:' + recoveryPct() + '%'"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:4px">
+            <span x-text="countByStatus('Sold') + ' sold, ' + countByStatus('Listed') + ' listed, ' + countByStatus('Prepping') + ' prepping'"></span>
+            <span x-text="items.length + ' items total'"></span>
+          </div>
+        </div>
+
+        <!-- Item table -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+          <div class="modal-section-label" style="margin-bottom:0">Items In Lot</div>
+          <button x-show="!reallocMode" class="btn btn-muted" style="font-size:10px; padding:4px 10px" @click="initRealloc()">REALLOCATE COSTS</button>
+        </div>
+
+        <!-- Main item table (hidden during realloc) -->
+        <table class="data-table" x-show="!reallocMode">
+          <thead>
+            <tr>
+              <th class="sortable" :class="{'sort-active': sortKey==='name'}"      @click="sortBy('name')"      x-text="'Name'       + sortGlyph('name')"></th>
+              <th class="sortable" :class="{'sort-active': sortKey==='status'}"    @click="sortBy('status')"    style="white-space:nowrap" x-text="'Status'     + sortGlyph('status')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='cost'}"      @click="sortBy('cost')"      style="white-space:nowrap" x-text="'Cost'       + sortGlyph('cost')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='listPrice'}" @click="sortBy('listPrice')" style="white-space:nowrap" x-text="'List'       + sortGlyph('listPrice')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='eaf'}"       @click="sortBy('eaf')"       style="white-space:nowrap" x-text="'EAF'        + sortGlyph('eaf')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='estProfit'}" @click="sortBy('estProfit')" style="white-space:nowrap" x-text="'Profit'     + sortGlyph('estProfit')"></th>
+              <th class="sortable num-col" :class="{'sort-active': sortKey==='sale'}"      @click="sortBy('sale')"      style="white-space:nowrap" x-text="'Sale'       + sortGlyph('sale')"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="r in sortedItems" :key="r.id">
+              <tr class="clickable-row" @click="openItem(r)">
+                <td style="text-align:left" x-text="r.name"></td>
+                <td><span class="badge" :class="badgeClass(r.status)" x-text="r.status"></span></td>
+                <td class="num-col red"    x-text="r.cost ? $store.dw.fmt0(r.cost) : 'n/a'"></td>
+                <td class="num-col"        x-text="listPriceDisplay(r)"></td>
+                <td class="num-col yellow" x-text="eafDisplay(r)"></td>
+                <td class="num-col" :class="profitValue(r) >= 0 ? 'green' : 'red'" x-text="profitDisplay(r)"></td>
+                <td class="num-col green"  x-text="r.order?.sale_price ? $store.dw.fmt0(r.order.sale_price) : 'n/a'"></td>
+              </tr>
+            </template>
+            <tr x-show="items.length === 0">
+              <td colspan="7" style="color:var(--muted); text-align:center">No items in this lot</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Realloc panel -->
+        <div x-show="reallocMode">
+          <table class="data-table" style="margin-bottom:12px">
+            <thead>
+              <tr>
+                <th style="text-align:left">Item</th>
+                <th>Status</th>
+                <th class="num-col">List Price</th>
+                <th class="num-col">Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="(row, i) in reallocRows" :key="row.id">
+                <tr>
+                  <td style="text-align:left" x-text="row.name"></td>
+                  <td><span class="badge" :class="badgeClass(row.status)" x-text="row.status"></span></td>
+                  <td class="num-col" x-text="row.listPrice > 0 ? '$' + row.listPrice.toFixed(2) : 'n/a'"></td>
+                  <td class="num-col">
+                    <input type="number" x-model.number="reallocRows[i].editCost" min="0" step="0.01"
+                      style="width:80px; background:var(--surface); border:1px solid var(--border2); color:var(--white); font-family:'Space Mono',monospace; font-size:12px; padding:3px 6px; text-align:right">
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+
+          <!-- Running total -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-top:1px solid var(--border); margin-bottom:12px">
+            <div style="font-size:11px; color:var(--muted); letter-spacing:1px">
+              LOT TOTAL: <span style="color:var(--white)" x-text="'$' + reallocOriginalTotal.toFixed(2)"></span>
+              &nbsp;&nbsp;
+              ALLOCATED: <span :class="reallocColorClass()" x-text="'$' + reallocAllocated().toFixed(2)"></span>
+              &nbsp;&nbsp;
+              <span :class="reallocColorClass()" x-show="Math.abs(reallocDiff()) >= 0.01"
+                x-text="(reallocDiff() > 0 ? '+' : '') + '$' + reallocDiff().toFixed(2)"></span>
+              <span class="green" x-show="Math.abs(reallocDiff()) < 0.01">balanced</span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center">
+              <button class="btn btn-muted" style="font-size:10px; padding:4px 10px" @click="redistribute()" :disabled="reallocSaving">REDISTRIBUTE</button>
+              <button class="btn btn-muted" style="font-size:10px; padding:4px 10px" @click="cancelRealloc()" :disabled="reallocSaving">CANCEL</button>
+              <button class="btn" style="font-size:10px; padding:4px 10px" @click="saveRealloc()" :disabled="reallocSaving" x-text="reallocSaving ? 'SAVING…' : 'SAVE'"></button>
+            </div>
+          </div>
+          <div x-show="Math.abs(reallocDiff()) >= 0.01" style="font-size:11px; color:var(--yellow); margin-bottom:8px">
+            Warning: allocated total doesn't match lot cost.
+          </div>
+          <div x-show="reallocError" x-text="reallocError" style="font-size:11px; color:var(--red); margin-bottom:8px"></div>
+        </div>
+
+      </div><!-- .modal-body -->
+
+    </div>
+  </div>
+  <!-- ── LABEL MODAL ──────────────────────────────────────────────────────── -->
+  <div x-show="$store.dw.activeModal === 'label'" x-data="labelModal" class="modal-overlay" x-cloak>
+    <div class="modal-box" style="max-width:560px" @keydown.escape.window="$store.dw.closeModal()" @keydown.tab.prevent="$store.dw.trapTab($event, $el)">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" x-text="itemName"></div>
+          <div x-show="itemSku" style="font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:2px" x-text="itemSku"></div>
+        </div>
+        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Loading -->
+        <div x-show="loading" style="padding:40px;text-align:center;color:#aaa;letter-spacing:2px;font-size:13px">LOADING...</div>
+
+        <!-- STEP: form -->
+        <div x-show="step === 'form' && !loading">
+          <div class="modal-section-label">To Address</div>
+          <div class="modal-row" style="flex-direction:column;align-items:stretch;gap:6px">
+            <textarea x-model="addrText" rows="5"
+              placeholder="Name&#10;Street Address&#10;City State Zip&#10;Country (optional)"
+              style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:10px;resize:vertical;box-sizing:border-box;line-height:1.6"></textarea>
+          </div>
+
+          <div class="modal-divider"></div>
+          <div class="modal-section-label">Package</div>
+
+          <div class="modal-row">
+            <span class="modal-field">TYPE</span>
+            <span class="modal-val" style="display:flex;gap:8px">
+              <button @click="setType('box')"
+                :style="parcel.type==='box' ? 'border-color:var(--blue);color:var(--blue)' : 'border-color:var(--border2);color:var(--muted)'"
+                style="padding:5px 14px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;background:transparent">BOX</button>
+              <button @click="setType('poly')"
+                :style="parcel.type==='poly' ? 'border-color:var(--blue);color:var(--blue)' : 'border-color:var(--border2);color:var(--muted)'"
+                style="padding:5px 14px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;background:transparent">POLY BAG</button>
+            </span>
+          </div>
+
+          <div class="modal-row">
+            <span class="modal-field">WEIGHT</span>
+            <span class="modal-val" style="display:flex;gap:8px;align-items:center">
+              <input x-model="parcel.weightLbs" type="number" min="0" step="1" placeholder="0"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              <span style="color:var(--muted);font-size:11px">LBS</span>
+              <input x-model="parcel.weightOz" type="number" min="0" max="15" step="1" placeholder="0"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              <span style="color:var(--muted);font-size:11px">OZ</span>
+            </span>
+          </div>
+
+          <div class="modal-row" x-show="parcel.type === 'box'">
+            <span class="modal-field">DIMENSIONS (IN)</span>
+            <span class="modal-val" style="display:flex;gap:8px;align-items:center">
+              <input x-model="parcel.length" type="number" step="0.5" min="0.1" placeholder="L"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              <span style="color:var(--muted)">×</span>
+              <input x-model="parcel.width" type="number" step="0.5" min="0.1" placeholder="W"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              <span style="color:var(--muted)">×</span>
+              <input x-model="parcel.height" type="number" step="0.5" min="0.1" placeholder="H"
+                style="width:60px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+            </span>
+          </div>
+
+          <div x-show="parcel.type === 'poly'">
+            <div class="modal-row">
+              <span class="modal-field">LENGTH (IN)</span>
+              <span class="modal-val">
+                <input x-model="parcel.length" type="number" step="0.5" min="0.1" placeholder="e.g. 12"
+                  style="width:100px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+              </span>
+            </div>
+            <div class="modal-row" style="margin-top:-8px">
+              <span class="modal-field" style="font-size:10px;color:#555">WIDTH &amp; HEIGHT not required for poly bags</span>
+            </div>
+          </div>
+
+          <div class="modal-row">
+            <span class="modal-field">INSURED ($)</span>
+            <span class="modal-val">
+              <input x-model="insuredAmount" type="number" min="0" step="50" placeholder="100"
+                style="width:100px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+            </span>
+          </div>
+
+          <div class="modal-divider"></div>
+          <div style="display:flex;gap:10px;align-items:center;padding:4px 0 8px">
+            <button @click="getRates()" :disabled="loading"
+              style="padding:10px 28px;background:var(--blue);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer">
+              GET RATES
+            </button>
+            <span x-show="errMsg" x-text="errMsg" style="font-size:12px;color:var(--red);letter-spacing:1px"></span>
+          </div>
+        </div>
+
+        <!-- STEP: rates -->
+        <div x-show="step === 'rates' && !loading">
+          <div class="modal-section-label">Select A Rate</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+            <template x-for="r in rates" :key="r.object_id">
+              <div @click="purchase(r.object_id, r.price, r.carrier)"
+                style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border:1px solid var(--border2);cursor:pointer;transition:border-color .15s"
+                @mouseover="$el.style.borderColor='var(--blue)'" @mouseout="$el.style.borderColor='var(--border2)'">
+                <div>
+                  <div style="font-size:13px;letter-spacing:1px">
+                    <span :style="'color:' + carrierColor(r.carrier)" x-text="r.carrier"></span>
+                    <span style="color:var(--white)" x-text="' - ' + r.service"></span>
+                  </div>
+                  <div x-show="r.days" style="font-size:11px;color:#888;margin-top:3px;letter-spacing:1px"
+                    x-text="r.days + ' BUSINESS DAY' + (r.days !== 1 ? 'S' : '')"></div>
+                </div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green)" x-text="'$' + r.price.toFixed(2)"></div>
+              </div>
+            </template>
+          </div>
+          <template x-if="carrierWarnings.length">
+            <div style="margin-bottom:12px">
+              <template x-for="w in carrierWarnings" :key="w">
+                <div x-text="w" style="font-size:11px;color:var(--yellow);letter-spacing:1px;margin-bottom:4px"></div>
+              </template>
+            </div>
+          </template>
+          <button @click="step = 'form'"
+            style="padding:8px 20px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer">
+            ← BACK
+          </button>
+        </div>
+
+        <!-- STEP: result -->
+        <div x-show="step === 'result' && !loading">
+          <div style="padding:16px 0 8px;text-align:center">
+            <div style="font-size:11px;letter-spacing:3px;color:var(--green);margin-bottom:8px">LABEL CREATED</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green)" x-text="'$' + (purchaseResult?.totalCost ?? ratePrice).toFixed(2)"></div>
+          </div>
+          <div class="modal-divider"></div>
+
+          <div class="modal-row">
+            <span class="modal-field">TRACKING #</span>
+            <span class="modal-val" style="display:flex;gap:8px;align-items:center">
+              <span style="font-size:12px;color:var(--white)" x-text="purchaseResult?.trackingNumber || 'n/a'"></span>
+              <button x-show="purchaseResult?.trackingNumber"
+                @click="navigator.clipboard.writeText(purchaseResult.trackingNumber); $el.textContent='✓'"
+                style="padding:3px 8px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;cursor:pointer">
+                COPY
+              </button>
+            </span>
+          </div>
+
+          <div class="modal-row">
+            <span class="modal-field">LABEL</span>
+            <span class="modal-val" style="display:flex;gap:10px;align-items:center">
+              <button @click="printLabel()"
+                style="padding:6px 16px;background:var(--blue);color:#fff;border:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer">
+                PRINT LABEL
+              </button>
+              <a :href="purchaseResult?.labelUrl" target="_blank"
+                style="font-size:11px;color:var(--muted)">↗ raw</a>
+            </span>
+          </div>
+
+          <div class="modal-row" x-show="purchaseResult?.trackingUrl">
+            <span class="modal-field">TRACK</span>
+            <span class="modal-val">
+              <a :href="purchaseResult?.trackingUrl" target="_blank" style="color:var(--muted);font-size:11px">↗ TRACKING PAGE</a>
+            </span>
+          </div>
+
+          <div class="modal-divider"></div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:4px 0 8px">
+            <button @click="saveShipping()" :disabled="savingShip || saveMsg.startsWith('✓')"
+              x-text="savingShip ? 'SAVING...' : saveMsg.startsWith('✓') ? '✓ SAVED' : 'SAVE SHIPPING COST'"
+              :style="saveMsg.startsWith('✓') ? 'background:var(--surface);border:1px solid var(--green);color:var(--green);cursor:default' : 'background:var(--green);color:#000;border:none;cursor:pointer'"
+              style="padding:10px 24px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px">
+            </button>
+            <button x-show="reverbLinks?.ship && purchaseResult?.trackingNumber"
+              @click="markShipped()"
+              :disabled="reverbShipMsg === 'Notifying Reverb...' || reverbShipMsg === '✓ buyer notified'"
+              :style="reverbShipMsg === '✓ buyer notified' ? 'background:var(--surface);border:1px solid var(--reverb);color:var(--reverb);cursor:default;opacity:.6' : 'background:transparent;border:1px solid var(--reverb);color:var(--reverb);cursor:pointer'"
+              x-text="reverbShipMsg === 'Notifying Reverb...' ? 'NOTIFYING...' : reverbShipMsg === '✓ buyer notified' ? '✓ SHIPPED ON REVERB' : 'MARK SHIPPED ON REVERB'"
+              style="padding:10px 24px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px">
+            </button>
+            <button x-show="reverbLinks?.packing_slip"
+              @click="window.open(reverbLinks.packing_slip.web.href, '_blank')"
+              style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
+              PACKING SLIP
+            </button>
+            <button x-show="ebayOrderId && purchaseResult?.trackingNumber"
+              @click="markShippedEbay()"
+              :disabled="ebayShipMsg === 'Notifying eBay...' || ebayShipMsg === '✓ buyer notified'"
+              :style="ebayShipMsg === '✓ buyer notified' ? 'background:var(--surface);border:1px solid var(--green);color:var(--green);cursor:default' : 'background:transparent;border:1px solid var(--ebay);color:var(--ebay);cursor:pointer'"
+              x-text="ebayShipMsg === 'Notifying eBay...' ? 'NOTIFYING...' : ebayShipMsg === '✓ buyer notified' ? '✓ SHIPPED ON EBAY' : 'MARK SHIPPED ON EBAY'"
+              style="padding:10px 24px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px">
+            </button>
+            <button x-show="ebayOrderId && ebayShipMsg !== '✓ buyer notified'"
+              @click="window.open(`https://www.ebay.com/sh/ord/details?orderid=${ebayOrderId}`, '_blank')"
+              style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
+              ORDER DETAILS
+            </button>
+            <button x-show="ebayOrderId"
+              @click="window.open(`https://www.ebay.com/sh/ord/prt?module=PACKING_SLIP_MODULE&orderId=${ebayOrderId}`, '_blank')"
+              style="padding:10px 24px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer">
+              PACKING SLIP
+            </button>
+            <span x-show="saveMsg && !saveMsg.startsWith('✓')" x-text="saveMsg"
+              style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
+            <span x-show="reverbShipMsg && reverbShipMsg !== 'Notifying Reverb...' && reverbShipMsg !== '✓ buyer notified'"
+              x-text="reverbShipMsg" style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
+            <span x-show="ebayShipMsg && ebayShipMsg !== 'Notifying eBay...' && ebayShipMsg !== '✓ buyer notified'"
+              x-text="ebayShipMsg" style="color:var(--red);font-size:12px;letter-spacing:1px"></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REVERB SYNC MODAL ─────────────────────────────────────────────────── -->
+
+  <div x-show="$store.dw.activeModal === 'shipping'" x-data="shippingModal" class="modal-overlay" x-cloak>
+    <div class="modal-box" style="max-width:540px" @keydown.escape.window="$store.dw.closeModal()">
+      <div class="modal-header">
+        <div class="modal-title">In Transit</div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <button class="btn-sm" @click="refreshAll()" :disabled="refreshing" style="font-size:11px;letter-spacing:1px">
+            <span x-text="refreshing ? 'REFRESHING...' : '↺ REFRESH ALL'"></span>
+          </button>
+          <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div x-show="loading" style="color:var(--muted);font-size:12px;padding:16px 0">Loading...</div>
+        <div x-show="errMsg" style="color:var(--red);font-size:12px" x-text="errMsg"></div>
+        <div x-show="!loading && inTransitRecords.length === 0" style="color:var(--muted);font-size:12px;padding:16px 0">
+          No shipments with tracking data.
+        </div>
+        <template x-if="!loading && inTransitRecords.length > 0">
+          <table class="data-table" style="width:100%;table-layout:fixed">
+            <thead>
+              <tr>
+                <th style="text-align:left">Item</th>
+                <th style="white-space:nowrap;width:130px">Status</th>
+                <th style="white-space:nowrap;width:80px">Carrier</th>
+                <th style="white-space:nowrap;width:110px">Est. Delivery</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="r in inTransitRecords" :key="r.id">
+                <tr style="cursor:pointer" @click="openItem(r)">
+                  <td style="text-align:left" x-text="r.name"></td>
+                  <td>
+                    <span x-show="trackStatus(r)" :class="'badge ' + statusBadgeClass(trackStatus(r))" x-text="statusLabel(trackStatus(r))"></span>
+                    <span x-show="!trackStatus(r)" style="color:var(--muted);font-size:11px">—</span>
+                  </td>
+                  <td style="color:var(--muted);font-size:12px" x-text="trackCarrier(r)"></td>
+                  <td style="color:var(--muted);font-size:12px" x-text="trackEstDelivery(r) || 'n/a'"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EBAY SYNC MODAL ───────────────────────────────────────────────────── -->
+
 </div><!-- #app -->
 
 <!-- ── Scripts: load order matters ──────────────────────────────────────── -->
