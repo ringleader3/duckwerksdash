@@ -109,14 +109,14 @@ document.addEventListener('alpine:init', () => {
                 ? [...dw.activeEbayLineItemIds]
                 : (order.lineItems || []).map(li => li.lineItemId).filter(Boolean);
               dw.activeEbayLineItemIds = [];
-              // Split totalDueSeller proportionally by discountedLineItemCost per line item
+              // Split totalDueSeller proportionally by total per line item
               const totalDueSeller = parseFloat(order.paymentSummary?.totalDueSeller?.value) || 0;
               const discountedTotal = (order.lineItems || []).reduce(
-                (sum, li) => sum + (parseFloat(li.discountedLineItemCost?.value) || 0), 0
+                (sum, li) => sum + (parseFloat(li.total?.value) || 0), 0
               );
               this.ebayLineItemPrices = this.ebayLineItemIds.map(id => {
                 const li = (order.lineItems || []).find(l => l.lineItemId === id);
-                const discounted = parseFloat(li?.discountedLineItemCost?.value) || 0;
+                const discounted = parseFloat(li?.total?.value) || 0;
                 return discountedTotal > 0
                   ? Math.round((totalDueSeller * (discounted / discountedTotal)) * 100) / 100
                   : null;
