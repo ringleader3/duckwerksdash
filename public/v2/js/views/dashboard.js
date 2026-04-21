@@ -63,8 +63,7 @@ document.addEventListener('alpine:init', () => {
       return Alpine.store('dw').soldRecords.reduce((s, r) => s + (r.order?.profit || 0), 0);
     },
     get pipeline() {
-      const dw = Alpine.store('dw');
-      return dw.records.filter(r => r.status === 'Listed').reduce((s, r) => s + dw.estProfit(r), 0);
+      return Alpine.store('dw').pipeline;
     },
     get forecastedProfit() {
       return this.profit + this.pipeline;

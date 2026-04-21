@@ -254,6 +254,12 @@ document.addEventListener('alpine:init', () => {
       return rows.every(r => r[field] === first);
     },
 
+    get pipeline() {
+      return this.records
+        .filter(r => r.status === 'Listed')
+        .reduce((s, r) => s + this.estProfit(r), 0);
+    },
+
     filteredKpis: null,
     setFilteredKpis(kpis) { this.filteredKpis = kpis; },
     clearFilteredKpis()   { this.filteredKpis = null; },
