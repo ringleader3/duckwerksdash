@@ -13,7 +13,7 @@ router.post('/', (req, res) => {
       (order_id, carrier, service, tracking_id, tracking_number, tracker_url, label_url, shipping_cost, shipped_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
   `).run(order_id, carrier || null, service || null, tracking_id || null,
-         tracking_number || null, tracker_url || null, label_url || null, shipping_cost || null);
+         tracking_number || null, tracker_url || null, label_url || null, shipping_cost ?? null);
   res.status(201).json(db.prepare('SELECT * FROM shipments WHERE id = ?').get(result.lastInsertRowid));
 });
 

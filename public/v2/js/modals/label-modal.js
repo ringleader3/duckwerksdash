@@ -20,8 +20,9 @@ document.addEventListener('alpine:init', () => {
     reverbShipMsg:  '',   // separate from saveMsg so it isn't overwritten by saveShipping()
     ebayOrderId:      null,
     ebayLineItemId:   null,
-    ebayLineItemIds:  [],
-    ebayOrderRecs:    [],
+    ebayLineItemIds:   [],
+    ebayLineItemPrices: [],
+    ebayOrderRecs:     [],
     ebayShipMsg:      '',
     carrierWarnings:  [],
 
@@ -50,8 +51,9 @@ document.addEventListener('alpine:init', () => {
       this.reverbShipMsg     = '';
       this.ebayOrderId       = null;
       this.ebayLineItemId    = null;
-      this.ebayLineItemIds   = [];
-      this.ebayOrderRecs     = [];
+      this.ebayLineItemIds    = [];
+      this.ebayLineItemPrices = [];
+      this.ebayOrderRecs      = [];
       this.ebayShipMsg       = '';
       this.carrierWarnings   = [];
 
@@ -107,6 +109,18 @@ document.addEventListener('alpine:init', () => {
                 ? [...dw.activeEbayLineItemIds]
                 : (order.lineItems || []).map(li => li.lineItemId).filter(Boolean);
               dw.activeEbayLineItemIds = [];
+              // Split totalDueSeller proportionally by discountedLineItemCost per line item
+              const totalDueSeller = parseFloat(order.paymentSummary?.totalDueSeller?.value) || 0;
+              const discountedTotal = (order.lineItems || []).reduce(
+                (sum, li) => sum + (parseFloat(li.discountedLineItemCost?.value) || 0), 0
+              );
+              this.ebayLineItemPrices = this.ebayLineItemIds.map(id => {
+                const li = (order.lineItems || []).find(l => l.lineItemId === id);
+                const discounted = parseFloat(li?.discountedLineItemCost?.value) || 0;
+                return discountedTotal > 0
+                  ? Math.round((totalDueSeller * (discounted / discountedTotal)) * 100) / 100
+                  : null;
+              });
               // totalDueSeller: confirmed available pre-fulfillment (validated 2026-03-26)
               const dueSeller = parseFloat(order.paymentSummary?.totalDueSeller?.value);
               if (dueSeller) this.reverbSaleAmount = dueSeller;
@@ -259,7 +273,9 @@ document.addEventListener('alpine:init', () => {
       try {
         // ── 1. Create or update the order ──────────────────────────────────────
         const dateSold         = this.platformSaleDate || new Date().toISOString().split('T')[0];
-        const sale_price       = this.reverbSaleAmount || null;
+        const sale_price = this.ebayLineItemPrices.length > 0
+          ? (this.ebayLineItemPrices[0] ?? this.reverbSaleAmount ?? null)
+          : (this.reverbSaleAmount || null);
         const platform_order_num = this.reverbOrderNum || this.ebayOrderId || null;
 
         let orderId;
@@ -308,11 +324,12 @@ document.addEventListener('alpine:init', () => {
             label_url:       this.purchaseResult?.labelUrl       || null,
             shipping_cost:   0,
           };
-          for (const secRec of this.ebayOrderRecs.slice(1)) {
+          for (const [idx, secRec] of this.ebayOrderRecs.slice(1).entries()) {
+            const secSalePrice = this.ebayLineItemPrices[idx + 1] ?? null;
             let secOrderId;
             if (secRec.order) {
               await dw.updateOrder(secRec.order.id, {
-                sale_price:         null,
+                sale_price:         secSalePrice,
                 date_sold:          this.platformSaleDate || new Date().toISOString().split('T')[0],
                 platform_order_num: this.ebayOrderId,
               });
@@ -321,7 +338,7 @@ document.addEventListener('alpine:init', () => {
               const secListing = dw.activeListing(secRec);
               const newOrder = await dw.createOrder({
                 listing_id:         secListing?.id || null,
-                sale_price:         null,
+                sale_price:         secSalePrice,
                 date_sold:          this.platformSaleDate || new Date().toISOString().split('T')[0],
                 platform_order_num: this.ebayOrderId,
               });
