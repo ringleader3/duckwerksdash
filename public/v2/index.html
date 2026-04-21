@@ -2083,17 +2083,22 @@
           <template x-for="item in matched" :key="item.order.orderId">
             <div style="padding:10px 0;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
               <div style="flex:1;min-width:0">
-                <div style="font-size:12px;color:var(--white);margin-bottom:3px" x-text="lineItemTitle(item.order)"></div>
-                <div style="font-size:11px;color:var(--muted)" x-text="buyerName(item.order)"></div>
-                <div style="font-size:10px;color:#555;margin-top:2px">
-                  <span x-text="'Order: ' + item.order.orderId"></span>
-                  <template x-if="item.lineItem?.sku">
-                    <span x-text="' · SKU: ' + item.lineItem.sku" style="color:#666"></span>
-                  </template>
-                </div>
+                <div style="font-size:11px;color:var(--muted);margin-bottom:4px" x-text="buyerName(item.order)"></div>
+                <template x-for="entry in item.items" :key="entry.lineItem.lineItemId">
+                  <div style="margin-bottom:3px">
+                    <span style="font-size:12px;color:var(--white)" x-text="entry.lineItem.title || '(unknown)'"></span>
+                    <template x-if="entry.lineItem.sku">
+                      <span style="font-size:10px;color:var(--muted);margin-left:6px" x-text="entry.lineItem.sku"></span>
+                    </template>
+                    <template x-if="!entry.rec">
+                      <span style="font-size:10px;color:#f66;margin-left:6px">no local match</span>
+                    </template>
+                  </div>
+                </template>
+                <div style="font-size:10px;color:#555;margin-top:3px" x-text="'Order: ' + item.order.orderId"></div>
               </div>
               <div style="flex-shrink:0;margin-top:2px">
-                <button @click="openShip(item.rec, item.order)"
+                <button @click="openShip(item)"
                   style="padding:5px 14px;background:var(--blue);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:10px;letter-spacing:2px;cursor:pointer">
                   SHIP
                 </button>
