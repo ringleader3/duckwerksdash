@@ -59,7 +59,7 @@ npm start   # starts Express on http://localhost:3000
 - `public/v2/js/store.js` — `Alpine.store('dw')` — all data, helpers, modal state
 - `public/v2/js/sidebar.js` — search + nav state
 - `public/v2/js/views/` — dashboard, items, lots, analytics, comps, catalog
-- `public/v2/js/modals/` — item, add, lot, label, reverb, ebay
+- `public/v2/js/modals/` — item, add, lot, label, shipping
 
 > Full endpoint docs + env vars + schema: `docs/claude/api-reference.md`
 > Alpine architecture, modal patterns, component details: `docs/claude/frontend-reference.md`
@@ -80,11 +80,14 @@ npm start   # starts Express on http://localhost:3000
 | Single file, obvious change | Just do it |
 | Known bug, root cause clear | Just do it |
 | UI tweak (font, color, layout) | Just do it |
-| Clear requirements, 2–3 files | Plan only — skip brainstorm |
-| Ticket already has impl notes | Plan only — skip brainstorm |
-| New data flow or API integration | Full workflow |
-| Multiple files with shared state | Full workflow |
-| Requirements fuzzy or design unclear | Full workflow |
+| Clear requirements, 2–3 files | Just do it |
+| Ticket already has impl notes | Just do it |
+| New data flow or API integration | Brainstorm → spec → build |
+| Multiple files with shared state | Brainstorm → spec → build |
+| Requirements fuzzy or design unclear | Brainstorm → spec → build |
+| Multi-session work, or >5 files with non-obvious sequencing | Brainstorm → spec → written plan → build |
+
+**"Brainstorm → spec → build"** means: align on design, write the spec, then implement directly in-session without a written task plan. The spec is the artifact; the plan is overhead unless the work spans sessions or has tricky sequencing.
 
 ---
 
