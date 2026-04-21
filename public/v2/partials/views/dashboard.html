@@ -84,7 +84,12 @@
                 <span class="cell-title">Income</span>
                 <span class="cell-meta">gross → cost → ship → net · goal $3k/mo</span>
               </div>
-              <div class="inc" x-show="incomeWindows.length">
+              <div class="inc" x-show="incomeWindows.length"
+                x-data="{ tip: null, tipX: 0, tipY: 0 }"
+                @mousemove="tipX = $event.clientX; tipY = $event.clientY">
+                <div x-show="tip" x-text="tip"
+                  style="position:fixed;pointer-events:none;background:var(--surface);border:1px solid var(--border2);color:var(--white);font:500 11px/1 var(--mono);padding:4px 8px;border-radius:3px;z-index:999;transform:translate(10px,-50%)"
+                  :style="'position:fixed;left:' + tipX + 'px;top:' + tipY + 'px;pointer-events:none;background:var(--surface);border:1px solid var(--border2);color:var(--white);font:500 11px/1 var(--mono);padding:4px 8px;border-radius:3px;z-index:999;transform:translate(10px,-50%)'"></div>
                 <template x-for="w in incomeWindows" :key="w.label">
                   <div class="inc-row">
                     <div class="inc-lbl">
@@ -93,9 +98,9 @@
                       <span x-text="w.gross > 0 ? fmtWnd(w.gross) + ' gross' : 'no data'"></span>
                     </div>
                     <div class="inc-track">
-                      <div class="inc-seg cost" :style="'width:' + w.costPct + '%'" :title="'Cost: ' + fmtWnd(w.cost)" x-text="w.cost > 500 ? 'cost ' + fmtWnd(w.cost) : ''"></div>
-                      <div class="inc-seg ship" :style="'width:' + w.shipPct + '%'" :title="'Ship: ' + fmtWnd(w.ship)" x-text="w.ship > 200 ? 'ship ' + fmtWnd(w.ship) : ''"></div>
-                      <div class="inc-seg net"  :style="'width:' + w.netPct  + '%'" :title="'Net: '  + fmtWnd(w.net)"  x-text="w.net  > 500 ? 'net '  + fmtWnd(w.net)  : ''"></div>
+                      <div class="inc-seg cost" :style="'width:' + w.costPct + '%'" @mouseenter="tip = 'Cost: ' + fmtWnd(w.cost)" @mouseleave="tip = null" x-text="w.cost > 500 ? 'cost ' + fmtWnd(w.cost) : ''"></div>
+                      <div class="inc-seg ship" :style="'width:' + w.shipPct + '%'" @mouseenter="tip = 'Ship: ' + fmtWnd(w.ship)" @mouseleave="tip = null" x-text="w.ship > 200 ? 'ship ' + fmtWnd(w.ship) : ''"></div>
+                      <div class="inc-seg net"  :style="'width:' + w.netPct  + '%'" @mouseenter="tip = 'Net: '  + fmtWnd(w.net)"  @mouseleave="tip = null" x-text="w.net  > 500 ? 'net '  + fmtWnd(w.net)  : ''"></div>
                       <div class="inc-empty"></div>
                       <div class="inc-goal" x-show="w.goalPct" :style="'left:' + w.goalPct + '%'">
                         <span class="inc-goal-lbl" x-text="'$' + (w.goalAmt/1000).toFixed(0) + 'k · ' + w.label"></span>
