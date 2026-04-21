@@ -1957,19 +1957,6 @@
             </div>
           </template>
 
-          <div x-show="toSave.length > 0" style="padding:14px 0 4px;display:flex;gap:12px;align-items:center">
-            <button @click="saveMatches()" :disabled="savingMatches"
-              style="padding:10px 28px;background:var(--reverb);color:#fff;border:none;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:3px;cursor:pointer"
-              x-text="savingMatches ? 'SAVING...' : 'SAVE ' + toSave.length + ' MATCH' + (toSave.length > 1 ? 'ES' : '')">
-            </button>
-            <span x-show="matchesMsg" x-text="matchesMsg"
-              :style="matchesMsg.startsWith('✓') ? 'color:var(--green)' : 'color:var(--red)'"
-              style="font-size:11px;letter-spacing:1px"></span>
-          </div>
-          <div x-show="matched.length > 0 && toSave.length === 0"
-            style="padding:10px 0;font-size:11px;color:var(--green);letter-spacing:1px">
-            ✓ ALL MATCHES UP TO DATE
-          </div>
 
           <!-- SECTION: Link Listings -->
           <div class="modal-section-label" style="margin-top:20px">Link Listings</div>

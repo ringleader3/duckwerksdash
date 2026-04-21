@@ -7,11 +7,8 @@ document.addEventListener('alpine:init', () => {
     listings:      [],
     matched:       [],
     unmatched:     [],
-    toSave:        [],
     unlinkedRecs:  [],
     linkSelections: {},
-    matchesMsg:    '',
-    savingMatches: false,
     linksMsg:      '',
     savingLinks:   false,
     detailDiffs:      [],
@@ -114,12 +111,6 @@ document.addEventListener('alpine:init', () => {
         else     this.unmatched.push(order);
       }
 
-      // toSave: matched items where order_number differs from stored platform_order_num
-      this.toSave = this.matched.filter(m => {
-        const existingOrderNum = m.rec.order?.platform_order_num;
-        return existingOrderNum !== String(m.order.order_number);
-      });
-
       // Unlinked: non-Sold Reverb items with no platform_listing_id
       this.unlinkedRecs = dw.records.filter(r => {
         if (r.status === 'Sold') return false;
@@ -167,29 +158,6 @@ document.addEventListener('alpine:init', () => {
       const newSel = {};
       for (const l of this.newListings) newSel[l.id] = true;
       this.newSelections = newSel;
-    },
-
-    async saveMatches() {
-      if (!this.toSave.length) return;
-      this.savingMatches = true;
-      this.matchesMsg    = '';
-      let saved = 0, errors = 0;
-      const dw = Alpine.store('dw');
-      for (const { order, rec } of this.toSave) {
-        try {
-          if (rec.order?.id) {
-            await dw.updateOrder(rec.order.id, { platform_order_num: String(order.order_number) });
-          }
-          // If no order exists yet, the label modal will create it — skip silently
-          saved++;
-        } catch(e) {
-          console.error('saveMatches:', e);
-          errors++;
-        }
-      }
-      this.matchesMsg    = errors ? `${saved} saved, ${errors} failed` : `✓ ${saved} saved`;
-      this.savingMatches = false;
-      setTimeout(async () => { await Alpine.store('dw').fetchAll(); this._process(); }, 800);
     },
 
     async saveLinks() {
