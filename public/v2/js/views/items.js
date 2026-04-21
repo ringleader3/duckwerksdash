@@ -66,7 +66,7 @@ document.addEventListener('alpine:init', () => {
         const hours = { '24h': 24, '7d': 168, '30d': 720 }[this.dateRange];
         const cutoff = new Date(Date.now() - hours * 3600 * 1000);
         if (this.statusFilter === 'Sold') {
-          recs = recs.filter(r => r.order?.date_sold && new Date(r.order.date_sold) >= cutoff);
+          recs = recs.filter(r => r.order?.date_sold && new Date(r.order.date_sold + 'T00:00:00') >= cutoff);
         } else {
           recs = recs.filter(r => r.created_at && new Date(r.created_at) >= cutoff);
         }
