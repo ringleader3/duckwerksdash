@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-21 — v1.1.54 index.html partial refactor (#116)
+
+- Split index.html (2235 lines) into 12 partials: 7 views + 5 modals under `public/v2/partials/`
+- Added Express assembler in `server.js` — reads shell + inlines partials at request time via regex replace
+- Shell index.html is now 235 lines; adding a new view = one HTML file + one JS file + one shell placeholder
+- Closed #116
+
 ### 2026-04-21 — v1.1.53 post-sites fixes
 
 - Fixed: `sortGlyph` not defined in lot modal — renamed from `sortIndicator` during #107 but HTML wasn't updated
