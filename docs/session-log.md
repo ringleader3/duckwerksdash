@@ -1,6 +1,18 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-21 — v1.1.52 Sites view (#115)
+
+- Removed redundant "Save Match" button from Reverb sync modal (label modal already writes `platform_order_num` on ship)
+- Added `previousView`, `orderCount`, `checkingOrders` to store; `checkOrders()` method fetches both platforms in parallel
+- `closeModal()` extended: checks `previousView` first so label modal returns to Sites view instead of reopening a modal
+- New `public/v2/js/views/sites.js` — `sitesView` Alpine component with three sections: Orders (ship pending), Listings (unlinked sync), Details (price/name drift)
+- ORDERS ticker button in tape; SITES rail nav pill
+- Deleted legacy `reverb-modal.js` and `ebay-modal.js` (functionality consolidated into Sites view)
+- Fixed: sites view HTML was placed outside `</main>` during Python manipulation — moved inside main
+- Fixed: modal HTML (item/add/lot/label/shipping) accidentally deleted during Python manipulation — restored from git
+- Updated CLAUDE.md workflow table: "clear requirements 2-3 files" → just do it; full workflow splits into brainstorm→spec→build vs. written plan only for multi-session/complex work
+
 ### 2026-04-20 — v1.1.50 inventory workbench (#102 #110)
 
 - `pipeline` getter moved from `dashView` to `Alpine.store('dw')`; forecast stat added to tape (between profit and inv)
