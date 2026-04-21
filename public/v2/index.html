@@ -66,6 +66,12 @@
     <span x-data x-text="$store.dw.environment || 'local'"></span>
     <span>·</span>
     <span x-text="new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})"></span>
+    <button x-data
+      @click="$store.dw.orderCount > 0 ? ($store.dw.activeView = 'sites', $store.dw.orderCount = null) : $store.dw.checkOrders()"
+      :disabled="$store.dw.checkingOrders"
+      style="background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);font:700 9px/1 var(--mono);letter-spacing:.12em;padding:3px 7px;cursor:pointer;margin-left:8px"
+      x-text="$store.dw.checkingOrders ? '...' : $store.dw.orderCount > 0 ? $store.dw.orderCount + ' ORDERS' : 'ORDERS'">
+    </button>
   </div>
 </div>
 
@@ -96,6 +102,10 @@
     <button class="rail-link" :class="{ active: $store.dw.activeView === 'catalog' }"
       @click="$store.dw.activeView = 'catalog'; $store.dw.categoryFilter = null">
       <span class="gl">⚌</span>Cat
+    </button>
+    <button class="rail-link" :class="{ active: $store.dw.activeView === 'sites' }"
+      @click="$store.dw.activeView = 'sites'; $store.dw.orderCount = null">
+      <span class="gl">⟳</span>Sites
     </button>
     <div class="rail-spacer"></div>
     <button class="rail-link" @click="openSearch()">
@@ -1895,6 +1905,17 @@
         </div>
 
       </div>
+    </div>
+  </div>
+
+  <!-- ── Sites View ───────────────────────────────────────────────────────── -->
+  <div x-show="$store.dw.activeView === 'sites'" x-data="sitesView">
+    <div class="hero-band slim">
+      <div class="breadcrumb">DW / <span>SITES</span></div>
+      <div class="hero-title">Sites</div>
+    </div>
+    <div class="view-body" style="padding:24px 0">
+      <!-- SITES CONTENT INSERTED IN TASK 3 -->
     </div>
   </div>
 
