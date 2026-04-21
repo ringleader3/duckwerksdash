@@ -1,6 +1,18 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-20 — v1.1.49 multi-item eBay order support (#112)
+
+- eBay modal `_process()` now groups all lineItems per order (was hardcoded to `[0]`)
+- eBay modal shows all items in order with SKU + title; one SHIP button per order
+- `openShip()` passes all lineItemIds + all matched recs to label modal via store
+- Label modal reads `activeEbayLineItemIds` / `activeEbayOrderRecs` on open
+- `markShippedEbay()` sends full `lineItemIds[]` array to eBay tracking endpoint (one call marks all items shipped)
+- `saveShipping()` loops secondary recs: creates order, marks Sold, saves shipment with same tracking
+- Payout split: `totalDueSeller` proportionally divided by each lineItem's `total.value`; primary rec gets actual shipping cost, secondary recs get `$0`
+- Server tracking endpoint changed from single `lineItemId` to `lineItemIds[]` array
+- Fixed: `shipping_cost || null` coercion in `server/shipments.js` → `??` so `0` saves correctly
+
 ### 2026-04-20 — v1.1.48 flight numbers for disc golf eBay listings (#108)
 
 - `flight_numbers` SQLite table seeded from `docs/tmp/all_discs.csv` (1918 discs, upsertable)
