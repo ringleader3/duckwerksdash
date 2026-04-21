@@ -1,6 +1,16 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-20 — v1.1.50 inventory workbench (#102 #110)
+
+- `pipeline` getter moved from `dashView` to `Alpine.store('dw')`; forecast stat added to tape (between profit and inv)
+- Inventory view: mode-switching tables — Listed (Added/Name/Cat/Site/Status/List/Payout/Profit/Days), Sold (Sold/Name/Cat/Site/Sale/Profit/Shipping/Tracking), All/Prepping (full table, now using `tb` class for consistent styling)
+- Site filter: single-select → multi-select pills (`siteFilters[]` array, `toggleSite`/`clearSites` helpers)
+- Date range filter: All time / 24h / 7d / 30d pills; appears only for Listed/Sold; timezone fix for `date_sold` (parse as local midnight with `T00:00:00`)
+- Search expanded: name + SKU + lot name + notes
+- All tables now use `tb` CSS class (14px, consistent headers/cells)
+- #113 opened: store full ISO timestamp for `date_sold` (deferred — needs DB migration + backfill)
+
 ### 2026-04-20 — inventory workbench design + #109 bug fix
 
 - **#109 bug (P1) — DONE:** Restored click handlers on all four dashboard sections (In Transit, Lot Recovery, Recently Sold, Recently Listed). Each row now opens the appropriate item or lot modal.
