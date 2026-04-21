@@ -94,10 +94,7 @@ document.addEventListener('alpine:init', () => {
         else if (key === 'eaf')        { av = dw.payout(a);  bv = dw.payout(b); }
         else if (key === 'profit')     { av = dw.estProfit(a); bv = dw.estProfit(b); }
         else if (key === 'shipping')   { av = dw.activeListing(a)?.shipping_estimate || 0; bv = dw.activeListing(b)?.shipping_estimate || 0; }
-        else if (key === 'soldDate')   {
-          av = a.order?.created_at || a.order?.date_sold || '';
-          bv = b.order?.created_at || b.order?.date_sold || '';
-        }
+        else if (key === 'soldDate')   { av = a.order?.date_sold || ''; bv = b.order?.date_sold || ''; }
         else return 0;
         if (av < bv) return dir === 'asc' ? -1 : 1;
         if (av > bv) return dir === 'asc' ?  1 : -1;
