@@ -73,22 +73,24 @@ document.addEventListener('alpine:init', () => {
       this.unmatched = [];
 
       for (const order of this.orders) {
-        // Match by legacyItemId from order line items ↔ listing.platform_listing_id
-        const lineItem = order.lineItems?.[0];
-        const legacyId = lineItem ? String(lineItem.legacyItemId) : null;
-        const rec = legacyId
-          ? dw.records.find(r =>
-              (r.listings || []).some(l =>
-                l.site?.name === 'eBay' && l.platform_listing_id === legacyId
+        const items = (order.lineItems || []).map(lineItem => {
+          const legacyId = lineItem.legacyItemId ? String(lineItem.legacyItemId) : null;
+          const rec = legacyId
+            ? dw.records.find(r =>
+                (r.listings || []).some(l =>
+                  l.site?.name === 'eBay' && l.platform_listing_id === legacyId
+                )
               )
-            )
-          : null;
+            : null;
+          return { lineItem, rec };
+        });
 
-        if (rec) {
-          // Skip if already shipped locally (tracking pushed to eBay)
-          if (rec.shipment?.tracking_number) continue;
-          this.matched.push({ order, rec, lineItem });
-        } else {
+        const matchedItems = items.filter(i => i.rec);
+        const allShipped   = matchedItems.every(i => i.rec.shipment?.tracking_number);
+
+        if (matchedItems.length > 0 && !allShipped) {
+          this.matched.push({ order, items });
+        } else if (matchedItems.length === 0) {
           this.unmatched.push(order);
         }
       }
@@ -168,11 +170,14 @@ document.addEventListener('alpine:init', () => {
       setTimeout(async () => { await dw.fetchAll(); this._process(); }, 800);
     },
 
-    openShip(rec, order) {
-      const dw             = Alpine.store('dw');
-      dw.activeEbayOrderId = order.orderId;
-      dw.previousModal     = { type: 'ebay' };
-      dw.openModal('label', rec.id);
+    openShip(orderEntry) {
+      const dw = Alpine.store('dw');
+      dw.activeEbayOrderId      = orderEntry.order.orderId;
+      dw.activeEbayLineItemIds  = orderEntry.items.map(i => i.lineItem.lineItemId);
+      dw.activeEbayOrderRecs    = orderEntry.items.filter(i => i.rec).map(i => i.rec);
+      dw.previousModal          = { type: 'ebay' };
+      const primaryRec = dw.activeEbayOrderRecs[0];
+      if (primaryRec) dw.openModal('label', primaryRec.id);
     },
 
     async saveLinks() {
