@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-20 — inventory workbench design + #109 bug fix
+
+- **#109 bug (P1) — DONE:** Restored click handlers on all four dashboard sections (In Transit, Lot Recovery, Recently Sold, Recently Listed). Each row now opens the appropriate item or lot modal.
+- **#102 + #110 — spec + plan written:** Inventory workbench redesign. Mode-switching tables (Listed/Sold/All), multi-select site filter, date range filter (24h/7d/30d), search expanded to name+SKU+lot+notes, pipeline getter moved to store, forecast stat added to tape. Plan at `docs/superpowers/plans/2026-04-20-inventory-workbench.md`. Implementation in next session.
+- Bulk actions deferred (no strong use case identified).
+
 ### 2026-04-20 — v1.1.49 multi-item eBay order support (#112)
 
 - eBay modal `_process()` now groups all lineItems per order (was hardcoded to `[0]`)
