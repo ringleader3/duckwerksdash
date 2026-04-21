@@ -426,7 +426,7 @@
           <template x-if="statusFilter === 'Listed' || statusFilter === 'Sold'">
             <div class="pill-row">
               <span class="filter-group-label">When:</span>
-              <template x-for="d in ['all','24h','7d','30d']" :key="d">
+              <template x-for="d in ['all','24h','3d','7d','30d']" :key="d">
                 <button class="pill" :class="{ active: dateRange === d }" @click="dateRange = d"
                   x-text="d === 'all' ? 'All time' : d"></button>
               </template>
