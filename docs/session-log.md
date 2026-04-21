@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-21 — v1.1.56 dashboard income + analytics fixes (#101 #111)
+
+- #101: eBay traffic API now only called on analytics view, not app load
+- #111: Income windows — dropped YTD, added 60d (now 7/30/60/90d), date range labels per row, instant custom tooltips on bar segments (replaces slow native title)
+- fmt0 now rounds to whole dollars (was showing 2 decimal places despite the name)
+- Closed #101, #111
+
 ### 2026-04-21 — v1.1.55 lots view + modal improvements (#103)
 
 - KPI overflow fixed: compact stat grid + fmt0 now rounds to whole dollars (affects all views)
