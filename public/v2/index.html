@@ -411,17 +411,28 @@
           <span class="filter-group-label">Status:</span>
           <div class="pill-row">
             <template x-for="s in ['All','Listed','Sold','Prepping']" :key="s">
-              <button class="pill" :class="{ active: statusFilter === s }" @click="statusFilter = s; $store.dw.categoryFilter = null" x-text="s"></button>
+              <button class="pill" :class="{ active: statusFilter === s }"
+                @click="statusFilter = s; $store.dw.categoryFilter = null; dateRange = 'all'" x-text="s"></button>
             </template>
           </div>
           <span class="filter-group-label">Sites:</span>
           <div class="pill-row">
-            <button class="pill" :class="{ active: siteFilter === 'All' }" @click="siteFilter = 'All'; $store.dw.categoryFilter = null">All</button>
+            <button class="pill" :class="{ active: siteFilters.length === 0 }" @click="clearSites()">All</button>
             <template x-for="s in $store.dw.sites" :key="s.id">
-              <button class="pill" :class="{ active: siteFilter === s.name }" @click="siteFilter = s.name; $store.dw.categoryFilter = null" x-text="s.name"></button>
+              <button class="pill" :class="{ active: siteFilters.includes(s.name) }"
+                @click="toggleSite(s.name)" x-text="s.name"></button>
             </template>
           </div>
-          <input class="controls-search" type="text" placeholder="search name..." x-model="nameSearch">
+          <template x-if="statusFilter === 'Listed' || statusFilter === 'Sold'">
+            <div class="pill-row">
+              <span class="filter-group-label">When:</span>
+              <template x-for="d in ['all','24h','7d','30d']" :key="d">
+                <button class="pill" :class="{ active: dateRange === d }" @click="dateRange = d"
+                  x-text="d === 'all' ? 'All time' : d"></button>
+              </template>
+            </div>
+          </template>
+          <input class="controls-search" type="text" placeholder="search name, SKU, lot…" x-model="nameSearch">
           <button class="btn btn-ghost" x-show="$store.dw.categoryFilter" @click="$store.dw.categoryFilter = null" style="font-size:11px; padding:4px 10px">✕ Category</button>
         </div>
 
