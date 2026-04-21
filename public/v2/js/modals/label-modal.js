@@ -20,6 +20,8 @@ document.addEventListener('alpine:init', () => {
     reverbShipMsg:  '',   // separate from saveMsg so it isn't overwritten by saveShipping()
     ebayOrderId:      null,
     ebayLineItemId:   null,
+    ebayLineItemIds:  [],
+    ebayOrderRecs:    [],
     ebayShipMsg:      '',
     carrierWarnings:  [],
 
@@ -48,6 +50,8 @@ document.addEventListener('alpine:init', () => {
       this.reverbShipMsg     = '';
       this.ebayOrderId       = null;
       this.ebayLineItemId    = null;
+      this.ebayLineItemIds   = [];
+      this.ebayOrderRecs     = [];
       this.ebayShipMsg       = '';
       this.carrierWarnings   = [];
 
@@ -87,6 +91,10 @@ document.addEventListener('alpine:init', () => {
       if (isEbay) {
         const ebayOrderId = dw.activeEbayOrderId || r.order?.platform_order_num || null;
         dw.activeEbayOrderId = null; // clear so it doesn't leak to subsequent opens
+
+        this.ebayOrderRecs = dw.activeEbayOrderRecs?.length ? [...dw.activeEbayOrderRecs] : [];
+        dw.activeEbayOrderRecs = [];
+
         if (ebayOrderId) {
           this.ebayOrderId = ebayOrderId;
           try {
@@ -94,6 +102,11 @@ document.addEventListener('alpine:init', () => {
             if (res.ok) {
               const order = await res.json();
               this.ebayLineItemId = order.lineItems?.[0]?.lineItemId || null;
+              // Use store-provided lineItemIds if available (set by ebay modal); fall back to fetched order
+              this.ebayLineItemIds = dw.activeEbayLineItemIds?.length
+                ? [...dw.activeEbayLineItemIds]
+                : (order.lineItems || []).map(li => li.lineItemId).filter(Boolean);
+              dw.activeEbayLineItemIds = [];
               // totalDueSeller: confirmed available pre-fulfillment (validated 2026-03-26)
               const dueSeller = parseFloat(order.paymentSummary?.totalDueSeller?.value);
               if (dueSeller) this.reverbSaleAmount = dueSeller;
@@ -284,6 +297,45 @@ document.addEventListener('alpine:init', () => {
           await dw.createShipment({ order_id: orderId, ...shipmentFields });
         }
 
+        // For multi-item eBay orders: mark secondary recs sold and attach same tracking
+        if (this.ebayOrderRecs.length > 1) {
+          const trackingFields = {
+            carrier:         this.carrier || null,
+            service:         this.purchaseResult?.service || null,
+            tracking_id:     this.purchaseResult?.trackingId     || null,
+            tracking_number: this.purchaseResult?.trackingNumber || null,
+            tracker_url:     this.purchaseResult?.trackerUrl     || null,
+            label_url:       this.purchaseResult?.labelUrl       || null,
+            shipping_cost:   0,
+          };
+          for (const secRec of this.ebayOrderRecs.slice(1)) {
+            let secOrderId;
+            if (secRec.order) {
+              await dw.updateOrder(secRec.order.id, {
+                sale_price:         null,
+                date_sold:          this.platformSaleDate || new Date().toISOString().split('T')[0],
+                platform_order_num: this.ebayOrderId,
+              });
+              secOrderId = secRec.order.id;
+            } else {
+              const secListing = dw.activeListing(secRec);
+              const newOrder = await dw.createOrder({
+                listing_id:         secListing?.id || null,
+                sale_price:         null,
+                date_sold:          this.platformSaleDate || new Date().toISOString().split('T')[0],
+                platform_order_num: this.ebayOrderId,
+              });
+              secOrderId = newOrder.id;
+            }
+            if (secRec.status !== 'Sold') await dw.updateItem(secRec.id, { status: 'Sold' });
+            if (secRec.shipment) {
+              await dw.updateShipment(secRec.shipment.id, trackingFields);
+            } else {
+              await dw.createShipment({ order_id: secOrderId, ...trackingFields });
+            }
+          }
+        }
+
         // createShipment calls fetchAll internally — store is fresh
         this.saveMsg = '✓ saved';
       } catch(e) {
@@ -294,14 +346,14 @@ document.addEventListener('alpine:init', () => {
     },
 
     async markShippedEbay() {
-      if (!this.ebayOrderId || !this.ebayLineItemId || !this.purchaseResult?.trackingNumber) return;
+      if (!this.ebayOrderId || !this.ebayLineItemIds.length || !this.purchaseResult?.trackingNumber) return;
       this.ebayShipMsg = 'Notifying eBay...';
       try {
         const res = await fetch(`/api/ebay/orders/${encodeURIComponent(this.ebayOrderId)}/tracking`, {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({
-            lineItemId:          this.ebayLineItemId,
+            lineItemIds:         this.ebayLineItemIds,
             trackingNumber:      this.purchaseResult.trackingNumber,
             shippingCarrierCode: this.carrier || 'OTHER',
           }),
