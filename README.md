@@ -29,6 +29,14 @@ Designed and built by Geoff Goss with Claude.ai via Claude Code CLI and VS Code 
 - **Modal back-navigation** — opening an item from a lot modal returns to the lot on close
 - **Catalog intake form** — hidden sidebar view for adding disc golf items directly to the Google Sheet catalog; fields auto-populate disc #, persist box number, and validate against eBay enums
 - **eBay bulk listing** — `scripts/bulk-list-discs.js` reads disc catalog from Google Sheet, uploads photos to EasyPost Photo Studio, creates eBay Inventory API listings; supports comma-separated ID ranges (`1-20,25,30-35`); dry run by default, `--confirm` to go live; `--update` mode refreshes title/description/price/condition/aspects on existing listings
+- **Flight numbers** — disc flight rating lookup (speed/glide/turn/fade) seeded from a 1,918-disc CSV; auto-populates catalog intake form and eBay listing description + item aspects
+- **Multi-item eBay orders** — label modal handles orders with multiple line items; marks all items shipped in one API call; splits payout proportionally across items
+- **Sites view** — unified platform sync panel replacing the old per-platform modals; three sections: Orders (pending shipments from eBay + Reverb with direct SHIP flow), Listings (link unmatched platform listings to local records or bulk-import as new items), Details (diff and sync name/price drift); ORDERS ticker button in header shows pending count; view refreshes automatically after shipping
+- **Lot actions** — rename, add item (pre-selects lot), delete (guarded — only when empty), export CSV; all from lot modal header
+- **Lot KPI restructure** — Cost → Recovered → Realized Profit → Forecasted Profit; whole-dollar rounding throughout; zero cost shows `—` instead of `$0.00` in red
+- **Income windows redesign** — dashboard income section shows 7d / 30d / 60d / 90d (YTD dropped); date range label per row; instant custom tooltips on bar segments
+- **Analytics sold mode** — Revenue and Profit columns added; sortable; pulls from local order records matched to platform orders
+- **HTML partial architecture** — `index.html` is now a 235-line shell; all 7 views and 5 modals live in `public/v2/partials/` as individual HTML files assembled by Express at request time; no client-side async injection
 
 ---
 
@@ -95,7 +103,7 @@ server/
   catalog-intake.js     ← Catalog intake form — Google Sheets append via service account
   shippo.js             ← Shippo proxy (retained, inactive)
 public/v2/
-  index.html            ← App shell
+  index.html            ← App shell (~235 lines); partials assembled by Express
   css/
     main.css            ← Design tokens, layout
     components.css      ← Badges, cards, modals, tables
@@ -110,13 +118,16 @@ public/v2/
       lots.js
       analytics.js
       comps.js          ← Comp research UI
+      sites.js          ← Platform sync (orders, listings, details)
     modals/
       item-modal.js
       add-modal.js
       lot-modal.js
       label-modal.js    ← Full shipping flow
-      reverb-modal.js   ← Reverb sync (orders, listings, details)
-      ebay-modal.js     ← eBay sync (orders, link listings)
+      shipping-modal.js ← In-transit tracking panel
+  partials/
+    views/              ← HTML for each view (dashboard, items, lots, analytics, comps, catalog, sites)
+    modals/             ← HTML for each modal (item, add, lot, label, shipping)
 ```
 
 ---
@@ -146,7 +157,17 @@ public/v2/
 | Mar 30 | Multi-listing per item (v1.0.9) — FB/CL support: checkbox site selection in Add Item, listings mini-table in item modal, per-row Mark Sold flow, contains-style site filter |
 | Apr 1–9 | eBay bulk listing system — `bulk-list-discs.js` + Inventory API integration; catalog intake form; comp research Reverb v2 research; label print alignment fixes; shipping estimate tuning; eBay aspect/condition fixes; comma-separated `--ids` support; `--confirm` pattern standardized across all scripts; project cleanup (removed v1 monolith, Airtable scripts, stale reference files) |
 
-~3.5 weeks from first idea to v1.0.0 — production tool with dual-marketplace integration, shipping automation, and analytics. The v2 rebuild — clean architecture, full modal/shipping/sync workflow — took 2 days.
+| Apr 9–19 | Design system refresh (v1.1.x) — slim hero bands on all views, sortable columns with localStorage persistence, filter-aware KPI tape, filter chip labels, row-click affordance, toast notifications, inventory export CSV, comps auto-hide uniform columns, catalog view parity |
+| Apr 19 | Multi-item eBay order support (v1.1.49) — label modal handles multiple line items, proportional payout split, single tracking push marks all items shipped |
+| Apr 20 | Inventory workbench (v1.1.50) — mode-switching tables (Listed/Sold/All), multi-select site filter pills, date range filter, expanded search (name + SKU + lot + notes), forecast stat in tape |
+| Apr 20 | Flight numbers (v1.1.48) — 1,918-disc lookup table, auto-populates catalog intake + eBay listing aspects and description |
+| Apr 21 | Sites view (v1.1.51–52) — unified sync panel replaces per-platform modals; Orders / Listings / Details sections; ORDERS ticker; post-ship auto-refresh |
+| Apr 21 | index.html partial architecture (v1.1.54) — 2,235-line monolith split into 12 partials assembled by Express; shell is 235 lines |
+| Apr 21 | Lots improvements (v1.1.55) — rename/add item/delete/export CSV actions; KPI restructure; whole-dollar rounding (fmt0 fix); normalized empty states |
+| Apr 21 | Income windows + analytics (v1.1.56) — 7/30/60/90d windows, date range labels, instant custom tooltips; analytics sold mode gets Revenue + Profit columns |
+| Apr 21 | v2.0.0 — design system refresh complete; 8 tickets closed |
+
+~3.5 weeks from first idea to v1.0.0 — production tool with dual-marketplace integration, shipping automation, and analytics. The v2 rebuild — clean architecture, full modal/shipping/sync workflow — took 2 days. v2.0.0 marks completion of a full design system refresh: consistent visual language, modular HTML architecture, and unified platform sync across the app.
 
 ---
 
