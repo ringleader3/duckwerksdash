@@ -35,6 +35,9 @@ document.addEventListener('alpine:init', () => {
       this.$watch('$store.dw.activeView', val => {
         if (val === 'sites') this.fetchOrders();
       });
+      this.$watch('$store.dw.activeModal', val => {
+        if (val === null && this.$store.dw.activeView === 'sites') this.fetchOrders();
+      });
     },
 
     // ── Orders ────────────────────────────────────────────────────────────────
