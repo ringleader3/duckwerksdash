@@ -21,7 +21,7 @@
       <div class="modal-body">
 
         <!-- Lot stat cards — Cost → Recovered → Realized Profit → Forecasted -->
-        <div class="stat-grid" style="margin-bottom:16px">
+        <div class="stat-grid stat-grid-compact" style="margin-bottom:16px">
           <div class="stat-card" :class="totalCost() > 0 ? 'red' : ''">
             <div class="stat-card-label">TOTAL COST</div>
             <div class="stat-card-value" x-text="totalCost() > 0 ? $store.dw.fmt0(totalCost()) : '—'"></div>
