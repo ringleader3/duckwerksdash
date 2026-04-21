@@ -203,7 +203,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     ctag(r) {
-      const cat = (r.category || '').toLowerCase();
+      const cat = (r.category?.name || '').toLowerCase();
       if (cat.includes('music') || cat.includes('instrument') || cat.includes('audio') || cat.includes('synth') || cat.includes('guitar')) return 'music';
       if (cat.includes('computer') || cat.includes('laptop') || cat.includes('mac') || cat.includes('pc')) return 'comp';
       if (cat.includes('gaming') || cat.includes('game') || cat.includes('console')) return 'gaming';

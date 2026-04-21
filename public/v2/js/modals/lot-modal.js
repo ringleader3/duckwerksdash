@@ -43,8 +43,8 @@ document.addEventListener('alpine:init', () => {
       else { this.sortKey = key; this.sortDir = 'asc'; }
     },
 
-    sortIndicator(key) {
-      if (this.sortKey !== key) return '';
+    sortGlyph(key) {
+      if (this.sortKey !== key) return ' ↕';
       return this.sortDir === 'asc' ? ' ↑' : ' ↓';
     },
 
