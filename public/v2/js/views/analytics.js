@@ -26,7 +26,10 @@ document.addEventListener('alpine:init', () => {
         if (tab === 'listed' && !this.listedLoaded) this._loadListed();
         if (tab === 'sold'   && !this.soldLoaded)   this._loadSold();
       });
-      this._loadListed();
+      this.$watch('$store.dw.activeView', v => {
+        if (v === 'analytics' && !this.listedLoaded) this._loadListed();
+      });
+      if (Alpine.store('dw').activeView === 'analytics') this._loadListed();
       const saved = dwSortable.load('analytics', 'views', 'desc');
       this.sortKey = saved.col;
       this.sortDir = saved.dir;
