@@ -7,13 +7,13 @@
           <input x-ref="renameInput" x-model="renameValue" type="text"
             style="background:var(--surface);border:1px solid var(--border2);color:var(--white);font:700 14px/1 var(--mono);padding:4px 8px;flex:1"
             @keydown.enter="saveRename()" @keydown.escape="renaming=false">
-          <button class="btn btn-sm" @click="saveRename()" :disabled="renameSaving" x-text="renameSaving ? '…' : 'SAVE'"></button>
-          <button class="btn-sm btn-muted" @click="renaming=false">CANCEL</button>
+          <button class="btn" style="font-size:10px;padding:4px 10px" @click="saveRename()" :disabled="renameSaving" x-text="renameSaving ? '…' : 'SAVE'"></button>
+          <button class="btn btn-muted" style="font-size:10px;padding:4px 10px" @click="renaming=false">CANCEL</button>
         </div>
         <div style="display:flex;gap:8px;align-items:center;margin-left:auto">
-          <button class="btn-sm btn-muted" @click="startRename()">RENAME</button>
-          <button class="btn-sm btn-muted" @click="addItem()">+ ITEM</button>
-          <button class="btn-sm" style="background:var(--red);color:#fff;border:none" @click="confirmDelete()" x-show="items.length === 0">DELETE</button>
+          <button class="btn btn-muted" style="font-size:10px;padding:4px 10px" @click="startRename()">RENAME</button>
+          <button class="btn btn-muted" style="font-size:10px;padding:4px 10px" @click="addItem()">+ ITEM</button>
+          <button class="btn" style="font-size:10px;padding:4px 10px;background:var(--red);color:#fff;border:none" @click="confirmDelete()" x-show="items.length === 0">DELETE</button>
           <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
         </div>
       </div>
