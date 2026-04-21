@@ -57,4 +57,12 @@ router.patch('/:id', (req, res) => {
   res.json(lot);
 });
 
+// DELETE lot (only if empty)
+router.delete('/:id', (req, res) => {
+  const count = db.prepare('SELECT COUNT(*) as n FROM items WHERE lot_id = ?').get(req.params.id);
+  if (count.n > 0) return res.status(409).json({ error: 'lot has items — remove them first' });
+  db.prepare('DELETE FROM lots WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
+});
+
 module.exports = router;

@@ -3,7 +3,9 @@
           <div class="hero-photo"></div>
           <div class="hero-head">
             <div class="hero-crumbs">DW<span class="sep">/</span><b>lots</b></div>
-            <div class="hero-tools"></div>
+            <div class="hero-tools">
+              <button class="btn-sm" @click="$store.dw.openModal('add')" style="letter-spacing:.1em">+ ADD LOT</button>
+            </div>
           </div>
         </div>
         <table class="data-table">
@@ -25,7 +27,7 @@
                   <span x-text="lot.items.length"></span>
                   <span class="muted-detail" x-text="'(' + countByStatus(lot,'Sold') + 's/' + countByStatus(lot,'Listed') + 'l)'"></span>
                 </td>
-                <td class="num-col red" x-text="$store.dw.fmt0(totalCost(lot))"></td>
+                <td class="num-col" :class="totalCost(lot) > 0 ? 'red' : ''" x-text="totalCost(lot) > 0 ? $store.dw.fmt0(totalCost(lot)) : '—'"></td>
                 <td class="num-col green" x-text="$store.dw.fmt0(totalRecovered(lot))"></td>
                 <td>
                   <div style="display:flex; align-items:center; gap:8px">
@@ -35,7 +37,7 @@
                     <span class="num-col" :class="recoveryBarClass(recoveryPct(lot))" x-text="recoveryPct(lot) + '%'"></span>
                   </div>
                 </td>
-                <td class="num-col yellow" x-text="estUpside(lot) > 0 ? $store.dw.fmt0(estUpside(lot)) : 'n/a'"></td>
+                <td class="num-col yellow" x-text="estUpside(lot) > 0 ? $store.dw.fmt0(estUpside(lot)) : '—'"></td>
               </tr>
             </template>
             <tr x-show="rows.length === 0">

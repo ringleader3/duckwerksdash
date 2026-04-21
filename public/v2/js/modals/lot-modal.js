@@ -4,6 +4,11 @@ document.addEventListener('alpine:init', () => {
     sortKey: 'name',
     sortDir: 'asc',
 
+    // ── Rename state ───────────────────────────────────────────────────────
+    renaming:     false,
+    renameValue:  '',
+    renameSaving: false,
+
     // ── Realloc state ──────────────────────────────────────────────────────
     reallocMode:          false,
     reallocRows:          [],
@@ -32,7 +37,7 @@ document.addEventListener('alpine:init', () => {
         if (k === 'cost')      { av = a.cost || 0;                              bv = b.cost || 0; }
         if (k === 'listPrice') { av = dw.activeListing(a)?.list_price || 0;    bv = dw.activeListing(b)?.list_price || 0; }
         if (k === 'eaf')       { av = dw.payout(a);                            bv = dw.payout(b); }
-        if (k === 'profit')    { av = a.order?.profit || 0;                    bv = b.order?.profit || 0; }
+        if (k === 'estProfit') { av = this.profitValue(a);                     bv = this.profitValue(b); }
         if (k === 'sale')      { av = a.order?.sale_price || 0;                bv = b.order?.sale_price || 0; }
         return dir * ((av || 0) - (bv || 0));
       });
@@ -145,6 +150,64 @@ document.addEventListener('alpine:init', () => {
       const dw = Alpine.store('dw');
       dw.previousModal = { type: 'lot', recordId: null, lotName: dw.activeLotName };
       dw.openModal('item', r.id);
+    },
+
+    addItem() {
+      const dw = Alpine.store('dw');
+      dw.previousModal = { type: 'lot', recordId: null, lotName: dw.activeLotName };
+      dw.openModal('add');
+    },
+
+    startRename() {
+      this.renameValue = this.lot?.name || '';
+      this.renaming    = true;
+      this.$nextTick(() => this.$refs.renameInput?.focus());
+    },
+
+    async saveRename() {
+      const val = this.renameValue.trim();
+      if (!val || val === this.lot?.name) { this.renaming = false; return; }
+      this.renameSaving = true;
+      const dw = Alpine.store('dw');
+      try {
+        await fetch(`/api/lots/${this.lot.id}`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: val }),
+        });
+        await dw.fetchAll();
+        dw.activeLotName = val;
+      } finally {
+        this.renameSaving = false;
+        this.renaming     = false;
+      }
+    },
+
+    async confirmDelete() {
+      if (!confirm(`Delete lot "${this.lot?.name}"? This cannot be undone.`)) return;
+      await fetch(`/api/lots/${this.lot.id}`, { method: 'DELETE' });
+      await Alpine.store('dw').fetchAll();
+      Alpine.store('dw').closeModal();
+    },
+
+    exportCsv() {
+      const dw   = Alpine.store('dw');
+      const rows = [['Name','Status','Cost','List Price','EAF','Profit','Sale']];
+      for (const r of this.sortedItems) {
+        const lp = dw.activeListing(r)?.list_price || 0;
+        rows.push([
+          r.name,
+          r.status,
+          r.cost || 0,
+          lp || '',
+          r.status !== 'Sold' && lp ? dw.payout(r).toFixed(2) : '',
+          this.profitValue(r).toFixed(2),
+          r.order?.sale_price || '',
+        ]);
+      }
+      const csv  = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a    = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${this.lot?.name || 'lot'}.csv` });
+      a.click();
     },
 
     // ── Realloc methods ────────────────────────────────────────────────────

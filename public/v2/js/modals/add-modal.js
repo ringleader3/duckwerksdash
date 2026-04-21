@@ -17,7 +17,8 @@ document.addEventListener('alpine:init', () => {
     },
 
     reset() {
-      this.form    = { name: '', status: 'Prepping', category: '', sites: [], lot: '', newLot: '', cost: '', listPrice: '', shipping: '', notes: '' };
+      const lotName = Alpine.store('dw').activeLotName || '';
+      this.form    = { name: '', status: 'Prepping', category: '', sites: [], lot: lotName, newLot: '', cost: '', listPrice: '', shipping: '', notes: '' };
       this.saveMsg = '';
       this.saving  = false;
     },
