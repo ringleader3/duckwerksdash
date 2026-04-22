@@ -4,7 +4,7 @@ Personal resale inventory dashboard for **Duckwerks Music** — tracks disc golf
 
 Designed and built by Geoff Goss with Claude.ai via Claude Code CLI and VS Code extension. This started as a single HTML file in Claude Desktop and evolved into a full-stack local web app over a few weeks of iterative development. I understand every decision made, can maintain it, and use it daily to run the business. It's a demonstration of what 20 years of software development and program management experience, combined with AI-assisted development tools, can produce quickly.
 
-![Duckwerks](public/v2/duckwerksheader.jpeg)
+![Duckwerks](public/v2/images/duckwerksheader.jpeg)
 
 ---
 

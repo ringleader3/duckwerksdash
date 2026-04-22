@@ -605,7 +605,7 @@ input[type=number] { -moz-appearance: textfield; }
 }
 .hero-photo {
   height: 100px;
-  background: #000 center/140% no-repeat url('../duckwerksheader.jpeg');
+  background: #000 center/140% no-repeat url('../images/duckwerksheader.jpeg');
   border-right: 1px solid var(--line);
 }
 .hero-head {
