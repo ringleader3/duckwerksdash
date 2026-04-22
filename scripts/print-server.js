@@ -49,11 +49,13 @@ function lpPrint(filePath, printer, opts = []) {
   });
 }
 
+
 async function downloadToTmp(url) {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch PDF: ${res.status}`);
+  if (!res.ok) throw new Error(`Failed to fetch label: ${res.status}`);
   const buf  = Buffer.from(await res.arrayBuffer());
-  const file = path.join(os.tmpdir(), `dw-label-${Date.now()}.pdf`);
+  const ext  = url.toLowerCase().includes('.png') ? 'png' : 'pdf';
+  const file = path.join(os.tmpdir(), `dw-label-${Date.now()}.${ext}`);
   fs.writeFileSync(file, buf);
   return file;
 }
