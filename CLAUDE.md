@@ -77,6 +77,13 @@ npm start   # starts Express on http://localhost:3000
 - JS files under ~150 lines: read in full. Larger: grep first, targeted read only.
 - `index.html` is a short shell (~235 lines) — safe to read in full. Edit view/modal content in the partials, not the shell.
 - Surgical edits (str_replace). One logical change per edit.
+- Never guess at API shapes — ask for the spec or docs before writing any call.
+
+## Scripts (`scripts/`)
+- Default to dry-run; require `--confirm` to write (not `--apply`)
+- Dry-run caches results to a local JSON file; `--confirm` reads the cache and applies — no second API round trip
+- If no cache exists when `--confirm` is passed, fetch fresh and apply in one shot
+- Use `AND col IS NULL` (or equivalent) on UPDATE statements to make writes idempotent
 
 ## Gotchas
 

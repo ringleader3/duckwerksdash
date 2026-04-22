@@ -80,6 +80,13 @@ pm2 status
 sudo systemctl status cloudflared
 ```
 
+**If the server is randomly restarting or 502ing**, check the PM2 systemd service first:
+```bash
+sudo journalctl -u pm2-geoff.service -n 20
+sudo systemctl status pm2-geoff.service
+```
+Look for "Can't open PID file" or a high restart counter. Root cause: the `PIDFile=` directive in `/etc/systemd/system/pm2-geoff.service` causes systemd to kill PM2 when it can't read the PID file. Fix: remove `PIDFile=`, set `Type=oneshot` + `RemainAfterExit=yes`.
+
 **DNS:** `duckwerks.com` is on Cloudflare. The `dash` subdomain CNAME points to the tunnel.
 
 ---
