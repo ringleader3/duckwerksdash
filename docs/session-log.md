@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-21 — Rollo print fix: EasyPost PNG + 203dpi
+
+- EasyPost PNG labels (1200×1800 @ 300dpi) now print correctly
+- print-server.js: `resolution=203dpi` matches Rollo native resolution; removed margin options
+- CUPS reset that actually works: `lpadmin -x Printer_ThermalPrinter` then replug USB
+- `label_format: 'PNG'` kept in label.js (EasyPost returns clean 4x6 PNG)
+- Drift after several labels is a hardware gap sensor issue, not software
+
 ### 2026-04-21 — v2.0.1 Rollo print debugging (inconclusive — hardware issue)
 
 - Investigated label drift/tiling on Rollo thermal printer
