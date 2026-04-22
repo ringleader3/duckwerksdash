@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-21 — v2.0.1 add modal fix + session workflow improvements
+
+- Fixed add modal never opening: stale `x-if` wrapper in `item.html` was preventing `addModal` from mounting; removed wrapper and orphaned closing tag from `add.html`
+- Added `x-show`/`x-cloak`/`init()`+`$watch` pattern to `add-modal.js` to match other modals
+- Updated CLAUDE.md: partials architecture, dev vs production workflow, session start/close checklists, NUC deploy step, Alpine modal gotcha
+- Updated global `~/.claude/CLAUDE.md`: session start/end discipline aligned with project CLAUDE.md
+
 ### 2026-04-21 — v2.0.0 design system complete (#104 #105 #107)
 
 - Analytics sold mode: added Revenue + Profit columns, sortable
