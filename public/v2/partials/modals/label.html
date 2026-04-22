@@ -66,13 +66,16 @@
           <div x-show="parcel.type === 'poly'">
             <div class="modal-row">
               <span class="modal-field">LENGTH (IN)</span>
-              <span class="modal-val">
+              <span class="modal-val" style="display:flex;gap:8px;align-items:center">
                 <input x-model="parcel.length" type="number" step="0.5" min="0.1" placeholder="e.g. 12"
-                  style="width:100px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+                  style="width:80px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
+                <span style="color:var(--muted);font-size:11px">×</span>
+                <input x-model="parcel.width" type="number" step="0.5" min="0.1" placeholder="W e.g. 9"
+                  style="width:80px;background:var(--surface);border:1px solid var(--border2);color:var(--white);font-family:'Space Mono',monospace;font-size:12px;padding:8px 10px">
               </span>
             </div>
             <div class="modal-row" style="margin-top:-8px">
-              <span class="modal-field" style="font-size:10px;color:#555">WIDTH &amp; HEIGHT not required for poly bags</span>
+              <span class="modal-field" style="font-size:10px;color:#555">Width enables cubic pricing on orders over 1 lb</span>
             </div>
           </div>
 

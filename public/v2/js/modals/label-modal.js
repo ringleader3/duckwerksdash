@@ -4,7 +4,7 @@ document.addEventListener('alpine:init', () => {
     step:           'form',   // 'form' | 'rates' | 'result'
     addrText:       '',
     insuredAmount:  '100',
-    parcel:         { type: 'box', weightLbs: '', weightOz: '', length: '', width: '', height: '' },
+    parcel:         { type: 'poly', weightLbs: '', weightOz: '', length: '9.5', width: '9.5', height: '1' },
     rates:          [],
     purchaseResult: null,
     ratePrice:      0,
@@ -163,7 +163,7 @@ document.addEventListener('alpine:init', () => {
 
     setType(type) {
       this.parcel.type = type;
-      if (type === 'poly') { this.parcel.width = ''; this.parcel.height = ''; }
+      if (type === 'poly') { this.parcel.length = '9.5'; this.parcel.width = '9.5'; this.parcel.height = '1'; }
     },
 
     _addrToText(a) {
@@ -206,7 +206,7 @@ document.addEventListener('alpine:init', () => {
       const parcel = {
         weight: totalLbs,
         length: this.parcel.length,
-        width:  this.parcel.type === 'box' ? this.parcel.width  : '1',
+        width:  this.parcel.width  || '1',
         height: this.parcel.type === 'box' ? this.parcel.height : '1',
       };
       this.loading = true;

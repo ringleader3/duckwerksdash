@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-22 — v2.0.2 poly mailer cubic pricing fix
+
+- Label modal now passes width to EasyPost for poly mailers (was hardcoded to 1)
+- Enables USPS cubic pricing on orders over 1 lb (3+ disc bundles)
+- Defaults pre-filled: poly/9.5×9.5/H:1 — still editable per order
+- Switching back to poly type restores those defaults
+
 ### 2026-04-21 — Rollo print fix: EasyPost PNG + 203dpi
 
 - EasyPost PNG labels (1200×1800 @ 300dpi) now print correctly
