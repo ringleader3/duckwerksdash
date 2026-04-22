@@ -199,8 +199,10 @@ document.addEventListener('alpine:init', () => {
       if (w.label === '30d') return w.overGoal
         ? `✓ rent covered · +$${Math.round(w.net - w.goalAmt).toLocaleString()}`
         : `✗ $${Math.round(w.goalAmt - w.net).toLocaleString()} short of goal`;
-      const rentTimes = (w.net / 3000).toFixed(2);
-      return `${rentTimes}× rent · ${w.label}`;
+      const rentTimes = (w.net / w.goalAmt).toFixed(2);
+      return w.overGoal
+        ? `${rentTimes}× rent · ${w.label}`
+        : `✗ $${Math.round(w.goalAmt - w.net).toLocaleString()} short of goal`;
     },
 
     ctag(r) {
