@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-21 — v2.0.1 Rollo print debugging (inconclusive — hardware issue)
+
+- Investigated label drift/tiling on Rollo thermal printer
+- print-server.js: now handles PNG and PDF by detecting URL extension
+- EasyPost already returning PNG (1200×1800 @ 300dpi = correct 4×6)
+- Root cause: Rollo gap sensor losing calibration after ~5 labels — hardware failure, not software
+- print-server.js left in clean state; no version bump (nothing shipped)
+
 ### 2026-04-21 — v2.0.1 add modal fix + session workflow improvements
 
 - Fixed add modal never opening: stale `x-if` wrapper in `item.html` was preventing `addModal` from mounting; removed wrapper and orphaned closing tag from `add.html`
