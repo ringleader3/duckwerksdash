@@ -29,9 +29,10 @@ npm start   # starts Express on http://localhost:3000
 - Never commit `.env`, `node_modules/`, `*.pdf`, `test.html`, `comic-reselling-project.md`, `data/duckwerks.db`
 
 ## Dev vs Production
-- **Production:** `dash.duckwerks.com` — NUC server, what Geoff uses daily. Almost all changes should be pushed and deployed here.
-- **Local dev:** `localhost:3000` (`npm start`) — use when a change is risky enough to need local vetting before it touches production (schema migrations, new API integrations, major refactors).
-- **Deploying:** after push to origin, run `bash scripts/deploy-nuc.sh` to deploy to the NUC. Do this at every checkpoint and session close unless Geoff says otherwise.
+- **Default: ship to production.** Fix it, commit, push, deploy, tell Geoff to refresh `dash.duckwerks.com`. That is the normal flow for every bug fix, tweak, and feature.
+- **Local dev only for huge projects** — multi-session rewrites, schema migrations, new API integrations. In those cases: use `localhost:3000` (`npm start`), commit less, hold pushes until a natural milestone.
+- **Never tell Geoff to refresh `localhost:3000`** unless you're explicitly in a local dev session together.
+- **Deploying:** push to origin, then `bash scripts/deploy-nuc.sh`.
 
 ---
 

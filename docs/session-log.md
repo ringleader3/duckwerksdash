@@ -1,6 +1,11 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-22 — CLAUDE.md dev vs production clarification
+
+- Rewrote Dev vs Production section: production is now the explicit default; local dev reserved for huge multi-session projects
+- Removed ambiguity that caused repeated confusion about where to test
+
 ### 2026-04-22 — v2.0.2 poly mailer cubic pricing fix
 
 - Label modal now passes width to EasyPost for poly mailers (was hardcoded to 1)
