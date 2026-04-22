@@ -16,6 +16,10 @@ document.addEventListener('alpine:init', () => {
       notes:     '',
     },
 
+    init() {
+      this.$watch('$store.dw.activeModal', val => { if (val === 'add') this.reset(); });
+    },
+
     reset() {
       const lotName = Alpine.store('dw').activeLotName || '';
       this.form    = { name: '', status: 'Prepping', category: '', sites: [], lot: lotName, newLot: '', cost: '', listPrice: '', shipping: '', notes: '' };

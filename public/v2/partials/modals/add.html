@@ -1,4 +1,4 @@
-  <div x-data="addModal" class="modal-overlay">
+  <div x-show="$store.dw.activeModal === 'add'" x-data="addModal" class="modal-overlay" x-cloak>
     <div class="modal-box" @keydown.escape.window="$store.dw.closeModal()" @keydown.tab.prevent="$store.dw.trapTab($event, $el)">
 
       <div class="modal-header">

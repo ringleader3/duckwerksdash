@@ -28,6 +28,11 @@ npm start   # starts Express on http://localhost:3000
 - Commit after any meaningful session of changes
 - Never commit `.env`, `node_modules/`, `*.pdf`, `test.html`, `comic-reselling-project.md`, `data/duckwerks.db`
 
+## Dev vs Production
+- **Production:** `dash.duckwerks.com` — NUC server, what Geoff uses daily. Almost all changes should be pushed and deployed here.
+- **Local dev:** `localhost:3000` (`npm start`) — use when a change is risky enough to need local vetting before it touches production (schema migrations, new API integrations, major refactors).
+- **Deploying:** after push to origin, run `bash scripts/deploy-nuc.sh` to deploy to the NUC. Do this at every checkpoint and session close unless Geoff says otherwise.
+
 ---
 
 ## Key Files
@@ -54,12 +59,14 @@ npm start   # starts Express on http://localhost:3000
 - `data/ebay-tokens.json` — eBay OAuth tokens (never commit)
 
 **Frontend**
-- `public/v2/index.html` — app shell (never read in full — always grep first)
+- `public/v2/index.html` — app shell with `<!-- partial: views/foo -->` and `<!-- partial: modals/foo -->` comment placeholders; server assembles the final HTML at request time by inlining partials (see `server.js` `assembleHTML()`)
+- `public/v2/partials/views/` — view HTML partials (dashboard, items, lots, analytics, comps, catalog, sites)
+- `public/v2/partials/modals/` — modal HTML partials (item, add, lot, label, shipping)
 - `public/v2/js/config.js` — constants: `CAT_BADGE`, `CAT_COLOR`, `SITE_FEES`, `APP_VERSION`
 - `public/v2/js/store.js` — `Alpine.store('dw')` — all data, helpers, modal state
 - `public/v2/js/sidebar.js` — search + nav state
-- `public/v2/js/views/` — dashboard, items, lots, analytics, comps, catalog
-- `public/v2/js/modals/` — item, add, lot, label, shipping
+- `public/v2/js/views/` — Alpine component definitions for each view
+- `public/v2/js/modals/` — Alpine component definitions for each modal (item, add, lot, label, shipping)
 
 > Full endpoint docs + env vars + schema: `docs/claude/api-reference.md`
 > Alpine architecture, modal patterns, component details: `docs/claude/frontend-reference.md`
@@ -68,8 +75,21 @@ npm start   # starts Express on http://localhost:3000
 
 ## Working on Files
 - JS files under ~150 lines: read in full. Larger: grep first, targeted read only.
-- `index.html` exceeds 300 lines — always grep first, never read in full.
+- `index.html` is a short shell (~235 lines) — safe to read in full. Edit view/modal content in the partials, not the shell.
 - Surgical edits (str_replace). One logical change per edit.
+
+## Gotchas
+
+**Alpine modal pattern** — every modal overlay needs three things on its root div or it will be permanently visible and break the entire UI:
+```html
+<div x-show="$store.dw.activeModal === 'modal-name'" x-data="modalComponent" class="modal-overlay" x-cloak>
+```
+And the JS component needs an `init()` that `$watch`es `activeModal` to call `reset()` on open:
+```js
+init() {
+  this.$watch('$store.dw.activeModal', val => { if (val === 'modal-name') this.reset(); });
+},
+```
 
 ---
 
@@ -99,10 +119,9 @@ npm start   # starts Express on http://localhost:3000
 
 ---
 
-## Session Start Checklist
+## Session Start
 1. Read `CLAUDE.md` (this file)
-2. Run `gh issue list --state open`
-3. Work P1 bugs first, then P1 enhancements, then P2s
+2. React to Geoff's opening prompt — don't pre-fetch issues or run diagnostics unless asked
 
 ## Checkpoint Protocol
 Any time Geoff says "checkpoint":
@@ -110,6 +129,19 @@ Any time Geoff says "checkpoint":
 2. Update `docs/session-log.md`
 3. Commit with ticket refs
 4. Push to origin
+5. Run `bash scripts/deploy-nuc.sh` to deploy to production
+
+## Session Close
+At the end of every session:
+1. Bump patch version in `config.js` + `package.json` (if anything shipped)
+2. Update `CLAUDE.md` with any structural changes made this session
+3. Update `docs/session-log.md`
+4. Save any useful memories (new patterns, decisions, persistent context) to the memory system
+5. Commit all changes including docs with ticket refs
+6. Push to origin
+7. Run `bash scripts/deploy-nuc.sh`
+
+Tell Geoff what was updated in CLAUDE.md, session-log.md, and memory — one line each.
 
 ---
 
