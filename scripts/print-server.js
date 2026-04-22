@@ -67,8 +67,12 @@ app.post('/print/label', async (req, res) => {
   try {
     const file = await downloadToTmp(url);
     await lpPrint(file, LABEL_PRINTER, [
-      'fit-to-page',
-      'media=4x6'
+      "media=4x6",
+      "page-bottom=0",
+      "page-top=0",
+      "page-left=0",
+      "page-right=0",
+      "scaling=100",
     ]);
     fs.unlinkSync(file);
     res.json({ ok: true });
