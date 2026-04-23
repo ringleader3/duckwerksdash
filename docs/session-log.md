@@ -1,6 +1,11 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-22 — v2.0.3 inventory tracking fix
+
+- Tracking badges now appear on inventory page on load
+- Root cause: `_loadTracking()` fired at `init()` before store records were populated; added `$watch` on `dw.loading` to retry once data arrives
+
 ### 2026-04-22 — CLAUDE.md dev vs production clarification
 
 - Rewrote Dev vs Production section: production is now the explicit default; local dev reserved for huge multi-session projects
