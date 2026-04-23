@@ -26,6 +26,9 @@ document.addEventListener('alpine:init', () => {
       });
       const dw = Alpine.store('dw');
       if ((this.statusFilter === 'Sold' || this.statusFilter === 'All') && !dw.loading && dw.records.length > 0) this._loadTracking();
+      this.$watch('$store.dw.loading', loading => {
+        if (!loading && (this.statusFilter === 'Sold' || this.statusFilter === 'All')) this._loadTracking();
+      });
       const saved = dwSortable.load('items', 'createdTime', 'desc');
       this.sortKey = saved.col;
       this.sortDir = saved.dir;

@@ -69,14 +69,14 @@ app.post('/print/label', async (req, res) => {
   try {
     const file = await downloadToTmp(url);
     await lpPrint(file, LABEL_PRINTER, [
-      "media=4x6",
+      "media=Custom.4x6in",
+      "fit-to-page",
       "resolution=203dpi",
-      "scaling=100",
-    ]);
+      ]);
     fs.unlinkSync(file);
     res.json({ ok: true });
-  } catch(e) {
-    console.error('[print/label]', e.message);
+  } catch (e) {
+    console.error("[print/label]", e.message);
     res.status(500).json({ error: e.message });
   }
 });
