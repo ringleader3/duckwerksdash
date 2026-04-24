@@ -67,6 +67,7 @@ npm start   # starts Express on http://localhost:3000
 - `public/v2/partials/views/` — view HTML partials (dashboard, items, lots, analytics, comps, catalog, sites)
 - `public/v2/partials/modals/` — modal HTML partials (item, add, lot, label, shipping)
 - `public/v2/js/config.js` — constants: `CAT_BADGE`, `CAT_COLOR`, `SITE_FEES`, `APP_VERSION`
+- `public/v2/js/notifications.js` — browser push notification module: permission, 5-min order poller, delta tracking; test page at `/push-test`
 - `public/v2/js/store.js` — `Alpine.store('dw')` — all data, helpers, modal state
 - `public/v2/js/sidebar.js` — search + nav state
 - `public/v2/js/views/` — Alpine component definitions for each view
