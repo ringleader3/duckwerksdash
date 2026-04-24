@@ -15,7 +15,8 @@ const DwNotifications = {
 
   notify(title, body, tag) {
     if (Notification.permission !== 'granted') return;
-    new Notification(title, { body, tag, icon: NOTIFICATION_ICON });
+    const n = new Notification(title, { body, tag, icon: NOTIFICATION_ICON });
+    n.onclick = () => { window.focus(); n.close(); };
   },
 
   checkAndNotify(count) {
