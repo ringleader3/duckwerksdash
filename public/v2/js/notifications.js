@@ -21,6 +21,10 @@ const DwNotifications = {
   checkAndNotify(count) {
     if (this.lastOrderCount === null) {
       this.lastOrderCount = count;
+      if (count > 0) {
+        const body = NOTIFICATION_BODY.replace('{count}', count);
+        this.notify(NOTIFICATION_TITLE, body, NOTIFICATION_TAG);
+      }
       return;
     }
     if (count > this.lastOrderCount) {
