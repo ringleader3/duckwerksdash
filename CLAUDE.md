@@ -58,8 +58,22 @@ npm start   # starts Express on http://localhost:3000
 - `server/ebay-auth.js` — eBay OAuth (one-time setup + auto-refresh)
 - `server/ebay.js` — eBay Sell Fulfillment (`/api/ebay/*`)
 - `server/ebay-listings.js` — eBay Inventory API bulk listing (`POST /api/ebay/bulk-list`)
+- `scripts/deploy-nuc.sh` — pull + PM2 restart on the NUC; run after every push
+- `scripts/print-server.js` — local print server; receives label jobs and forwards to Rollo via CUPS
 - `scripts/bulk-list-discs.js` — bulk eBay lister; idempotent (safe to re-run)
 - `scripts/backfill-skus.js` — one-time SKU backfill from eBay Inventory API; dry-run by default, `--confirm` to write
+- `scripts/backfill-flight-numbers.js` — one-time flight number backfill for disc items
+- `scripts/seed-flight-numbers.js` — seeds flight number reference data
+- `scripts/assign-lot.js` — assign items to a lot; dry-run by default
+- `scripts/bulk-comp-discs.js` — bulk comp research runner for disc inventory
+- `scripts/check-aspects.js` — inspect eBay item aspects for a listing
+- `scripts/check-conditions.js` — inspect valid eBay condition values for a category
+- `scripts/check-offer.js` — inspect an eBay offer by SKU
+- `scripts/ebay-traffic-merge.js` — merge eBay traffic report data into local db
+- `scripts/rename-disc-photos.js` — batch rename disc photo files to match SKU convention
+- `scripts/reverb-scrape.js` — scrape Reverb listing data for comp research
+- `scripts/test-rates.js` — test EasyPost/Shippo rate fetching for a given package
+- `scripts/update-site-fees.js` — update site fee config in db
 - `data/ebay-tokens.json` — eBay OAuth tokens (never commit)
 
 **Frontend**
