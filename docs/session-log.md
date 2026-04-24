@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-23 — v2.0.4 order push notifications
+
+- New `public/v2/js/notifications.js` module: constants, permission request, delta tracking, notification firing
+- 5-minute poller wired into `store.js` `init()`; permission requested on first ORDERS button click
+- Fires on first poll if orders already pending; fires again only when count increases
+- Hidden test page at `/push-test` for permission + notification testing without waiting for real orders
+- Note: macOS hands Chrome notifications to OS — JS `onclick` handler doesn't fire, service worker required for click-to-focus (ruled out as overkill)
+
 ### 2026-04-22 — v2.0.3 inventory tracking fix
 
 - Tracking badges now appear on inventory page on load
