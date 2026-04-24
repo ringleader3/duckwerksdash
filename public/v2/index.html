@@ -67,7 +67,7 @@
     <span>·</span>
     <span x-text="new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})"></span>
     <button x-data
-      @click="$store.dw.orderCount > 0 ? ($store.dw.activeView = 'sites', $store.dw.orderCount = null) : $store.dw.checkOrders()"
+      @click="$store.dw.orderCount > 0 ? ($store.dw.activeView = 'sites', $store.dw.orderCount = null) : (DwNotifications.requestPermission(), $store.dw.checkOrders())"
       :disabled="$store.dw.checkingOrders"
       style="background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);font:700 9px/1 var(--mono);letter-spacing:.12em;padding:3px 7px;cursor:pointer;margin-left:8px"
       x-text="$store.dw.checkingOrders ? '...' : $store.dw.orderCount > 0 ? $store.dw.orderCount + ' ORDERS' : 'ORDERS'">
@@ -188,6 +188,7 @@
 <!-- ── Scripts: load order matters ──────────────────────────────────────── -->
 <!-- Config first — defines APP_VERSION, CAT_COLOR, CAT_BADGE, SITE_FEES -->
 <script src="js/config.js"></script>
+<script src="js/notifications.js"></script>
 
 <!-- Alpine store — must register before Alpine initializes -->
 <script src="js/store.js"></script>

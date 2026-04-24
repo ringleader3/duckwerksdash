@@ -45,6 +45,7 @@ document.addEventListener('alpine:init', () => {
         if (cfg.hostname)         this.hostname         = cfg.hostname;
         if (cfg.environment)      this.environment      = cfg.environment;
         await this.fetchAll();
+        setInterval(() => this.checkOrders(), DwNotifications.pollIntervalMs);
       } catch (e) {
         this.error = 'Failed to initialize: ' + e.message;
       }
@@ -140,6 +141,7 @@ document.addEventListener('alpine:init', () => {
         const ebayCount   = (ebayData.orders   || []).filter(o => (o.lineItems || []).length > 0).length;
         const reverbCount = (reverbData.orders || []).length;
         this.orderCount = ebayCount + reverbCount;
+        DwNotifications.checkAndNotify(this.orderCount);
         if (this.orderCount === 0) {
           setTimeout(() => { if (this.orderCount === 0) this.orderCount = null; }, 2000);
         }

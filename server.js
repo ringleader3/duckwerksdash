@@ -49,6 +49,44 @@ app.get('/api/config', (_req, res) => {
   });
 });
 
+app.get('/push-test', (_req, res) => {
+  res.type('html').send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Push Test — Duckwerks</title>
+  <style>
+    body { font: 14px/1.6 monospace; padding: 40px; background: #111; color: #ccc; }
+    h1 { font-size: 16px; letter-spacing: .1em; margin-bottom: 24px; }
+    button { display: block; margin-bottom: 12px; padding: 8px 16px; font: 13px monospace; cursor: pointer; background: #222; color: #eee; border: 1px solid #444; }
+    button:hover { background: #333; }
+    #status { margin-top: 20px; font-size: 12px; color: #888; }
+  </style>
+</head>
+<body>
+  <h1>Push Notification Test</h1>
+  <button onclick="requestPerm()">Request Permission</button>
+  <button onclick="fireTest()">Fire Test Notification</button>
+  <div id="status"></div>
+  <script>
+    const TITLE = 'New Orders';
+    const BODY  = 'You have 3 orders awaiting shipment';
+    const TAG   = 'dw-orders';
+    function log(msg) { document.getElementById('status').textContent = msg; }
+    async function requestPerm() {
+      const result = await Notification.requestPermission();
+      log('Permission: ' + result);
+    }
+    function fireTest() {
+      if (Notification.permission !== 'granted') { log('Permission not granted — click Request Permission first'); return; }
+      new Notification(TITLE, { body: BODY, tag: TAG });
+      log('Notification fired.');
+    }
+  </script>
+</body>
+</html>`);
+});
+
 // ── API ROUTERS ───────────────────────────────────────────────────────────────
 
 app.use('/api',           require('./server/catalog'));    // /api/sites, /api/categories
