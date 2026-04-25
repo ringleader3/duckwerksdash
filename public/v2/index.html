@@ -67,7 +67,7 @@
     <span>·</span>
     <span x-text="new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})"></span>
     <button x-data
-      @click="$store.dw.orderCount > 0 ? ($store.dw.activeView = 'sites', $store.dw.orderCount = null) : (DwNotifications.requestPermission(), $store.dw.checkOrders())"
+      @click="$store.dw.orderCount > 0 ? ($store.dw.activeView = 'sites', $store.dw.orderCount = null, $store.dw.ordersRefreshTick++) : (DwNotifications.requestPermission(), $store.dw.checkOrders())"
       :disabled="$store.dw.checkingOrders"
       style="background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);font:700 9px/1 var(--mono);letter-spacing:.12em;padding:3px 7px;cursor:pointer;margin-left:8px"
       x-text="$store.dw.checkingOrders ? '...' : $store.dw.orderCount > 0 ? $store.dw.orderCount + ($store.dw.orderCount === 1 ? ' ORDER' : ' ORDERS') : 'ORDERS'">
