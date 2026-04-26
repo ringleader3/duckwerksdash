@@ -1,0 +1,89 @@
+{
+  "item_name": "ElfQuest Jink lot",
+  "slug": "elfquest-jink",
+  "created": "2026-04-26",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "item_name": "ElfQuest Jink lot",
+        "category": "Comics",
+        "issues": "#1-8, 10-11 (10 issues total, missing #9 and #12+)",
+        "condition": "VG across the lot, bagged and boarded",
+        "known_defects": "none noted",
+        "quantity": 10,
+        "price_known": false
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "shipping": "Media Mail",
+        "series_run": "12 issues total (1994-1996, WaRP Graphics)",
+        "completeness": "Near-complete — 10 of 12, missing #9 and #12",
+        "platform": "eBay",
+        "key_issues": "No known key appearances; #1 may carry modest series-opener premium",
+        "comp_pool_expectation": "Thin but real — indie title, loyal collector base, apply rarity exception if needed"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "primary": "ElfQuest Jink comic lot",
+        "secondary": "ElfQuest Jink #1 WaRP Graphics"
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "elfquest_jink_warp_graphics_comic_lot_comps.txt",
+        "direct_comps": 3,
+        "ceiling_comp": "ElfQuest Jink #1-10 Near Complete Series — $26.46 landed"
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "floor": 10,
+        "midpoint": 20,
+        "ceiling": 26,
+        "recommended": 25,
+        "confidence": "moderate-low (3 direct comps, validated by adjacent Warp spinoff data)",
+        "rationale": "Ceiling comp is near-identical lot at $26.46 landed. Bagged/boarded and #1 inclusion support upper end. Round to $25."
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "ElfQuest Jink #1-8 10 11 Near-Complete 10-Issue Lot 1994 WaRP Graphics",
+        "description": "ElfQuest Jink ran from 1994 to 1996 as WaRP Graphics expanded the ElfQuest universe with a new character and storyline. This is a near-complete run covering issues #1 through 8, plus #10 and #11, including the first issue of the series. Only #9 and #12 are missing.\n\nStored bagged with individual backing boards by a careful collector. Condition is Very Good across the lot, consistent throughout.\n\nSeries | ElfQuest: Jink\nPublisher | WaRP Graphics\nIssues | #1-8, 10, 11 (10 issues)\nMissing | #9 and #12\nCondition | VG, bagged and boarded\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer. Comics are packed securely with cardboard backing to protect against bending in transit.\n\nSold As Is.",
+        "condition_field": "Near-complete run of ElfQuest Jink (1994 WaRP Graphics), issues #1-8, 10, and 11. Missing #9 and #12. Includes the first issue of the series. All issues individually bagged with backing boards. Condition is Very Good throughout with no major creasing, spine rolls, or cover damage noted."
+      }
+    },
+    "metadata": {
+      "done": true,
+      "data": {
+        "category": "Comics > Comic Books (ID: 259104)",
+        "condition": "Very Good",
+        "price": 25.00,
+        "format": "Fixed Price",
+        "duration": "GTC",
+        "shipping": "Free — Media Mail ~2 lbs",
+        "returns": "No returns",
+        "min_offer": 19,
+        "item_specifics": {
+          "Series": "ElfQuest",
+          "Title": "Jink",
+          "Issue Number": "#1-8, 10, 11",
+          "Publisher": "WaRP Graphics",
+          "Year": "1994",
+          "Era": "Modern Age (1992-Now)",
+          "Genre": "Fantasy",
+          "Language": "English",
+          "Tradition": "US Comics"
+        }
+      }
+    },
+    "listing":      { "done": false, "data": null }
+  }
+}

@@ -16,12 +16,17 @@ Load these two files at the start of every session — they govern all copy and 
 
 **Read both files before Phase 1.**
 
-## Checkpoint Files
+## Session Folders
 
-**Location:** `tmp/listing-sessions/<slug>.json`
-**Slug:** kebab-case item name (e.g. `elfquest-hidden-years.json`)
+**Location:** `docs/listing-sessions/<slug>/`
+**Slug:** kebab-case item name (e.g. `elfquest-hidden-years`)
 
-On invocation: check `tmp/listing-sessions/` for an existing checkpoint. If found, skip to the first phase where `done: false`. If not found, start at Phase 1 and create it.
+Each session folder contains:
+- `checkpoint.json` — phase state, written after each completed phase
+- `comps.txt` — comp data file (copy here from Downloads or wherever)
+- `listing.md` — final ready-to-post output, written at Phase 8
+
+On invocation: check `docs/listing-sessions/` for a folder matching the item. If `checkpoint.json` exists, skip to the first phase where `done: false`. If not found, create the folder and start at Phase 1.
 
 You can hand-craft a checkpoint to jump ahead — populate earlier phases as `done: true` with their data and the skill picks up from the first incomplete phase.
 
@@ -43,7 +48,7 @@ You can hand-craft a checkpoint to jump ahead — populate earlier phases as `do
 }
 ```
 
-Write the checkpoint after each completed phase.
+Write `checkpoint.json` after each completed phase.
 
 ## Phase Flow
 
@@ -78,9 +83,9 @@ Output: the exact search string(s) to use.
 ### Phase 4 — Comp Data
 Tell the user exactly what to do:
 
-> "Go to http://fedora.local:3000 → COMP tab → search for [terms] → download CSV → paste it here."
+> "Go to http://fedora.local:3000 → COMP tab → search for [terms] → download the .txt file → copy it into `docs/listing-sessions/<slug>/comps.txt` → tell me when it's there."
 
-Wait for the pasted CSV. Save to checkpoint. Proceed.
+Read the file from the session folder. Save reference to checkpoint. Proceed.
 
 > **TODO:** once Phase 3 is automated, this phase collapses — comp data arrives automatically.
 
@@ -117,7 +122,9 @@ Present final review: title, price, condition, key metadata, description preview
 
 User approves.
 
-Output a **ready-to-list block** with everything formatted for manual eBay entry.
+Write `docs/listing-sessions/<slug>/listing.md` — clean, sectioned, copy-paste ready. One fenced block per field (title, price, min offer, category, condition, duration, shipping, returns, item specifics, description, condition field).
+
+Confirm the file is written and tell the user where to find it.
 
 > **TODO:** on approval, call `POST http://fedora.local:3000/api/ebay/bulk-list` (or a new general-purpose listing endpoint) to post directly. The current bulk-list route is disc-specific — a general endpoint needs to be built first.
 
