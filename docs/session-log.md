@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-25 — notification and shipping cost fixes
+
+- ORDERS button now refreshes sites view when already on that page (via `ordersRefreshTick` store flag)
+- Notification fires on first poll if orders already pending (not just on delta)
+- Fixed `0 || estimate` fallthrough bug for zero ship cost — switched to `??` in both `server/items.js` profit calc and `item.html` display
+
 ### 2026-04-23 — v2.0.4 order push notifications
 
 - New `public/v2/js/notifications.js` module: constants, permission request, delta tracking, notification firing
