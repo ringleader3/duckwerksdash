@@ -23,6 +23,10 @@ npm start   # starts Express on http://localhost:3000
 - `docs/superpowers/plans/` — implementation plans
 - `.superpowers/` — brainstorm working files (gitignored)
 
+## Project Skills
+- `.claude/skills/list-item/SKILL.md` — eBay listing workflow (intake → comps → pricing → copy → metadata). Invoke by saying "use the list-item skill". Not registered via superpowers — read directly.
+- Session files live in `docs/listing-sessions/<slug>/` (checkpoint.json, comps.txt, listing.md)
+
 ## Version Control
 - GitHub: https://github.com/ringleader3/duckwerksdash (private)
 - Commit after any meaningful session of changes
