@@ -141,6 +141,13 @@ After collecting comps, produce a working range and a recommended list price:
 - **Key issue non-linearity:** A first appearance, first cover, or origin issue does not price linearly with non-key issues from the same series. Key issues have their own comp pool — pull separately.
 - **Condition grading scale:** 0.5 (Poor) through 10.0 (Gem Mint). Raw condition is estimated; CGC/CBCS grades are certified. When comping raw copies, use condition language ("VF", "VF/NM", "NM") and note that raw grades carry more variability than slabbed grades.
 - **CGC census data:** For high-value issues, low census counts at high grades (e.g., "only 12 copies graded 9.8") can justify premium pricing even with thin comp data. Note census if known.
+- **Lot pricing vs. individual issue pricing:** Lot comps and single-issue comps are different pools — do not mix them. When comping a lot, search for lots of similar size and completeness. Normalize any individual-issue comps to per-issue price as a floor reference only, not a working comp.
+- **Completeness premium:** A near-complete or complete run commands a meaningful premium over a partial lot of the same series. Flag any gaps in the run being sold (missing issues) and note whether comps are for complete vs. partial runs — this affects where in the range to price.
+- **Trade paperback vs. single issue:** These are separate markets even within the same series. Do not comp TPBs against single issues or vice versa. Pull separately.
+- **Series-specific thin markets:** Older independent titles (ElfQuest, Strangers in Paradise, early Abstract Studio, Warp Graphics) have small but loyal collector bases. Thin comp pools are normal and do not indicate no market — apply the rarity exception from the Thin Comp Pool Protocol and price at the higher end of what exists.
+- **Bagged and boarded condition signal:** "Stored bagged and boarded" or "bagged and sleeved since purchase" is a meaningful condition signal — it indicates the seller was a careful collector, not a casual reader. Factor this into condition assessment and note it if visible in comps.
+- **Graphic novels and hardcovers:** Price separately from standard issues and TPBs. Hardcover editions (especially signed, numbered, or with original art) have their own comp pool. Never use a softcover TPB comp to price a hardcover edition of the same title.
+- **Publisher context for indie titles:** Small press and independent publishers (WaRP Graphics, Abstract Studio, First Publishing, Dark Horse) did not have the print run scale of Marvel/DC. Surviving copies in good condition are proportionally scarcer. Weight this when the comp pool is thin.
 
 ---
 
