@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-// scripts/convert-photos.js — convert HEIC photos to sized JPEGs for eBay listings
+// scripts/convert-photos.js — convert HEIC/JPEG/PNG photos to sized JPEGs for eBay listings
 //
 // Usage: node scripts/convert-photos.js --dir <path> [--date YYYYMMDD] [--confirm]
 //
-// Reads all HEIC/JPEG/PNG files from --dir, converts to JPEG (2000px long edge, q80),
-// writes to a dated session folder: DW-YYYYMMDD/ (or DW-YYYYMMDD-2/ etc. if taken)
+// Converts to JPEG at 2000px long edge using macOS sips (no extra deps).
+// Writes to a dated session folder: DW-YYYYMMDD/ next to --dir (or DW-YYYYMMDD-2/ etc.)
 // Originals are untouched.
 
-const fs   = require('fs');
-const path = require('path');
-const sharp = require('sharp');
+const fs            = require('fs');
+const path          = require('path');
+const { execFileSync } = require('child_process');
 
 function arg(name) {
   const i = process.argv.indexOf(name);
@@ -29,14 +29,13 @@ if (!fs.existsSync(inputDir)) {
   process.exit(1);
 }
 
-// Date: explicit arg or today
 const rawDate = arg('--date') || new Date().toISOString().slice(0, 10).replace(/-/g, '');
 if (!/^\d{8}$/.test(rawDate)) {
   console.error('--date must be YYYYMMDD (e.g. 20260422)');
   process.exit(1);
 }
 
-// Find an available session folder name
+// Find an available session folder name (sibling of inputDir)
 const parentDir = path.dirname(path.resolve(inputDir));
 function sessionDir(suffix) {
   const name = suffix === 1 ? `DW-${rawDate}` : `DW-${rawDate}-${suffix}`;
@@ -46,7 +45,6 @@ let suffix = 1;
 while (fs.existsSync(sessionDir(suffix))) suffix++;
 const outDir = sessionDir(suffix);
 
-// Collect input files
 const files = fs.readdirSync(inputDir)
   .filter(f => /\.(heic|jpg|jpeg|png)$/i.test(f))
   .map(f => ({ name: f, born: fs.statSync(path.join(inputDir, f)).birthtime }))
@@ -61,13 +59,13 @@ if (files.length === 0) {
 const sessionName = path.basename(outDir);
 const pad = n => String(n).padStart(2, '0');
 
-console.log(`\n${confirm ? '' : 'DRY RUN — pass --confirm to write.\n'}`);
+console.log(confirm ? '' : '\nDRY RUN — pass --confirm to write.\n');
 console.log(`Input:  ${inputDir} (${files.length} files)`);
 console.log(`Output: ${outDir}\n`);
 
 const plan = files.map((f, i) => ({
-  src: path.join(inputDir, f),
-  dest: path.join(outDir, `${sessionName}-${pad(i + 1)}.jpeg`),
+  src:      path.join(inputDir, f),
+  dest:     path.join(outDir, `${sessionName}-${pad(i + 1)}.jpeg`),
   original: f,
 }));
 
@@ -82,22 +80,22 @@ if (!confirm) {
 
 fs.mkdirSync(outDir, { recursive: true });
 
-(async () => {
-  let ok = 0, fail = 0;
-  for (const { src, dest, original } of plan) {
-    try {
-      await sharp(src)
-        .rotate()                          // apply EXIF orientation
-        .resize(2000, 2000, { fit: 'inside', withoutEnlargement: true })
-        .jpeg({ quality: 80 })
-        .toFile(dest);
-      const kb = Math.round(fs.statSync(dest).size / 1024);
-      console.log(`  ✓ ${original} → ${path.basename(dest)} (${kb}KB)`);
-      ok++;
-    } catch (e) {
-      console.error(`  ✗ ${original}: ${e.message}`);
-      fail++;
-    }
+let ok = 0, fail = 0;
+for (const { src, dest, original } of plan) {
+  try {
+    execFileSync('sips', [
+      '-Z', '2000',
+      '--setProperty', 'format', 'jpeg',
+      '--setProperty', 'formatOptions', '80',
+      src,
+      '--out', dest,
+    ], { stdio: 'pipe' });
+    const kb = Math.round(fs.statSync(dest).size / 1024);
+    console.log(`  ✓ ${original} → ${path.basename(dest)} (${kb}KB)`);
+    ok++;
+  } catch (e) {
+    console.error(`  ✗ ${original}: ${e.stderr?.toString().trim() || e.message}`);
+    fail++;
   }
-  console.log(`\nDone: ${ok} converted, ${fail} failed → ${outDir}/`);
-})();
+}
+console.log(`\nDone: ${ok} converted, ${fail} failed → ${outDir}/`);
