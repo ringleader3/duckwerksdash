@@ -511,6 +511,20 @@ router.post('/bulk-update', async (req, res) => {
   }
 });
 
+function listingDescriptionHtml(text) {
+  const lines = text.split('\n');
+  const specLines  = lines.filter(l => l.includes(' | '));
+  const paraLines  = lines.filter(l => l && !l.includes(' | '));
+  const footerLines = LISTING_FOOTER.split('\n').filter(Boolean);
+  const footer     = footerLines.map(l => `<p>${l}</p>`).join('');
+  const mobileText = paraLines.join(' ') + '  |  ' + specLines.join('  |  ');
+  const fullHtml   = paraLines.map(l => `<p>${l}</p>`).join('');
+  const specList   = specLines.length
+    ? `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`
+    : '';
+  return `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileText}</span></div>${fullHtml}${specList}${footer}`;
+}
+
 // POST /api/ebay/list-item — generic single-item listing from skill checkpoint data
 // Body JSON: { sku, title, description, conditionNotes, price, minOffer,
 //              ebayCategoryId, ebayConditionId, aspects, photos: [] }
@@ -536,11 +550,13 @@ router.post('/list-item', express.json({ limit: '20mb' }), async (req, res) => {
       }
     }
 
+    const descHtml = listingDescriptionHtml(item.description || '');
+
     // PUT inventory item
     const inventoryBody = {
       product: {
         title:       item.title.slice(0, 80),
-        description: item.description || '',
+        description: descHtml,
         imageUrls:   photoUrls,
         aspects:     Object.fromEntries(
           Object.entries(item.aspects || {}).map(([k, v]) => [k, Array.isArray(v) ? v : [String(v)]])
@@ -579,7 +595,7 @@ router.post('/list-item', express.json({ limit: '20mb' }), async (req, res) => {
       },
       categoryId:         item.ebayCategoryId,
       storeCategoryNames: [EBAY_STORE_CATEGORY],
-      listingDescription: item.description || '',
+      listingDescription: descHtml,
       shipToLocations: {
         regionIncluded: [{ regionType: 'COUNTRY', regionName: 'US' }],
       },
