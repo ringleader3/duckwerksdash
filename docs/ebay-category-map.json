@@ -1,14 +1,14 @@
 {
-  "_notes": "Maps skill category labels to eBay category IDs and valid condition IDs. Add entries as new categories are listed. condition_id values must match eBay's accepted values for the category — verify with: node scripts/check-conditions.js <category_id>",
+  "_notes": "Maps skill category labels to eBay category IDs and Inventory API condition enums. condition values must be eBay Inventory API ConditionEnum strings (not numeric IDs from Trading API). Full enum list: NEW, LIKE_NEW, NEW_OTHER, USED_EXCELLENT, USED_VERY_GOOD, USED_GOOD, USED_ACCEPTABLE, FOR_PARTS_OR_NOT_WORKING.",
 
   "Comics > Comic Books": {
     "ebay_category_id": "259104",
     "conditions": {
-      "Brand New":  "1000",
-      "Like New":   "2750",
-      "Very Good":  "4000",
-      "Good":       "5000",
-      "Acceptable": "6000"
+      "Brand New":  "NEW",
+      "Like New":   "LIKE_NEW",
+      "Very Good":  "USED_VERY_GOOD",
+      "Good":       "USED_GOOD",
+      "Acceptable": "USED_ACCEPTABLE"
     }
   },
 
@@ -16,20 +16,20 @@
     "ebay_category_id": "259104",
     "_note": "eBay uses same category for singles and TPBs; update if a better sub-category is found",
     "conditions": {
-      "Brand New":  "1000",
-      "Like New":   "2750",
-      "Very Good":  "4000",
-      "Good":       "5000",
-      "Acceptable": "6000"
+      "Brand New":  "NEW",
+      "Like New":   "LIKE_NEW",
+      "Very Good":  "USED_VERY_GOOD",
+      "Good":       "USED_GOOD",
+      "Acceptable": "USED_ACCEPTABLE"
     }
   },
 
   "Disc Golf > Discs": {
     "ebay_category_id": "184356",
     "conditions": {
-      "New":        "1000",
-      "New Other":  "1500",
-      "Used":       "3000"
+      "New":        "NEW",
+      "New Other":  "NEW_OTHER",
+      "Used":       "USED_EXCELLENT"
     }
   }
 }
