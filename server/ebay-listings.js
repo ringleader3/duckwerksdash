@@ -659,4 +659,90 @@ function listItemDbWrite(item, listingId) {
   ).run(ins.lastInsertRowid, ebaySite.id, String(listingId), item.price, `https://ebay.com/itm/${listingId}`);
 }
 
+// POST /api/ebay/update-item — update title, description, price, aspects on an existing listing
+// Same payload shape as list-item. SKU must already exist in eBay inventory.
+router.post('/update-item', async (req, res) => {
+  const item = req.body;
+  if (!item?.sku || !item?.price) {
+    return res.status(400).json({ error: 'Missing required fields: sku, price' });
+  }
+
+  try {
+    const headers = await ebayHeaders();
+    const descHtml = listingDescriptionHtml(item.description || '');
+
+    // GET existing inventory item to preserve imageUrls and fill any missing fields
+    const existing = await getInventoryItem(item.sku, headers);
+    if (!existing) return res.status(404).json({ error: `No inventory item found for SKU ${item.sku}` });
+
+    const inventoryBody = {
+      ...existing,
+      product: {
+        ...existing.product,
+        ...(item.title       && { title: item.title.slice(0, 80) }),
+        ...(item.description && { description: descHtml }),
+        ...(item.aspects     && {
+          aspects: Object.fromEntries(
+            Object.entries(item.aspects).map(([k, v]) => [k, Array.isArray(v) ? v : [String(v)]])
+          ),
+        }),
+      },
+      ...(item.ebayConditionId  && { condition: item.ebayConditionId }),
+      ...(item.conditionNotes   && { conditionDescription: item.conditionNotes }),
+    };
+
+    const itemRes = await fetch(
+      `${EBAY_API}/sell/inventory/v1/inventory_item/${encodeURIComponent(item.sku)}`,
+      { method: 'PUT', headers, body: JSON.stringify(inventoryBody) }
+    );
+    if (itemRes.status !== 200 && itemRes.status !== 204) {
+      const text = await itemRes.text();
+      throw new Error(`inventory_item PUT ${itemRes.status}: ${text}`);
+    }
+
+    // GET offer by SKU
+    const offer = await getOfferBySku(item.sku, headers);
+    if (!offer) return res.status(404).json({ error: `No offer found for SKU ${item.sku}` });
+
+    const offerBody = {
+      sku:                 item.sku,
+      marketplaceId:       MARKETPLACE,
+      format:              'FIXED_PRICE',
+      merchantLocationKey: offer.merchantLocationKey,
+      listingPolicies: {
+        ...offer.listingPolicies,
+        bestOfferTerms: {
+          bestOfferEnabled: true,
+          autoDeclinePrice: { value: String(item.minOffer ?? minOffer(item.price)), currency: 'USD' },
+        },
+      },
+      pricingSummary: {
+        price: { value: String(item.price), currency: 'USD' },
+      },
+      categoryId:         item.ebayCategoryId || offer.categoryId,
+      storeCategoryNames: [EBAY_STORE_CATEGORY],
+      listingDescription: descHtml,
+      shipToLocations:    offer.shipToLocations,
+    };
+
+    const offerRes = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offer.offerId}`, {
+      method: 'PUT', headers, body: JSON.stringify(offerBody),
+    });
+    if (!offerRes.ok) {
+      const text = await offerRes.text();
+      throw new Error(`offer PUT ${offerRes.status}: ${text}`);
+    }
+
+    // Update DB listing price if it changed
+    db.prepare(
+      'UPDATE listings SET list_price = ? WHERE platform_listing_id = ?'
+    ).run(item.price, String(offer.listing?.listingId));
+
+    res.json({ sku: item.sku, offerId: offer.offerId, listingId: offer.listing?.listingId });
+  } catch (e) {
+    console.error('[ebay-listings] update-item error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = router;
