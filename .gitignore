@@ -12,5 +12,8 @@ data/
 public/dg-photos/
 *.csv
 docs/handicaps-*.json
+docs/listing-sessions/**/photos/
+items.json
+sold.json
 docs/prompt-cache.md
 memory/
