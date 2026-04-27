@@ -12,7 +12,7 @@ process.on('unhandledRejection', (reason) => {
   process.exit(1);
 });
 
-app.use(express.json());
+app.use(express.json({ limit: '25mb' }));
 const noCache = { setHeaders: (res) => res.set('Cache-Control', 'no-store') };
 
 // ── HTML assembler — inlines partials into index.html shell ──────────────────
