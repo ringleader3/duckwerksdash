@@ -67,7 +67,7 @@
       "data": {
         "category": "Comics > Comic Books",
         "condition": "Very Good",
-        "price": 20.00,
+        "price": 20,
         "format": "Fixed Price",
         "duration": "GTC",
         "shipping": "Free — Media Mail",
@@ -83,9 +83,19 @@
           "Genre": "Fantasy",
           "Language": "English",
           "Tradition": "US Comics"
-        }
+        },
+        "sku": "DW-elfquest-wave-dancers",
+        "ebay_category_id": "259104",
+        "ebay_condition_id": "USED_VERY_GOOD",
+        "lot_id": 13,
+        "lot_name": "ElfQuest"
       }
     },
-    "listing": { "done": true, "data": { "file": "listing.md" } }
+    "listing": {
+      "done": false,
+      "data": {
+        "file": "listing.md"
+      }
+    }
   }
 }

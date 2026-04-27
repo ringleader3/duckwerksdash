@@ -63,9 +63,9 @@
     "metadata": {
       "done": true,
       "data": {
-        "category": "Comics > Comic Books (ID: 259104)",
+        "category": "Comics > Comic Books",
         "condition": "Very Good",
-        "price": 25.00,
+        "price": 25,
         "format": "Fixed Price",
         "duration": "GTC",
         "shipping": "Free — Media Mail ~2 lbs",
@@ -81,9 +81,17 @@
           "Genre": "Fantasy",
           "Language": "English",
           "Tradition": "US Comics"
-        }
+        },
+        "sku": "DW-elfquest-jink",
+        "ebay_category_id": "259104",
+        "ebay_condition_id": "USED_VERY_GOOD",
+        "lot_id": 13,
+        "lot_name": "ElfQuest"
       }
     },
-    "listing":      { "done": false, "data": null }
+    "listing": {
+      "done": false,
+      "data": null
+    }
   }
 }
