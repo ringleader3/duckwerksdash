@@ -1,6 +1,19 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-26 — v2.0.7 generic eBay listing API + first live comic listing
+
+- Built `POST /api/ebay/list-item` — generic endpoint replacing disc-specific bulk-list for new items; accepts structured JSON from skill checkpoint (title, description, price, aspects, photos as base64, eBay category/condition IDs)
+- Built `POST /api/ebay/update-item` — update title, description, price, aspects on any existing SKU; updates DB list_price
+- Added `docs/ebay-category-map.json` — maps skill category labels to eBay Inventory API category IDs and ConditionEnum strings
+- Fixed global Express JSON body limit to 25mb for photo payloads
+- Aspect values auto-wrapped in arrays server-side (eBay Inventory API requires arrays)
+- `listingDescriptionHtml()` — generic HTML generator: prose blocks → `<p>`, spec blocks (lines with ` | `) → `<ul>`, schema.org mobile wrapper; no DG boilerplate
+- Tightened `.gitignore` to exclude only the Google Sheets key, not all docs JSON
+- Skill Phase 7 now resolves eBay IDs from category map, derives SKU as `DW-<slug>`; Phase 8 POSTs to list-item and records listingId in checkpoint
+- Photos: drop in `docs/listing-sessions/<slug>/photos/`, skill encodes and sends at post time; normal-export JPEGs (~1MB) work fine
+- First live comic listing: ElfQuest Hidden Years — https://ebay.com/itm/168334714964
+
 ### 2026-04-26/27 — v2.0.6 listing skill + comp API integration
 
 - Built out list-item skill flow: intake → gap analysis → comp terms → comp data → pricing → copy → metadata → listing

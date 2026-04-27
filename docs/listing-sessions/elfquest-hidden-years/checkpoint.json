@@ -65,7 +65,10 @@
     "metadata": {
       "done": true,
       "data": {
+        "sku": "DW-elfquest-hidden-years",
         "category": "Comics > Comic Books",
+        "ebay_category_id": "259104",
+        "ebay_condition_id": "USED_VERY_GOOD",
         "condition": "Very Good",
         "price": 60.00,
         "format": "Fixed Price",
@@ -86,6 +89,6 @@
         }
       }
     },
-    "listing": { "done": true, "data": { "file": "listing.md" } }
+    "listing": { "done": true, "data": { "file": "listing.md", "listingId": "168334714964", "url": "https://ebay.com/itm/168334714964" } }
   }
 }
