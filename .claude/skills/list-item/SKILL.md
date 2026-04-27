@@ -68,7 +68,9 @@ Based on intake + category, assess what you know vs. what you need:
 - Typical eBay item specifics / aspects required
 - Any category-specific pricing factors from `gear-comp-research.md`
 
-If gaps exist, ask 1-2 targeted questions. Do NOT open-ended web search.
+**Lot assignment:** Call `GET http://fedora.local:3000/api/lots` to get the lot list. Present the names and ask which lot this item belongs to. Save `lot_id` and `lot_name` to gap_analysis data. If the API is unreachable, ask the user directly.
+
+If other gaps exist, ask 1-2 targeted questions. Do NOT open-ended web search.
 
 Output a brief "here's what I know, here's what I'm assuming" summary and confirm before proceeding.
 
@@ -153,6 +155,10 @@ Produce the full eBay listing metadata block.
 - `returns` — return policy description
 - `item_specifics` — key/value aspects object
 
+**Also carry forward from gap_analysis:**
+- `lot_id` — from gap_analysis data
+- `lot_name` — human-readable, for display only
+
 **Also derive the SKU at this phase:**
 - Use the slug to build a human-readable SKU: `DW-<slug>` truncated to 50 chars
 - Save as `sku` in `metadata.data`
@@ -186,6 +192,7 @@ Assemble payload from checkpoint phases `copy` + `metadata`:
   "ebayConditionId": "<metadata.ebay_condition_id>",
   "categoryLabel":   "<metadata.category>",
   "aspects":         "<metadata.item_specifics>",
+  "lot_id":          "<metadata.lot_id>",
   "photos":          [{ "filename": "front.jpg", "base64": "<encoded>" }, ...]
 }
 ```
