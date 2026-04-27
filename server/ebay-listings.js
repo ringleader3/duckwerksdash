@@ -512,17 +512,25 @@ router.post('/bulk-update', async (req, res) => {
 });
 
 function listingDescriptionHtml(text) {
-  const lines = text.split('\n');
-  const specLines  = lines.filter(l => l.includes(' | '));
-  const paraLines  = lines.filter(l => l && !l.includes(' | '));
-  const footerLines = LISTING_FOOTER.split('\n').filter(Boolean);
-  const footer     = footerLines.map(l => `<p>${l}</p>`).join('');
-  const mobileText = paraLines.join(' ') + '  |  ' + specLines.join('  |  ');
-  const fullHtml   = paraLines.map(l => `<p>${l}</p>`).join('');
-  const specList   = specLines.length
-    ? `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`
-    : '';
-  return `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileText}</span></div>${fullHtml}${specList}${footer}`;
+  // Split into blocks separated by blank lines, preserving order
+  const blocks = text.split(/\n\n+/).map(b => b.trim()).filter(Boolean);
+  const specLines = [];
+  const htmlParts = [];
+
+  for (const block of blocks) {
+    const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.every(l => l.includes(' | '))) {
+      // Pure spec block — render as <ul>
+      specLines.push(...lines);
+      htmlParts.push(`<ul>${lines.map(l => `<li>${l}</li>`).join('')}</ul>`);
+    } else {
+      // Prose block — each line becomes a <p>
+      lines.forEach(l => htmlParts.push(`<p>${l}</p>`));
+    }
+  }
+
+  const mobileText = text.replace(/\n+/g, '  |  ');
+  return `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileText}</span></div>${htmlParts.join('')}`;
 }
 
 // POST /api/ebay/list-item — generic single-item listing from skill checkpoint data
