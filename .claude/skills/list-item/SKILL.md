@@ -131,14 +131,30 @@ Write using `docs/listing-style.md` rules:
 Present for review. Loop on edit requests within this phase before proceeding.
 
 ### Phase 7 — Metadata
-Produce the full eBay listing metadata block:
-- Category ID
-- Condition value (eBay-valid)
-- Item specifics / aspects
-- Shipping method and handling time
-- Return policy
-- Duration: GTC
-- Min offer %: 75% default
+Produce the full eBay listing metadata block.
+
+**Resolve eBay IDs from `docs/ebay-category-map.json`:**
+- Read the map file
+- Match the category label from intake (e.g. `"Comics > Comic Books"`) to get `ebay_category_id`
+- Match the condition string (e.g. `"Very Good"`) to get the numeric condition ID from that category's `conditions` map
+- If the category label isn't in the map, tell the user and ask them to add it (provide the format). Do not proceed without valid IDs.
+
+**Save to checkpoint `metadata.data`:**
+- `category` — human-readable label (e.g. `"Comics > Comic Books"`)
+- `ebay_category_id` — string ID from map (e.g. `"259104"`)
+- `ebay_condition_id` — string condition ID from map (e.g. `"4000"`)
+- `condition` — human-readable condition label
+- `price` — confirmed price (number)
+- `min_offer` — floor at 75% default, round down to whole dollar
+- `format` — `"Fixed Price"`
+- `duration` — `"GTC"`
+- `shipping` — shipping method description
+- `returns` — return policy description
+- `item_specifics` — key/value aspects object
+
+**Also derive the SKU at this phase:**
+- Use the slug to build a human-readable SKU: `DW-<slug>` truncated to 50 chars
+- Save as `sku` in `metadata.data`
 
 > **TODO:** validate required aspects against live eBay category data via `GET http://fedora.local:3000/api/ebay/aspects`.
 
@@ -149,9 +165,28 @@ User approves.
 
 Write `docs/listing-sessions/<slug>/listing.md` — clean, sectioned, copy-paste ready. One fenced block per field (title, price, min offer, category, condition, duration, shipping, returns, item specifics, description, condition field).
 
-Confirm the file is written and tell the user where to find it.
+**Then POST to `http://fedora.local:3000/api/ebay/list-item`:**
 
-> **TODO:** on approval, call `POST http://fedora.local:3000/api/ebay/bulk-list` (or a new general-purpose listing endpoint) to post directly. The current bulk-list route is disc-specific — a general endpoint needs to be built first.
+Assemble payload from checkpoint phases `copy` + `metadata`:
+```json
+{
+  "sku":             "<metadata.sku>",
+  "title":           "<copy.title>",
+  "description":     "<copy.description>",
+  "conditionNotes":  "<copy.condition_field>",
+  "price":           "<metadata.price>",
+  "minOffer":        "<metadata.min_offer>",
+  "ebayCategoryId":  "<metadata.ebay_category_id>",
+  "ebayConditionId": "<metadata.ebay_condition_id>",
+  "categoryLabel":   "<metadata.category>",
+  "aspects":         "<metadata.item_specifics>",
+  "photos":          []
+}
+```
+
+On success: report the returned `listingId` and `url`. Update checkpoint `listing.data` with `{ file, listingId, url }`.
+
+On error: show the error message and tell the user what to fix. Do not mark listing phase done until the POST succeeds.
 
 ## All API Calls Use
 

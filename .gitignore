@@ -11,6 +11,6 @@ claude-personal.md
 data/
 public/dg-photos/
 *.csv
-docs/*.json
+docs/handicaps-*.json
 docs/prompt-cache.md
 memory/

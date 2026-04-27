@@ -511,4 +511,134 @@ router.post('/bulk-update', async (req, res) => {
   }
 });
 
+// POST /api/ebay/list-item — generic single-item listing from skill checkpoint data
+// Body JSON: { sku, title, description, conditionNotes, price, minOffer,
+//              ebayCategoryId, ebayConditionId, aspects, photos: [] }
+// photos: array of { filename, base64 } — optional; skill sends file contents encoded
+router.post('/list-item', express.json({ limit: '20mb' }), async (req, res) => {
+  const item = req.body;
+  if (!item?.sku || !item?.title || !item?.price || !item?.ebayCategoryId || !item?.ebayConditionId) {
+    return res.status(400).json({ error: 'Missing required fields: sku, title, price, ebayCategoryId, ebayConditionId' });
+  }
+
+  try {
+    const headers     = await ebayHeaders();
+    const policies    = await fetchPolicies(headers);
+    const locationKey = await getMerchantLocationKey(headers);
+
+    // Upload photos if provided
+    let photoUrls = [];
+    if (Array.isArray(item.photos) && item.photos.length > 0) {
+      for (const photo of item.photos) {
+        const buffer = Buffer.from(photo.base64, 'base64');
+        const url = await uploadToEPS(buffer, photo.filename);
+        photoUrls.push(url);
+      }
+    }
+
+    // PUT inventory item
+    const inventoryBody = {
+      product: {
+        title:       item.title.slice(0, 80),
+        description: item.description || '',
+        imageUrls:   photoUrls,
+        aspects:     item.aspects || {},
+      },
+      condition:    item.ebayConditionId,
+      ...(item.conditionNotes && { conditionDescription: item.conditionNotes }),
+      availability: { shipToLocationAvailability: { quantity: 1 } },
+    };
+    const itemRes = await fetch(
+      `${EBAY_API}/sell/inventory/v1/inventory_item/${encodeURIComponent(item.sku)}`,
+      { method: 'PUT', headers, body: JSON.stringify(inventoryBody) }
+    );
+    if (itemRes.status !== 200 && itemRes.status !== 204) {
+      const text = await itemRes.text();
+      throw new Error(`inventory_item PUT ${itemRes.status}: ${text}`);
+    }
+
+    // POST offer
+    const offerBody = {
+      sku:                 item.sku,
+      marketplaceId:       MARKETPLACE,
+      format:              'FIXED_PRICE',
+      merchantLocationKey: locationKey,
+      listingPolicies: {
+        fulfillmentPolicyId: policies.fulfillmentPolicyId,
+        returnPolicyId:      policies.returnPolicyId,
+        paymentPolicyId:     policies.paymentPolicyId,
+        bestOfferTerms: {
+          bestOfferEnabled:  true,
+          autoDeclinePrice:  { value: String(item.minOffer), currency: 'USD' },
+        },
+      },
+      pricingSummary: {
+        price: { value: String(item.price), currency: 'USD' },
+      },
+      categoryId:         item.ebayCategoryId,
+      storeCategoryNames: [EBAY_STORE_CATEGORY],
+      listingDescription: item.description || '',
+      shipToLocations: {
+        regionIncluded: [{ regionType: 'COUNTRY', regionName: 'US' }],
+      },
+    };
+    const offerRes  = await fetch(`${EBAY_API}/sell/inventory/v1/offer`, {
+      method: 'POST', headers, body: JSON.stringify(offerBody),
+    });
+    const offerData = await offerRes.json();
+    let offerId;
+    if (!offerRes.ok) {
+      const existing = offerData.errors?.find(e => e.errorId === 25002 && e.parameters?.find(p => p.name === 'offerId'));
+      if (existing) {
+        offerId = existing.parameters.find(p => p.name === 'offerId').value;
+        const patch = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offerId}`, {
+          method: 'PUT', headers, body: JSON.stringify(offerBody),
+        });
+        if (!patch.ok) {
+          const patchData = await patch.json();
+          throw new Error(`offer PUT ${patch.status}: ${JSON.stringify(patchData)}`);
+        }
+      } else {
+        throw new Error(`offer POST ${offerRes.status}: ${JSON.stringify(offerData)}`);
+      }
+    } else {
+      offerId = offerData.offerId;
+    }
+
+    const listingId = await publishOffer(offerId, headers);
+
+    // Write to DB
+    listItemDbWrite(item, listingId);
+
+    res.json({ sku: item.sku, listingId, url: `https://ebay.com/itm/${listingId}` });
+  } catch (e) {
+    console.error('[ebay-listings] list-item error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+function listItemDbWrite(item, listingId) {
+  const existing = db.prepare('SELECT id FROM listings WHERE platform_listing_id = ?').get(String(listingId));
+  if (existing) return;
+
+  const ebaySite = db.prepare("SELECT id FROM sites WHERE name = 'eBay'").get();
+  if (!ebaySite) throw new Error('eBay site not found in DB');
+
+  // Find or create internal category by label (first segment before ' > ')
+  const catLabel = item.internalCategory || (item.categoryLabel?.split(' > ')[0]) || 'Uncategorized';
+  let cat = db.prepare('SELECT id FROM categories WHERE name = ?').get(catLabel);
+  if (!cat) {
+    const r = db.prepare('INSERT INTO categories (name) VALUES (?)').run(catLabel);
+    cat = { id: r.lastInsertRowid };
+  }
+
+  const ins = db.prepare(
+    "INSERT INTO items (name, status, category_id, cost, lot_id, sku) VALUES (?, 'Listed', ?, 0, ?, ?)"
+  ).run(item.title, cat.id, item.lot_id || null, item.sku);
+
+  db.prepare(
+    'INSERT INTO listings (item_id, site_id, platform_listing_id, list_price, shipping_estimate, url) VALUES (?, ?, ?, ?, 0, ?)'
+  ).run(ins.lastInsertRowid, ebaySite.id, String(listingId), item.price, `https://ebay.com/itm/${listingId}`);
+}
+
 module.exports = router;

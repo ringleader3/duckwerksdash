@@ -1,0 +1,35 @@
+{
+  "_notes": "Maps skill category labels to eBay category IDs and valid condition IDs. Add entries as new categories are listed. condition_id values must match eBay's accepted values for the category — verify with: node scripts/check-conditions.js <category_id>",
+
+  "Comics > Comic Books": {
+    "ebay_category_id": "259104",
+    "conditions": {
+      "Brand New":  "1000",
+      "Like New":   "2750",
+      "Very Good":  "4000",
+      "Good":       "5000",
+      "Acceptable": "6000"
+    }
+  },
+
+  "Comics > Graphic Novels & TPBs": {
+    "ebay_category_id": "259104",
+    "_note": "eBay uses same category for singles and TPBs; update if a better sub-category is found",
+    "conditions": {
+      "Brand New":  "1000",
+      "Like New":   "2750",
+      "Very Good":  "4000",
+      "Good":       "5000",
+      "Acceptable": "6000"
+    }
+  },
+
+  "Disc Golf > Discs": {
+    "ebay_category_id": "184356",
+    "conditions": {
+      "New":        "1000",
+      "New Other":  "1500",
+      "Used":       "3000"
+    }
+  }
+}
