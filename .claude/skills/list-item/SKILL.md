@@ -25,6 +25,7 @@ Each session folder contains:
 - `checkpoint.json` — phase state, written after each completed phase
 - `comps.txt` — comp data file, written automatically by the skill after API fetch
 - `listing.md` — final ready-to-post output, written at Phase 8
+- `photos/` — drop item photos here (jpg/png) before Phase 8; skill reads and uploads to eBay EPS at post time
 
 On invocation: check `docs/listing-sessions/` for a folder matching the item. If `checkpoint.json` exists, skip to the first phase where `done: false`. If not found, create the folder and start at Phase 1.
 
@@ -163,6 +164,11 @@ Present final review: title, price, condition, key metadata, description preview
 
 User approves.
 
+**Check for photos before posting:**
+- Look for files in `docs/listing-sessions/<slug>/photos/` (jpg, jpeg, png)
+- If the folder is empty or missing: tell the user, ask them to drop photos there and confirm before continuing. Do not post without at least one photo.
+- If photos are present: read each file, base64-encode the contents, include in the payload as `{ filename, base64 }`
+
 Write `docs/listing-sessions/<slug>/listing.md` — clean, sectioned, copy-paste ready. One fenced block per field (title, price, min offer, category, condition, duration, shipping, returns, item specifics, description, condition field).
 
 **Then POST to `http://fedora.local:3000/api/ebay/list-item`:**
@@ -180,7 +186,7 @@ Assemble payload from checkpoint phases `copy` + `metadata`:
   "ebayConditionId": "<metadata.ebay_condition_id>",
   "categoryLabel":   "<metadata.category>",
   "aspects":         "<metadata.item_specifics>",
-  "photos":          []
+  "photos":          [{ "filename": "front.jpg", "base64": "<encoded>" }, ...]
 }
 ```
 
