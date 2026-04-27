@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-26/27 — v2.0.6 listing skill + comp API integration
+
+- Built out list-item skill flow: intake → gap analysis → comp terms → comp data → pricing → copy → metadata → listing
+- Completed 12 eBay listing sessions: Strangers in Paradise TPB lot, ElfQuest Hidden Years, Jink, Vol 2, Blood of Ten Chiefs, Rebels, Shards, Wave Dancers, Kahvi, Two-Spear + Metamorphosis bundle
+- Wired `POST /api/comps/search` + `POST /api/comps/analyze` into Phase 3/4 of the skill — comps now run automatically via the NUC API, no manual dashboard step
+- Skill falls back to manual dashboard flow if API is unreachable
+- Removed docs/tmp/ (legacy desktop Claude files no longer needed)
+
 ### 2026-04-25 — notification and shipping cost fixes
 
 - ORDERS button now refreshes sites view when already on that page (via `ordersRefreshTick` store flag)

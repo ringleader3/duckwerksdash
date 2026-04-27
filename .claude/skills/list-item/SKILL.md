@@ -23,7 +23,7 @@ Load these two files at the start of every session — they govern all copy and 
 
 Each session folder contains:
 - `checkpoint.json` — phase state, written after each completed phase
-- `comps.txt` — comp data file (copy here from Downloads or wherever)
+- `comps.txt` — comp data file, written automatically by the skill after API fetch
 - `listing.md` — final ready-to-post output, written at Phase 8
 
 On invocation: check `docs/listing-sessions/` for a folder matching the item. If `checkpoint.json` exists, skip to the first phase where `done: false`. If not found, create the folder and start at Phase 1.
@@ -74,20 +74,45 @@ Output a brief "here's what I know, here's what I'm assuming" summary and confir
 > **TODO:** call `GET http://fedora.local:3000/api/ebay/aspects?category=X` to pull required item specifics automatically.
 
 ### Phase 3 — Comp Search Terms
-Propose 2-3 eBay search term variants. Explain the tradeoffs (broad vs. specific). You confirm or edit.
+Propose 2-3 eBay search term variants. Explain the tradeoffs (broad vs. specific). User confirms or edits.
 
-Output: the exact search string(s) to use.
+Output: the exact search string(s) to use. Save to checkpoint. Then immediately proceed to Phase 4 — no manual step needed.
 
-> **TODO:** call `POST http://fedora.local:3000/api/comps/search` to pull comps automatically and skip the manual dashboard step.
+### Phase 4 — Comp Data (automated)
+Run comps automatically via the local API:
 
-### Phase 4 — Comp Data
-Tell the user exactly what to do:
+**Step 1 — Search:** POST to `http://fedora.local:3000/api/comps/search` with all confirmed search terms as separate items:
+```json
+{
+  "items": [
+    { "name": "search term one", "searchQuery": "search term one", "sources": ["ebay"] },
+    { "name": "search term two", "searchQuery": "search term two", "sources": ["ebay"] }
+  ]
+}
+```
+Returns `{ results: [{ name, listings: [...] }] }`.
 
-> "Go to http://fedora.local:3000 → COMP tab → search for [terms] → download the .txt file → copy it into `docs/listing-sessions/<slug>/comps.txt` → tell me when it's there."
+**Step 2 — Analyze:** For each result with listings, POST to `http://fedora.local:3000/api/comps/analyze`:
+```json
+{ "item": { "name": "search term", "hints": {}, "listings": [...] } }
+```
+Returns `{ name, analysis, csv }`.
 
-Read the file from the session folder. Save reference to checkpoint. Proceed.
+**Step 3 — Write comps.txt:** Combine all results into `docs/listing-sessions/<slug>/comps.txt` using this format for each search term:
+```
+COMP RESEARCH: <search term>
+============================================================
 
-> **TODO:** once Phase 3 is automated, this phase collapses — comp data arrives automatically.
+<analysis paragraph>
+
+────────────────────────────────────────────────────────────
+
+<csv rows>
+```
+
+If the API is unreachable or returns an error, fall back: tell the user to go to `http://fedora.local:3000` → COMP tab → run the searches manually → copy the result into `comps.txt` → tell you when it's there. Then read the file and proceed.
+
+Save file reference to checkpoint. Proceed to Phase 5.
 
 ### Phase 5 — Pricing
 Analyze the comp CSV using `docs/gear-comp-research.md` rules. Output:

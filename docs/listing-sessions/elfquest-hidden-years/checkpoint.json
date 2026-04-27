@@ -1,0 +1,91 @@
+{
+  "item_name": "ElfQuest Hidden Years lot",
+  "slug": "elfquest-hidden-years",
+  "created": "2026-04-26",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "item_name": "ElfQuest Hidden Years #1-25 27 29 + Holiday Special",
+        "category": "Comics",
+        "issues": "#1-25, 27, 29 + Holiday Special (#9½), two copies each of #1 and #2 (30 issues total, missing #26, #28, #30)",
+        "condition": "VG to VF — individually bagged with backing boards, no major creasing, spine rolls, or cover damage",
+        "quantity": 30,
+        "price_known": false,
+        "ballpark": "$60"
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "shipping": "Media Mail",
+        "series_run": "Hidden Years ran 1992-1996, WaRP Graphics, 29 issues + Holiday Special",
+        "completeness": "Near-complete — 30 issues (including dupes of #1 and #2) plus Holiday Special, missing #26, #28, #30",
+        "platform": "eBay",
+        "key_issues": "Holiday Special (#9½) adds novelty; unsigned copies have no significant premium",
+        "comp_pool_expectation": "Good — two direct lot comps bracket the range cleanly"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "primary": "elfquest hidden years lot wendy pini"
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "elfquest_hidden_years_lot_wendy_pini_comps.txt",
+        "direct_comps": 2,
+        "key_comps": [
+          "Near-complete run with gaps — $47.92 landed",
+          "Complete/near-complete #1-29 — $67.76 landed"
+        ]
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "floor": 45,
+        "midpoint": 58,
+        "ceiling": 70,
+        "recommended": 60,
+        "confidence": "good (two direct lot comps bracket the range)",
+        "rationale": "Between the gappy comp ($47.92) and complete comp ($67.76). Missing #26/#28/#30 keeps us off ceiling; Holiday Special and dupe #1/#2 support upper half of range."
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "ElfQuest Hidden Years #1-25 27 29 + Holiday Special 30-Issue Lot Warp Graphics",
+        "description": "ElfQuest Hidden Years ran from 1992 to 1996 as Wendy and Richard Pini expanded the original ElfQuest timeline with new stories set between the panels of the classic series. This is a near-complete run covering issues #1 through 25, plus #27 and #29, along with the scarce #9½ Holiday Special. Two copies of #1 and two copies of #2 are included as a bonus. Issues #26, #28, and #30 are the only gaps.\n\nStored bagged with individual backing boards by a careful collector. Condition is Very Good to Very Fine across the lot, a solid step above average for a 30-year-old indie title. No major creasing, spine rolls, or cover damage observed.\n\nSeries | ElfQuest: Hidden Years\nPublisher | Warp Graphics\nIssues | #1-25, 27, 29 + #9.5 Holiday Special\nMissing | #26, #28, #30\nCondition | VG to VF, bagged and boarded\nDuplicates | Two copies each of #1 and #2 included\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer. Comics are packed securely with cardboard backing to protect against bending in transit.\n\nSold As Is.",
+        "condition_field": "Near-complete run of ElfQuest Hidden Years (WaRP Graphics, 1992-1996), issues #1-25, 27, 29, and the Holiday Special (#9½). 30 issues total including two copies each of #1 and #2. Missing #26, #28, and #30. All issues individually bagged with backing boards. Condition is Very Good to Very Fine throughout — no major creasing, spine rolls, or cover damage noted."
+      }
+    },
+    "metadata": {
+      "done": true,
+      "data": {
+        "category": "Comics > Comic Books",
+        "condition": "Very Good",
+        "price": 60.00,
+        "format": "Fixed Price",
+        "duration": "GTC",
+        "shipping": "Free — Media Mail",
+        "returns": "No returns",
+        "min_offer": 45,
+        "item_specifics": {
+          "Series": "ElfQuest",
+          "Title": "Hidden Years",
+          "Publisher": "WaRP Graphics",
+          "Creator": "Wendy Pini / Richard Pini",
+          "Year": "1992",
+          "Era": "Modern Age (1992-Now)",
+          "Genre": "Fantasy",
+          "Language": "English",
+          "Tradition": "US Comics"
+        }
+      }
+    },
+    "listing": { "done": true, "data": { "file": "listing.md" } }
+  }
+}

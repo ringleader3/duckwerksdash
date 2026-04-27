@@ -1,0 +1,30 @@
+COMP RESEARCH: elfquest hidden years lot wendy pini
+============================================================
+
+The eBay comp pool for "ElfQuest Hidden Years" is wide and noisy because the search returns many adjacent ElfQuest items that are not specifically Hidden Years comic lots — including Starblaze graphic novel sets, First 20 Years books, signed posters, Marvel Epic reprints, and single issues. After isolating the most relevant comps (Hidden Years single issues, Hidden Years lots, and the Hidden Years hardcover collection), a clearer picture emerges. The Hidden Years hardcover (1992/1993 HC compilation) consistently lands in the **$24–$41 landed** range in good-to-near-fine condition, with the signed copy at $65 landed being a legitimate premium outlier. A near-complete Hidden Years single-issue run (#1–29 with gaps) sold for $47.92 landed, while the complete #1–29 lot sold for $67.76 landed — the best direct comp for a full run lot. Single Hidden Years issues sell for $6–$9 each, and small issue lots (1–7 + holiday) hit $20. For a near-complete or complete Hidden Years single-issue lot, recommended list price is **$55–$70** depending on completeness and condition; for the Hidden Years hardcover alone, list at **$25–$30** (unsigned) or **$60–$65** (signed with documentation). Floor for a partial/incomplete issue lot is approximately **$25 landed**.
+
+────────────────────────────────────────────────────────────
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+elfquest hidden years lot,eBay,2026-04-26,ELFQUEST Hidden Years - # 1-22 24-25 27 29 - Wendy Pini - WARP Graphics 1990,New (Other),35.00,12.92,47.92,BIN,sold,Near-complete run with gaps (#23 #26 #28 missing); best direct lot comp
+elfquest hidden years lot,eBay,2026-04-26,ELFQUEST: HIDDEN YEARS #1-29 Warp Graphics (1992) Wendy & Richard Pini,New (Other),59.99,7.77,67.76,BIN,sold,Complete or near-complete #1-29 run; highest lot comp
+elfquest hidden years lot,eBay,2026-04-26,ELFQUEST: HIDDEN YEARS 1-7 & HOLIDAY SPECIAL WaRP GRAPHIC 1992 HIGH GRADE,New (Other),20.36,0.00,20.36,BIN,sold,Partial lot only — issues 1-7 plus holiday special; floor reference for small lot
+elfquest hidden years lot,eBay,2026-04-26,ElfQuest Hidden Years New Blood Plus More. Warp Graphics. 45 Book Lot,New (Other),30.00,31.34,61.34,BIN,sold,45-book mixed lot including Hidden Years and New Blood; not Hidden Years only — mixed lot outlier; shipping inflated
+elfquest hidden years HC,eBay,2026-04-26,Elfquest The Hidden Years by Richard Pini and Wendy Pini 1993 Hardcover Like New,New (Other),19.95,7.77,27.72,BIN,sold,Hidden Years hardcover compilation 1993
+elfquest hidden years HC,eBay,2026-04-26,"Elfquest: The Hidden Years Wendy & Richard Pini 1st Printing HC Damage Read",Pre-Owned,10.00,5.97,15.97,BIN,sold,Hardcover — noted damage; floor reference only
+elfquest hidden years HC,eBay,2026-04-26,"""Elfquest: The Hidden Years"" Hardcover By Wendy & Richard Pini (1992)",New (Other),18.00,5.97,23.97,BIN,sold,Hardcover 1992 edition
+elfquest hidden years HC,eBay,2026-04-26,ELFQUEST THE HIDDEN YEARS All New Stories Pini 1992 1st Print Hardcover CLEAN,New (Other),23.75,0.00,23.75,BIN,sold,Hardcover 1st print; free shipping; clean copy
+elfquest hidden years HC,eBay,2026-04-26,Elfquest: The Hidden Years - Hardcover By Wendy Pini - VERY GOOD,Pre-Owned,24.99,5.97,30.96,BIN,sold,Hardcover; very good condition
+elfquest hidden years HC,eBay,2026-04-26,Elfquest: The Hidden Years - Hardcover By Wendy Pini,Pre-Owned,18.00,7.00,25.00,BIN,sold,Hardcover standard copy
+elfquest hidden years HC,eBay,2026-04-26,Elf Quest The Hidden Years Hard Cover TPB Warp Graphics 1992 First Printing,Pre-Owned,19.99,5.22,25.21,BIN,sold,Hardcover 1st print
+elfquest hidden years HC,eBay,2026-04-26,Hidden Years by Richard Pini and Wendy Pini (1993 Hardcover),New (Other),19.99,7.90,27.89,BIN,sold,Hardcover 1993
+elfquest hidden years HC,eBay,2026-04-26,🐺 Elfquest The Hidden Years 1992 Hardcover Graphic Novel 1st Printing,Brand New,19.00,13.04,32.04,BIN,sold,Hardcover 1st print; Brand New condition listed
+elfquest hidden years HC signed,eBay,2026-04-26,Elfquest: The Hidden Years Wendy And Richard Pini Signed! First Printing 1992 HC,New (Other),34.88,5.97,40.85,BIN,sold,Signed hardcover — premium over unsigned comps
+elfquest hidden years HC signed,eBay,2026-04-26,ELFQUEST THE HIDDEN YEARS BY WENDY & RICHARD PINI SIGNED,Pre-Owned,60.00,5.22,65.22,BIN,sold,Signed hardcover; significantly above unsigned range; signed premium confirmed
+elfquest hidden years single issue,eBay,2026-04-26,Elfquest Hidden Years #1 Warp Graphics 1992,Pre-Owned,2.21,4.47,6.68,BIN,sold,Single issue #1; floor reference for individual issues
+elfquest hidden years single issue,eBay,2026-04-26,Elfquest Hidden Years #3 Warp Graphics 1992,Pre-Owned,2.21,4.47,6.68,BIN,sold,Single issue #3
+elfquest hidden years single issue,eBay,2026-04-26,Elfquest Hidden Years # 3 NM 1st Print Warp Graphics Comic Book Pini 9 J884,,10.40,0.00,10.40,BIN,sold,Single issue #3 NM graded copy; free shipping; condition premium
+elfquest hidden years single issue,eBay,2026-04-26,Elfquest: Hidden Years #4 Warp Graphics,Pre-Owned,4.05,4.47,8.52,BIN,sold,Single issue #4
+elfquest hidden years holiday special,eBay,2026-04-26,ELF QUEST HIDDEN YEARS #9 1/2 HOLIDAY SPECIAL SIGNED WENDY PINI & JOHN BYRNE COA,,44.48,7.98,52.46,BIN,sold,Holiday Special signed by Pini and John Byrne with COA; signed premium
+elfquest hidden years holiday special,eBay,2026-04-26,ElfQuest Hidden Years #9 1/2 Platinum Edition (Warp 1993) SIGNED Pini Byrne COA,New (Other),35.00,11.95,46.95,BIN,sold,Platinum edition Holiday Special signed with COA
+elfquest adjacent lot,eBay,2026-04-26,ElfQuest Shards Comics Lot of 16 Issues by

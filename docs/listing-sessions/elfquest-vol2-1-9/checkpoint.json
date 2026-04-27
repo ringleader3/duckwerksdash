@@ -1,0 +1,88 @@
+{
+  "item_name": "ElfQuest Volume 2 #1-9",
+  "slug": "elfquest-vol2-1-9",
+  "created": "2026-04-26",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "item_name": "ElfQuest Volume 2 #1-9",
+        "category": "Comics",
+        "issues": "#1-9 complete run (1996, WaRP Graphics)",
+        "condition": "VF — individually bagged with backing boards, no major creasing, spine rolls, or cover damage",
+        "quantity": 9,
+        "price_known": true,
+        "ballpark": "$30"
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "shipping": "Media Mail",
+        "series_run": "Volume 2 ran 1996-1997, Warp Graphics",
+        "completeness": "Complete — #1-9, all 9 issues",
+        "platform": "eBay",
+        "key_issues": "#1 carries modest series-opener premium",
+        "comp_pool_expectation": "Thin — indie title, apply rarity exception if needed"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "primary": "elfquest volume 2 1996 warp graphics lot"
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "elfquest_volume_2_1996_warp_graphics_lot_comps.txt",
+        "direct_comps": 2,
+        "key_comp": "ELFQUEST Vol 2 Warp Comics 1996-97 Run Lot 6-14 — $23 landed (9 issues)"
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "floor": 20,
+        "midpoint": 28,
+        "ceiling": 35,
+        "recommended": 30,
+        "confidence": "moderate (2 direct comps)",
+        "rationale": "Best direct comp is identical 9-issue Vol 2 run at $23 landed. #1 inclusion and bagged/boarded condition support top of range. Round to $30."
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "ElfQuest Volume 2 #1-9 Complete Run 1996 WaRP Graphics Wendy Pini",
+        "description": "ElfQuest Volume 2 launched in 1996 from WaRP Graphics, picking up the beloved Wendy and Richard Pini series with a new chapter in the world of the elves. This is the complete 9-issue run from #1 through #9, including the first issue of the volume.\n\nAll issues individually bagged with backing boards by a careful collector. Condition is Very Fine throughout with no major creasing, spine rolls, or cover damage.\n\nSeries | ElfQuest Volume 2\nPublisher | WaRP Graphics\nIssues | #1-9 (complete run)\nYear | 1996\nCondition | VF, bagged and boarded\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer. Comics are packed securely with cardboard backing to protect against bending in transit.\n\nSold As Is.",
+        "condition_field": "Complete run of ElfQuest Volume 2 (WaRP Graphics, 1996), issues #1-9. All 9 issues individually bagged with backing boards. Condition is Very Fine throughout — no major creasing, spine rolls, or cover damage noted. Includes the first issue of the volume."
+      }
+    },
+    "metadata": {
+      "done": true,
+      "data": {
+        "category": "Comics > Comic Books",
+        "condition": "Very Good",
+        "price": 30.00,
+        "format": "Fixed Price",
+        "duration": "GTC",
+        "shipping": "Free — Media Mail",
+        "returns": "No returns",
+        "min_offer": 23,
+        "item_specifics": {
+          "Series": "ElfQuest",
+          "Title": "Volume 2",
+          "Publisher": "WaRP Graphics",
+          "Creator": "Wendy Pini / Richard Pini",
+          "Year": "1996",
+          "Era": "Modern Age (1992-Now)",
+          "Genre": "Fantasy",
+          "Language": "English",
+          "Tradition": "US Comics"
+        }
+      }
+    },
+    "listing": { "done": true, "data": { "file": "listing.md" } }
+  }
+}

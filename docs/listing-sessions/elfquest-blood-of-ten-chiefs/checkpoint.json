@@ -1,0 +1,91 @@
+{
+  "item_name": "ElfQuest Blood of Ten Chiefs #1-20 lot",
+  "slug": "elfquest-blood-of-ten-chiefs",
+  "created": "2026-04-26",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "item_name": "ElfQuest Blood of Ten Chiefs #1-20 + duplicate #3",
+        "category": "Comics",
+        "issues": "#1-20 complete run + duplicate #3 (21 issues total)",
+        "condition": "VF — individually bagged with backing boards, no major creasing, spine rolls, or cover damage",
+        "quantity": 21,
+        "price_known": false,
+        "ballpark": "$50"
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "shipping": "Media Mail",
+        "series_run": "Blood of Ten Chiefs ran 1993, WaRP Graphics, 20 issues",
+        "completeness": "Complete — #1-20, all issues, plus bonus duplicate #3",
+        "platform": "eBay",
+        "key_issues": "No known key issues; complete run is the draw",
+        "comp_pool_expectation": "Good — direct comp for full run exists"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "primary": "elfquest blood of ten chiefs lot"
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "elfquest_blood_of_ten_chiefs_lot_comps.txt",
+        "direct_comps": 2,
+        "key_comps": [
+          "Complete #1-20 Warp comic run — $50.42 landed",
+          "10-issue lot — $14.40 landed (floor, reading copies)"
+        ]
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "floor": 35,
+        "midpoint": 45,
+        "ceiling": 55,
+        "recommended": 50,
+        "confidence": "good (direct comp for identical lot)",
+        "rationale": "Primary comp is complete #1-20 run at $50.42 landed. Bagged/boarded condition supports pricing at comp rather than discounting."
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "ElfQuest Blood of Ten Chiefs #1-20 Complete Run Warp Graphics Wendy Pini Lot",
+        "description": "ElfQuest Blood of Ten Chiefs was WaRP Graphics' anthology spinoff exploring the history of the chief elves across generations, running for 20 issues from 1993. This is the complete run, issues #1 through #20, with a bonus duplicate copy of #3.\n\nStored bagged with individual backing boards by a careful collector. Condition is Very Fine throughout — no major creasing, spine rolls, or cover damage.\n\nSeries | ElfQuest: Blood of Ten Chiefs\nPublisher | WaRP Graphics\nIssues | #1-20 (complete run)\nDuplicates | Two copies of #3 included\nYear | 1993\nCondition | VF, bagged and boarded\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer. Comics are packed securely with cardboard backing to protect against bending in transit.\n\nSold As Is.",
+        "condition_field": "Complete run of ElfQuest Blood of Ten Chiefs (WaRP Graphics, 1993), issues #1-20. 21 issues total including a bonus duplicate copy of #3. All issues individually bagged with backing boards. Condition is Very Fine throughout — no major creasing, spine rolls, or cover damage noted."
+      }
+    },
+    "metadata": {
+      "done": true,
+      "data": {
+        "category": "Comics > Comic Books",
+        "condition": "Very Good",
+        "price": 50.00,
+        "format": "Fixed Price",
+        "duration": "GTC",
+        "shipping": "Free — Media Mail",
+        "returns": "No returns",
+        "min_offer": 38,
+        "item_specifics": {
+          "Series": "ElfQuest",
+          "Title": "Blood of Ten Chiefs",
+          "Publisher": "WaRP Graphics",
+          "Creator": "Wendy Pini / Richard Pini",
+          "Year": "1993",
+          "Era": "Modern Age (1992-Now)",
+          "Genre": "Fantasy",
+          "Language": "English",
+          "Tradition": "US Comics"
+        }
+      }
+    },
+    "listing": { "done": true, "data": { "file": "listing.md" } }
+  }
+}

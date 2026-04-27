@@ -1,0 +1,29 @@
+COMP RESEARCH: elfquest blood of ten chiefs lot
+============================================================
+
+This is a highly heterogeneous comp pool — results span single issues, small paperback lots, Warp Graphics comic runs, full series sets, Starblaze graphic novel collections, and large mixed ElfQuest lots, many of which are only tangentially related to *Blood of Ten Chiefs* specifically. The most directly relevant comps are the Warp Graphics comic lots (#1-20 range) and the Blood of Ten Chiefs paperback anthology lots. For the Warp comic run (#1-20), the clearest comp is $25.53 (21 issues + Summer Special, Apr 2026) and $50.42 (20 issues, Mar 2026), suggesting a working range of roughly $25–$50 for a partial-to-full Warp comic run landed. For the paperback anthology lots (Tor Books, prose anthologies), 2-volume sets land around $19–$33 and 3-4 volume sets around $33–$40. Two outliers should be excluded from the working range: the 43-issue ElfQuest mega-lot ($150.64) and the mint complete ElfQuest series ($316.53) — both are large mixed collections far beyond a Blood of Ten Chiefs lot. The June 2020 single-issue comps are 180+ days stale and serve as floor/reference only. Recommended list price for a standard Blood of Ten Chiefs Warp comic lot (#1-20, VF/NM) is **$35–$45 landed**; for the prose paperback anthology lot (vols 1-4), **$30–$40 landed**. Price at the lower end given the thin directly-relevant comp pool and the broader market softness on 1990s Warp indie titles.
+
+────────────────────────────────────────────────────────────
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+elfquest blood of ten chiefs lot,eBay,2026-04-26,ElfQuest Blood of Ten Chiefs Lot 3 Wolfsong Dark Hours Against Wind,Pre-Owned,25.00,5.22,30.22,BIN,sold,Small lot of 3 Blood of Ten Chiefs paperback volumes
+elfquest blood of ten chiefs lot,eBay,2026-04-26,ELFQUEST: BLOOD OF TEN CHIEFS #1-10 Warp Graphics (1993) LOT of 10,Pre-Owned,8.40,6.00,14.40,BIN,sold,10-issue Warp comic lot; low landed price suggests reading copies
+elfquest blood of ten chiefs lot,eBay,2026-04-26,Elfquest lot New Blood of Ten Chiefs Wolfsong Discovery Wendy and Richard Pini,,38.00,7.00,45.00,BIN,sold,Mixed ElfQuest lot including Blood of Ten Chiefs and other titles
+elfquest blood of ten chiefs lot,eBay,2026-04-26,ElfQuest Comic Lot (43 Issues) Marvel Warp Apple Blood of Ten Chiefs,Pre-Owned,103.99,46.65,150.64,BIN,sold,Large 43-issue mixed lot; outlier — normalize excluded from working range
+elfquest blood of ten chiefs lot,eBay,2026-04-26,Elfquest: The Blood of Ten Chiefs Series Vol 1-3 Paperback,Pre-Owned,27.00,5.22,32.22,BIN,sold,Prose anthology paperback lot vols 1-3
+elfquest blood of ten chiefs lot,eBay,2026-04-26,Elfquest The Blood of Ten Chiefs 1-4 Paperbacks Vintage Fantasy 1st ED,Pre-Owned,28.49,5.22,33.71,BIN,sold,Prose anthology paperback lot vols 1-4; 1st editions
+elfquest blood of ten chiefs lot,eBay,2026-04-26,Elfquest The Blood of Ten Chiefs 1-3 Paperbacks Vintage Fantasy 1st ED,Pre-Owned,34.99,5.22,40.21,BIN,sold,Prose anthology paperback lot vols 1-3; 1st editions
+elfquest blood of ten chiefs lot,eBay,2026-04-26,Elfquest The Blood of Ten Chiefs 1-2 Paperbacks Vintage Fantasy 1st ED - Good,Pre-Owned,15.29,5.22,20.51,BIN,sold,2-volume prose anthology lot; listed as Good condition
+elfquest blood of ten chiefs lot,eBay,2026-04-26,Elfquest Dark Hours: The Blood of Ten Chiefs Vol. 2 & 3 - Very Good cond.,Pre-Owned,14.85,4.47,19.32,BIN,sold,2-volume prose anthology lot vols 2-3
+elfquest blood of ten chiefs lot,eBay,2026-04-26,Elfquest Reader's Collection #9b: Blood of Ten Chiefs - Paperback - Pini,Pre-Owned,22.99,6.99,29.98,BIN,sold,Single Reader's Collection volume; not a multi-volume lot
+elfquest blood of ten chiefs lot,eBay,2026-04-26,The Blood of Ten Chiefs (Elfquest) - Paperback By Pini Richard - GOOD,Pre-Owned,4.99,0.00,4.99,BIN,sold,Single volume; floor reference only
+elfquest blood of ten chiefs lot,eBay,2026-04-26,Elfquest The Blood of Ten Chiefs Vol. 1 Richard Pini Robert Asprin Lynn Abbey,Pre-Owned,7.95,0.00,7.95,BIN,sold,Single volume only; floor reference
+elfquest blood of ten chiefs lot,eBay,2026-04-26,The Blood of Ten Chiefs (Elfquest),Pre-Owned,5.71,0.00,5.71,BIN,sold,Single volume only; floor reference
+elfquest blood of ten chiefs lot,eBay,2026-04-26,Wendy & Richard Pini = ELFQUEST collection = 6 paperbacks - Blood of Ten Chiefs,Pre-Owned,29.92,9.00,38.92,BIN,sold,6-paperback mixed ElfQuest lot including Blood of Ten Chiefs
+elfquest blood of ten chiefs lot,eBay,2026-04-26,Vintage Elfquest Winds of Change Blood of Ten Chiefs Vol 3 PB Richard Pini 1990,Pre-Owned,9.95,4.50,14.45,BIN,sold,Single volume only; floor reference
+elfquest blood of ten chiefs lot,eBay,2026-04-26,ELFQUEST : Vol. 1 - The Blood of Ten Chiefs - Richard Pini - 1986 - Pbk (LOC#2),Pre-Owned,3.90,4.47,8.37,BIN,sold,Single volume only; floor reference
+elfquest blood of ten chiefs lot,eBay,2026-04-26,ELFQUEST: BLOOD OF TEN CHIEFS #1-20 Warp Graphics (1993),New (Other),39.99,10.43,50.42,BIN,sold,Full 20-issue Warp comic run; primary comp for comic lots
+elfquest blood of ten chiefs lot,eBay,2026-04-26,Elfquest Dark Hours The Blood of Ten Chiefs Vol. 5 First Ed 1st Print PB 1993,Pre-Owned,34.99,4.47,39.46,BIN,sold,Single volume but 1st print Vol 5 (scarcer); priced high for single vol
+elfquest blood of ten chiefs lot,eBay,2026-04-26,Elfquest Blood of Ten Chiefs #19 Delfin Barral Hand-Drawn Interior Comic Book Pg,,40.00,16.45,56.45,BIN,sold,Original hand-drawn interior art page — not a comic issue; outlier excluded
+elfquest blood of ten chiefs lot,eBay,2026-04-26,The Blood of Ten Chiefs (Elfquest Vol. 1),Pre-Owned,5.98,0.00,5.98,BIN,sold,Single volume only; floor reference
+elfquest blood of ten chiefs lot,eBay,2026-04-

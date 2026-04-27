@@ -1,0 +1,30 @@
+COMP RESEARCH: strangers in paradise TPB
+============================================================
+
+This dataset is heavily mixed — it includes single issues, lots, hardcover omnibuses, pocket books, signed sets, and a "Demon Summoner Gash" listing that is clearly a search artifact. For individual standard TPBs (Collected Strangers in Paradise paperback volumes, the numbered Abstract Studios TPB series), the working range is approximately $9–$35 landed, with most single-volume comps landing between $9 and $25. Outliers include large lot sales ($89–$525), hardcover omnibuses ($55–$160), and the Antarctic Press #1 first print single issues ($325–$400 for raw high-grade copies) — all of which are separate markets and excluded from the standard TPB working range. Recommend listing individual standard TPBs at $15–$20 landed depending on volume; pocket book sets of 5-6 support $33–$42 landed; the SIP XXV omnibus HC supports $70–$108 landed.
+
+────────────────────────────────────────────────────────────
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+SIP TPB,eBay,2026-04-27,Strangers in Paradise: Ever After Vol 19 Abstract Studios TPB 2007 VF/NM,New (Other),9.60,5.75,15.35,BIN,sold,Single standard TPB volume; good recent comp
+SIP TPB lot,eBay,2026-04-27,Strangers In Paradise TPB lot 2 Brave New World I Dream Of You Terry Moore,Pre-Owned,1.99,5.22,7.21,Auction,sold,2-TPB lot; ~$3.60/vol landed — distressed auction pricing; floor reference only
+SIP TPB (Vol 25 The Chase),eBay,2026-04-27,Strangers in Paradise Vol 25 The Chase 2018 Abstract Studios TPB VF-,Pre-Owned,4.99,14.45,19.44,BIN,sold,Shipping inflated; total landed reasonable for single vol
+SIP XXV Vol 1 TPB,eBay,2026-04-27,Strangers in Paradise XXV Vol 1 The Chase TPB Terry Moore Image Comic,Brand New,30.00,4.99,34.99,BIN,sold,New/sealed copy; Image Comics printing; high end for single vol
+SIP Pocket Book 3,eBay,2026-04-27,Strangers In Paradise Pocket Book 3 Moore 2004 Tpb,Pre-Owned,4.92,6.22,11.14,BIN,sold,Single pocket book volume
+SIP Deluxe TPB lot (Vols 1-4),eBay,2026-04-27,Strangers in Paradise Deluxe TPB Lot-Volumes 1-4-Terry Moore-Serial,New (Other),95.00,12.00,107.00,BIN,sold,4-volume deluxe lot; ~$26.75/vol landed; not a single-TPB comp
+Rachel Rising TPB lot,eBay,2026-04-27,Rachel Rising TPB Lot-Terry Moore-Abstract Studios,New (Other),100.00,9.00,109.00,BIN,sold,Rachel Rising — different title; not SIP comp; exclude
+SIP TPB Vol 1 (2nd print 1995),eBay,2026-04-27,Strangers in Paradise TPB Vol 1 High Grade Abstract Studio (1995) 2nd Pri,Pre-Owned,4.83,11.71,16.54,BIN,sold,2nd print Vol 1 TPB; shipping heavy
+SIP I Dream of You TPB,eBay,2026-04-27,Strangers in Paradise: I Dream of You - Terry Moore (TPB),Pre-Owned,4.99,4.00,8.99,BIN,sold,Single standard TPB; floor end of range
+SIP Full Series lot + merch,eBay,2026-04-27,Strangers in Paradise Lot (Full Series TPB + Trigger Warning Oneshot + Merch),Pre-Owned,85.00,13.73,98.73,Auction,sold,Full series lot with merch; not a single-TPB comp
+SIP Vol 1-3 TPB set,eBay,2026-04-27,Strangers In Paradise Volume 1 2 3 Collection TP TPB TERRY MOORE - Abstract,New (Other),15.00,8.97,23.97,Auction,sold,3-TPB lot; ~$8/vol landed
+SIP Collected Vol 1 TPB,eBay,2026-04-27,Strangers In Paradise - THE COLLECTED VOLUME 1 - Moore - Graphic Novel TPB,Pre-Owned,4.99,4.47,9.46,BIN,sold,Single standard TPB; floor end
+SIP Hardcover Omnibus,eBay,2026-04-27,Strangers in Paradise Hardcover Omnibus Edition,New (Other),100.00,13.34,113.34,BIN,sold,HC omnibus — separate market from standard TPB
+SIP single issues lot (75 issues),eBay,2026-04-27,STRANGERS IN PARADISE Vol 1 #2 Vol 2 #1-13 Vol 3 #1-3 5-60 75 Issues See Desc,New (Other),89.00,0.00,89.00,BIN,sold,Large single-issue lot — not a TPB comp
+SIP singles lot 35 issues some signed,eBay,2026-04-27,Lot of 35 Strangers in Paradise Abstract Studios comics some signed! XXV 1 2 3 4,New (Other),129.99,0.00,129.99,BIN,sold,Mixed singles lot some signed; not a TPB comp
+SIP AP #1 1st print 1993,eBay,2026-04-27,Strangers in Paradise #1 (Antarctic Press November 1993-1st Print White Pages),New (Other),350.00,6.57,356.57,BIN,sold,Single issue — 1st print key; separate collector market; not a TPB comp
+SIP AP #1 Vol.1 1997 variant,eBay,2026-04-27,Strangers in Paradise #1d Vol. 1 1997 Antarctic Press Variant RY68-186,New (Other),9.99,6.00,15.99,Auction,sold,Single issue variant; not a TPB comp
+SIP AP #1 1993 high grade,eBay,2026-04-27,Strangers in Paradise #1 Vol. 1 1993 Antarctic Press High Grade W285-74,New (Other),325.99,1.99,327.98,BIN,sold,Single issue — 1st print key; not a TPB comp
+SIP XXV Omnibus HC 2019,eBay,2026-04-27,Strangers in Paradise XXV Omnibus Abstract Studios Hardcover 2019 Terry Moore,Pre-Owned,99.99,7.99,107.98,BIN,sold,HC omnibus — separate market
+SIP AP gold reprint 1-3,eBay,2026-04-27,Strangers in Paradise Vol 1 #1-3 Gold Logo REPRINT - Antarctic Studio 1997,New (Other),25.00,0.00,25.00,BIN,sold,3-issue reprint set; single issues not TPB
+SIP AP #1-3 complete run 1993,eBay,2026-04-27,Strangers in Paradise #1 2 3 (Antarctic Press November 1993) Complete Run,New (Other),400.00,0.00,400.00,BIN,sold,Key 1st print single issue run; separate collector market; not a TPB comp
+SIP AP #1 CGC NM- 9.2,eBay,2026-04-27,PRIMO: STRANGERS in PARADISE #1 Antarctic Press comics 1st print 93 NM- 9.2
