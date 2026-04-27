@@ -542,7 +542,9 @@ router.post('/list-item', express.json({ limit: '20mb' }), async (req, res) => {
         title:       item.title.slice(0, 80),
         description: item.description || '',
         imageUrls:   photoUrls,
-        aspects:     item.aspects || {},
+        aspects:     Object.fromEntries(
+          Object.entries(item.aspects || {}).map(([k, v]) => [k, Array.isArray(v) ? v : [String(v)]])
+        ),
       },
       condition:    item.ebayConditionId,
       ...(item.conditionNotes && { conditionDescription: item.conditionNotes }),
