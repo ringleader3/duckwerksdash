@@ -98,9 +98,11 @@
       }
     },
     "listing": {
-      "done": false,
+      "done": true,
       "data": {
-        "file": "listing.md"
+        "file": "listing.md",
+        "listingId": "168336924916",
+        "url": "https://ebay.com/itm/168336924916"
       }
     }
   }
