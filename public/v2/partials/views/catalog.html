@@ -19,20 +19,20 @@
 
         <!-- Disc # -->
         <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">DISC #</label>
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px">DISC #</label>
           <span style="color:var(--yellow); font-family:'Bebas Neue',sans-serif; font-size:22px" x-text="nextDiscNum ?? '…'"></span>
         </div>
 
         <!-- Box -->
         <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">BOX</label>
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0">BOX</label>
           <input data-focus type="text" x-model="box" placeholder="e.g. S1"
                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
         </div>
 
         <!-- Manufacturer -->
         <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">MANUFACTURER</label>
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0">MANUFACTURER</label>
           <select x-model="manufacturer"
                   style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
             <option value="">— select —</option>
@@ -46,7 +46,7 @@
 
         <!-- Mold -->
         <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">MOLD</label>
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0">MOLD</label>
           <select x-model="mold"
                   style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
             <option value="">— select —</option>
@@ -58,7 +58,7 @@
 
         <!-- Type -->
         <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">TYPE</label>
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0">TYPE</label>
           <select x-model="type"
                   style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
             <option value="">— select —</option>
@@ -70,7 +70,7 @@
 
         <!-- Plastic -->
         <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">PLASTIC</label>
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0">PLASTIC</label>
           <select x-model="plastic"
                   style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
             <option value="">— select —</option>
@@ -82,21 +82,21 @@
 
         <!-- Run/Edition -->
         <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">RUN / EDITION</label>
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0">RUN / EDITION</label>
           <input type="text" x-model="run" placeholder="optional"
                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
         </div>
 
         <!-- Notes -->
         <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">NOTES</label>
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0">NOTES</label>
           <input type="text" x-model="notes" placeholder="optional"
                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
         </div>
 
         <!-- Condition -->
         <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">CONDITION</label>
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0">CONDITION</label>
           <div style="display:flex; gap:0">
             <button type="button" @click="condition = 'Unthrown'"
                     :style="condition === 'Unthrown' ? 'background:var(--green); color:#000' : 'background:var(--surface); color:var(--muted)'"
@@ -109,14 +109,14 @@
 
         <!-- Weight -->
         <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">WEIGHT (g)</label>
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0">WEIGHT (g)</label>
           <input type="number" x-model.number="weight" min="100" max="200"
                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:100px">
         </div>
 
         <!-- Color -->
         <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">COLOR</label>
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0">COLOR</label>
           <select x-model="color"
                   style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
             <option value="">— select —</option>
@@ -128,7 +128,7 @@
 
         <!-- List Price -->
         <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:120px">LIST PRICE ($)</label>
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0">LIST PRICE ($)</label>
           <input type="number" x-model.number="listPrice" min="0" step="1"
                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:100px">
         </div>
