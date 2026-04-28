@@ -154,7 +154,7 @@ document.addEventListener('alpine:init', () => {
 
     _showToast(msg, ok) {
       this.toast = { msg, ok };
-      setTimeout(() => { this.toast = null; }, 2000);
+      setTimeout(() => { this.toast = null; }, ok ? 2000 : 5000);
     },
   }));
 });
