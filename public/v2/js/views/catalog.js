@@ -124,7 +124,7 @@ document.addEventListener('alpine:init', () => {
         this.flightData = data.found ? data : null;
         if (data.found && !this.type) {
           const s = data.speed;
-          if (s >= 9)      this.type = 'Distance Driver';
+          if (s >= 10)     this.type = 'Distance Driver';
           else if (s >= 6) this.type = 'Fairway Driver';
           else if (s >= 4) this.type = 'Midrange Disc';
           else             this.type = 'Putting Disc';
