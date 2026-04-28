@@ -2,13 +2,15 @@
 document.addEventListener('alpine:init', () => {
   Alpine.data('catalogView', () => ({
     // form state
-    nextDiscNum:   null,
-    box:           localStorage.getItem('catalog_box') || '',
-    manufacturer:  '',
-    mold:          '',
-    moldNew:       '',
-    type:          '',
-    plastic:       '',
+    nextDiscNum:      null,
+    box:              localStorage.getItem('catalog_box') || '',
+    manufacturer:     '',
+    manufacturerNew:  '',
+    mold:             '',
+    moldNew:          '',
+    type:             '',
+    plastic:          '',
+    plasticNew:       '',
     run:           '',
     notes:         '',
     condition:     'Unthrown',
@@ -34,9 +36,10 @@ document.addEventListener('alpine:init', () => {
 
     async init() {
       await Promise.all([this._fetchNextDiscNum(), this._fetchManufacturers(), this._fetchMolds(), this._fetchPlastics()]);
-      this.$watch('manufacturer', () => this._fetchFlightNumbers());
-      this.$watch('mold',         () => this._fetchFlightNumbers());
-      this.$watch('moldNew',      () => this._fetchFlightNumbers());
+      this.$watch('manufacturer',    () => this._fetchFlightNumbers());
+      this.$watch('manufacturerNew', () => this._fetchFlightNumbers());
+      this.$watch('mold',            () => this._fetchFlightNumbers());
+      this.$watch('moldNew',         () => this._fetchFlightNumbers());
     },
 
     async _fetchNextDiscNum() {
@@ -66,11 +69,11 @@ document.addEventListener('alpine:init', () => {
     async submit() {
       if (this.submitting) return;
       const missing = [];
-      if (!this.box)          missing.push('Box');
-      if (!this.manufacturer) missing.push('Manufacturer');
-      if (!this.moldNew && !this.mold) missing.push('Mold');
-      if (!this.type)         missing.push('Type');
-      if (!this.plastic)      missing.push('Plastic');
+      if (!this.box)                                    missing.push('Box');
+      if (!this.manufacturerNew && !this.manufacturer)  missing.push('Manufacturer');
+      if (!this.moldNew && !this.mold)                  missing.push('Mold');
+      if (!this.type)                                   missing.push('Type');
+      if (!this.plasticNew && !this.plastic)            missing.push('Plastic');
       if (!this.weight)       missing.push('Weight');
       if (!this.color)        missing.push('Color');
       if (!this.listPrice)    missing.push('List Price');
@@ -86,10 +89,10 @@ document.addEventListener('alpine:init', () => {
           body:    JSON.stringify({
             discNum:      this.nextDiscNum,
             box:          this.box,
-            manufacturer: this.manufacturer,
+            manufacturer: this.manufacturerNew || this.manufacturer,
             mold:         this.moldNew || this.mold,
             type:         this.type,
-            plastic:      this.plastic,
+            plastic:      this.plasticNew || this.plastic,
             run:          this.run,
             notes:        this.notes,
             condition:    this.condition,
@@ -112,7 +115,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     async _fetchFlightNumbers() {
-      const mfg  = this.manufacturer;
+      const mfg  = this.manufacturerNew || this.manufacturer;
       const mold = this.moldNew || this.mold;
       if (!mfg || !mold) { this.flightData = null; return; }
       try {
@@ -123,12 +126,14 @@ document.addEventListener('alpine:init', () => {
     },
 
     _reset(nextNum) {
-      this.nextDiscNum  = nextNum;
-      this.manufacturer = '';
-      this.mold         = '';
-      this.moldNew      = '';
-      this.type         = '';
-      this.plastic      = '';
+      this.nextDiscNum      = nextNum;
+      this.manufacturer     = '';
+      this.manufacturerNew  = '';
+      this.mold             = '';
+      this.moldNew          = '';
+      this.type             = '';
+      this.plastic          = '';
+      this.plasticNew       = '';
       this.run          = '';
       this.notes        = '';
       this.condition    = 'Unthrown';
