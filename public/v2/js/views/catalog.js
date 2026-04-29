@@ -73,8 +73,8 @@ document.addEventListener('alpine:init', () => {
 
     async init() {
       await Promise.all([this._fetchNextDiscNum(), this._fetchManufacturers(), this._fetchMolds(), this._fetchPlastics()]);
-      this.$watch('mold',    () => this._fetchFlightNumbers());
-      this.$watch('moldNew', () => this._fetchFlightNumbers());
+      this.$watch('mold',    () => { this.type = ''; this._fetchFlightNumbers(); });
+      this.$watch('moldNew', () => { this.type = ''; this._fetchFlightNumbers(); });
     },
 
     async _fetchNextDiscNum() {
