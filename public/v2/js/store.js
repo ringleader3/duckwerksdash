@@ -75,18 +75,17 @@ document.addEventListener('alpine:init', () => {
     },
 
     // ── Modal Helpers ─────────────────────────────────────────────────────────
-    async printLabel(url) {
-      if (!url) return;
+    async printLabel(zplUrl, fallbackUrl) {
+      if (!zplUrl && !fallbackUrl) return;
       try {
         const res = await fetch('/api/print/label', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url }),
+          body: JSON.stringify({ url: zplUrl }),
         });
         if (!res.ok) throw new Error((await res.json()).error || `HTTP ${res.status}`);
       } catch(e) {
-        // fall back to opening PDF in new tab if print server unavailable
-        console.warn('[printLabel] print server failed, falling back to window.open:', e.message);
-        window.open(url, '_blank');
+        console.warn('[printLabel] print failed, falling back to window.open:', e.message);
+        if (fallbackUrl) window.open(fallbackUrl, '_blank');
       }
     },
     openModal(type, recordId = null, lotName = null) {

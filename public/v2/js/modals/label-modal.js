@@ -392,7 +392,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     printLabel() {
-      Alpine.store('dw').printLabel(this.purchaseResult?.labelUrl);
+      Alpine.store('dw').printLabel(this.purchaseResult?.labelZplUrl, this.purchaseResult?.labelUrl);
     },
 
 

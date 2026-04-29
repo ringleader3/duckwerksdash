@@ -198,6 +198,7 @@ async function easypostPurchase(rateObjectId, insurance = '100.00') {
   return {
     trackingNumber: data.tracking_code,
     labelUrl:       data.postage_label?.label_url,
+    labelZplUrl:    data.postage_label?.label_zpl_url || null,
     trackingUrl:    data.tracker?.public_url,
     trackingId:     data.tracker?.id   || null,
     trackerUrl:     data.tracker?.public_url || null,
