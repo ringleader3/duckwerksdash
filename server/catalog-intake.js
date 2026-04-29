@@ -54,7 +54,10 @@ router.get('/manufacturers', (req, res) => {
 // GET /api/catalog-intake/molds
 router.get('/molds', (req, res) => {
   try {
-    const rows  = db.prepare('SELECT DISTINCT mold FROM flight_numbers ORDER BY mold').all();
+    const { manufacturer } = req.query;
+    const rows = manufacturer
+      ? db.prepare('SELECT DISTINCT mold FROM flight_numbers WHERE manufacturer_key = ? ORDER BY mold').all(normalize(manufacturer))
+      : db.prepare('SELECT DISTINCT mold FROM flight_numbers ORDER BY mold').all();
     const names = rows.map(r => r.mold).filter(Boolean);
     res.json({ molds: names });
   } catch (err) {
