@@ -7,6 +7,7 @@ document.addEventListener('alpine:init', () => {
     manufacturer:      '',
     manufacturerQuery: '',
     manufacturerOpen:  false,
+    manufacturerIndex: -1,
     mold:              '',
     moldNew:          '',
     type:             '',
@@ -45,9 +46,29 @@ document.addEventListener('alpine:init', () => {
       this.manufacturer      = m;
       this.manufacturerQuery = m;
       this.manufacturerOpen  = false;
+      this.manufacturerIndex = -1;
       this._fetchMolds();
       this._fetchPlastics();
       this._fetchFlightNumbers();
+    },
+
+    mfgKeydown(e) {
+      if (!this.manufacturerOpen) return;
+      const list = this.mfgFiltered;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        this.manufacturerIndex = Math.min(this.manufacturerIndex + 1, list.length - 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        this.manufacturerIndex = Math.max(this.manufacturerIndex - 1, -1);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (this.manufacturerIndex >= 0 && list[this.manufacturerIndex]) {
+          this.selectManufacturer(list[this.manufacturerIndex]);
+        } else if (list.length === 1) {
+          this.selectManufacturer(list[0]);
+        }
+      }
     },
 
     async init() {
@@ -157,6 +178,7 @@ document.addEventListener('alpine:init', () => {
       this.manufacturer      = '';
       this.manufacturerQuery = '';
       this.manufacturerOpen  = false;
+      this.manufacturerIndex = -1;
       this.mold             = '';
       this.moldNew          = '';
       this.type             = '';
