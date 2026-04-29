@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-28 — v2.0.9 catalog intake polish
+
+- Replaced manufacturer dropdown with typeahead search input — type to filter, arrow keys to navigate, enter to select; handles new manufacturers too (no separate "or new" field needed)
+- Fixed disc type not resetting when mold changes — was sticking on first auto-set value (e.g. putter) for all subsequent molds
+- Added MVP/Axiom/Streamline short-name aliases to disc_plastics (flight_numbers uses "Axiom" not "Axiom Discs")
+- Gap analysis against Google Sheet: added 40 missing plastics — DGA (Proline, SP Line), Innova glow variants, Axiom/MVP/Streamline Eclipse/R2/Prism variants, Infinite Discs, Kastaplast K1 Soft/Glow, Discmania Forge, Discraft Recycled ESP/Z Flx, Gateway Smugglers Coffee, Millennium Standard, Hyzerbomb, Trash Panda, Lone Star Disc
+
 ### 2026-04-28 — v2.0.8 catalog intake improvements + disc_plastics DB
 
 - Added "or new manufacturer" and "or new plastic" text inputs inline to the right of their dropdowns (matching existing mold pattern); validation and submit handle either/or
