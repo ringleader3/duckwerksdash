@@ -74,7 +74,9 @@
           <select x-model="plastic"
                   style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
             <option value="">— select —</option>
-            <template x-for="p in plastics" :key="p"><option :value="p" x-text="p"></option></template>
+            <template x-for="p in plastics" :key="p.plastic">
+              <option :value="p.plastic" x-text="p.tier === 'Baseline' ? p.plastic + ' (base)' : p.plastic"></option>
+            </template>
           </select>
           <input type="text" x-model="plasticNew" placeholder="or new plastic"
                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:180px">

@@ -36,7 +36,7 @@ document.addEventListener('alpine:init', () => {
 
     async init() {
       await Promise.all([this._fetchNextDiscNum(), this._fetchManufacturers(), this._fetchMolds(), this._fetchPlastics()]);
-      this.$watch('manufacturer',    () => { this._fetchMolds(); this._fetchFlightNumbers(); });
+      this.$watch('manufacturer',    () => { this._fetchMolds(); this._fetchPlastics(); this._fetchFlightNumbers(); });
       this.$watch('manufacturerNew', () => this._fetchFlightNumbers());
       this.$watch('mold',            () => this._fetchFlightNumbers());
       this.$watch('moldNew',         () => this._fetchFlightNumbers());
@@ -64,9 +64,12 @@ document.addEventListener('alpine:init', () => {
     },
 
     async _fetchPlastics() {
-      const res  = await fetch('/api/catalog-intake/plastics');
+      const mfg = this.manufacturerNew || this.manufacturer;
+      const url = mfg ? `/api/catalog-intake/plastics?manufacturer=${encodeURIComponent(mfg)}` : '/api/catalog-intake/plastics';
+      const res  = await fetch(url);
       const data = await res.json();
       this.plastics = data.plastics || [];
+      this.plastic  = '';
     },
 
     async submit() {

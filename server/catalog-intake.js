@@ -66,16 +66,13 @@ router.get('/molds', (req, res) => {
 });
 
 // GET /api/catalog-intake/plastics
-router.get('/plastics', async (req, res) => {
+router.get('/plastics', (req, res) => {
   try {
-    const sheets = getSheets();
-    const resp   = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!I:I`,
-    });
-    const rows  = (resp.data.values || []).slice(1);
-    const names = [...new Set(rows.map(r => r[0]).filter(Boolean))].sort();
-    res.json({ plastics: names });
+    const { manufacturer } = req.query;
+    const rows = manufacturer
+      ? db.prepare('SELECT plastic, tier FROM disc_plastics WHERE manufacturer_key = ? ORDER BY tier DESC, plastic').all(normalize(manufacturer))
+      : db.prepare('SELECT DISTINCT plastic, tier FROM disc_plastics ORDER BY tier DESC, plastic').all();
+    res.json({ plastics: rows });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
