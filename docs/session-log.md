@@ -1,6 +1,17 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-28 — v2.0.8 catalog intake improvements + disc_plastics DB
+
+- Added "or new manufacturer" and "or new plastic" text inputs inline to the right of their dropdowns (matching existing mold pattern); validation and submit handle either/or
+- Fixed catalog label column width 120px → 140px with flex-shrink:0 to prevent label wrapping misaligning form
+- Manufacturer and mold dropdowns now source from `flight_numbers` SQLite table (1913 molds) instead of Google Sheet — faster, much more complete
+- Mold dropdown filters to selected manufacturer on change; plastic dropdown filters to selected manufacturer
+- Auto-sets disc type from flight number speed on mold lookup (10+ = Distance Driver, 6-9 = Fairway Driver, 4-5 = Midrange Disc, 1-3 = Putting Disc)
+- Error toasts extended to 5s (success stays 2s)
+- Built `disc_plastics` table seeded from Trash Panda "Ultimate Guide to Every Disc Golf Plastic" — 286 rows across 39 manufacturers with Premium/Baseline tier; plastic dropdown now sources from DB filtered by manufacturer, shows `(base)` suffix on baseline plastics
+- `scripts/seed-plastics.js` — parses the source txt file; `scripts/migrate-plastics-table.js` — self-contained migration with data embedded, runs on deploy via `deploy-nuc.sh`
+
 ### 2026-04-26 — v2.0.7 generic eBay listing API + first live comic listing
 
 - Built `POST /api/ebay/list-item` — generic endpoint replacing disc-specific bulk-list for new items; accepts structured JSON from skill checkpoint (title, description, price, aspects, photos as base64, eBay category/condition IDs)
