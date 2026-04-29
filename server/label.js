@@ -158,8 +158,7 @@ async function easypostRates(toAddress, parcel) {
           height: parcel.height,
         },
         options: {
-          label_format:             'PNG',
-          label_size:               '4X6',
+          label_format:             'ZPL',
           special_rates_eligibility: 'USPS.MEDIAMAIL',
         },
       },
@@ -197,7 +196,7 @@ async function easypostPurchase(rateObjectId, insurance = '100.00') {
   const totalCost = (data.fees || []).reduce((sum, f) => sum + parseFloat(f.amount || 0), 0);
   return {
     trackingNumber: data.tracking_code,
-    labelUrl:       data.postage_label?.label_url,
+    labelUrl:       data.postage_label?.label_zpl_url || data.postage_label?.label_url,
     labelZplUrl:    data.postage_label?.label_zpl_url || null,
     trackingUrl:    data.tracker?.public_url,
     trackingId:     data.tracker?.id   || null,
