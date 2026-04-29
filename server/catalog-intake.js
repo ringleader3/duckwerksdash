@@ -41,15 +41,10 @@ router.get('/next-disc-num', async (req, res) => {
 });
 
 // GET /api/catalog-intake/manufacturers
-router.get('/manufacturers', async (req, res) => {
+router.get('/manufacturers', (req, res) => {
   try {
-    const sheets = getSheets();
-    const resp   = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!F:F`,
-    });
-    const rows  = (resp.data.values || []).slice(1);
-    const names = [...new Set(rows.map(r => r[0]).filter(Boolean))].sort();
+    const rows  = db.prepare('SELECT DISTINCT manufacturer FROM flight_numbers ORDER BY manufacturer').all();
+    const names = rows.map(r => r.manufacturer).filter(Boolean);
     res.json({ manufacturers: names });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -57,15 +52,10 @@ router.get('/manufacturers', async (req, res) => {
 });
 
 // GET /api/catalog-intake/molds
-router.get('/molds', async (req, res) => {
+router.get('/molds', (req, res) => {
   try {
-    const sheets = getSheets();
-    const resp   = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!G:G`,
-    });
-    const rows  = (resp.data.values || []).slice(1);
-    const names = [...new Set(rows.map(r => r[0]).filter(Boolean))].sort();
+    const rows  = db.prepare('SELECT DISTINCT mold FROM flight_numbers ORDER BY mold').all();
+    const names = rows.map(r => r.mold).filter(Boolean);
     res.json({ molds: names });
   } catch (err) {
     res.status(500).json({ error: err.message });
