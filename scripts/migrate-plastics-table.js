@@ -328,4 +328,14 @@ const insertMany = db.transaction(rows => {
 });
 
 insertMany(RECORDS);
-console.log(`Created disc_plastics and inserted ${RECORDS.length} rows`);
+
+// Alias short names used in flight_numbers for MVP/Axiom/Streamline
+const alias = db.prepare(`
+  INSERT OR IGNORE INTO disc_plastics (manufacturer_key, manufacturer, plastic, tier)
+  SELECT ?, ?, plastic, tier FROM disc_plastics WHERE manufacturer_key = ?
+`);
+alias.run('mvp', 'MVP', 'mvp disc sports');
+alias.run('axiom', 'Axiom', 'axiom discs');
+alias.run('streamline', 'Streamline', 'streamline discs');
+
+console.log(`Created disc_plastics and inserted ${RECORDS.length} rows (+ MVP/Axiom/Streamline aliases)`);
