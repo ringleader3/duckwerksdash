@@ -30,18 +30,28 @@
                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
         </div>
 
-        <!-- Manufacturer -->
-        <div style="display:flex; gap:16px; align-items:center">
-          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0">MANUFACTURER</label>
-          <select x-model="manufacturer"
-                  style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:200px">
-            <option value="">— select —</option>
-            <template x-for="m in manufacturers" :key="m">
-              <option :value="m" x-text="m"></option>
-            </template>
-          </select>
-          <input type="text" x-model="manufacturerNew" placeholder="or new manufacturer"
-                 style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:180px">
+        <!-- Manufacturer typeahead -->
+        <div style="display:flex; gap:16px; align-items:flex-start">
+          <label style="color:var(--muted); font-size:11px; letter-spacing:1px; width:140px; flex-shrink:0; padding-top:8px">MANUFACTURER</label>
+          <div style="position:relative">
+            <input type="text" x-model="manufacturerQuery"
+                   @input="manufacturerOpen = true"
+                   @focus="manufacturerOpen = true"
+                   @keydown.escape="manufacturerOpen = false"
+                   @keydown.enter.prevent="manufacturerQuery && !mfgFiltered.length ? (manufacturer = '', manufacturerQuery = manufacturerQuery) : (mfgFiltered.length === 1 ? selectManufacturer(mfgFiltered[0]) : null)"
+                   placeholder="type to search…"
+                   style="background:var(--surface); border:1px solid var(--border); color:var(--white); padding:6px 10px; border-radius:4px; font-family:inherit; font-size:13px; width:260px">
+            <div x-show="manufacturerOpen && mfgFiltered.length > 0" x-cloak
+                 @click.outside="manufacturerOpen = false"
+                 style="position:absolute; top:100%; left:0; width:260px; background:var(--surface); border:1px solid var(--border); border-top:none; border-radius:0 0 4px 4px; max-height:200px; overflow-y:auto; z-index:50">
+              <template x-for="m in mfgFiltered" :key="m">
+                <div @click="selectManufacturer(m)" x-text="m"
+                     style="padding:6px 10px; font-size:13px; cursor:pointer; color:var(--white)"
+                     @mouseenter="$el.style.background='var(--border)'"
+                     @mouseleave="$el.style.background='transparent'"></div>
+              </template>
+            </div>
+          </div>
         </div>
 
         <!-- Mold -->

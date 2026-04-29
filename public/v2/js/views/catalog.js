@@ -2,11 +2,12 @@
 document.addEventListener('alpine:init', () => {
   Alpine.data('catalogView', () => ({
     // form state
-    nextDiscNum:      null,
-    box:              localStorage.getItem('catalog_box') || '',
-    manufacturer:     '',
-    manufacturerNew:  '',
-    mold:             '',
+    nextDiscNum:       null,
+    box:               localStorage.getItem('catalog_box') || '',
+    manufacturer:      '',
+    manufacturerQuery: '',
+    manufacturerOpen:  false,
+    mold:              '',
     moldNew:          '',
     type:             '',
     plastic:          '',
@@ -34,12 +35,25 @@ document.addEventListener('alpine:init', () => {
       'Multi-Color','Orange','Pink','Purple','Red','Silver','White','Yellow',
     ],
 
+    get mfgFiltered() {
+      if (!this.manufacturerQuery) return this.manufacturers;
+      const q = this.manufacturerQuery.toLowerCase();
+      return this.manufacturers.filter(m => m.toLowerCase().includes(q));
+    },
+
+    selectManufacturer(m) {
+      this.manufacturer      = m;
+      this.manufacturerQuery = m;
+      this.manufacturerOpen  = false;
+      this._fetchMolds();
+      this._fetchPlastics();
+      this._fetchFlightNumbers();
+    },
+
     async init() {
       await Promise.all([this._fetchNextDiscNum(), this._fetchManufacturers(), this._fetchMolds(), this._fetchPlastics()]);
-      this.$watch('manufacturer',    () => { this._fetchMolds(); this._fetchPlastics(); this._fetchFlightNumbers(); });
-      this.$watch('manufacturerNew', () => this._fetchFlightNumbers());
-      this.$watch('mold',            () => this._fetchFlightNumbers());
-      this.$watch('moldNew',         () => this._fetchFlightNumbers());
+      this.$watch('mold',    () => this._fetchFlightNumbers());
+      this.$watch('moldNew', () => this._fetchFlightNumbers());
     },
 
     async _fetchNextDiscNum() {
@@ -55,7 +69,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     async _fetchMolds() {
-      const mfg = this.manufacturerNew || this.manufacturer;
+      const mfg = this.manufacturer || this.manufacturerQuery;
       const url = mfg ? `/api/catalog-intake/molds?manufacturer=${encodeURIComponent(mfg)}` : '/api/catalog-intake/molds';
       const res  = await fetch(url);
       const data = await res.json();
@@ -64,7 +78,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     async _fetchPlastics() {
-      const mfg = this.manufacturerNew || this.manufacturer;
+      const mfg = this.manufacturer || this.manufacturerQuery;
       const url = mfg ? `/api/catalog-intake/plastics?manufacturer=${encodeURIComponent(mfg)}` : '/api/catalog-intake/plastics';
       const res  = await fetch(url);
       const data = await res.json();
@@ -76,7 +90,7 @@ document.addEventListener('alpine:init', () => {
       if (this.submitting) return;
       const missing = [];
       if (!this.box)                                    missing.push('Box');
-      if (!this.manufacturerNew && !this.manufacturer)  missing.push('Manufacturer');
+      if (!this.manufacturerQuery)                       missing.push('Manufacturer');
       if (!this.moldNew && !this.mold)                  missing.push('Mold');
       if (!this.type)                                   missing.push('Type');
       if (!this.plasticNew && !this.plastic)            missing.push('Plastic');
@@ -95,7 +109,7 @@ document.addEventListener('alpine:init', () => {
           body:    JSON.stringify({
             discNum:      this.nextDiscNum,
             box:          this.box,
-            manufacturer: this.manufacturerNew || this.manufacturer,
+            manufacturer: this.manufacturer || this.manufacturerQuery,
             mold:         this.moldNew || this.mold,
             type:         this.type,
             plastic:      this.plasticNew || this.plastic,
@@ -121,7 +135,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     async _fetchFlightNumbers() {
-      const mfg  = this.manufacturerNew || this.manufacturer;
+      const mfg  = this.manufacturer || this.manufacturerQuery;
       const mold = this.moldNew || this.mold;
       if (!mfg || !mold) { this.flightData = null; return; }
       try {
@@ -139,9 +153,10 @@ document.addEventListener('alpine:init', () => {
     },
 
     _reset(nextNum) {
-      this.nextDiscNum      = nextNum;
-      this.manufacturer     = '';
-      this.manufacturerNew  = '';
+      this.nextDiscNum       = nextNum;
+      this.manufacturer      = '';
+      this.manufacturerQuery = '';
+      this.manufacturerOpen  = false;
       this.mold             = '';
       this.moldNew          = '';
       this.type             = '';
