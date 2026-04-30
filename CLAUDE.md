@@ -56,14 +56,14 @@ npm start   # starts Express on http://localhost:3000
 - `server/orders.js` — `/api/orders` CRUD
 - `server/shipments.js` — `/api/shipments` CRUD
 - `server/label.js` — provider-agnostic label routes (`/api/label/*`)
-- `server/print.js` — label print proxy (`POST /api/print/label`) → forwards to `PRINT_SERVER_URL`
+- `server/print.js` — label print (`POST /api/print/label`) → raw TCP socket to Zebra ZD420D at `ZEBRA_PRINTER_IP:9100`
 - `server/comps.js` — comp research (`/api/comps/*`) — SerpAPI + Puppeteer + Claude
 - `server/reverb.js` — Reverb proxy (`/api/reverb/*`)
 - `server/ebay-auth.js` — eBay OAuth (one-time setup + auto-refresh)
 - `server/ebay.js` — eBay Sell Fulfillment (`/api/ebay/*`)
 - `server/ebay-listings.js` — eBay Inventory API bulk listing (`POST /api/ebay/bulk-list`)
 - `scripts/deploy-nuc.sh` — pull + PM2 restart on the NUC; run after every push
-- `scripts/print-server.js` — local print server; receives label jobs and forwards to Rollo via CUPS
+- `scripts/print-server.js` — dead code; was local Mac print server for Rollo via CUPS (replaced by direct Zebra TCP)
 - `scripts/bulk-list-discs.js` — bulk eBay lister; idempotent (safe to re-run)
 - `scripts/backfill-skus.js` — one-time SKU backfill from eBay Inventory API; dry-run by default, `--confirm` to write
 - `scripts/backfill-flight-numbers.js` — one-time flight number backfill for disc items

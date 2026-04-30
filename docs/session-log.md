@@ -1,6 +1,17 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-04-29 — v2.0.10 Zebra ZD420 ZPL printing via raw TCP
+
+- Replaced Mac local print server (LP/CUPS) with direct TCP socket write to Zebra ZD420D on port 9100
+- `server/print.js`: now opens raw TCP socket to `ZEBRA_PRINTER_IP:9100`, fetches ZPL from URL, sends directly — no drivers, no CUPS
+- `server/label.js`: switched EasyPost label_format to ZPL; returns `labelZplUrl` alongside `labelUrl`; EasyPost always includes `label_zpl_url` when ZPL format is requested
+- `store.js` + `label-modal.js`: print button passes ZPL URL to print endpoint, PNG URL as fallback for window.open
+- NUC `.env`: `PRINT_SERVER_URL` replaced with `ZEBRA_PRINTER_IP=192.168.68.105`
+- `scripts/print-server.js` is now dead code (Mac local print server no longer needed)
+- Tested end-to-end: ZPL fetched from EasyPost, sent via TCP, printed correctly on Zebra
+- Printhead had dead elements on arrival; resolved by printing full-black 4x6 label to burn them in
+
 ### 2026-04-28 — v2.0.9 catalog intake polish
 
 - Replaced manufacturer dropdown with typeahead search input — type to filter, arrow keys to navigate, enter to select; handles new manufacturers too (no separate "or new" field needed)
