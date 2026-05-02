@@ -13,6 +13,8 @@ This skill is a guide and workflow assistant, not a bulletproof automation pipel
 
 **When you hit an unknown API error, missing category ID, unfamiliar scope, or any case where the right answer requires docs or external lookup: stop after the first failed attempt and ask.** Geoff can Google, paste docs, or grab a category ID from a live eBay listing URL in under a minute. Do not chain speculative API calls — one failed attempt is the signal to ask, not to retry variations.
 
+**When posting multiple listings in a batch: fix → test on one item → confirm it works → then run the rest.** Never apply an untested fix across all items at once — a failure on item 1 means waiting through all N API calls to learn nothing new.
+
 ## Style and Pricing Rules
 
 Load these two files at the start of every session — they govern all copy and pricing decisions:
