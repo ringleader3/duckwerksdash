@@ -572,6 +572,7 @@ router.post('/list-item', express.json({ limit: '20mb' }), async (req, res) => {
       },
       condition:    item.ebayConditionId,
       ...(item.conditionNotes && { conditionDescription: item.conditionNotes }),
+      ...(item.conditionDescriptors && { conditionDescriptors: item.conditionDescriptors }),
       availability: { shipToLocationAvailability: { quantity: 1 } },
     };
     const itemRes = await fetch(

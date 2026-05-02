@@ -43,5 +43,16 @@
       "New Other":  "NEW_OTHER",
       "Used":       "USED_EXCELLENT"
     }
+  },
+
+  "Trading Cards > Baseball Cards": {
+    "ebay_category_id": "261328",
+    "_note": "Category 261328. Ungraded raw lots use ebayConditionId=USED_VERY_GOOD. Required conditionDescriptors: [{conditionDescriptorId:'40001', conditionDescriptorValueIds:['400010'|'400011'|'400012'|'400013']}] — Near mint or better / Excellent / Very good / Poor. Manufacturer aspect must be single value.",
+    "conditions": {
+      "Near Mint":  { "ebayConditionId": "USED_VERY_GOOD", "cardConditionValueId": "400010" },
+      "Excellent":  { "ebayConditionId": "USED_VERY_GOOD", "cardConditionValueId": "400011" },
+      "Very Good":  { "ebayConditionId": "USED_VERY_GOOD", "cardConditionValueId": "400012" },
+      "Poor":       { "ebayConditionId": "USED_VERY_GOOD", "cardConditionValueId": "400013" }
+    }
   }
 }
