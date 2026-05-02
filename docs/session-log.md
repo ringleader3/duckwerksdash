@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-01 — v2.0.11 ElfQuest WaRP Graphics spinoffs listed
+
+- Listed 5 ElfQuest spinoff comic lots to eBay (lot #13): Kahvi, The Rebels, Shards, Two-Spear + Metamorphosis, Wave Dancers
+- HEIC photos converted to JPEG in-place via `scripts/convert-photos.js --inplace` before posting
+- Moved all 5 completed listing sessions to `docs/listing-sessions/completed/`
+
 ### 2026-04-29 — v2.0.10 Zebra ZD420 ZPL printing via raw TCP
 
 - Replaced Mac local print server (LP/CUPS) with direct TCP socket write to Zebra ZD420D on port 9100

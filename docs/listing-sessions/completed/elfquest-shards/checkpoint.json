@@ -1,0 +1,105 @@
+{
+  "item_name": "ElfQuest Shards lot",
+  "slug": "elfquest-shards",
+  "created": "2026-04-26",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "item_name": "ElfQuest Shards #1-16 minus #13 and #15",
+        "category": "Comics",
+        "issues": "#1-12, 14, 16 (14 issues total, missing #13 and #15)",
+        "condition": "VF — individually bagged with backing boards, no major creasing, spine rolls, or cover damage",
+        "quantity": 14,
+        "price_known": false,
+        "ballpark": "$30"
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "shipping": "Media Mail",
+        "series_run": "Shards ran 1994-1996, WaRP Graphics, 16 issues",
+        "completeness": "Near-complete — 14 of 16, missing #13 and #15",
+        "platform": "eBay",
+        "key_issues": "No known key issues; includes #1 and #2 which some comps lacked",
+        "comp_pool_expectation": "Moderate — 5 direct comps, consistent range"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "primary": "elfquest shards lot warp graphics"
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "elfquest_shards_lot_warp_graphics_comps.txt",
+        "direct_comps": 4,
+        "key_comps": [
+          "14-issue near-complete #1-15 missing #16 — $30.96 landed",
+          "Full 16-issue run — $29.72 landed",
+          "Complete #1-16 better condition — $38.67 landed",
+          "13-issue #3-16 missing #1-2 — $20.99 landed"
+        ]
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "floor": 25,
+        "midpoint": 30,
+        "ceiling": 38,
+        "recommended": 30,
+        "confidence": "moderate-good (4 direct comps, consistent range)",
+        "rationale": "Matches 14-issue primary comp ($30.96). Includes #1 and #2 unlike the $20.99 comp. Bagged/boarded holds price at comp rather than discounting."
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "ElfQuest Shards #1-12 14 16 Near-Complete 14-Issue Lot 1994 Warp Graphics",
+        "description": "ElfQuest: Shards ran from 1994 to 1996 as WaRP Graphics continued expanding the ElfQuest universe, following the tribe's struggle to reunite after a devastating war. This is a near-complete run of 14 issues — #1 through 12, plus #14 and #16. Only #13 and #15 are missing.\n\nStored bagged with individual backing boards by a careful collector. Condition is Very Fine throughout — no major creasing, spine rolls, or cover damage.\n\nSeries | ElfQuest: Shards\nPublisher | WaRP Graphics\nIssues | #1-12, 14, 16 (14 issues)\nMissing | #13 and #15\nYear | 1994-1996\nCondition | VF, bagged and boarded\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer. Comics are packed securely with cardboard backing to protect against bending in transit.\n\nSold As Is.",
+        "condition_field": "Near-complete run of ElfQuest: Shards (WaRP Graphics, 1994-1996), issues #1-12, 14, and 16. 14 issues total. Missing #13 and #15. All issues individually bagged with backing boards. Condition is Very Fine throughout — no major creasing, spine rolls, or cover damage noted."
+      }
+    },
+    "metadata": {
+      "done": true,
+      "data": {
+        "category": "Comics > Comic Books",
+        "condition": "Very Good",
+        "price": 30,
+        "format": "Fixed Price",
+        "duration": "GTC",
+        "shipping": "Free — Media Mail",
+        "returns": "No returns",
+        "min_offer": 23,
+        "item_specifics": {
+          "Series": "ElfQuest",
+          "Title": "Shards",
+          "Publisher": "WaRP Graphics",
+          "Creator": "Wendy Pini / Richard Pini",
+          "Year": "1994",
+          "Era": "Modern Age (1992-Now)",
+          "Genre": "Fantasy",
+          "Language": "English",
+          "Tradition": "US Comics"
+        },
+        "sku": "DW-elfquest-shards",
+        "ebay_category_id": "259104",
+        "ebay_condition_id": "USED_VERY_GOOD",
+        "lot_id": 13,
+        "lot_name": "ElfQuest"
+      }
+    },
+    "listing": {
+      "done": true,
+      "data": {
+        "file": "listing.md",
+        "listingId": "168347062091",
+        "url": "https://ebay.com/itm/168347062091"
+      }
+    }
+  }
+}

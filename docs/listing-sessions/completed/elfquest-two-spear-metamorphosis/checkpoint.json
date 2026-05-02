@@ -1,0 +1,103 @@
+{
+  "item_name": "ElfQuest Two-Spear + Metamorphosis bundle",
+  "slug": "elfquest-two-spear-metamorphosis",
+  "created": "2026-04-27",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "item_name": "ElfQuest Two-Spear #1, 4, 5 + Metamorphosis #1",
+        "category": "Comics",
+        "issues": "Two-Spear #1, 4, 5 (missing #2, #3) + Metamorphosis #1 (4 issues total)",
+        "condition": "VF — individually bagged with backing boards, no major creasing, spine rolls, or cover damage",
+        "quantity": 4,
+        "price_known": false,
+        "ballpark": "$20"
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "shipping": "Media Mail",
+        "series_run": "Two-Spear ran 1995, WaRP Graphics, 5 issues. Metamorphosis #1 is a 1996 WaRP one-shot.",
+        "completeness": "Partial Two-Spear (3 of 5) + single Metamorphosis issue. Bundled due to small lot sizes.",
+        "platform": "eBay",
+        "key_issues": "No known key issues in either title",
+        "comp_pool_expectation": "Thin — 1 direct comp for complete Two-Spear set; 1 direct comp for Metamorphosis #1"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "primary": "elfquest two spear lot warp graphics",
+        "secondary": "elfquest metamorphosis past future warp graphics"
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "comps.txt",
+        "direct_comps": 2,
+        "key_comps": [
+          "Two-Spear complete #1-5 — $19.53 landed",
+          "Metamorphosis #1 FN 6.0 — $10.70 landed"
+        ]
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "floor": 15,
+        "midpoint": 20,
+        "ceiling": 25,
+        "recommended": 20,
+        "confidence": "low (thin comps, partial lots bundled)",
+        "rationale": "Two-Spear complete at $19.53, ours missing #2/#3. Metamorphosis adds ~$10 standalone. Bundle discount brings combined value to ~$20 — more attractive than two tiny separate listings."
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "ElfQuest Two-Spear #1 4 5 + Metamorphosis #1 WaRP Graphics Spinoff Lot",
+        "description": "A small lot of two ElfQuest spinoff mini-series from WaRP Graphics. Two-Spear (1995) follows the fierce and controversial elf chief Two-Spear in a story set deep in ElfQuest prehistory — this lot includes issues #1, 4, and 5 (missing #2 and #3). Also included is Metamorphosis #1 (1996), a one-shot bridging ElfQuest Past and ElfQuest Future.\n\nStored bagged with individual backing boards by a careful collector. Condition is Very Fine throughout — no major creasing, spine rolls, or cover damage.\n\nSeries | ElfQuest: Two-Spear + Metamorphosis\nPublisher | WaRP Graphics\nTwo-Spear | #1, 4, 5 (missing #2 and #3)\nMetamorphosis | #1\nYear | 1995-1996\nCondition | VF, bagged and boarded\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer. Comics are packed securely with cardboard backing to protect against bending in transit.\n\nSold As Is.",
+        "condition_field": "ElfQuest: Two-Spear #1, 4, and 5 (WaRP Graphics, 1995) plus Metamorphosis #1 (WaRP Graphics, 1996). 4 issues total. Two-Spear missing #2 and #3. All issues individually bagged with backing boards. Condition is Very Fine throughout — no major creasing, spine rolls, or cover damage noted."
+      }
+    },
+    "metadata": {
+      "done": true,
+      "data": {
+        "category": "Comics > Comic Books",
+        "condition": "Very Good",
+        "price": 20,
+        "format": "Fixed Price",
+        "duration": "GTC",
+        "shipping": "Free — Media Mail",
+        "returns": "No returns",
+        "min_offer": 15,
+        "item_specifics": {
+          "Series": "ElfQuest",
+          "Publisher": "WaRP Graphics",
+          "Creator": "Wendy Pini / Richard Pini",
+          "Year": "1995",
+          "Era": "Modern Age (1992-Now)",
+          "Genre": "Fantasy",
+          "Language": "English",
+          "Tradition": "US Comics"
+        },
+        "sku": "DW-elfquest-two-spear-metamorphosis",
+        "ebay_category_id": "259104",
+        "ebay_condition_id": "USED_VERY_GOOD",
+        "lot_id": 13,
+        "lot_name": "ElfQuest"
+      }
+    },
+    "listing": {
+      "done": true,
+      "data": {
+        "file": "listing.md",
+        "listingId": "168347062594",
+        "url": "https://ebay.com/itm/168347062594"
+      }
+    }
+  }
+}
