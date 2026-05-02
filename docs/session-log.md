@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-02 — v2.0.14 HIKEit listing fixed
+
+- Original HIKEit listing (168347134292) became unbuyable after manual category change to eBay Motors (9886) broke listing state
+- Ended broken listing via Inventory API offer withdraw, relisted manually via Seller Hub — new listing 168347293594, $70, active
+- eBay Motors category 9886 requires ASSEMBLY-based fitment table (US_CARS_AND_TRUCKS) — cannot bypass via item specifics alone
+- Confirmed: "out of stock" banner in Motors = broken listing state, not inventory quantity issue
+
 ### 2026-05-02 — v2.0.13 Six baseball card lots listed
 
 - Created "baseball" lot (id 14) and "Trading Cards" category (id 5697) via SSH to NUC
