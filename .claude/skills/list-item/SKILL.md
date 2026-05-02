@@ -7,6 +7,12 @@ description: Use when listing a single item for sale on eBay — walks through i
 
 A linear workflow for taking a single item from "I have this thing" to a ready-to-post eBay listing. One invocation = one item. Checkpoint files allow resuming mid-session.
 
+## Philosophy
+
+This skill is a guide and workflow assistant, not a bulletproof automation pipeline. One-off listings are expected to have rough edges. **Manual steps in Seller Hub are a valid and acceptable outcome** — if the API won't cooperate, say so clearly and tell Geoff what to do manually rather than retrying.
+
+**When you hit an unknown API error, missing category ID, unfamiliar scope, or any case where the right answer requires docs or external lookup: stop after the first failed attempt and ask.** Geoff can Google, paste docs, or grab a category ID from a live eBay listing URL in under a minute. Do not chain speculative API calls — one failed attempt is the signal to ask, not to retry variations.
+
 ## Style and Pricing Rules
 
 Load these two files at the start of every session — they govern all copy and pricing decisions:
