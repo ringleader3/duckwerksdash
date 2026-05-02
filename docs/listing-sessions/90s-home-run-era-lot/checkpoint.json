@@ -1,0 +1,85 @@
+{
+  "item_name": "90s Home Run Era Lot",
+  "slug": "90s-home-run-era-lot",
+  "created": "2026-05-01",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "description": "7 cards featuring McGwire, Bonds, Canseco, and Bo Jackson. Nostalgia play targeting home run chase era collectors.",
+        "category": "Trading Cards",
+        "quantity": 7,
+        "lot_id": 14,
+        "lot_name": "baseball",
+        "known_price": null
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "ebay_category": "Trading Cards > Baseball Cards",
+        "ebay_category_id": "213",
+        "condition": "USED_GOOD",
+        "condition_label": "Good",
+        "shipping": "Bubble mailer, First Class",
+        "notes": "Bo Jackson has crossover football collector appeal. Lead title with player names.",
+        "lot_id": 14,
+        "lot_name": "baseball"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "terms": [
+          "mcgwire bonds canseco bo jackson card lot 1990s",
+          "home run era baseball card lot 90s"
+        ]
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "comps.txt"
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "floor": 13,
+        "midpoint": 20,
+        "ceiling": 46,
+        "price": 20,
+        "min_offer": 15,
+        "confidence": "good",
+        "notes": "7 cards, four big names. 3-card 1987 Topps RC lots with same names sold $13-39. Strong nostalgia demand."
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "McGwire Bonds Canseco Bo Jackson 7-Card Lot 1980s 1990s Home Run Era",
+        "description": "Seven cards from the players who defined the home run chase era \u2014 McGwire, Bonds, Canseco, and Bo Jackson. This is pure nostalgia for anyone who grew up watching these guys mash. Bo's got crossover appeal if you're also collecting his football cards.\n\nCards | 7 total\nPlayers | Mark McGwire, Barry Bonds, Jose Canseco, Bo Jackson\nYears | 1980s-1990s\nCondition | Good overall\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.\n\nSold As Is.",
+        "condition_field": "7 cards total. McGwire, Bonds, Canseco, and Bo Jackson from the 1980s-90s. Good condition overall \u2014 typical handling for the era, no major damage. See photos for specifics on each card."
+      }
+    },
+    "metadata": {
+      "done": true,
+      "data": {
+        "sku": "DW-90s-home-run-era-lot",
+        "ebay_category_id": "261329",
+        "category": "Trading Cards > Baseball Card Lots",
+        "ebayConditionId": "USED_EXCELLENT",
+        "lot_id": 14,
+        "lot_name": "baseball"
+      }
+    },
+    "listing": {
+      "done": true,
+      "data": {
+        "file": "listing.md",
+        "listingId": "168347256937",
+        "url": "https://ebay.com/itm/168347256937"
+      }
+    }
+  }
+}

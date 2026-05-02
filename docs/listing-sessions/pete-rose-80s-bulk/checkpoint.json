@@ -1,0 +1,85 @@
+{
+  "item_name": "Pete Rose 80s Bulk",
+  "slug": "pete-rose-80s-bulk",
+  "created": "2026-05-01",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "description": "21 cards, 1981-1987. Mixed Topps, Fleer, Donruss, and Leaf. Great for player collectors completing a run.",
+        "category": "Trading Cards",
+        "quantity": 21,
+        "lot_id": 14,
+        "lot_name": "baseball",
+        "known_price": null
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "ebay_category": "Trading Cards > Baseball Cards",
+        "ebay_category_id": "213",
+        "condition": "USED_GOOD",
+        "condition_label": "Good",
+        "shipping": "Bubble mailer, First Class",
+        "notes": "Run-completer audience. Mixed brands is a positive signal.",
+        "lot_id": 14,
+        "lot_name": "baseball"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "terms": [
+          "pete rose lot 1980s topps fleer donruss",
+          "pete rose card lot player collection"
+        ]
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "comps.txt"
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "floor": 13,
+        "midpoint": 18,
+        "ceiling": 22,
+        "price": 18,
+        "min_offer": 13,
+        "confidence": "good",
+        "notes": "21-card lot; mixed brands is a plus for run completers."
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "Pete Rose 21-Card Lot 1981-1987 Topps Fleer Donruss Leaf Player Collection",
+        "description": "Twenty-one Pete Rose cards from his 1980s run with the Phillies and back with the Reds, pulled from four different manufacturers. If you're working on a Pete Rose player collection and need to fill in that junk wax era stretch, this lot covers a lot of ground in one shot.\n\nCards | 21 total\nYears | 1981-1987\nBrands | Topps, Fleer, Donruss, Leaf\nCondition | Good overall, typical junk wax handling\nDuplicates | Mixed, some possible\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.\n\nSold As Is.",
+        "condition_field": "21 cards, Good condition overall. Mix of Topps, Fleer, Donruss, and Leaf from 1981-1987. Typical handling for the era \u2014 no major damage noted. Some duplicates possible."
+      }
+    },
+    "metadata": {
+      "done": true,
+      "data": {
+        "sku": "DW-pete-rose-80s-bulk",
+        "ebay_category_id": "261329",
+        "category": "Trading Cards > Baseball Card Lots",
+        "ebayConditionId": "USED_EXCELLENT",
+        "lot_id": 14,
+        "lot_name": "baseball"
+      }
+    },
+    "listing": {
+      "done": true,
+      "data": {
+        "file": "listing.md",
+        "listingId": "168347256763",
+        "url": "https://ebay.com/itm/168347256763"
+      }
+    }
+  }
+}

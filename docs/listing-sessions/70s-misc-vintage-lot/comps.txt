@@ -1,0 +1,60 @@
+COMP RESEARCH: 70s vintage mixed lot
+============================================================
+
+This is a highly heterogeneous comp pool of 70s vintage baseball card lots, with prices driven almost entirely by two variables: **card count** and **quality/composition** (commons vs. HOF/stars). Total landed prices range from $10.10 (20-card poor-grade lot) to $240.00 (345-card near-set), with a dense cluster of 30-50 card mixed lots falling in the $20–$60 landed range. Several sellers (notably the "1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS" listings) are clearly relisting the same template repeatedly — these collapse to a single data pattern showing $18–$81 depending on the week's auction result. The large outliers ($209.99 for 36 HOF-heavy cards including Aaron/Bench/Seaver/Rose/Mays, $225 for 460-card 60s/70s lot) are legitimate premium comps driven by named key cards, not anomalies to exclude, but they price a different tier. For a standard 30-50 card 1970s Topps lot of mixed grade with stars/HOFers but no marquee keys, a realistic floor is **$25 landed** and a working ceiling is **$65 landed**, with a recommended list price of **$40–$50 landed** depending on specific card quality; lots with documented marquee HOFers (Aaron, Clemente, Rose, Seaver, Bench, Ryan) can push $75–$120+.
+
+------------------------------------------------------------
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+70s vintage baseball card lot,eBay,2026-05-02,1960s-1970's TOPPS MLB BASEBALL Cards - Lot of 34 Mixed Vintage. G to VG/NM.,Pre-Owned,17.00,5.97,22.97,Auction,sold,34 cards; G to VG/NM mixed grade; 60s-70s span
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS BASEBALL MLB Cards - Lot of 20 Mixed Vintage Original POOR.,Pre-Owned,4.75,5.35,10.10,BIN,sold,20 cards; poor grade — floor data
+70s vintage baseball card lot,eBay,2026-05-02,Vintage Baseball Card Lot (27) 1970s 1980s Stars HOF Mixed Topps,Pre-Owned,35.00,6.07,41.07,BIN,sold,27 cards; stars/HOF; spans into 80s
+70s vintage baseball card lot,eBay,2026-05-02,1970s Topps Baseball Card Lot (20) Stars HOF Vintage Mixed Teams,Pre-Owned,25.00,6.07,31.07,BIN,sold,20 cards; stars/HOF curated lot
+70s vintage baseball card lot,eBay,2026-05-02,Vintage 1970's Baseball Cards Lot Of 80 Mixed Conditions,Pre-Owned,20.00,8.00,28.00,BIN,sold,80 cards; mixed conditions
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,64.00,4.95,68.95,Auction,sold,40 cards with stars; relisted template — strong auction result
+70s vintage baseball card lot,eBay,2026-05-02,1970s Vintage Baseball Card Lot ~50 Cards | Mixed Teams | Topps | Raw Commons,Pre-Owned,20.00,6.24,26.24,BIN,sold,~50 cards; commons focus
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,76.00,4.95,80.95,Auction,sold,40 cards with stars; relisted template — high auction result
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,21.83,4.95,26.78,Auction,sold,40 cards with stars; relisted template — low auction result
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,22.56,4.95,27.51,Auction,sold,40 cards with stars; relisted template — low auction result
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,56.00,4.95,60.95,Auction,sold,40 cards with stars; relisted template — mid-high result
+70s vintage baseball card lot,eBay,2026-05-02,1970's MLB BASEBALL CARD Mixed LOT OF 120 Vintage - LOW TO POOR GRADE with Stars,Pre-Owned,56.00,5.95,61.95,Auction,sold,120 cards; low-to-poor grade; stars noted
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,21.50,4.95,26.45,Auction,sold,40 cards with stars; relisted template
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,13.50,4.95,18.45,Auction,sold,40 cards with stars; relisted template — weak auction result; treat as floor
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,41.56,4.95,46.51,Auction,sold,40 cards with stars; relisted template
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,26.00,4.95,30.95,Auction,sold,40 cards with stars; relisted template
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,20.50,4.95,25.45,Auction,sold,40 cards with stars; relisted template
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,53.00,4.95,57.95,Auction,sold,40 cards with stars; relisted template
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,33.00,4.95,37.95,Auction,sold,40 cards with stars; relisted template
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original with STARS,Pre-Owned,33.00,4.95,37.95,Auction,sold,40 cards with stars; relisted template — duplicate same day
+70s vintage baseball card lot,eBay,2026-05-02,1970's TOPPS MLB BASEBALL Cards - Lot of 40 Mixed Vintage Original,Pre-Owned,15.51,4.95,20.46,
+
+COMP RESEARCH: rollie fingers dale murphy lot
+============================================================
+
+This is a highly heterogeneous comp pool — the query "rollie fingers dale murphy lot" pulled a wide range of vintage baseball card lots with vastly different card counts, eras, grades, and featured players, making direct apples-to-apples comparison impossible. The most relevant comps for a small Fingers/Murphy-focused lot (roughly 6–26 cards) cluster in the $8–$55 total-landed range, with dedicated Fingers lots (6–26 cards) selling $8–$51 and dedicated Murphy lots (3–18 cards) selling $2–$98 depending heavily on whether key rookies are included. Large bulk HOF lots (100–400+ cards) at $62–$418 are structurally different items and should be excluded from any small-lot pricing. A modest combined Fingers/Murphy lot of ~10–20 common vintage cards in typical pre-owned condition should be priced in the $15–$35 range landed; a lot anchored by Murphy's 1978 RC or high-grade Fingers vintage material warrants the $45–$100 range.
+
+------------------------------------------------------------
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+rollie fingers dale murphy lot,eBay,2026-05-02,Rollie Fingers Assorted Vintage Card Lot of (26)A's-PADRES,Brand New,44.99,5.83,50.82,BIN,sold,26-card Fingers-only lot; condition listed as Brand New (likely unused/fresh)
+rollie fingers dale murphy lot,eBay,2026-05-02,Huge (1976-1985) Rollie Fingers Assorted Vintage Card Lot of 36-A's-PADRES,,29.99,6.00,35.99,BIN,sold,36-card Fingers-only lot; condition blank
+rollie fingers dale murphy lot,eBay,2026-05-02,Dale Murphy Lot (12 cards) Vintage Topps Donruss Fleer Atlanta Braves Baseball,Pre-Owned,11.00,0.00,11.00,BIN,sold,12-card Murphy-only lot; free shipping
+rollie fingers dale murphy lot,eBay,2026-05-02,Rollie Fingers 6-Card Vintage Baseball Lot – Padres / A's Hall of Fame,Pre-Owned,7.98,0.00,7.98,BIN,sold,6-card Fingers-only lot; free shipping; floor comp for small lots
+rollie fingers dale murphy lot,eBay,2026-05-02,Dale Murphy Baseball Card Lot | 1977 Rookie + 1980s Braves Vintage Collection,Pre-Owned,89.95,8.13,98.08,BIN,sold,includes Murphy 1977 RC; premium anchored by key rookie — not a common-card comp
+rollie fingers dale murphy lot,eBay,2026-05-02,Vintage Topps Baseball Dale Murphy Card Lot Rookies Early Years Fair Condition,Pre-Owned,18.13,5.48,23.61,BIN,sold,early Murphy cards; fair condition noted; 31-90 day range
+rollie fingers dale murphy lot,eBay,2026-05-02,DALE MURPHY #90-1988 Topps Baseball LOT-10 CARDS-ATLANTA BRAVES-NM+ *VINTAGE*,Pre-Owned,1.00,1.03,2.03,BIN,sold,10 copies of same 1988 Topps card; floor data — bulk duplicate single-card lot
+rollie fingers dale murphy lot,eBay,2026-05-02,MLB vintage autographed cards lot Rollie Fingers (6),,15.00,8.30,23.30,Auction,sold,6 autographed Fingers cards; auto premium applies — different tier from raw cards
+rollie fingers dale murphy lot,eBay,2026-05-02,1981 Topps Card Lot (9) Bench Morgan Fisk Murphy Smith Parker Fingers,Pre-Owned,3.25,1.32,4.57,Auction,sold,9-card lot with both Fingers and Murphy; very small lot; low-end floor data
+rollie fingers dale murphy lot,eBay,2026-05-02,1981 Topps Card Lot (9) Molitor Fingers Sutton Gibson Morgan Murphy Baines Smith,Pre-Owned,3.94,1.32,5.26,Auction,sold,9-card lot with both Fingers and Murphy; very small lot; floor data
+rollie fingers dale murphy lot,eBay,2026-05-02,Lot of 18 Rollie Fingers Vintage Baseball Cards,Pre-Owned,26.00,4.50,30.50,Auction,sold,18-card Fingers-only lot; solid mid-range comp for Fingers lots
+rollie fingers dale murphy lot,eBay,2026-05-02,Vintage 80's Milwaukee Brewers HOF Lot 85 Rollie Fingers 89 Yount and Molitor,Pre-Owned,9.99,5.24,15.23,BIN,sold,small Brewers HOF lot; Fingers as one of several players
+rollie fingers dale murphy lot,eBay,2026-05-02,Lot Of 6 - Vintage 1978 Topps Rookie Catchers Dale Murphy Lance Parrish #708 RC,Pre-Owned,99.99,4.25,104.24,BIN,sold,6 copies of Murphy 1978 RC; RC-anchored premium — outlier for common card comps; exclude from working range
+rollie fingers dale murphy lot,eBay,2026-05-02,Carlton Fisk Dale Murphy Joe Morgan & Ozzie Smith Card Lot – Vintage 1980s,Pre-Owned,12.00,12.00,24.00,BIN,sold,multi-player HOF lot; high shipping cost relative to item price
+rollie fingers dale murphy lot,eBay,2026-05-02,Vintage Baseball Card Lot Carl Yastrzemski Rollie Fingers Don Drysdale,Pre-Owned,14.40,0.00,14.40,BIN,sold,small multi-HOF lot with Fingers; free shipping; 91-180 day range — reference only
+rollie fingers dale murphy lot,eBay,2026-05-02,Vintage PSA Low Grade Baseball HOF Lot - Joe Morgan Rollie Fingers Yastrzemski,Pre-Owned,37.99,6.00,43.99,BIN,sold,PSA-slabbed low-grade HOF lot with Fingers; graded tier — different market from raw
+rollie fingers dale murphy lot,eBay,2026-05-02,1976 Oakland A's Lot (16 cards EX+) Vintage Topps Rollie Fingers Billy Williams,Pre-Owned,12.00,0.00,12.00,BIN,sold,16-card team lot with Fingers; EX+ condition; free shipping
+rollie fingers dale murphy lot,eBay,2026-05-02,(3) - Vintage Dale Murphy Lot - 79 Topps #39 - 80 Topps #274 - 81 Donruss #437,Pre-Owned,3.25,1.50,4.75,Auction,sold,3-card Murphy lot; early career cards; floor comp for tiny lots
+rollie fingers dale murphy lot,eBay,2026-05-02,1971 1977 Topps Dale Murphy Bruck Sutter George Foster Rookie Baseball Lot 3,Pre-Owned,1.37,5.95,7.32,Auction,sold,3-card mixed lot; very low hammer; floor data
+rollie fingers dale murphy lot,eBay,2026-05-02,Nappco Pencil Star Dale Murphy Lot (18) Atlanta Braves Vintage,Brand New,20.00,4.99,24.99,BIN,sold,18 pencil/novelty items — not standard cards; different product type; note as oddball
+rollie fingers dale murphy lot,eBay,2026-05-02
+

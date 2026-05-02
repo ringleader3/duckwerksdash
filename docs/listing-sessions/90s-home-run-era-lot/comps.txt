@@ -1,0 +1,59 @@
+COMP RESEARCH: 90s home run era lot
+============================================================
+
+This is an extremely heterogeneous comp pool — lot sizes range from 2-card lots to sealed vending cases and 3,500+ card mega-lots, making direct comparisons difficult. Stripping out true outliers (the $554.88 sealed vending case, the $270.72 auto/relic lot, the $110.47 PSA-graded lot, and the $103.99 17-Bonds-rookie-card auction), the working range for a typical 5–50 card junk wax star lot runs roughly $10–$67 total landed, with a median around $20–$27. For a well-curated 10–20 card star lot (Bonds, McGwire, Canseco, Bo Jackson, Griffey, Ripken rookies/key cards in solid condition), a recommended list price is **$25–$35**; floor on a basic small lot is **$10–$15**. Larger lots (100+ cards, graded inclusions, or all-rookie RC focus) can push $55–$120 depending on depth and condition.
+
+------------------------------------------------------------
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+90s home run era lot,eBay,2026-05-02,Lot Of 48 Barry Bonds Bo Jackson Mark Mcgwire Sammy Sosa Baseball Cards 1990-4+,Pre-Owned,20.00,0.00,20.00,BIN,sold,48-card lot; junk wax era stars
+90s home run era lot,eBay,2026-05-02,Lot of Baseball Cards (60 cards) Bo Jackson Griffey Bonds Canseco Nolan Ryan,Pre-Owned,33.00,6.24,39.24,BIN,sold,60-card mixed star lot
+90s home run era lot,eBay,2026-05-02,1980s Lot of 6 Superstars/Rookie Cards McGwire/Griffey/Canseco/Bo Jackson/Pucket,Pre-Owned,21.99,5.58,27.57,BIN,sold,6-card RC/star lot
+90s home run era lot,eBay,2026-05-02,1980s 1990s MLB Star Card Lot Bo Jackson Nolan Ryan Bonds Clemens Mattingly,Pre-Owned,0.99,5.15,6.14,Auction,sold,low auction end; weekday/low engagement; floor data only
+90s home run era lot,eBay,2026-05-02,1987 Donruss 3 Card Lot - Bo Jackson Barry Bonds And Mark McGwire Rookies NrMt,Brand New,12.00,1.32,13.32,BIN,sold,3-card RC lot; NrMt condition
+90s home run era lot,eBay,2026-05-02,1980s ROOKIE LOT (9)! BO JACKSON CANSECO MCGWIRE! TOPPS FLEER DONRUSS!,Pre-Owned,23.50,5.95,29.45,Auction,sold,9-card RC lot; multiple sets
+90s home run era lot,eBay,2026-05-02,Donruss Barry Bonds Rickey Henderson Dave Justice Bo Jackson MLB Card Lot 4 1990,Pre-Owned,0.25,0.74,0.99,Auction,sold,4-card lot; distressed/floor data only — auction likely ended with no real demand
+90s home run era lot,eBay,2026-05-02,1980s ROOKIE LOT (9)! BO JACKSON BONDS CANSECO MCGWIRE! TOPPS FLEER DONRUSS!,Pre-Owned,32.00,5.95,37.95,Auction,sold,9-card RC lot; likely same seller as similar listing — possible relisted variant
+90s home run era lot,eBay,2026-05-02,Topps Fleer Donruss Barry Bonds Jose Canseco Bo Jackson 13 card rookie lot,Pre-Owned,39.99,5.97,45.96,Auction,sold,13-card RC lot; strong result
+90s home run era lot,eBay,2026-05-02,1987 Topps PSA8 Lot Bo Jackson Mark Mcgwire Jose Canseco Barry Bonds Be A Kid,Pre-Owned,74.99,7.29,82.28,BIN,sold,PSA 8 graded lot — outlier; graded tier commands premium; exclude from raw lot working range
+90s home run era lot,eBay,2026-05-02,Lot Of 5 1990's Bo Jackson Super Bo Borders Baseball Cards,Brand New,3.49,1.89,5.38,BIN,sold,5-card Bo Jackson promo/oddball lot; niche product
+90s home run era lot,eBay,2026-05-02,Baseball Card Lot 12 Bo Jackson McGwire Will Clark 1990 Grand Slammers Inserts,Brand New,9.96,0.00,9.96,BIN,sold,12-card insert lot; insert-specific niche
+90s home run era lot,eBay,2026-05-02,3 Card Lot 1990 Bowman Barry Bonds #181 Bo Jackson #378 Nolan Ryan #486 NM,Pre-Owned,5.60,0.00,5.60,BIN,sold,3-card lot; NM condition
+90s home run era lot,eBay,2026-05-02,Vintage 1980's Rookie Card Lot Sandberg Gwynn Bonds Bo Jackson,Pre-Owned,30.00,9.45,39.45,BIN,sold,4-card HOF RC lot; strong names
+90s home run era lot,eBay,2026-05-02,Lot of 1986 Topps Traded Baseball Cards Bonds Jackson and Canseco RC's!,Pre-Owned,25.00,1.75,26.75,BIN,sold,3 key 1986T Traded RCs; focused RC lot
+90s home run era lot,eBay,2026-05-02,150 CARD LOT GRIFFEY BONDS BARRY SANDERS BO JACKSON STARS 90s MLB NFL,Pre-Owned,120.00,0.00,120.00,BIN,sold,150-card mega lot; mixed MLB/NFL stars; large lot outlier — exclude from small lot working range
+90s home run era lot,eBay,2026-05-02,(4) 1986 Topps Traded Rookie Card Bo Jackson Barry Bonds Jose Canseco Will Clark,Pre-Owned,39.99,0.00,39.99,BIN,sold,4-card 1986T Traded RC lot; key RCs; strong result per card
+90s home run era lot,eBay,2026-05-02,1987 Topps Lot 760 Cards Out Of 792! Barry Bonds Bo Jackson M McGwire w/binder,Pre-Owned,12.99,15.65,28.64,BIN,sold,near-complete 1987 Topps set (760/792); incomplete set with binder
+90s home run era lot,eBay,2026-05-02,1980s Lot of 9 Superstars/Rookie Cards McGwire/Griffey/Canseco/Bo Jackson/Pucket,Pre-Owned,50.00,5.25,55.25,Auction,sold,9-card RC/star lot; strong result; likely same seller as 6-card lot above — different card count
+90s home run era lot,eBay,2026-05-02,Bo Jackson Rookie & Oddball Lot ~ 1987 Topps #170 ~ 1990's Promo Cards,Pre-Owned,7.99,1.35,9.34,BIN,sold,Bo Jackson focused lot; rookie + oddball promo
+90s home run era lot,eBay,2026-05-02,1
+
+COMP RESEARCH: home run era bulk
+============================================================
+
+This is a highly heterogeneous comp pool — lot sizes range from 4 cards to 10,000+ cards, with player-specific lots (Griffey, Bonds, Ryan), generic bulk, and insert-focused lots all mixed together. Landed prices span $6.96 to $162.94, making a single working range nearly meaningless without normalization. The most useful cluster for generic 80s/90s bulk lots (100–500 cards, mixed stars/commons) lands between $15–$55 landed, with a practical midpoint around $25–$35. High-end outliers like the 270-card Griffey collection ($162.94), the 60-card Griffey insert/SN lot ($159.69), and the 650-card HOF all-star lot ($144.99) reflect curated player collections, not bulk, and should be treated as separate tier. For undifferentiated bulk (500–2,500 cards, junk wax era commons + some stars), the floor is roughly $13–$22 landed and the ceiling for well-described HOF-heavy lots is $50–$75. Recommend listing a generic 80s/90s bulk lot of ~400–500 cards with named stars at $20–$25 item price with free or low shipping (targeting $28–$35 landed); curated insert or player-specific lots can push $40–$75 depending on player and card quality.
+
+------------------------------------------------------------
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+home run era bulk,eBay,2026-05-02,Barry Bonds 90's Inserts12-Card Lot HOME RUN KINGS +more NR-MT Pirates Giants,Pre-Owned,15.00,4.75,19.75,BIN,sold,12-card player-specific insert lot; Bonds focus
+home run era bulk,eBay,2026-05-02,90s Baseball 50 Card Insert Lot. 👀👀👀👀,Brand New,9.99,5.89,15.88,Auction,sold,50-card insert lot; condition listed as Brand New likely mislabeled
+home run era bulk,eBay,2026-05-02,400 Baseball Card Lot 90s Upper Deck SP Collector's Choice & More 1991-1998,Pre-Owned,13.95,8.00,21.95,Auction,sold,400-card generic 90s lot; Upper Deck focus
+home run era bulk,eBay,2026-05-02,80's-90's MLB Baseball Card Lot 10LBS/2000+ Cards HOF/Commons/Semi-Stars NICE,Pre-Owned,32.95,0.00,32.95,BIN,sold,2000+ card heavy lot sold by weight; free shipping; large bulk tier
+home run era bulk,eBay,2026-05-02,Ken Griffey Jr 10 Card Lot 🔥 90s Base And Inserts HOF Mariners NM-MT,Pre-Owned,20.00,5.62,25.62,BIN,sold,10-card Griffey player lot; insert-focused; separate tier
+home run era bulk,eBay,2026-05-02,80s 90s Baseball Card Lot 700+ Stars Rookies Commons Oddballs Junk wax Era,,4.94,7.90,12.84,BIN,sold,700+ cards at very low item price; likely floor pricing; condition blank; relisted (duplicate title appears twice — collapsed to one entry; see Apr 8 sale below)
+home run era bulk,eBay,2026-05-02,400+ pc 90s Vintage Baseball Card Lot 1994 Fleer & Fleer Ultra MLB,Pre-Owned,13.50,8.00,21.50,Auction,sold,400+ card lot; Fleer/Ultra focus; single-brand bulk
+home run era bulk,eBay,2026-05-02,(185) Baseball Card Lot HOF and Stars Griffey Bonds Ryan ++ Mostly 1980s 90s,Pre-Owned,22.50,9.58,32.08,BIN,sold,185-card HOF/stars curated lot; named players add value
+home run era bulk,eBay,2026-05-02,80s 90s Baseball Card Lot 700+ Stars Rookies Commons Oddballs Junk wax Era,,15.87,7.90,23.77,BIN,sold,same title/seller as Feb 14 listing — relisted; Apr 8 higher sale noted separately; collapsed duplicate flagged above
+home run era bulk,eBay,2026-05-02,Baseball Cards 80s 90s And 2000s HOF Lot Rookies!! Nice.,,45.00,8.99,53.99,BIN,sold,unspecified card count; HOF/rookies framing; condition blank; Feb comp (31-90 day tier)
+home run era bulk,eBay,2026-05-02,Ken Griffey Jr. HUGE COLLECTION 270 CARD LOT 90s Base Inserts More,Pre-Owned,149.95,12.99,162.94,BIN,sold,270-card deep Griffey player collection; outlier — curated player lot not generic bulk
+home run era bulk,eBay,2026-05-02,Barry Bonds 70 card baseball lot 1987 - 90's EXMT Pirates Topps Donruss Leaf UD,Pre-Owned,5.24,6.25,11.49,Auction,sold,70-card Bonds lot; auction floor; low engagement possible
+home run era bulk,eBay,2026-05-02,231 90s Baseball Card Lot Steroid Era Bonds A-Rod Clemens etc Gold Medal Inserts,Pre-Owned,8.00,8.50,16.50,BIN,sold,231-card lot with inserts; steroid era named players; Feb comp (31-90 day tier)
+home run era bulk,eBay,2026-05-02,Chipper Jones MLB Baseball Card LOT of 82 Cards w/ Rookies & 90s Inserts Braves,Pre-Owned,24.99,0.00,24.99,BIN,sold,82-card Chipper player lot; free shipping; player-specific tier
+home run era bulk,eBay,2026-05-02,90's Baseball HUGE (600) Insert & Parallel Card Lot Topps UD Bonds Henderson ++,Brand New,112.19,0.00,112.19,Auction,sold,600-card insert/parallel-only lot; premium tier; condition listed Brand New likely mislabeled
+home run era bulk,eBay,2026-05-02,Baseball Card Lot- Late 80s/90s- 90 Cards,Pre-Owned,12.50,0.00,12.50,BIN,sold,90-card generic lot; free shipping; Feb comp (31-90 day tier)
+home run era bulk,eBay,2026-05-02,MLB Card Lot - 62 Cards Top Loaded - Chipper/Thome Rookie - 90s Star HOF Vintage,Pre-Owned,0.99,5.97,6.96,Auction,sold,62-card lot with named rookies; $0.99 auction start — floor data; low engagement
+home run era bulk,eBay,2026-05-02,Big Lot Of Early 90's Baseball Cards,Brand New,75.00,5.62,80.62,BIN,sold,unspecified card count; condition Brand New likely mislabeled; Feb comp (31-90 day tier)
+home run era bulk,eBay,2026-05-02,Seattle Mariners Baseball Card Lot 40+ VTG 80s 90s Henderson Griffey Jr Johnson,Pre-Owned,15.00,0.00,15.00,BIN,sold,40+ card team/player lot; Mariners focus; free shipping
+home run era bulk,eBay,2026-05-02,Mickey Mantle Home Run History 18 Card Lot 2006 2007 Topps MH
+

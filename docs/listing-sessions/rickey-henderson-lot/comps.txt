@@ -1,0 +1,64 @@
+COMP RESEARCH: rickey henderson 1981 fleer
+============================================================
+
+The vast majority of these 60 results are multi-card lots, making it difficult to isolate single-card comps for the 1981 Fleer Rickey Henderson (#351 or #574). The few true single-card sales that do appear — #351 and #574 individually — cluster tightly between $2.54 and $4.49 total landed, with the sole graded exception (PSA 9 #351) selling at $33.99 landed. For raw, ungraded single copies in Pre-Owned/NM condition, the working range is approximately $3–$5 total landed. The PSA 9 comp at ~$34 landed is a legitimate outlier representing a certified grade tier and should be treated separately. List a raw single copy at $4–$5 total landed; floor is around $3. For the PSA 9, $30–$35 landed is supported by the one available comp.
+
+------------------------------------------------------------
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer - Rickey Henderson #351,Pre-Owned,2.54,0,2.54,BIN,sold,Single card #351; floor end of range
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer - Rickey Henderson #351,Pre-Owned,2.95,0.87,3.82,BIN,sold,Single card #351
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer #351 Rickey Henderson,Pre-Owned,1.99,1,2.99,BIN,sold,Single card #351
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer #351 Rickey Henderson A's NEAR MINT *e5,Pre-Owned,2,1.75,3.75,BIN,sold,Single card #351
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer Rickey Henderson #574 Athletics,Pre-Owned,3.25,4.99,8.24,Auction,sold,Single card #574; shipping inflated — item price floor signal
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer - Rickey Henderson #574,Pre-Owned,1.99,0.74,2.73,BIN,sold,Single card #574
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer - Rickey Henderson #574 ~ NM ~,Pre-Owned,1.99,1,2.99,BIN,sold,Single card #574
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer #574 Rickey Henderson,Pre-Owned,2.69,0,2.69,BIN,sold,Single card #574
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 FLEER #574 RICKEY HENDERSON NM,Pre-Owned,1.99,1.25,3.24,BIN,sold,Single card #574
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer - Rickey Henderson #574,Pre-Owned,2.99,1.36,4.35,BIN,sold,Single card #574
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer #574 Rickey Henderson Athletics,Pre-Owned,2.99,1.5,4.49,BIN,sold,Single card #574
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer Rickey Henderson #351 Athletics PSA 9,New (Other),29,4.99,33.99,Auction,sold,Graded PSA 9 — separate tier from raw singles
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer #351 Rickey Henderson (1981 Topps Fleer Donruss) Lot Of 7 Cards,Pre-Owned,10.5,5.58,16.08,Auction,sold,Lot of 7 mixed 1981 cards (Topps/Fleer/Donruss); not a single-card comp
+rickey henderson 1981 fleer,eBay,2026-05-02,Rickey Henderson 24 Card Lot 1981 Fleer Card #574,Brand New,48,7,55,BIN,sold,Lot of 24 copies #574; ~$2.29/card
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 Fleer - Rickey Henderson #351 Lot Of 24!,Brand New,46,7,53,BIN,sold,Lot of 24 copies #351; ~$2.21/card
+rickey henderson 1981 fleer,eBay,2026-05-02,Rickey Henderson Card Lot 1981 Fleer Card 5 #351 9 #574 14 cards,,,29.95,8.3,38.25,BIN,sold,14-card lot mixed #351 and #574; ~$2.73/card
+rickey henderson 1981 fleer,eBay,2026-05-02,1981 FLEER RICKEY HENDERSON #351 * A'S * HOF * 3 CARD LOT * FROM VENDING,Brand New,5.99,1.25,7.24,BIN,sold,3-card lot #351 from vending; ~$2.41/card
+rickey henderson 1981 fleer,eBay,2026-05-02,Lot (8) 1981 Fleer Baseball Ricky Henderson Cards A's HOF,Brand New,19.99,4,23.99,BIN,sold,8-card lot; ~$3.00/card
+rickey henderson 1981 fleer,eBay,2026-05-02,Lot (8) 1981 Fleer Baseball Ricky Henderson Oakland Athletics HOF NM,Pre-Owned,20,1.32,21.32,BIN,sold,8-card lot; ~$2.67/card
+rickey henderson 1981 fleer,eBay,2026-05-02,Lot (8) 1981 Fleer Baseball Ricky Henderson Oakland Athletics HOF NM,Pre-Owned,19,5.72,24.72,BIN,sold,8-card lot; same seller as above — possible relisted; ~$3.09/card
+rickey henderson 1981 fleer,eBay,2026-05-02,Ricky Henderson 1981 Fleer 13 card lot EX or better,,,0.99,7.99,8.98,Auction,sold,13-card lot; auction floor — distressed/low-engagement sale; ~$0.69/card
+rickey henderson 1981 fleer,eBay,2026-05-02,RICKEY HENDERSON Fleer 1981 Lot Of 3 #354 Most Stealsx2 & #574 HOF Stolen B King,Pre-Owned,10,1.32,11.32,BIN,sold,3-card lot mixed Fleer cards including #574
+rickey henderson 1981 fleer,eBay,2026-05-02,1981-82 Fleer Oakland A's Rickey Henderson 10 card lot -ex-nm cond.,Pre-Owned,19.99,6.99,26.98,BIN,sold,10-card lot 1981-82 Fleer; stale (Feb 2026)
+rickey henderson 1981 fleer,eBay
+
+COMP RESEARCH: rickey henderson card lot
+============================================================
+
+The Rickey Henderson card lot market on eBay is extremely fragmented — lot sizes range from 2 cards to 390 cards, and several results are not Henderson-specific lots at all (Yankees team lots, APBA game sets, generic MLB lots, multi-sport "HUGE" lots). After filtering out the irrelevant results, Henderson-specific lots show a wide but interpretable range: small lots (2–6 cards) clear for $2–$10 landed, mid-size lots (10–20 cards) run $6–$21 landed, and larger lots (50–60+ cards) land between $10–$26. The two notable high-end outliers are a 16-card lot including a 1980 Rookie Card ($105.89 landed) and a 21-card 1981 Topps set-break lot featuring Nolan Ryan and Henderson ($108.13 landed) — both justified by vintage key card content. A 390-card vintage lot at $84.69 landed and a 9-card insert/serialized lot at $38.00 landed represent the next tier. For a typical Henderson-specific mid-size lot (10–20 base/common cards, no RC), a realistic list price is **$10–$15 landed**; for a larger 50–100 card base lot, **$15–$25 landed**; for lots anchored by a 1980 or 1981 Topps RC, price into the **$50–$110 range** depending on condition and card count.
+
+------------------------------------------------------------
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson 6 Card Lot,Pre-Owned,7.99,0.00,7.99,BIN,sold,
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson 6 Card Lot,Pre-Owned,3.50,0.00,3.50,BIN,sold,second listing same title same day — possible relisted; lower price variant
+rickey henderson card lot,eBay,2026-05-02,1981 Rickey Henderson (1981 Topps Fleer Donruss) Lot Of 7 Cards,Pre-Owned,10.50,5.48,15.98,Auction,sold,vintage early issues; 1981 year cards
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson 3 Card Lot Oakland Athletics,Brand New,4.99,5.28,10.27,Auction,sold,condition listed Brand New — likely unopened/sealed
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson (10) Card Lot HOF NM/M (No Duplicates),Pre-Owned,6.49,0.00,6.49,BIN,sold,
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson 14 Card Lot All Different No Duplicates,Pre-Owned,5.29,0.00,5.29,BIN,sold,
+rickey henderson card lot,eBay,2026-05-02,Lot of (390) Vintage Ricky Henderson Baseball Cards HOF,Pre-Owned,75.00,9.69,84.69,BIN,sold,large vintage lot 390 cards; note misspelled "Ricky" in title
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson Oakland A's Lot of 50 MLB Baseball Cards Collection,Pre-Owned,25.59,0.00,25.59,BIN,sold,50-card lot; per-card rate ~$0.51
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson 5 Baseball Card Lot HOF A's BLUE JAYS METS YANKEES (LOT 74),Pre-Owned,1.99,2.00,3.99,BIN,sold,
+rickey henderson card lot,eBay,2026-05-02,(16) Rickey Henderson Lot w/ 1980 Rookie Card,Pre-Owned,100.00,5.89,105.89,BIN,sold,includes 1980 Topps RC — outlier high end justified by key card
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson 1985 Topps Super #14 Lot (10 Oversized Cards) - Oakland A's,Pre-Owned,9.99,6.50,16.49,Auction,sold,oversized Topps Super cards — specialty format
+rickey henderson card lot,eBay,2026-05-02,1982 Donruss Rickey Henderson Oakland Athletics Baseball Card Lot - 2 Cards #113,Pre-Owned,0.99,2.49,3.48,Auction,sold,only 2 cards; low lot size — floor data
+rickey henderson card lot,eBay,2026-05-02,SET BREAK 1981 Topps Baseball 21 Card Lot Tim Raines Nolan Ryan Rickey Henderson,Pre-Owned,100.00,8.13,108.13,BIN,sold,set break with Nolan Ryan and Henderson — not Henderson-only lot; high price driven by Ryan and vintage 1981 Topps
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson 4 card lot w/2021 Panini Prizm Red Velocity Oakland Athletics,Pre-Owned,0.50,3.00,3.50,Auction,sold,only 4 cards; low auction engagement — floor data
+rickey henderson card lot,eBay,2026-05-02,⚾️HOF Rickey Henderson 11-CARD LOT (1991-2019),Pre-Owned,6.99,1.99,8.98,BIN,sold,
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson Lot 8 Baseball Cards 1989 Upper Deck New York Yankees Set NM,Pre-Owned,6.83,0.00,6.83,BIN,sold,Yankees-era 1989 UD set
+rickey henderson card lot,eBay,2026-05-02,7 CARD 1981 FLEER # 351 & 574 RICKEY HENDERSON LOT ! OAKLAND A'S !,Pre-Owned,5.00,4.50,9.50,Auction,sold,multiple copies of same 1981 Fleer cards — duplicates lot
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson Lot 12 Baseball Cards 1984 Topps Nestle Oakland Athletics Set,Pre-Owned,9.09,0.00,9.09,BIN,sold,1984 Topps Nestle set — specialty subset
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson 4- Card Topps Fleer Lot Oakland A's HOF,,3.25,1.00,4.25,BIN,sold,condition not listed
+rickey henderson card lot,eBay,2026-05-02,Lot Of (56) Rickey Henderson Cards Athletics - Upper Deck Donruss Topps Leaf,Pre-Owned,9.99,5.99,15.98,BIN,sold,56-card lot; per-card rate ~$0.29
+rickey henderson card lot,eBay,2026-05-02,Rickey Henderson 2 Card Lot 1982 Record Breaker / 1983 Highlight - As Shown !!,Pre-Owned,0.32,2.50,2.82,Auction,sold,only 2 cards; floor data
+rickey henderson card lot,eBay,2026-05-02,⚾ Rickey Henderson Card Lot – 60 Cards (1982–1995) Rares Inserts HOF,Pre-Owned,4.99,8.06,13.05,Auction,sold,60-
+

@@ -1,0 +1,85 @@
+{
+  "item_name": "Rickey Henderson Lot",
+  "slug": "rickey-henderson-lot",
+  "created": "2026-05-01",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "description": "3 cards: 1981 Fleer and two 1991 Topps. Small lot targeting active Rickey Henderson collectors.",
+        "category": "Trading Cards",
+        "quantity": 3,
+        "lot_id": 14,
+        "lot_name": "baseball",
+        "known_price": null
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "ebay_category": "Trading Cards > Baseball Cards",
+        "ebay_category_id": "213",
+        "condition": "USED_VERY_GOOD",
+        "condition_label": "Very Good",
+        "shipping": "PWE or bubble mailer",
+        "notes": "1981 Fleer is the anchor \u2014 semi-rookie, raw ~7 grade. The 1991 Topps are filler but round out the lot.",
+        "lot_id": 14,
+        "lot_name": "baseball"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "terms": [
+          "rickey henderson 1981 fleer raw lot",
+          "rickey henderson card lot"
+        ]
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "comps.txt"
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "floor": 8,
+        "midpoint": 12,
+        "ceiling": 16,
+        "price": 12,
+        "min_offer": 9,
+        "confidence": "moderate",
+        "notes": "1981 Fleer anchors at ~$4-5 raw; raw ~7 condition justifies modest premium. 1991 Topps add minimal value."
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "Rickey Henderson 3-Card Lot 1981 Fleer 1991 Topps Raw HOF Oakland A's",
+        "description": "Small Rickey Henderson lot anchored by his 1981 Fleer card \u2014 not the rookie but the next best thing for Rickey collectors. The card presents nicely, raw grade in the 7 range. Rounded out with two 1991 Topps for the completists.\n\nCards | 3 total\nYears | 1981, 1991\nBrands | Fleer (x1), Topps (x2)\nCondition | 1981 Fleer raw ~7; 1991 Topps Very Good\nPlayer | Rickey Henderson, Oakland A's / New York Yankees\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.\n\nSold As Is.",
+        "condition_field": "3 cards total. 1981 Fleer Rickey Henderson \u2014 raw, presents at approximately a 7 grade, solid corners, good centering. Two 1991 Topps Rickey Henderson in Very Good condition. No creases or major flaws noted."
+      }
+    },
+    "metadata": {
+      "done": true,
+      "data": {
+        "sku": "DW-rickey-henderson-lot",
+        "ebay_category_id": "261329",
+        "category": "Trading Cards > Baseball Card Lots",
+        "ebayConditionId": "USED_EXCELLENT",
+        "lot_id": 14,
+        "lot_name": "baseball"
+      }
+    },
+    "listing": {
+      "done": true,
+      "data": {
+        "file": "listing.md",
+        "listingId": "168347256895",
+        "url": "https://ebay.com/itm/168347256895"
+      }
+    }
+  }
+}

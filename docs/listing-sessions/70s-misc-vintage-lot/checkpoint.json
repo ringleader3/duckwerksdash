@@ -1,0 +1,85 @@
+{
+  "item_name": "70s Misc Vintage Lot",
+  "slug": "70s-misc-vintage-lot",
+  "created": "2026-05-01",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "description": "~12 cards, various players. Includes Rollie Fingers OPC, Dale Murphy, and assorted oddballs. Beat up but vintage 1970s.",
+        "category": "Trading Cards",
+        "quantity": 12,
+        "lot_id": 14,
+        "lot_name": "baseball",
+        "known_price": null
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "ebay_category": "Trading Cards > Baseball Cards",
+        "ebay_category_id": "213",
+        "condition": "USED_ACCEPTABLE",
+        "condition_label": "Acceptable",
+        "shipping": "Bubble mailer, First Class",
+        "notes": "OPC variants have Canadian collector market. Rollie Fingers HOF adds appeal. Lean into the age, not the grade.",
+        "lot_id": 14,
+        "lot_name": "baseball"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "terms": [
+          "1970s baseball card lot vintage mixed",
+          "rollie fingers dale murphy vintage lot"
+        ]
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "comps.txt"
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "floor": 15,
+        "midpoint": 20,
+        "ceiling": 35,
+        "price": 20,
+        "min_offer": 15,
+        "confidence": "moderate",
+        "notes": "Beat-up condition pulls this well below the $40-50 range for nicer 30-50 card lots. 12 cards, Acceptable grade, OPC Fingers is the anchor."
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "1970s Vintage Baseball Card Lot 12 Cards Rollie Fingers OPC Dale Murphy Oddballs",
+        "description": "A dozen cards from the 1970s including a Rollie Fingers O-Pee-Chee, a Dale Murphy, and a handful of oddballs from the era. These are not wall-hangers \u2014 they're beat up the way 50-year-old cards get beat up. But they're real vintage, the real thing, and the Fingers OPC alone makes it interesting for Canadian set collectors.\n\nCards | ~12 total\nEra | 1970s\nHighlights | Rollie Fingers O-Pee-Chee, Dale Murphy, assorted oddballs\nCondition | Acceptable \u2014 well-worn, honest vintage condition\nBrands | Topps, O-Pee-Chee, assorted\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.\n\nSold As Is.",
+        "condition_field": "~12 cards, Acceptable condition overall. Well-worn vintage 1970s cards \u2014 expect rounded corners, soft edges, possible creases. Rollie Fingers O-Pee-Chee and Dale Murphy are the highlights. Oddballs included. See photos for the full spread."
+      }
+    },
+    "metadata": {
+      "done": true,
+      "data": {
+        "sku": "DW-70s-misc-vintage-lot",
+        "ebay_category_id": "261329",
+        "category": "Trading Cards > Baseball Card Lots",
+        "ebayConditionId": "USED_EXCELLENT",
+        "lot_id": 14,
+        "lot_name": "baseball"
+      }
+    },
+    "listing": {
+      "done": true,
+      "data": {
+        "file": "listing.md",
+        "listingId": "168347256968",
+        "url": "https://ebay.com/itm/168347256968"
+      }
+    }
+  }
+}

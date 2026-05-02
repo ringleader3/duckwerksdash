@@ -1,0 +1,85 @@
+{
+  "item_name": "Pete Rose Vintage Lot",
+  "slug": "pete-rose-vintage-lot",
+  "created": "2026-05-01",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "description": "6 cards, 1973-1980. Includes 1973 Topps, 1976 Topps (pen mark noted), 1977 Topps, and O-Pee-Chee variants. All in top loaders. Raw mid-grade condition.",
+        "category": "Trading Cards",
+        "quantity": 6,
+        "lot_id": 14,
+        "lot_name": "baseball",
+        "known_price": null
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "ebay_category": "Trading Cards > Baseball Cards",
+        "ebay_category_id": "213",
+        "condition": "USED_GOOD",
+        "condition_label": "Good",
+        "shipping": "Bubble mailer, First Class",
+        "notes": "Pen on 1976 Topps must be called out. OPC variants have distinct collector appeal. All in top loaders is a positive signal.",
+        "lot_id": 14,
+        "lot_name": "baseball"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "terms": [
+          "pete rose lot 1970s topps vintage",
+          "pete rose o-pee-chee opc lot"
+        ]
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "comps.txt"
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "floor": 15,
+        "midpoint": 25,
+        "ceiling": 55,
+        "price": 25,
+        "min_offer": 18,
+        "confidence": "moderate",
+        "notes": "6 cards is smaller than most comps. OPC adds appeal. Pen on '76 pulls it down."
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "Pete Rose 6-Card Vintage Lot 1973-1980 Topps O-Pee-Chee OPC Top Loaders",
+        "description": "Six Pete Rose cards spanning his peak Reds years, 1973 through 1980, including Topps and O-Pee-Chee variants. These came out of a longtime collection and have been stored in top loaders. If you're building a Rose player collection or just want a solid chunk of his vintage run, this is a nice little lot to grab.\n\nCards | 6 total\nYears | 1973, 1976, 1977, plus O-Pee-Chee variants\nBrands | Topps, O-Pee-Chee\nCondition | Raw mid-grade, Good to Very Good range\nNotes | Pen mark on the 1976 Topps \u2014 noted and priced accordingly\nStorage | All in top loaders\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.\n\nSold As Is.",
+        "condition_field": "6-card raw lot, Good to Very Good overall. 1973 Topps, 1976 Topps (pen mark on front), 1977 Topps, plus O-Pee-Chee variants. All stored in top loaders. Pen mark on the 1976 card is noted in the title and photos."
+      }
+    },
+    "metadata": {
+      "done": true,
+      "data": {
+        "sku": "DW-pete-rose-vintage-lot",
+        "ebay_category_id": "261329",
+        "category": "Trading Cards > Baseball Card Lots",
+        "ebayConditionId": "USED_EXCELLENT",
+        "lot_id": 14,
+        "lot_name": "baseball"
+      }
+    },
+    "listing": {
+      "done": true,
+      "data": {
+        "file": "listing.md",
+        "listingId": "168347256666",
+        "url": "https://ebay.com/itm/168347256666"
+      }
+    }
+  }
+}

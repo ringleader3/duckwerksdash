@@ -1,6 +1,20 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-02 — v2.0.13 Six baseball card lots listed
+
+- Created "baseball" lot (id 14) and "Trading Cards" category (id 5697) via SSH to NUC
+- Listed 6 baseball card lots to eBay (category 261329 — Sports Trading Card Lots):
+  - Pete Rose Vintage (6 cards, 1973-80, OPC) — $25 — 168347256666
+  - Pete Rose 80s Bulk (21 cards, 1981-87) — $18 — 168347256763
+  - Rickey Henderson (3 cards, 1981 Fleer) — $12 — 168347256895
+  - 90s Home Run Era (7 cards, McGwire/Bonds/Canseco/Bo) — $20 — 168347256937
+  - 70s Misc Vintage (12 cards, Fingers OPC/Murphy) — $20 — 168347256968
+  - Junk Wax Bulk (250 cards, 1987-91) — $25 — 168347256359
+- Added conditionDescriptors support to list-item endpoint (server/ebay-listings.js)
+- Updated ebay-category-map.json with Trading Cards > Baseball Cards entry (261329)
+- Key lesson: for new eBay categories, ask Geoff to look up the category ID from a live listing URL — don't thrash on API calls
+
 ### 2026-05-01 — v2.0.12 HIKEit XS HXS-722 throttle controller listed
 
 - Listed HIKEit XS HXS-722 pedal/throttle response controller to eBay, lot geoffmedia — $70, SKU DW-hikeit-hxs722-2

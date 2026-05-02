@@ -1,0 +1,85 @@
+{
+  "item_name": "Junk Wax Bulk Lot",
+  "slug": "junk-wax-bulk-lot",
+  "created": "2026-05-01",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "description": "~250 cards, 1987-1991. Topps, Fleer, Donruss. Priced for someone who just wants a stack of cards.",
+        "category": "Trading Cards",
+        "quantity": 250,
+        "lot_id": 14,
+        "lot_name": "baseball",
+        "known_price": null
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "ebay_category": "Trading Cards > Baseball Cards",
+        "ebay_category_id": "213",
+        "condition": "USED_GOOD",
+        "condition_label": "Good",
+        "shipping": "Flat rate box or padded mailer depending on weight",
+        "notes": "250 cards is a meaningful bulk lot. Sell on quantity and era, not individual card value.",
+        "lot_id": 14,
+        "lot_name": "baseball"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "terms": [
+          "junk wax baseball card lot 250 1987 1988 1989 topps fleer donruss",
+          "baseball card bulk lot 1980s 1990s mixed"
+        ]
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "comps.txt"
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "floor": 18,
+        "midpoint": 25,
+        "ceiling": 35,
+        "price": 25,
+        "min_offer": 18,
+        "confidence": "good",
+        "notes": "450-card binder sold $26, 750-card lot $43, 2500-card lots $40-50. $25 for 250 cards is fair and competitive."
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "250 Baseball Card Bulk Lot 1987-1991 Topps Fleer Donruss Junk Wax Era Mixed",
+        "description": "Two hundred and fifty baseball cards from the junk wax era \u2014 1987 through 1991, Topps, Fleer, and Donruss mixed throughout. Great for filling out sets, handing to a kid just getting into collecting, or sorting through for players you collect. No cherry picking here, just a solid stack of cards from the peak overproduction years.\n\nCards | ~250 total\nYears | 1987-1991\nBrands | Topps, Fleer, Donruss\nCondition | Good overall\nNotes | Mixed players and teams, unsorted\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.\n\nSold As Is.",
+        "condition_field": "~250 cards, Good condition overall. Mix of Topps, Fleer, and Donruss from 1987-1991. Unsorted, mixed players and teams. Typical junk wax era handling \u2014 no major damage noted across the lot."
+      }
+    },
+    "metadata": {
+      "done": true,
+      "data": {
+        "sku": "DW-junk-wax-bulk-lot",
+        "ebay_category_id": "261329",
+        "category": "Trading Cards > Baseball Card Lots",
+        "ebayConditionId": "USED_EXCELLENT",
+        "lot_id": 14,
+        "lot_name": "baseball"
+      }
+    },
+    "listing": {
+      "done": true,
+      "data": {
+        "file": "listing.md",
+        "listingId": "168347256359",
+        "url": "https://ebay.com/itm/168347256359"
+      }
+    }
+  }
+}

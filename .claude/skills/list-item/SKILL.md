@@ -140,7 +140,7 @@ Produce the full eBay listing metadata block.
 - Read the map file
 - Match the category label from intake (e.g. `"Comics > Comic Books"`) to get `ebay_category_id`
 - Match the condition string (e.g. `"Very Good"`) to get the numeric condition ID from that category's `conditions` map
-- If the category label isn't in the map, tell the user and ask them to add it (provide the format). Do not proceed without valid IDs.
+- If the category label isn't in the map, **ask Geoff to look up the correct eBay category ID** by finding any live listing in that category on eBay and reading the category ID from the URL (e.g. `ebay.com/b/Sports-Trading-Card-Lots/261329/...`). Do NOT attempt to discover category IDs via API calls — that path is unreliable and wastes context. Once Geoff provides the ID, add it to the map and proceed.
 
 **Save to checkpoint `metadata.data`:**
 - `category` — human-readable label (e.g. `"Comics > Comic Books"`)

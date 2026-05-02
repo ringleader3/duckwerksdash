@@ -1,0 +1,57 @@
+COMP RESEARCH: junk wax bulk 250
+============================================================
+
+The search results for "junk wax bulk 250" returned extremely noisy data — very few listings actually match the target item (a ~250-card bulk junk wax lot). The results are dominated by small pack lots (5-16 packs), individual player card lots (5-9 cards), single-player RC lots, empty wrappers, and multi-box lots well above 250 cards. The most directly usable comps for a ~250-card bulk loose card lot are: the 3000+ card bulk lots at ~$35 landed (normalize down), the 450-card binder at $26 landed, the 750+ card lot at $43 landed, and the 100-card sealed pack lot at $25 landed — suggesting a loose 250-card bulk lot in the $20–$35 range is realistic. Listings with $0 sold price are almost certainly "you pick" style listings and should be excluded entirely. Recommended list price: **$25**, floor: **$18**, ceiling: **$35** for a standard mixed 250-card junk wax bulk lot with no premium player emphasis.
+
+------------------------------------------------------------
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+junk wax bulk 250,eBay,2026-05-02,#3 1987-1996 Baseball Junk Wax Bulk Lot 3000+ Cards RC Stars HOF Topps Fleer UD,Pre-Owned,19.99,15.09,35.08,Auction,sold,3000+ card lot — normalize to per-250 ~$3; useful as floor signal only; not a direct comp
+junk wax bulk 250,eBay,2026-05-02,#2 1987-1996 Baseball Junk Wax Bulk Lot 3000+ Cards RC Stars HOF Topps Fleer UD,Pre-Owned,19.99,15.09,35.08,Auction,sold,3000+ card lot — same seller relisted series; collapse with #3 and #4; relisted
+junk wax bulk 250,eBay,2026-05-02,#4 1987-1996 Baseball Junk Wax Bulk Lot 3000+ Cards RC Stars HOF Topps Fleer UD,Pre-Owned,19.99,15.09,35.08,Auction,sold,3000+ card lot — same seller relisted series; collapse with #2 and #3; relisted
+junk wax bulk 250,eBay,2026-05-02,Vintage Baseball Card Binder ~450 Cards 1987–1989 Topps Donruss Bulk Lot Auction,Pre-Owned,9.99,16.02,26.01,Auction,sold,450-card lot in binder; closest bulk card comp to 250-card target; modest premium for binder
+junk wax bulk 250,eBay,2026-05-02,Topps & Donruss Baseball Cards. 750+ Card Lot. 1987 1988 1989 1990 1991. koz-16.,Pre-Owned,43.00,0.00,43.00,BIN,sold,750+ card lot; normalize to ~250 cards implies ~$14 floor; larger lot commands efficiency premium
+junk wax bulk 250,eBay,2026-05-02,100 TOPPS FLEER DONRUSS BOWMAN BASEBALL CARD LOT 1986 to 1989 ~SEALED WAX PACKS,,24.99,0.00,24.99,BIN,sold,100-card sealed pack lot; smaller than target but useful floor signal; sealed packs command premium over loose cards
+junk wax bulk 250,eBay,2026-05-02,1988 1989 1990 1991 TOPPS FLEER DONRUSS BASEBALL WAX + RACK PACK LOT 30,Brand New,49.99,9.99,59.98,BIN,sold,30-pack lot (sealed); not a loose card lot; sealed pack premium makes this a ceiling signal only
+junk wax bulk 250,eBay,2026-05-02,1988 1989 1990 1991 1994 TOPPS FLEER DONRUSS BASEBALL WAX + RACK PACK LOT 50,Brand New,74.99,12.50,87.49,BIN,sold,50-pack lot (sealed); sealed pack premium; not a direct comp for loose card bulk lot; ceiling signal only
+junk wax bulk 250,eBay,2026-05-02,1987 1988 1989 1991 DONRUSS SCORE FLEER TOPPS BASEBALL WAX BOX 153 Packs!,Brand New,69.99,17.65,87.64,BIN,sold,153-pack lot (sealed boxes); large sealed lot; not a direct comp; ceiling signal only
+junk wax bulk 250,eBay,2026-05-02,1987 DONRUSS 1988 1989 1990 1991 TOPPS BASEBALL 36 PACK WAX BOX LOT OF 5 BOXES,Brand New,225.00,18.81,243.81,BIN,sold,5 full wax boxes (~180 packs); large sealed box lot; not a direct comp; ceiling signal only
+junk wax bulk 250,eBay,2026-05-02,Lot of 5! 1988 DONRUSS/1987 TOPPS BASEBALL CARD WAXBOXES Total of 170+ Packs,Brand New,119.99,22.55,142.54,BIN,sold,5 wax boxes 170+ packs sealed; not a direct comp; ceiling signal only
+junk wax bulk 250,eBay,2026-05-02,Topps Donruss Fleer Rack Packs 1987 1988 1989 1990 1991 Lot (79) Total Sealed,Brand New,105.00,23.20,128.20,BIN,sold,79 sealed rack packs; large sealed lot; not a direct comp; ceiling signal only
+junk wax bulk 250,eBay,2026-05-02,Lot of 10 MLB Baseball Packs - 1987 / 1988 / 1989 Topps Fleer Donruss Wax Packs,Brand New,35.00,0.00,35.00,BIN,sold,10-pack lot sealed; too small and sealed to directly comp; reference only
+junk wax bulk 250,eBay,2026-05-02,Lot of 10 MLB Baseball Packs - 1987 / 1988 / 1989 Topps Fleer Donruss Wax Packs,Brand New,17.50,8.99,26.49,Auction,sold,same title as above BIN comp; likely relisted or separate auction; relisted
+junk wax bulk 250,eBay,2026-05-02,37 Unopened Wax Cello Pack lot 1986 1987 1988 1989 1990 Donruss Topps Post Fleer,Brand New,25.00,6.50,31.50,BIN,sold,37-pack sealed cello lot; sealed pack premium over loose cards; reference only
+junk wax bulk 250,eBay,2026-05-02,1987- 1989 Fleer Topps Score Donruss Baseball Empty Box Bottom Cards Panel LOT!,Pre-Owned,100.00,10.99,110.99,BIN,sold,empty box bottoms/panels — not cards; exclude from comp range; not a relevant comp
+junk wax bulk 250,eBay,2026-05-02,Unopened Baseball Card Packs Donruss Topps Score MLB VTG- You Pick + Bonus HOF,Brand New,0.00,4.99,4.99,BIN,sold,"You Pick" style listing — $0 item price is not a real transaction; exclude
+junk wax bulk 250,eBay,2026-
+
+COMP RESEARCH: baseball bulk lot mixed
+============================================================
+
+This is a highly heterogeneous comp pool — lot sizes range from 86 cards to 150,000 cards, spanning different eras, conditions, and curation levels, making direct comparison difficult. The bulk of the standard "junk wax era" lots (1,500–5,000 cards, 1980s–1990s, mixed commons) land in the $25–$75 total landed range, with a median around $45–$55. Curated HOF/rookie-focused lots (e.g., 375 stars at $62, 120 rookies at $114.50, 569 HOFers at $521.95) are structural outliers driven by content quality rather than volume and should not anchor a generic bulk lot price. Two high-end outliers — the $292.74 "RC SP Stars HOF Parallels" lot and the $521.95 HOF/Rookies lot — are clearly cherry-picked, curated content and excluded from the working range; the $260 "1980 Baseball" lot and $159.98 "RC SP Stars" lot are similarly premium-curated. For a standard mixed bulk lot of ~2,000–3,000 junk wax era cards, the realistic working range is **$28–$68 total landed**, with a recommended list price of **$40–$50 free shipping** for a ~2,500-card lot in average Pre-Owned condition.
+
+------------------------------------------------------------
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+baseball bulk lot mixed,eBay,2026-05-02,"1,625 Fleer Baseball Cards Bulk Lot 1980s–1990s Mixed Stars & Commons Estate Fi",Pre-Owned,3.26,7.77,11.03,Auction,sold,Small lot ~1625 cards; very low auction result; likely floor data
+baseball bulk lot mixed,eBay,2026-05-02,2500 BASEBALL AND MIXED CARD LOT ASSORTED SPORT 1980'S - PRESENT,Pre-Owned,39.99,0.00,39.99,BIN,sold,2500 cards mixed sports not pure baseball
+baseball bulk lot mixed,eBay,2026-05-02,Bulk Baseball Card Lot 2500 Cards 1980s to 2026,Pre-Owned,44.99,0.00,44.99,BIN,sold,2500 cards; clean free-ship comp
+baseball bulk lot mixed,eBay,2026-05-02,Bulk Lot Baseball Cards Approximately 2500 Cards - late 1980s to now,Pre-Owned,50.00,0.00,50.00,BIN,sold,2500 cards; free shipping
+baseball bulk lot mixed,eBay,2026-05-02,🔥FREE SHIPPING - CLEARANCE 650+ Vintage Sports Card Lot 1980s 1990s Mixed Topps,Pre-Owned,29.99,0.00,29.99,BIN,sold,Smaller lot ~650 cards; multi-sport; clearance pricing
+baseball bulk lot mixed,eBay,2026-05-02,500 CARD UNSEARCHED MIXED SPORTS LOT 1980s–1990s BASEBALL FOOTBALL BASKETBALL+,Pre-Owned,23.99,7.22,31.21,BIN,sold,500 cards multi-sport mix; not baseball-only
+baseball bulk lot mixed,eBay,2026-05-02,Massive Bulk MLB Baseball Card Lot 1980's to Now roughly 9 to 10 lbs SEE DESC,Pre-Owned,59.99,0.00,59.99,BIN,sold,Large lot by weight ~9-10 lbs; no card count given
+baseball bulk lot mixed,eBay,2026-05-02,Bulk Baseball Card Lot 4500 Cards 1980s to 2026,Pre-Owned,74.99,0.00,74.99,BIN,sold,4500 cards; larger volume pushing toward ceiling
+baseball bulk lot mixed,eBay,2026-05-02,Huge Baseball Cards Lot 1980s–1990s Approx 3000 Set Filler & Building *Read,Pre-Owned,15.00,9.79,24.79,BIN,sold,3000 cards but set-filler/commons only; lower value content
+baseball bulk lot mixed,eBay,2026-05-02,Huge Random Baseball 150000 Bulk Card Lot EX-NM 1980s-Now Rookie HOF Free Ship,Pre-Owned,0.00,0.00,0.00,BIN,sold,150000 cards; $0 sold price — data error or ended unsold; excluded from range
+baseball bulk lot mixed,eBay,2026-05-02,1980's & 90's Baseball 2500+ Card Lot Medium Flat Rate Box w/at least 150 HOF NM,,28.99,0.00,28.99,BIN,sold,2500+ cards; 150 HOF noted; condition blank in listing
+baseball bulk lot mixed,eBay,2026-05-02,Massive 3000 Count Mixed Baseball Card Lot- (1980s-2012)- Base And Commons,Pre-Owned,21.50,13.26,34.76,Auction,sold,3000 cards but base/commons only; auction result
+baseball bulk lot mixed,eBay,2026-05-02,9 lb Bulk Sports Baseball Card Lot Collection Stars Rookies 1980-90's read desc,Pre-Owned,19.95,7.77,27.72,BIN,sold,By weight ~9 lbs; multi-sport mix
+baseball bulk lot mixed,eBay,2026-05-02,Late 80s 90s Baseball Card Binder Bulk Lot Mixed Brands No Cherry Picking,Pre-Owned,59.99,7.77,67.76,BIN,sold,Binder format; no cherry picking noted; possibly curated presentation
+baseball bulk lot mixed,eBay,2026-05-02,2500 BASEBALL AND MIXED CARD LOT ASSORTED SPORT 1980'S - PRESENT,Pre-Owned,42.99,0.00,42.99,BIN,sold,Likely same seller as Apr 29 listing — relisted; note relisted
+baseball bulk lot mixed,eBay,2026-05-02,F51. Bulk Lot Baseball Cards 1980's Around 3000 Cards,Pre-Owned,22.00,24.80,46.80,BIN,sold,High shipping cost inflating total; ~3000 cards
+baseball bulk lot mixed,eBay,2026-05-02,Sports Card Lot Late 1980s-Early 1990s Baseball 5 Lbs Topps Fleer See Photos,Pre-Owned,8.99,15.11,24.10,BIN,sold,5 lbs by weight; low price likely reflects commons-heavy content
+baseball bulk lot mixed,eBay,2026-05-02,Huge Vintage Donruss Baseball Card Lot 1980s 1990s + 26 Sealed Packs,Brand New,29.99,0.00,29.99,BIN,sold,Includes 26 sealed packs; Brand New condition flag unusual for bulk lot
+baseball bulk lot mixed,eBay,2026-05-02,Baseball Card Lot Large Bulk 1980s-90s Topps Fleer Upper Deck See Photos,Pre-Owned,34.99,12.99,47.98,Auction,sold,Unspecified count; auction result
+baseball bulk lot mixed,eBay,2026-05-02,Vintage MLB Baseball Card Lot – 1980s Bulk – mainly Donruss Fleer FREE SHIP,Pre-Owned,60.00,0.00,60.00,BIN,sold,Unspecified count; Donruss/Fleer focused; free ship
+baseball bulk lot mixed,eBay,2026-05-02,Bulk Lot 5lb Multi-Sport Trading Cards Mostly Baseball 1980's-2000's Random,Pre-Owned,26.99,10.00
+
