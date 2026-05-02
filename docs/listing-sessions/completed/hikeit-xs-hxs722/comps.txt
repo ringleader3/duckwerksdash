@@ -1,0 +1,41 @@
+COMP RESEARCH: HIKEit XS pedal controller
+============================================================
+
+Zero usable direct comps. Search pulled sim racing wheels, clothing, and unrelated pedal hardware. One weak match: "HIKE IT-XS Premium Vehicle Specific Pedal Controller with 9 Driving Modes" sold for $100 + $9.14 shipping = $109.14 landed, Pre-Owned, BIN. Single data point, confidence low.
+
+────────────────────────────────────────────────────────────
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+HIKEit XS pedal controller,eBay,2026-05-01,HIKE IT-XS Premium Vehicle Specific Pedal Controller with 9 Driving Modes,Pre-Owned,100.00,9.14,109.14,BIN,sold,Only matching listing; single comp — thin market; confidence low
+
+
+COMP RESEARCH: HXS-722 throttle controller
+============================================================
+
+Zero usable direct comps. Part number search pulled Razor scooter kits, marine throttle controls, flight sim throttles, model train controllers, and generic 9-drive units. No HXS-722 results found anywhere in the set. One generic "Throttle Response Controller 9 Drive Universal" sold for $39.99 + $4.99 = $44.98 landed (generic no-name, not comparable). Shiftpower used units sold $130-$135 landed as reference.
+
+────────────────────────────────────────────────────────────
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+HXS-722 throttle controller,eBay,2026-05-01,Shiftpower USA SP04 Throttle Response Controller,Pre-Owned,144.99,0.00,144.99,BIN,sold,REFERENCE ONLY — Shiftpower brand used unit; not HXS-722
+HXS-722 throttle controller,eBay,2026-05-01,Shiftpower-USA Throttle Response Controller TOYOTA/LEXUS,Pre-Owned,130.00,5.00,135.00,BIN,sold,REFERENCE ONLY — Shiftpower brand used unit; not HXS-722
+HXS-722 throttle controller,eBay,2026-05-01,Throttle Response Controller 9 Drive Universal Electronic Throttle Controller,New (Other),39.99,4.99,44.98,BIN,sold,REFERENCE ONLY — generic no-name unit; floor ceiling signal only
+
+
+COMP RESEARCH: throttle response controller pedal commander
+============================================================
+
+Pedal Commander is the dominant brand in this category on US eBay. New units sell at a consistent $299.99 + $9.99 = $309.98 landed. Pre-owned units range $130-$210 landed with a clear cluster at $160-$210. One outlier at $59.14 (likely parts/wrong-vehicle). The $439 outlier is a heavy-duty/bundle variant, excluded. Working used range: $130-$210, midpoint ~$175. These are Pedal Commander units (premium brand, Bluetooth app, well-known) — HIKEit XS is a lesser-known AU brand, so use this as a ceiling reference, not a direct comp.
+
+────────────────────────────────────────────────────────────
+
+item,source,date_pulled,title,condition,sold_price,shipping,total_landed,sale_type,listing_status,notes
+Pedal Commander,eBay,2026-05-01,Audi Volkswagen Porsche PEDAL COMMANDER Throttle Response Controller PC09,Pre-Owned,195.00,0.00,195.00,BIN,sold,
+Pedal Commander,eBay,2026-05-01,Pedal Commander PC65 Throttle Response Assist Controller Bluetooth Chevy,Pre-Owned,150.00,11.95,161.95,BIN,sold,
+Pedal Commander,eBay,2026-05-01,Pedal Commander PC65 Throttle Response Controller Cadillac Chevy GMC,Pre-Owned,200.00,9.35,209.35,BIN,sold,
+Pedal Commander,eBay,2026-05-01,PEDAL COMMANDER Throttle Response Controller for Infiniti G37 2007-2015,Pre-Owned,188.00,0.00,188.00,BIN,sold,
+Pedal Commander,eBay,2026-05-01,PEDAL COMMANDER Throttle Response Controller for Lexus GX 470 2003-2009,Pre-Owned,200.00,10.01,210.01,BIN,sold,
+Pedal Commander,eBay,2026-05-01,Pedal Commander PC65 Throttle Response Controller Fits 2015-2020 Tahoe Used,Pre-Owned,139.00,0.00,139.00,BIN,sold,
+Pedal Commander,eBay,2026-05-01,Pedal Commander Throttle Response Assist Controller PC65 Chevrolet Silverado,New (Other),150.00,7.04,157.04,BIN,sold,Open box
+Pedal Commander,eBay,2026-05-01,PEDAL COMMANDER Throttle Response Controller for Dodge Ram 2019+,Brand New,299.99,9.99,309.98,BIN,sold,New retail reference
+Pedal Commander,eBay,2026-05-01,PEDAL COMMANDER Throttle Response Controller for GMC Sierra 2500 PC-65,New (Other),255.00,0.00,255.00,BIN,sold,Open box / new other; above used ceiling

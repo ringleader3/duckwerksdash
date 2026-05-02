@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-01 — v2.0.12 HIKEit XS HXS-722 throttle controller listed
+
+- Listed HIKEit XS HXS-722 pedal/throttle response controller to eBay, lot geoffmedia — $70, SKU DW-hikeit-hxs722-2
+- eBay Motors subcategories (9886 etc) rejected via Inventory API — require fitment table data not passed; workaround is list as Consumer Electronics (258) then manually recategorize in Seller Hub
+- Category map updated with CE 258 entry and note about Motors fitment requirement
+- Session moved to completed/
+
 ### 2026-05-01 — v2.0.11 ElfQuest WaRP Graphics spinoffs listed
 
 - Listed 5 ElfQuest spinoff comic lots to eBay (lot #13): Kahvi, The Rebels, Shards, Two-Spear + Metamorphosis, Wave Dancers

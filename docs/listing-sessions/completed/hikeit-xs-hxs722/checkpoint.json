@@ -1,0 +1,89 @@
+{
+  "item_name": "Hike It XS HXS-722 Pedal Controller",
+  "slug": "hikeit-xs-hxs722",
+  "created": "2026-05-01",
+  "phases": {
+    "intake":       { "done": true, "data": {
+      "item_name": "HIKEit XS HXS-722 Throttle Pedal Controller",
+      "category": "Consumer Electronics / Vehicle Accessories",
+      "condition": "Used, working, good condition",
+      "includes": "All original cables and harnesses",
+      "missing": "Mounting faceplate (broken on removal from car)",
+      "vehicle": "2020 Kia Soul",
+      "compatible_with": "Kia Soul/Sportage/Stinger, Hyundai i30/Kona/Creta, Ford Fiesta/Grand C-Max/Territory",
+      "power": "Wiring harness only, no external power",
+      "price_known": true,
+      "ballpark": "$70"
+    }},
+    "gap_analysis":  { "done": true, "data": {
+      "shipping": "Standard parcel — small/light device",
+      "platform": "eBay US",
+      "comp_pool_expectation": "Very thin — niche aftermarket accessory, mostly AU market",
+      "new_retail": "$200",
+      "boxed_used": "$150",
+      "condition_deductions": "No box, missing faceplate — functional gap for clean install",
+      "power_note": "Wiring harness powered, no wall power or adapters needed",
+      "lot_id": 10,
+      "lot_name": "geoffmedia"
+    }},
+    "comp_terms":   { "done": true, "data": {
+      "primary": "HIKEit XS pedal controller",
+      "secondary": "HXS-722 throttle controller",
+      "tertiary": "throttle response controller pedal commander"
+    }},
+    "comp_data":    { "done": true, "data": {
+      "file": "comps.txt",
+      "direct_comps": 1,
+      "key_comps": [
+        "HIKEit XS Pre-Owned — $109.14 landed (1 direct comp)",
+        "Shiftpower used — $135-$145 landed (reference)",
+        "Pedal Commander used — $130-$210 landed (ceiling reference)"
+      ]
+    }},
+    "pricing":      { "done": true, "data": {
+      "floor": 60,
+      "midpoint": 70,
+      "ceiling": 90,
+      "recommended": 70,
+      "min_offer": 55,
+      "confidence": "low (1 direct comp; thin US market for AU brand)",
+      "rationale": "One direct HIKEit XS comp at $109 landed, presumably complete with box/faceplate. Deduct for missing faceplate and no box. $70 lands at midpoint of realistic range. Pedal Commander used ceiling ($210) confirms category value; HIKEit is lesser-known brand so discount applies."
+    }},
+    "copy":         { "done": true, "data": {
+      "title": "HIKEit XS HXS-722 Throttle Response Controller Kia Hyundai Ford Plug & Play",
+      "description": "The HIKEit XS is a plug-and-play throttle response controller that reduces lag and sharpens acceleration feel on fly-by-wire vehicles. It connects inline with your car's OBD pedal harness — no tools, no cutting wires, no external power needed. Pairs with the free HIKE IT app (iOS and Android) via Bluetooth for full control from your phone.\n\nI used this on a 2020 Kia Soul and it worked great. Removing it broke the small dashboard mounting clip, so that piece is missing. The controller itself, all harnesses, and all cables are present and fully functional. The missing clip doesn't affect operation — it only affects how the unit mounts to the dash.\n\nCompatible Makes | Kia, Hyundai, Ford\nCompatible Models | Kia Soul, Kia Sportage, Kia Stinger, Hyundai i30, Hyundai Kona, Hyundai Creta, Ford Fiesta, Ford Grand C-Max, Ford Territory\nPart Number | HXS-722\n\nNot sure if it fits your car? Visit hikeit.com, add your vehicle to the cart, and the model number will be shown — if it matches HXS-722, this unit is plug-and-play for your car.\nModes | 9 modes, 40 drive settings (app-adjustable)\nFeatures | Auto IQ adaptive learning, anti-theft pedal lock, Bluetooth app control\nCondition | Used, fully functional\nIncludes | Controller unit, all original harnesses and cables\nMissing | Dashboard mounting clip (broken on removal)\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.\n\nSold As Is.",
+      "condition_field": "Used, fully functional. All original harnesses and cables included. Dashboard mounting clip is missing — it broke during removal from a 2020 Kia Soul. Does not affect operation of the controller. No box."
+    }},
+    "metadata":     { "done": true, "data": {
+      "category": "Consumer Electronics",
+      "ebay_category_id": "258",
+      "category_note": "Listed as CE due to eBay Inventory API requiring fitment table for Motors subcategories. Manually recategorized in Seller Hub post-listing.",
+      "condition": "Used",
+      "ebay_condition_id": "USED_GOOD",
+      "price": 70,
+      "min_offer": 55,
+      "format": "Fixed Price",
+      "duration": "GTC",
+      "shipping": "Free — standard parcel",
+      "returns": "No returns",
+      "sku": "DW-hikeit-hxs722-2",
+      "lot_id": 10,
+      "lot_name": "geoffmedia",
+      "item_specifics": {
+        "Brand": "HIKEit",
+        "Part Number": "HXS-722",
+        "Compatible Make": "Kia, Hyundai, Ford",
+        "Compatible Model": "Soul, Sportage, Stinger, i30, Kona, Creta, Fiesta, Grand C-Max, Territory",
+        "Type": "Throttle Response Controller",
+        "Connectivity": "Bluetooth",
+        "Condition": "Used - Good"
+      }
+    }},
+    "listing":      { "done": true, "data": {
+      "file": "listing.md",
+      "listingId": "168347134292",
+      "url": "https://ebay.com/itm/168347134292",
+      "sku": "DW-hikeit-hxs722-2"
+    }}
+  }
+}

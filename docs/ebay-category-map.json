@@ -24,6 +24,18 @@
     }
   },
 
+  "Consumer Electronics": {
+    "ebay_category_id": "258",
+    "_note": "Use for vehicle accessories listed via Inventory API — eBay Motors subcategories (9886 etc) require fitment table data via API and will reject without it. Manually recategorize in Seller Hub after listing if a Motors category is preferred.",
+    "conditions": {
+      "New":            "NEW",
+      "New Other":      "NEW_OTHER",
+      "Used":           "USED_GOOD",
+      "Used Excellent": "USED_EXCELLENT",
+      "For Parts":      "FOR_PARTS_OR_NOT_WORKING"
+    }
+  },
+
   "Disc Golf > Discs": {
     "ebay_category_id": "184356",
     "conditions": {
