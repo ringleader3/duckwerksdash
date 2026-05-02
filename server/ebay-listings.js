@@ -572,7 +572,12 @@ router.post('/list-item', express.json({ limit: '20mb' }), async (req, res) => {
       },
       condition:    item.ebayConditionId,
       ...(item.conditionNotes && { conditionDescription: item.conditionNotes }),
-      ...(item.conditionDescriptors && { conditionDescriptors: item.conditionDescriptors }),
+      ...(item.conditionDescriptors && {
+        conditionDescriptors: item.conditionDescriptors.map(d => ({
+          name:   d.conditionDescriptorId || d.name,
+          values: d.conditionDescriptorValueIds || d.values,
+        })),
+      }),
       availability: { shipToLocationAvailability: { quantity: 1 } },
     };
     const itemRes = await fetch(
