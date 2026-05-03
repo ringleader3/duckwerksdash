@@ -25,9 +25,11 @@ async function pass1() {
     `SELECT l.id, l.platform_listing_id
      FROM listings l
      JOIN sites s ON s.id = l.site_id
+     JOIN items i ON i.id = l.item_id
      WHERE s.name = 'eBay'
        AND l.platform_listing_id IS NOT NULL
-       AND l.sku IS NULL`
+       AND l.sku IS NULL
+       AND i.sku IS NOT NULL`
   ).all();
 
   if (!rows.length) { console.log('Nothing to migrate.'); return; }
