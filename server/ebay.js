@@ -158,6 +158,64 @@ router.get('/listings', async (req, res) => {
   }
 });
 
+// POST /api/ebay/migrate-listing — migrate up to 5 legacy listings to Inventory API model
+router.post('/migrate-listing', async (req, res) => {
+  const { listingIds } = req.body;
+  if (!Array.isArray(listingIds) || listingIds.length === 0)
+    return res.status(400).json({ error: 'listingIds array required' });
+  if (listingIds.length > 5)
+    return res.status(400).json({ error: 'maximum 5 listingIds per request' });
+  try {
+    const token    = await getAccessToken();
+    const response = await fetch(`${EBAY_API}/sell/inventory/v1/bulk_migrate_listing`, {
+      method:  'POST',
+      headers: {
+        'Authorization':           `Bearer ${token}`,
+        'Content-Type':            'application/json',
+        'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US',
+        'Accept-Language':         'en-US',
+      },
+      body: JSON.stringify({ requests: listingIds.map(id => ({ listingId: String(id) })) }),
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      return res.status(response.status).json({ error: 'eBay migrate error', detail: text });
+    }
+    const data    = await response.json();
+    const results = (data.responses || []).map(r => ({
+      listingId: r.listingId,
+      sku:       r.inventoryItems?.[0]?.sku || r.inventoryItemGroupKey || null,
+      offerId:   r.inventoryItems?.[0]?.offerId || null,
+      error:     r.errors?.[0]?.message || null,
+    }));
+    res.json(results);
+  } catch (e) {
+    res.status(502).json({ error: 'migrate-listing failed', detail: e.message });
+  }
+});
+
+// GET /api/ebay/offer?sku={sku} — fetch offer ID for a given inventory SKU
+router.get('/offer', async (req, res) => {
+  const { sku } = req.query;
+  if (!sku) return res.status(400).json({ error: 'sku query param required' });
+  try {
+    const token    = await getAccessToken();
+    const response = await fetch(
+      `${EBAY_API}/sell/inventory/v1/offer?sku=${encodeURIComponent(sku)}&marketplace_id=EBAY_US`,
+      { headers: { 'Authorization': `Bearer ${token}`, 'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US', 'Accept-Language': 'en-US' } }
+    );
+    if (!response.ok) {
+      const text = await response.text();
+      return res.status(response.status).json({ error: 'eBay offer lookup error', detail: text });
+    }
+    const data  = await response.json();
+    const offer = (data.offers || [])[0];
+    res.json({ offerId: offer?.offerId || null });
+  } catch (e) {
+    res.status(502).json({ error: 'offer lookup failed', detail: e.message });
+  }
+});
+
 // POST /api/ebay/traffic — eBay Sell Analytics traffic report, last 30 days
 // Body: { listingIds: string[] } — batched 200 at a time (eBay hard limit)
 // Returns { listings: { [listingId]: { views, impressions, ctr } } }
