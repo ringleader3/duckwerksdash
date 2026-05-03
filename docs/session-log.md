@@ -1,6 +1,18 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-02 — v2.0.16 eBay Inventory API migration (Tasks 1-4 of 7)
+
+- Spec + plan written: `docs/superpowers/specs/2026-05-02-ebay-inventory-api-migration-design.md`
+- Schema: added `sku` and `offer_id` columns to `listings` table (migration runs on startup)
+- Server: `listings.js` POST + PATCH accept `sku` and `offer_id`
+- Server: `POST /api/ebay/migrate-listing` — migrates up to 5 legacy listings to Inventory API model, returns sku + offerId per listing
+- Server: `GET /api/ebay/offer?sku=` — fetches offer ID for a given SKU (for DG disc backfill)
+- Fix: both Inventory API routes require `Accept-Language: en-US` header (eBay rejects Node's default)
+- Fix: migration response maps `inventoryItems[0].sku` and `inventoryItems[0].offerId` (not top-level fields)
+- Remaining: Task 5 (frontend import change), Task 6 (bulk script), Task 7 (production run)
+- Note: listings with no custom label in Seller Hub will fail migration (error 25002) — non-DG manually created listings may need custom labels set first
+
 ### 2026-05-02 — v2.0.16 Multi-unit listings complete (Tasks 10-11)
 
 - Tracking view: multi-unit items expand to per-order rows; single-unit items pass through unchanged; tracking keyed by order-{id} vs item-{id}
