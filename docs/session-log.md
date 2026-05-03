@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-02 — Bask Kaleidoscope 3 towel listed
+
+- Ran comps for Bask disc golf towel (no Bask-specific comps found; generic disc golf towel market $12-20, specialty tier up to $25-30)
+- Priced at $20 with $15 min offer — specialty tier based on commissioned art, dual-material Bask construction, 15x23 size
+- Copy written with credit to Enero (SF Bay Area street artist) and Innova sponsorship
+- Listing posted manually by Geoff to eBay — item 168349612758, quantity 18, $20 OBO
+- All listing-sessions folders moved to completed/
+
 ### 2026-05-02 — v2.0.14 HIKEit listing fixed
 
 - Original HIKEit listing (168347134292) became unbuyable after manual category change to eBay Motors (9886) broke listing state

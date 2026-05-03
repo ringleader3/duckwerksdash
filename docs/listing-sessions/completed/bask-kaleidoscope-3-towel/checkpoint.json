@@ -1,0 +1,62 @@
+{
+  "item_name": "Bask Kaleidoscope 3 2025 Event Disc Golf Towel",
+  "slug": "bask-kaleidoscope-3-towel",
+  "created": "2026-05-02",
+  "phases": {
+    "intake": {
+      "done": true,
+      "data": {
+        "item_name": "Bask Kaleidoscope 3 2025 Event Disc Golf Towel",
+        "category": "Disc Golf",
+        "description": "Brand new unused Bask disc golf towel from 2025 Kaleidoscope 3 event players pack. Full-color sublimated art on both sides — microfiber front with psychedelic telescope illustration (Innova sponsored), waffle weave back with Flip Up Productions logo. Green/purple tie-dye design. 15x23 inches, purple stitched border, grommet-mounted carabiner and loop included.",
+        "quantity": 18,
+        "cost": 10,
+        "event_retail": 25
+      }
+    },
+    "gap_analysis": {
+      "done": true,
+      "data": {
+        "shipping": "First Class / Ground Advantage (lightweight)",
+        "notes": "No lot assignment — manual posting, quantity listing not supported by current endpoint"
+      }
+    },
+    "comp_terms": {
+      "done": true,
+      "data": {
+        "terms": [
+          "Bask disc golf towel",
+          "disc golf towel",
+          "disc golf event towel"
+        ]
+      }
+    },
+    "comp_data": {
+      "done": true,
+      "data": {
+        "file": "docs/listing-sessions/bask-kaleidoscope-3-towel/comps.txt"
+      }
+    },
+    "pricing": {
+      "done": true,
+      "data": {
+        "comp_floor": 12,
+        "comp_midpoint": 15,
+        "comp_ceiling": 25,
+        "price": 20,
+        "min_offer": 15,
+        "confidence": "low — no Bask-specific comps; priced at specialty tier based on dual-material construction and commissioned art"
+      }
+    },
+    "copy": {
+      "done": true,
+      "data": {
+        "title": "Bask Disc Golf Towel Kaleidoscope 3 2025 Event Innova Sponsored 15x23",
+        "description": "This towel is from the 2025 Kaleidoscope disc golf tournament, sponsored by Innova — a custom event we put together with original art commissioned from Enero, a street artist based in the SF Bay Area. Bask dual-material construction — microfiber on one side, waffle weave on the other — with full-color sublimated art on both sides. The front features a detailed psychedelic telescope illustration with butterflies and a tie-dye border in pink, blue, and green. The back is the Flip Up Productions logo on a green tie-dye waffle field with purple stitching throughout. Grommet-mounted carabiner and loop included so it clips straight to your bag.\n\nCondition | Brand new, unused\nSize | 15\" x 23\"\nMaterial | Microfiber one side, waffle weave the other\nLoop | Yes\nCarabiner | Yes, grommet-mounted\nBrand | Bask\nEvent | Kaleidoscope 3 (2025)\nSponsor | Innova Disc Golf\n\nAll my listings ship with free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.\n\nSold As Is.",
+        "condition_field": "Brand new, unused. Full-color sublimated art on both sides. Microfiber front with psychedelic telescope illustration, waffle weave back with Flip Up Productions logo. Purple stitched border, grommet-mounted carabiner included. From the 2025 Kaleidoscope 3 Innova-sponsored disc golf event players pack."
+      }
+    },
+    "metadata": { "done": false, "data": null },
+    "listing": { "done": false, "data": null }
+  }
+}
