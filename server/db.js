@@ -105,6 +105,16 @@ db.exec(`
   );
 `);
 
+// ── Multi-unit listings — quantity columns (migration) ────────────────────────
+['quantity', 'quantity_sold', 'oversold'].forEach(col => {
+  const cols = db.pragma('table_info(items)').map(r => r.name);
+  if (!cols.includes(col)) {
+    const def = col === 'quantity' ? 'INTEGER NOT NULL DEFAULT 1'
+              : 'INTEGER NOT NULL DEFAULT 0';
+    db.prepare(`ALTER TABLE items ADD COLUMN ${col} ${def}`).run();
+  }
+});
+
 // ── Seed reference data (idempotent) ──────────────────────────────────────────
 
 const seedSites = db.prepare(
