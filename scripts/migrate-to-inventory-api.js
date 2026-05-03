@@ -71,10 +71,51 @@ async function pass1() {
   console.log(`Pass 1 complete: ${migrated} migrated, ${errors} errors.`);
 }
 
+async function pass2() {
+  console.log('\n=== Pass 2: backfill offer_id for DG listings already in Inventory API ===');
+  const rows = db.prepare(
+    `SELECT l.id, i.sku
+     FROM listings l
+     JOIN sites s ON s.id = l.site_id
+     JOIN items i ON i.id = l.item_id
+     WHERE s.name = 'eBay'
+       AND l.offer_id IS NULL
+       AND l.status = 'active'
+       AND i.sku IS NOT NULL`
+  ).all();
+
+  if (!rows.length) { console.log('Nothing to backfill.'); return; }
+  console.log(`Found ${rows.length} listing(s) to backfill.`);
+
+  let filled = 0, missing = 0, errors = 0;
+
+  for (const row of rows) {
+    const res = await fetch(`${BASE_URL}/api/ebay/offer?sku=${encodeURIComponent(row.sku)}`);
+    if (!res.ok) {
+      console.error(`  ERROR sku=${row.sku} HTTP ${res.status}`);
+      errors++;
+      continue;
+    }
+    const { offerId } = await res.json();
+    if (!offerId) {
+      console.log(`  MISS  sku=${row.sku} → no offer found`);
+      missing++;
+    } else {
+      console.log(`  ${CONFIRM ? 'WRITE' : 'DRY'} sku=${row.sku} → offer_id=${offerId}`);
+      if (CONFIRM) {
+        db.prepare('UPDATE listings SET offer_id = ? WHERE id = ? AND offer_id IS NULL').run(offerId, row.id);
+      }
+      filled++;
+    }
+  }
+  console.log(`Pass 2 complete: ${filled} filled, ${missing} not found, ${errors} errors.`);
+}
+
 async function main() {
   console.log(`Mode: ${CONFIRM ? 'CONFIRM (writing changes)' : 'DRY RUN (no changes written)'}`);
   console.log(`Server: ${BASE_URL}`);
   await pass1();
+  await pass2();
   console.log('\nDone.');
   db.close();
 }
