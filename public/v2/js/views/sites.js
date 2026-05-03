@@ -243,7 +243,6 @@ document.addEventListener('alpine:init', () => {
               });
               if (migrateRes.ok) {
                 const [result] = await migrateRes.json();
-                if (result?.sku)     listingFields.sku      = result.sku;
                 if (result?.offerId) listingFields.offer_id = result.offerId;
               }
             } catch (e) {
