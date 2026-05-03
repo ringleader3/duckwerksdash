@@ -38,6 +38,7 @@ document.addEventListener('alpine:init', () => {
         category:  r.category?.name || '',
         lot:       r.lot?.name || '',
         cost:      r.cost ?? '',
+        quantity:  r.quantity ?? 1,
         sale:      r.order?.sale_price ?? '',
         listings:  (r.listings || []).map(l => ({
           id:                  l.id,
@@ -70,6 +71,7 @@ document.addEventListener('alpine:init', () => {
       if (f.name)     itemFields.name     = f.name;
       if (f.status)   itemFields.status   = f.status;
       if (f.cost !== '') itemFields.cost = parseFloat(f.cost);
+      if (r.quantity > 1 && f.quantity > 0) itemFields.quantity = parseInt(f.quantity, 10);
 
       // Resolve category_id and lot_id
       if (f.category) {

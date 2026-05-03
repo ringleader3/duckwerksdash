@@ -359,6 +359,10 @@
             <span class="modal-field">Cost Basis</span>
             <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.cost" style="width:120px"></span>
           </div>
+          <div class="modal-row" x-show="record && record.quantity > 1">
+            <span class="modal-field">Quantity Available</span>
+            <span class="modal-val"><input class="modal-input" type="number" step="1" min="1" x-model.number="form.quantity" style="width:80px"></span>
+          </div>
           <div class="modal-row">
             <span class="modal-field">Payout</span>
             <span class="modal-val"><input class="modal-input" type="number" step="0.01" x-model="form.sale" style="width:120px"></span>
