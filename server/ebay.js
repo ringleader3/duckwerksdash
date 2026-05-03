@@ -144,6 +144,7 @@ router.get('/listings', async (req, res) => {
       for (const item of items) {
         // itemId format: "v1|168263363142|0" — extract the numeric legacy ID
         const legacyItemId = item.itemId?.split('|')[1] || '';
+        if (legacyItemId === '168349612758') console.log('[ebay-debug towel]', JSON.stringify(item, null, 2));
         const quantityAvailable = item.estimatedAvailabilities?.[0]?.estimatedAvailableQuantity
           ?? item.quantityAvailable
           ?? 1;
