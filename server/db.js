@@ -115,6 +115,14 @@ db.exec(`
   }
 });
 
+// ── Inventory API migration — sku and offer_id on listings ───────────────────
+['sku', 'offer_id'].forEach(col => {
+  const cols = db.pragma('table_info(listings)').map(r => r.name);
+  if (!cols.includes(col)) {
+    db.prepare(`ALTER TABLE listings ADD COLUMN ${col} TEXT`).run();
+  }
+});
+
 // ── Seed reference data (idempotent) ──────────────────────────────────────────
 
 const seedSites = db.prepare(
