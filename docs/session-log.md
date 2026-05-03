@@ -1,6 +1,16 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-03 — v2.0.17 eBay Inventory API migration complete (Tasks 5-7)
+
+- Task 5: `importAll` in `sites.js` now calls `POST /api/ebay/migrate-listing` before `createListing` for eBay imports, stores `offer_id` on listing
+- Task 6: `scripts/migrate-to-inventory-api.js` — two-pass bulk backfill; pass 1 migrates legacy listings (items with no SKU), pass 2 backfills offer_id for DG discs via `GET /offer`
+- Removed `listings.sku` — redundant with `items.sku`; only `offer_id` needed on listings
+- Fixed `bulk_migrate_listing` route to parse per-item results from non-2xx responses instead of bailing on whole batch
+- Production run: 215 listings written with offer_id; 1 skipped (HIKE IT — eBay Motors category, offer not available via Inventory API)
+- 12 legacy items needed SKUs written to `items.sku` manually (eBay had them from prior migration, we never captured them)
+- HIKE IT (DW-hikeit-hxs722-3) left with NULL offer_id — eBay Motors edge case, same as documented
+
 ### 2026-05-03 — eBay Inventory API migration findings
 
 - Confirmed: `bulk_migrate_listing` requires a custom label (SKU) already set in Seller Hub — Geoff set labels on all non-Inventory-API listings manually
