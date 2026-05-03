@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Migrates existing eBay listings to Inventory API model.
-// Pass 1: active listings where items.sku exists but listings.offer_id is missing → bulk_migrate_listing → write offer_id
-// Pass 2: (reserved for any remaining offer_id gaps after pass 1)
+// Pass 1: active eBay listings with no item SKU (legacy) → bulk_migrate_listing → write offer_id
+// Pass 2: active eBay listings with item SKU (DG discs already in Inventory API) → GET /offer → write offer_id
 // Default: dry run. Pass --confirm to apply changes.
 
 const Database = require('better-sqlite3');
