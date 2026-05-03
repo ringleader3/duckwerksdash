@@ -1,6 +1,16 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-02 — v2.0.15 Multi-unit listings (Tasks 1-9 of 11)
+
+- Schema: added quantity/quantity_sold/oversold columns to items (migration runs on startup — prod DB auto-migrated on deploy)
+- Server: items API exposes and accepts quantity; orders POST decrements quantity_sold for multi-unit items, caps at quantity, sets oversold flag
+- Browse API sync: captures quantityAvailable from eBay, passes through to item creation on import
+- Frontend: quantity badge (X/Y) replaces status pill for multi-unit items in INV view; click routes to new multi-unit modal
+- Multi-unit modal: lot-style layout with stat cards, progress bar, per-order sales table
+- Item modal: editable quantity field visible on multi-unit items
+- Remaining: Task 10 (tracking view per-order rows) + Task 11 (delete/reimport towel validation) — continue next session
+
 ### 2026-05-02 — Bask Kaleidoscope 3 towel listed
 
 - Ran comps for Bask disc golf towel (no Bask-specific comps found; generic disc golf towel market $12-20, specialty tier up to $25-30)
