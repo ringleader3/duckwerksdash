@@ -1,0 +1,88 @@
+  <div x-show="$store.dw.activeModal === 'multi-unit'" x-data="multiUnitModal" class="modal-overlay" x-cloak>
+    <div class="modal-box modal-box-wide" x-show="item" @keydown.escape.window="$store.dw.activeModal === 'multi-unit' && $store.dw.closeModal()">
+
+      <div class="modal-header">
+        <div class="modal-title" x-text="item ? item.name : ''"></div>
+        <button class="modal-close" @click="$store.dw.closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Oversold warning -->
+        <div x-show="item && item.oversold" style="background:var(--red);color:#fff;padding:8px 12px;border-radius:4px;font-size:12px;margin-bottom:16px">
+          Warning: more units were sold than inventory tracked. Review orders manually.
+        </div>
+
+        <!-- Stat cards -->
+        <div class="stat-grid stat-grid-compact" style="margin-bottom:16px">
+          <div class="stat-card" :class="totalCost() > 0 ? 'red' : ''">
+            <div class="stat-card-label">TOTAL COST</div>
+            <div class="stat-card-value" x-text="totalCost() > 0 ? $store.dw.fmt0(totalCost()) : '—'"></div>
+            <div class="stat-card-sub" x-text="item ? item.quantity + ' units @ ' + $store.dw.fmt0(item.cost) : ''"></div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-card-label">RECOVERED</div>
+            <div class="stat-card-value" x-text="$store.dw.fmt0(recovered())"></div>
+            <div class="stat-card-sub">gross sold revenue</div>
+          </div>
+          <div class="stat-card" :class="realizedProfit() >= 0 ? 'green' : 'red'">
+            <div class="stat-card-label">REALIZED PROFIT</div>
+            <div class="stat-card-value" x-text="(realizedProfit() >= 0 ? '+' : '') + $store.dw.fmt0(realizedProfit())"></div>
+            <div class="stat-card-sub">sold after fees</div>
+          </div>
+          <div class="stat-card" :class="forecastedProfit() >= 0 ? 'green' : 'red'">
+            <div class="stat-card-label">FORECASTED PROFIT</div>
+            <div class="stat-card-value" x-text="(forecastedProfit() >= 0 ? '+' : '') + $store.dw.fmt0(forecastedProfit())"></div>
+            <div class="stat-card-sub" x-text="remaining() + ' units remaining'"></div>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div style="margin-bottom:16px">
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-bottom:6px">
+            <span>UNITS SOLD</span>
+            <span :class="progressClass()" x-text="progressPct() + '%'"></span>
+          </div>
+          <div class="progress-bar" style="height:10px">
+            <div class="progress-fill" :class="progressClass()" :style="'width:' + progressPct() + '%'"></div>
+          </div>
+          <div style="font-size:11px; color:var(--muted); margin-top:4px">
+            <span x-text="item ? item.quantity_sold + ' sold · ' + remaining() + ' remaining' : ''"></span>
+          </div>
+        </div>
+
+        <!-- Orders table -->
+        <div class="modal-section-label" style="margin-bottom:8px">Sales</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="text-align:left">Order #</th>
+              <th style="text-align:left">Date</th>
+              <th class="num-col">Sale Price</th>
+              <th>Shipment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="o in orders()" :key="o.id">
+              <tr>
+                <td style="text-align:left; font-size:11px" x-text="o.platform_order_num || '—'"></td>
+                <td style="text-align:left; font-size:11px" x-text="o.date_sold || '—'"></td>
+                <td class="num-col green" x-text="o.sale_price ? $store.dw.fmt0(o.sale_price) : '—'"></td>
+                <td style="text-align:center">
+                  <span class="badge" :class="shipmentBadgeClass(o)" x-text="shipmentStatus(o)"></span>
+                </td>
+              </tr>
+            </template>
+            <tr x-show="orders().length === 0">
+              <td colspan="4" style="color:var(--muted); text-align:center">No sales yet</td>
+            </tr>
+            <tr x-show="remaining() > 0">
+              <td colspan="4" style="color:var(--muted); font-size:11px; text-align:left"
+                x-text="remaining() + ' units remaining · Listed at ' + listPrice()"></td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div><!-- .modal-body -->
+    </div>
+  </div>
