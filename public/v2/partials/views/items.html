@@ -72,7 +72,7 @@
                     <td><span class="badge" :class="$store.dw.siteBadgeClass($store.dw.siteLabel(r))" x-text="$store.dw.siteLabel(r)"></span></td>
                     <td style="position:relative">
                       <template x-if="isMultiUnit(r)">
-                        <span :class="quantityBadgeClass(r)" x-text="quantityBadgeText(r)"></span>
+                        <span :class="quantityBadgeClass(r)" x-text="quantityBadgeText(r)" style="white-space:nowrap"></span>
                       </template>
                       <template x-if="!isMultiUnit(r)">
                         <span>
@@ -182,7 +182,7 @@
                     <td><span class="badge" :class="$store.dw.siteBadgeClass($store.dw.siteLabel(r))" x-text="$store.dw.siteLabel(r)"></span></td>
                     <td style="position:relative">
                       <template x-if="isMultiUnit(r)">
-                        <span :class="quantityBadgeClass(r)" x-text="quantityBadgeText(r)"></span>
+                        <span :class="quantityBadgeClass(r)" x-text="quantityBadgeText(r)" style="white-space:nowrap"></span>
                       </template>
                       <template x-if="!isMultiUnit(r)">
                         <span>
