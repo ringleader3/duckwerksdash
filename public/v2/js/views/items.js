@@ -178,7 +178,28 @@ document.addEventListener('alpine:init', () => {
       return Math.floor((Date.now() - new Date(r.created_at).getTime()) / (1000 * 60 * 60 * 24));
     },
     needsAttention(r) { return r.status === 'Listed' && this.daysListed(r) >= 20; },
-    openItem(r) { Alpine.store('dw').openModal('item', r.id); },
+
+    openItem(r) {
+      const dw = Alpine.store('dw');
+      if (r.quantity > 1) {
+        dw.openModal('multi-unit', r.id);
+      } else {
+        dw.openModal('item', r.id);
+      }
+    },
+
+    isMultiUnit(r) { return r.quantity > 1; },
+
+    quantityBadgeClass(r) {
+      const remaining = r.quantity - r.quantity_sold;
+      if (remaining <= 0) return 'badge badge-sold';
+      if (remaining / r.quantity <= 0.2) return 'badge badge-prepping';
+      return 'badge badge-listed';
+    },
+
+    quantityBadgeText(r) {
+      return `${r.quantity - r.quantity_sold} / ${r.quantity}`;
+    },
 
     exportCsv() {
       const dw    = Alpine.store('dw');

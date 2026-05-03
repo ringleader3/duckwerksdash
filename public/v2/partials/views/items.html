@@ -71,13 +71,20 @@
                     <td><span class="badge" :class="r.category?.badge_class" x-text="r.category?.name"></span></td>
                     <td><span class="badge" :class="$store.dw.siteBadgeClass($store.dw.siteLabel(r))" x-text="$store.dw.siteLabel(r)"></span></td>
                     <td style="position:relative">
-                      <span class="badge" :class="badgeClass(r.status)" x-text="r.status"
-                        @click.stop="toggleStatusMenu(r.id, $event)" style="cursor:pointer" title="Click to change status"></span>
-                      <div x-show="openStatusId === r.id" class="status-dropdown" @click.stop>
-                        <template x-for="s in ['Listed','Sold','Prepping']" :key="s">
-                          <div class="status-option" x-text="s" @click="changeStatus(r, s, $event)"></div>
-                        </template>
-                      </div>
+                      <template x-if="isMultiUnit(r)">
+                        <span :class="quantityBadgeClass(r)" x-text="quantityBadgeText(r)"></span>
+                      </template>
+                      <template x-if="!isMultiUnit(r)">
+                        <span>
+                          <span class="badge" :class="badgeClass(r.status)" x-text="r.status"
+                            @click.stop="toggleStatusMenu(r.id, $event)" style="cursor:pointer" title="Click to change status"></span>
+                          <div x-show="openStatusId === r.id" class="status-dropdown" @click.stop>
+                            <template x-for="s in ['Listed','Sold','Prepping']" :key="s">
+                              <div class="status-option" x-text="s" @click="changeStatus(r, s, $event)"></div>
+                            </template>
+                          </div>
+                        </span>
+                      </template>
                     </td>
                     <td class="num r" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : '—'"></td>
                     <td class="num r est" x-text="eafDisplay(r)"></td>
@@ -169,13 +176,20 @@
                     <td><span class="badge" :class="r.category?.badge_class" x-text="r.category?.name"></span></td>
                     <td><span class="badge" :class="$store.dw.siteBadgeClass($store.dw.siteLabel(r))" x-text="$store.dw.siteLabel(r)"></span></td>
                     <td style="position:relative">
-                      <span class="badge" :class="badgeClass(r.status)" x-text="r.status"
-                        @click.stop="toggleStatusMenu(r.id, $event)" style="cursor:pointer" title="Click to change status"></span>
-                      <div x-show="openStatusId === r.id" class="status-dropdown" @click.stop>
-                        <template x-for="s in ['Listed','Sold','Prepping']" :key="s">
-                          <div class="status-option" x-text="s" @click="changeStatus(r, s, $event)"></div>
-                        </template>
-                      </div>
+                      <template x-if="isMultiUnit(r)">
+                        <span :class="quantityBadgeClass(r)" x-text="quantityBadgeText(r)"></span>
+                      </template>
+                      <template x-if="!isMultiUnit(r)">
+                        <span>
+                          <span class="badge" :class="badgeClass(r.status)" x-text="r.status"
+                            @click.stop="toggleStatusMenu(r.id, $event)" style="cursor:pointer" title="Click to change status"></span>
+                          <div x-show="openStatusId === r.id" class="status-dropdown" @click.stop>
+                            <template x-for="s in ['Listed','Sold','Prepping']" :key="s">
+                              <div class="status-option" x-text="s" @click="changeStatus(r, s, $event)"></div>
+                            </template>
+                          </div>
+                        </span>
+                      </template>
                     </td>
                     <td class="num r" x-text="$store.dw.activeListing(r)?.list_price > 0 ? $store.dw.fmt0($store.dw.activeListing(r).list_price) : '—'"></td>
                     <td class="num r est" x-text="eafDisplay(r)"></td>
