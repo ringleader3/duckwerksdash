@@ -38,6 +38,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     forecastedProfit() {
+      if (!this.item) return 0;
       const dw      = Alpine.store('dw');
       const listP   = dw.activeListing(this.item)?.list_price || 0;
       const estUnit = listP > 0 ? dw.estProfit(this.item) : 0;
@@ -57,6 +58,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     listPrice() {
+      if (!this.item) return '—';
       const dw = Alpine.store('dw');
       const lp = dw.activeListing(this.item)?.list_price;
       return lp ? dw.fmt0(lp) : '—';
