@@ -60,6 +60,16 @@ The order and shipment records are created as normal regardless — each order i
 
 ---
 
+## Setting Quantity — Import vs. Manual
+
+### Listing sync (going forward)
+When the listing sync imports an eBay listing, check for a quantity field on the listing object (`availableQuantity` in the Inventory API, or `quantityAvailable` in the Trading API). If > 1, set `quantity` on the created item automatically.
+
+### Already-imported listings
+For items already in the DB (like the towel), add an editable `Quantity` field to the item edit modal. Geoff sets it manually after the fact. This field is always visible on multi-unit items and hidden (or locked to 1) on single-unit items.
+
+---
+
 ## API Changes
 
 ### `GET /api/items` and `GET /api/items/:id`
