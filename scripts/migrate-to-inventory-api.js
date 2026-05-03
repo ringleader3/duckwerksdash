@@ -22,7 +22,7 @@ function chunk(arr, size) {
 async function pass1() {
   console.log('\n=== Pass 1: backfill offer_id for active eBay listings with item SKU ===');
   const rows = db.prepare(
-    `SELECT l.id, l.platform_listing_id, i.sku
+    `SELECT l.id, l.platform_listing_id
      FROM listings l
      JOIN sites s ON s.id = l.site_id
      JOIN items i ON i.id = l.item_id
@@ -30,7 +30,7 @@ async function pass1() {
        AND l.platform_listing_id IS NOT NULL
        AND l.offer_id IS NULL
        AND l.status = 'active'
-       AND i.sku IS NOT NULL`
+       AND i.sku IS NULL`
   ).all();
 
   if (!rows.length) { console.log('Nothing to migrate.'); return; }
@@ -59,7 +59,7 @@ async function pass1() {
         console.log(`  SKIP  listing ${result.listingId}: ${result.error}`);
         errors++;
       } else {
-        console.log(`  ${CONFIRM ? 'WRITE' : 'DRY'} listing ${result.listingId} (sku=${row.sku}) → offer_id=${result.offerId}`);
+        console.log(`  ${CONFIRM ? 'WRITE' : 'DRY'} listing ${result.listingId} → offer_id=${result.offerId}`);
         if (CONFIRM) {
           db.prepare('UPDATE listings SET offer_id = ? WHERE id = ? AND offer_id IS NULL')
             .run(result.offerId, row.id);
