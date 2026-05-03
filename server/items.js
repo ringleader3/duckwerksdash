@@ -61,6 +61,9 @@ function buildItem(row) {
   return {
     id: row.id, name: row.name, cost: row.cost,
     notes: row.notes, sku: row.sku, status: row.status, created_at: row.created_at,
+    quantity:      row.quantity      ?? 1,
+    quantity_sold: row.quantity_sold ?? 0,
+    oversold:      row.oversold      ?? 0,
     category, lot, listings, order, shipment,
   };
 }
@@ -94,11 +97,12 @@ router.get('/', (req, res) => {
 
 // POST create item
 router.post('/', (req, res) => {
-  const { name, category_id, lot_id, cost, notes } = req.body;
+  const { name, category_id, lot_id, cost, notes, quantity } = req.body;
   if (!name) return res.status(400).json({ error: 'name is required' });
+  const qty = Number.isInteger(quantity) && quantity > 0 ? quantity : 1;
   const result = db.prepare(
-    'INSERT INTO items (name, category_id, lot_id, cost, notes) VALUES (?, ?, ?, ?, ?)'
-  ).run(name, category_id || null, lot_id || null, cost || 0, notes || null);
+    'INSERT INTO items (name, category_id, lot_id, cost, notes, quantity) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(name, category_id || null, lot_id || null, cost || 0, notes || null, qty);
   const row = db.prepare(`
     SELECT i.*, c.name as cat_name, c.color as cat_color, c.badge_class as cat_badge, l.name as lot_name
     FROM items i LEFT JOIN categories c ON c.id = i.category_id LEFT JOIN lots l ON l.id = i.lot_id
@@ -109,7 +113,7 @@ router.post('/', (req, res) => {
 
 // PATCH update item fields
 router.patch('/:id', (req, res) => {
-  const allowed = ['name', 'status', 'category_id', 'lot_id', 'cost', 'notes'];
+  const allowed = ['name', 'status', 'category_id', 'lot_id', 'cost', 'notes', 'quantity'];
   const sets = [], vals = [];
   allowed.forEach(f => {
     if (req.body[f] !== undefined) { sets.push(`${f} = ?`); vals.push(req.body[f]); }
