@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-03 — eBay Inventory API migration findings
+
+- Confirmed: `bulk_migrate_listing` requires a custom label (SKU) already set in Seller Hub — Geoff set labels on all non-Inventory-API listings manually
+- Confirmed: listings created via list-item skill or bulk-list-discs.js are already inventory items — migrate call is a no-op for those, pass 2 (GET /offer) handles them
+- Confirmed: `offerId` returned = listing is an inventory item — that's the definitive test
+- Tested migration against Giants DVD listing (168293691925) on NUC — worked correctly, returned real SKU + offerId
+- Remaining: Task 5 (wire into importAll), Task 6 (bulk script), Task 7 (production run) — start fresh session
+
 ### 2026-05-02 — v2.0.16 eBay Inventory API migration (Tasks 1-4 of 7)
 
 - Spec + plan written: `docs/superpowers/specs/2026-05-02-ebay-inventory-api-migration-design.md`
