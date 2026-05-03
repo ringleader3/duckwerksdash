@@ -1,6 +1,16 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-02 — v2.0.16 Multi-unit listings complete (Tasks 10-11)
+
+- Tracking view: multi-unit items expand to per-order rows; single-unit items pass through unchanged; tracking keyed by order-{id} vs item-{id}
+- Multi-unit modal: fixed partial not loading (assembleHTML regex didn't allow hyphens in partial names)
+- Multi-unit modal: guarded null item in forecastedProfit/listPrice
+- Quantity badge: fixed wrapping with white-space:nowrap
+- Towel item set to quantity=15 manually via sqlite on NUC (eBay Browse API doesn't expose seller quantity in search summaries)
+- eBay debug log removed; dead estimatedAvailabilities fallback removed
+- End-to-end: towel shows "15/15" badge, multi-unit modal opens correctly with stat cards, progress bar, sales table
+
 ### 2026-05-02 — v2.0.15 Multi-unit listings (Tasks 1-9 of 11)
 
 - Schema: added quantity/quantity_sold/oversold columns to items (migration runs on startup — prod DB auto-migrated on deploy)
