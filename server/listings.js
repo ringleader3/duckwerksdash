@@ -5,12 +5,12 @@ const db      = require('./db');
 
 // POST create listing (also sets item.status = 'Listed')
 router.post('/', (req, res) => {
-  const { item_id, site_id, platform_listing_id, list_price, shipping_estimate, url } = req.body;
+  const { item_id, site_id, platform_listing_id, list_price, shipping_estimate, url, sku, offer_id } = req.body;
   if (!item_id || !site_id) return res.status(400).json({ error: 'item_id and site_id are required' });
   const result = db.prepare(`
-    INSERT INTO listings (item_id, site_id, platform_listing_id, list_price, shipping_estimate, url)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(item_id, site_id, platform_listing_id || null, list_price || null, shipping_estimate || null, url || null);
+    INSERT INTO listings (item_id, site_id, platform_listing_id, list_price, shipping_estimate, url, sku, offer_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(item_id, site_id, platform_listing_id || null, list_price || null, shipping_estimate || null, url || null, sku || null, offer_id || null);
   // Set item status to Listed
   db.prepare("UPDATE items SET status = 'Listed' WHERE id = ?").run(item_id);
   res.status(201).json(db.prepare('SELECT * FROM listings WHERE id = ?').get(result.lastInsertRowid));
@@ -18,7 +18,7 @@ router.post('/', (req, res) => {
 
 // PATCH update listing
 router.patch('/:id', (req, res) => {
-  const allowed = ['site_id', 'platform_listing_id', 'list_price', 'shipping_estimate', 'url', 'status', 'ended_at'];
+  const allowed = ['site_id', 'platform_listing_id', 'list_price', 'shipping_estimate', 'url', 'status', 'ended_at', 'sku', 'offer_id'];
   const sets = [], vals = [];
   allowed.forEach(f => {
     if (req.body[f] !== undefined) { sets.push(`${f} = ?`); vals.push(req.body[f]); }
