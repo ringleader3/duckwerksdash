@@ -19,7 +19,7 @@ const noCache = { setHeaders: (res) => res.set('Cache-Control', 'no-store') };
 const fs             = require('fs');
 const PARTIALS_DIR   = path.join(__dirname, 'public/v2/partials');
 const SHELL_PATH     = path.join(__dirname, 'public/v2/index.html');
-const PARTIAL_RE     = /[ \t]*<!-- partial: ([\w/]+) -->/g;
+const PARTIAL_RE     = /[ \t]*<!-- partial: ([\w\-/]+) -->/g;
 
 function assembleHTML() {
   let shell = fs.readFileSync(SHELL_PATH, 'utf8');
