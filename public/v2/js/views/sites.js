@@ -235,6 +235,20 @@ document.addEventListener('alpine:init', () => {
           };
           if (listing.platform === 'eBay') {
             listingFields.url = `https://www.ebay.com/itm/${listing.listingIdKey}`;
+            try {
+              const migrateRes = await fetch('/api/ebay/migrate-listing', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ listingIds: [listing.listingIdKey] }),
+              });
+              if (migrateRes.ok) {
+                const [result] = await migrateRes.json();
+                if (result?.sku)     listingFields.sku      = result.sku;
+                if (result?.offerId) listingFields.offer_id = result.offerId;
+              }
+            } catch (e) {
+              console.warn('migrate-listing failed for', listing.listingIdKey, e.message);
+            }
           } else {
             listingFields.url               = listing.raw._links?.web?.href || '';
             listingFields.shipping_estimate = parseFloat(listing.raw.shipping?.local?.amount) || null;
