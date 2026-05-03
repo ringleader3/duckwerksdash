@@ -116,31 +116,36 @@
                 </tr>
               </thead>
               <tbody>
-                <template x-for="r in rows" :key="r.id">
-                  <tr @click="openItem(r)" style="cursor:pointer">
-                    <td class="date" x-text="r.order?.date_sold ? new Date(r.order.date_sold + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'"></td>
-                    <td class="nm" x-text="r.name"></td>
-                    <td><span class="badge" :class="r.category?.badge_class" x-text="r.category?.name"></span></td>
-                    <td><span class="badge" :class="$store.dw.siteBadgeClass($store.dw.siteLabel(r))" x-text="$store.dw.siteLabel(r)"></span></td>
-                    <td class="num r pos" x-text="r.order?.sale_price ? $store.dw.fmt0(r.order.sale_price) : '—'"></td>
-                    <td class="num r" :class="(r.order?.profit || 0) >= 0 ? 'pos' : 'neg'"
+                <template x-for="row in soldRows" :key="row._trackingKey">
+                  <tr @click="openItem(row._item)" style="cursor:pointer">
+                    <td class="date" x-text="row._order?.date_sold ? new Date(row._order.date_sold + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'"></td>
+                    <td class="nm">
+                      <span x-text="row._item.name"></span>
+                      <template x-if="row._isMultiUnit && row._order">
+                        <span style="color:var(--ink-4);font-size:10px;margin-left:4px" x-text="'#' + (row._order.platform_order_num || row._order.id)"></span>
+                      </template>
+                    </td>
+                    <td><span class="badge" :class="row._item.category?.badge_class" x-text="row._item.category?.name"></span></td>
+                    <td><span class="badge" :class="$store.dw.siteBadgeClass($store.dw.siteLabel(row._item))" x-text="$store.dw.siteLabel(row._item)"></span></td>
+                    <td class="num r pos" x-text="row._order?.sale_price ? $store.dw.fmt0(row._order.sale_price) : '—'"></td>
+                    <td class="num r" :class="(row._order?.profit || 0) >= 0 ? 'pos' : 'neg'"
                       style="font-weight:600"
-                      x-text="r.order?.profit != null ? ((r.order.profit >= 0 ? '+' : '') + $store.dw.fmt0(r.order.profit)) : '—'"></td>
-                    <td class="num r" x-text="r.shipment?.shipping_cost != null ? $store.dw.fmt0(r.shipment.shipping_cost) : '—'"></td>
+                      x-text="row._order?.profit != null ? ((row._order.profit >= 0 ? '+' : '') + $store.dw.fmt0(row._order.profit)) : '—'"></td>
+                    <td class="num r" x-text="row._order?.shipment?.shipping_cost != null ? $store.dw.fmt0(row._order.shipment.shipping_cost) : '—'"></td>
                     <td>
-                      <span x-show="r.shipment?.tracking_id && trackingData[r.id]"
-                        :class="'badge ' + trackStatusBadge(trackingData[r.id]?.status)"
-                        x-text="trackStatusLabel(trackingData[r.id]?.status)"></span>
-                      <span x-show="r.shipment?.tracking_id && !trackingData[r.id] && !trackingLoading"
+                      <span x-show="row._order?.shipment?.tracking_id && trackingData[row._trackingKey]"
+                        :class="'badge ' + trackStatusBadge(trackingData[row._trackingKey]?.status)"
+                        x-text="trackStatusLabel(trackingData[row._trackingKey]?.status)"></span>
+                      <span x-show="row._order?.shipment?.tracking_id && !trackingData[row._trackingKey] && !trackingLoading"
                         style="color:var(--ink-4);font-size:11px">—</span>
-                      <span x-show="!r.shipment?.tracking_id"
+                      <span x-show="!row._order?.shipment?.tracking_id"
                         style="color:var(--ink-4);font-size:11px">—</span>
                     </td>
                   </tr>
                 </template>
               </tbody>
             </table>
-            <div x-show="rows.length === 0" style="padding:40px;text-align:center;color:var(--ink-4);font:500 13px/1 var(--mono)">No items match your filters</div>
+            <div x-show="soldRows.length === 0" style="padding:40px;text-align:center;color:var(--ink-4);font:500 13px/1 var(--mono)">No items match your filters</div>
           </div>
         </template>
 
@@ -199,8 +204,8 @@
                       x-text="r.order?.date_sold ? new Date(r.order.date_sold + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'"></td>
                     <td x-show="statusFilter === 'All'">
                       <span x-show="r.shipment?.tracking_id">
-                        <span x-show="trackingData[r.id]" :class="'badge ' + trackStatusBadge(trackingData[r.id]?.status)" x-text="trackStatusLabel(trackingData[r.id]?.status)"></span>
-                        <span x-show="!trackingData[r.id] && !trackingLoading" style="color:var(--ink-4);font-size:11px">—</span>
+                        <span x-show="trackingData['item-' + r.id]" :class="'badge ' + trackStatusBadge(trackingData['item-' + r.id]?.status)" x-text="trackStatusLabel(trackingData['item-' + r.id]?.status)"></span>
+                        <span x-show="!trackingData['item-' + r.id] && !trackingLoading" style="color:var(--ink-4);font-size:11px">—</span>
                       </span>
                       <span x-show="!r.shipment?.tracking_id" style="color:var(--ink-4);font-size:11px">—</span>
                     </td>

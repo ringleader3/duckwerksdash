@@ -106,6 +106,28 @@ document.addEventListener('alpine:init', () => {
       return recs;
     },
 
+    // Expands multi-unit items into per-order rows for the Sold table.
+    // Single-unit items pass through as-is. trackingKey(row) gives the right
+    // key into trackingData (item id for single-unit, order id for multi-unit).
+    get soldRows() {
+      const rows = [];
+      for (const r of this.rows) {
+        if (r.quantity > 1) {
+          const orders = (r.listings || []).flatMap(l => l.order ? [l.order] : []);
+          if (orders.length === 0) {
+            rows.push({ _isMultiUnit: true, _item: r, _order: null, _trackingKey: `item-${r.id}` });
+          } else {
+            for (const o of orders) {
+              rows.push({ _isMultiUnit: true, _item: r, _order: o, _trackingKey: `order-${o.id}` });
+            }
+          }
+        } else {
+          rows.push({ _isMultiUnit: false, _item: r, _order: r.order || null, _trackingKey: `item-${r.id}` });
+        }
+      }
+      return rows;
+    },
+
     sortBy(key) {
       if (this.sortKey === key) { this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'; }
       else { this.sortKey = key; this.sortDir = 'asc'; }
@@ -261,14 +283,26 @@ document.addEventListener('alpine:init', () => {
     async _loadTracking() {
       const dw = Alpine.store('dw');
       if (dw.loading || !dw.records.length) return;
-      const toFetch = dw.records.filter(r => r.status === 'Sold' && r.shipment?.tracking_id);
-      if (!toFetch.length) return;
+      const tasks = [];
+      for (const r of dw.records) {
+        if (r.quantity > 1) {
+          // Multi-unit: fetch tracking per order's shipment, key by order-{id}
+          for (const l of (r.listings || [])) {
+            if (l.order?.shipment?.tracking_id) {
+              tasks.push({ key: `order-${l.order.id}`, trackingId: l.order.shipment.tracking_id });
+            }
+          }
+        } else if (r.status === 'Sold' && r.shipment?.tracking_id) {
+          tasks.push({ key: `item-${r.id}`, trackingId: r.shipment.tracking_id });
+        }
+      }
+      if (!tasks.length) return;
       this.trackingLoading = true;
-      const results = await Promise.all(toFetch.map(async r => ({
-        id: r.id, data: await dw.fetchTracker(r.shipment.tracking_id)
+      const results = await Promise.all(tasks.map(async ({ key, trackingId }) => ({
+        key, data: await dw.fetchTracker(trackingId)
       })));
       const merged = {};
-      results.forEach(({ id, data }) => { merged[id] = data; });
+      results.forEach(({ key, data }) => { merged[key] = data; });
       this.trackingData    = merged;
       this.trackingLoading = false;
     },
