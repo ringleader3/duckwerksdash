@@ -6,7 +6,7 @@ const { markDiscSold }  = require('./catalog-intake');
 
 // POST create order (sale received — also sets item.status = 'Sold' and listing.status = 'sold')
 router.post('/', (req, res) => {
-  const { listing_id, platform_order_num, sale_price, date_sold } = req.body;
+  const { listing_id, platform_order_num, sale_price, date_sold, quantity } = req.body;
   if (!listing_id) return res.status(400).json({ error: 'listing_id is required' });
   const result = db.prepare(`
     INSERT INTO orders (listing_id, platform_order_num, sale_price, date_sold)
@@ -16,11 +16,27 @@ router.post('/', (req, res) => {
   // Update item and listing status
   const listing = db.prepare('SELECT * FROM listings WHERE id = ?').get(listing_id);
   if (listing) {
-    db.prepare("UPDATE items SET status = 'Sold' WHERE id = ?").run(listing.item_id);
-    db.prepare("UPDATE listings SET status = 'sold', ended_at = datetime('now') WHERE id = ?").run(listing_id);
-    // Fire-and-forget: sync sold status to Google Sheet for DWG items
-    const item = db.prepare('SELECT sku FROM items WHERE id = ?').get(listing.item_id);
-    if (item?.sku) markDiscSold(item.sku).catch(e => console.error('markDiscSold failed:', e.message));
+    const item = db.prepare('SELECT * FROM items WHERE id = ?').get(listing.item_id);
+    if (item) {
+      if (item.quantity > 1) {
+        const incomingQty = (Number.isInteger(quantity) && quantity > 0) ? quantity : 1;
+        const newSold     = item.quantity_sold + incomingQty;
+        const cappedSold  = Math.min(newSold, item.quantity);
+        const oversold    = newSold > item.quantity ? 1 : 0;
+        const newStatus   = cappedSold >= item.quantity ? 'Sold' : item.status;
+        db.prepare(
+          'UPDATE items SET quantity_sold = ?, oversold = ?, status = ? WHERE id = ?'
+        ).run(cappedSold, oversold, newStatus, item.id);
+        if (cappedSold >= item.quantity) {
+          db.prepare("UPDATE listings SET status = 'sold', ended_at = datetime('now') WHERE id = ?").run(listing_id);
+        }
+      } else {
+        db.prepare("UPDATE items SET status = 'Sold' WHERE id = ?").run(item.id);
+        db.prepare("UPDATE listings SET status = 'sold', ended_at = datetime('now') WHERE id = ?").run(listing_id);
+      }
+      // Fire-and-forget: sync sold status to Google Sheet for DWG items
+      if (item.sku) markDiscSold(item.sku).catch(e => console.error('markDiscSold failed:', e.message));
+    }
   }
   res.status(201).json(db.prepare('SELECT * FROM orders WHERE id = ?').get(result.lastInsertRowid));
 });
