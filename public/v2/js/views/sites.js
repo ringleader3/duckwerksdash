@@ -151,12 +151,13 @@ document.addEventListener('alpine:init', () => {
             return true;
           })
           .map(l => ({
-            platform:     'eBay',
-            id:           l.legacyItemId,
-            title:        l.title || 'Untitled',
-            price:        parseFloat(l.price) || 0,
-            listingIdKey: l.legacyItemId,
-            raw:          l,
+            platform:          'eBay',
+            id:                l.legacyItemId,
+            title:             l.title || 'Untitled',
+            price:             parseFloat(l.price) || 0,
+            listingIdKey:      l.legacyItemId,
+            quantityAvailable: l.quantityAvailable ?? 1,
+            raw:               l,
           }));
 
         const reverbUnlinked = reverbListings
@@ -224,6 +225,7 @@ document.addEventListener('alpine:init', () => {
           const itemFields = { name: listing.title, cost: 0 };
           if (categoryId) itemFields.category_id = categoryId;
           if (lotId)      itemFields.lot_id       = lotId;
+          if (listing.quantityAvailable > 1) itemFields.quantity = listing.quantityAvailable;
           const item = await dw.createItem(itemFields);
           const listingFields = {
             item_id:             item.id,

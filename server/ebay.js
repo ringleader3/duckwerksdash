@@ -144,7 +144,7 @@ router.get('/listings', async (req, res) => {
       for (const item of items) {
         // itemId format: "v1|168263363142|0" — extract the numeric legacy ID
         const legacyItemId = item.itemId?.split('|')[1] || '';
-        listings.push({ title: item.title, legacyItemId, price: item.price?.value, watchCount: item.watchCount ?? null });
+        listings.push({ title: item.title, legacyItemId, price: item.price?.value, watchCount: item.watchCount ?? null, quantityAvailable: item.quantityAvailable ?? 1 });
       }
 
       if (listings.length >= (data.total || 0) || items.length < limit) break;
