@@ -177,10 +177,6 @@ router.post('/migrate-listing', async (req, res) => {
       },
       body: JSON.stringify({ requests: listingIds.map(id => ({ listingId: String(id) })) }),
     });
-    if (!response.ok) {
-      const text = await response.text();
-      return res.status(response.status).json({ error: 'eBay migrate error', detail: text });
-    }
     const data    = await response.json();
     const results = (data.responses || []).map(r => ({
       listingId: r.listingId,
