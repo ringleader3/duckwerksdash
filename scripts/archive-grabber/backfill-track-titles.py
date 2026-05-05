@@ -79,7 +79,7 @@ def parse_tracks(txt_path):
         title = re.sub(r'^\)+\s*', '', title).strip()
 
         # Skip lines that look like headers or metadata
-        if re.search(r'(source|transfer|lineage|recorded|total|disc|set|show|taped|by:|>)', title, re.IGNORECASE):
+        if re.search(r'(source|transfer|lineage|recorded|total|disc|set|show|taped|by:)', title, re.IGNORECASE):
             continue
         if len(title) < 2 or len(title) > 100:
             continue
