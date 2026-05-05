@@ -182,7 +182,8 @@ def download_item(item, dest_dir, dry_run):
 
 def process_artist(artist_cfg, output_dir, state, dry_run):
     name = artist_cfg["name"]
-    collections = artist_cfg["collections"]
+    collections = artist_cfg.get("collections", [])
+    search_query = artist_cfg.get("search_query")
     allowed_sources = artist_cfg.get("sources", ["SBD", "FM", "AUD"])
     date_range = artist_cfg.get("date_range")
 
@@ -190,15 +191,11 @@ def process_artist(artist_cfg, output_dir, state, dry_run):
 
     artist_state = state.setdefault(name, {})
 
-    # Collect all candidates across collections, grouped by date
+    # Collect all candidates across collections (or a freeform query), grouped by date
     candidates_by_date = {}
 
-    for collection in collections:
-        query = f"collection:{collection} mediatype:etree"
-        if date_range:
-            query += f" date:[{date_range[0]} TO {date_range[1]}]"
-
-        logging.info(f"  searching {collection}...")
+    def run_query(query, label):
+        logging.info(f"  searching {label}...")
         try:
             results = ia.search_items(
                 query,
@@ -214,7 +211,19 @@ def process_artist(artist_cfg, output_dir, state, dry_run):
                     continue
                 candidates_by_date.setdefault(date, []).append(result)
         except Exception as e:
-            logging.warning(f"  search failed for {collection}: {e}")
+            logging.warning(f"  search failed for {label}: {e}")
+
+    if search_query:
+        q = search_query
+        if date_range:
+            q += f" date:[{date_range[0]} TO {date_range[1]}]"
+        run_query(q, "custom query")
+    else:
+        for collection in collections:
+            q = f"collection:{collection} mediatype:etree"
+            if date_range:
+                q += f" date:[{date_range[0]} TO {date_range[1]}]"
+            run_query(q, collection)
 
     logging.info(f"  found {sum(len(v) for v in candidates_by_date.values())} candidates across {len(candidates_by_date)} dates")
 

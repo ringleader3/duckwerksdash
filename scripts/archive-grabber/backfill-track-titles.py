@@ -49,6 +49,9 @@ def parse_tracks(txt_path):
         if re.match(r'^(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d', line, re.IGNORECASE):
             continue
 
+        # Strip etree disc/track prefix so "d1t01 - Title" matches as "01 - Title"
+        line_for_match = re.sub(r'^d\d+t', '', line, flags=re.IGNORECASE)
+
         # Stop if we've hit technical notes after the setlist
         if tracks and re.search(r'\b(fix|silence|repair|dropout|sector|extraction|encode|static|DAE|overread|overwrite|burner|retransfer)\b', line, re.IGNORECASE):
             break
@@ -57,7 +60,7 @@ def parse_tracks(txt_path):
 
         # If we're mid-medley, check if this is a continuation line (no leading track number)
         if pending_medley is not None:
-            m_cont = re.match(r'^(?:cd\s*\d+\s+)?(\d+)[.)\-\s]+', line, re.IGNORECASE)
+            m_cont = re.match(r'^(?:cd\s*\d+\s+)?(\d+)[.)\-\s]+', line_for_match, re.IGNORECASE)
             if not m_cont:
                 # Continuation line — strip timing, append to medley
                 cont = re.sub(r'\s+[\d:]+\s*$', '', line).strip()
@@ -74,7 +77,8 @@ def parse_tracks(txt_path):
                 continue
 
         # Match: "01. Title", "1. Title", "01 Title  8:23", "1 - Title", "1) Title"
-        m = re.match(r'^(?:cd\s*\d+\s+)?(\d+)[.)\-\s]+(.+?)(?:\s+[\d:]+\s*)?$', line, re.IGNORECASE)
+        # Also: "d1t01 - Title", "d2t03 - Title" (handled by line_for_match above)
+        m = re.match(r'^(?:cd\s*\d+\s+)?(\d+)[.)\-\s]+(.+?)(?:\s+[\d:]+\s*)?$', line_for_match, re.IGNORECASE)
         if not m:
             continue
 
