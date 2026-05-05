@@ -45,3 +45,8 @@ artists:
     collections:
       - WidespreadPanic
     sources: [SBD, FM]
+
+  - name: Zero
+    collections:
+      - Zero
+    sources: [SBD, FM, AUD]
