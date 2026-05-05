@@ -41,8 +41,12 @@ def parse_tracks(txt_path):
         if not line:
             continue
 
-        # Skip lines that are just dates (e.g. "1997-01-04" or "12-29-86")
+        # Skip lines that are just dates (e.g. "1997-01-04", "12-29-86", "November 28, 1997", "Friday")
         if re.match(r'^\d{1,4}[-/]\d{1,2}[-/]\d{2,4}$', line):
+            continue
+        if re.match(r'^(monday|tuesday|wednesday|thursday|friday|saturday|sunday)$', line, re.IGNORECASE):
+            continue
+        if re.match(r'^(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d', line, re.IGNORECASE):
             continue
 
         # Stop if we've hit technical notes after the setlist
