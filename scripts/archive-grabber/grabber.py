@@ -224,6 +224,8 @@ def process_artist(artist_cfg, output_dir, state, dry_run):
             q = f"collection:{collection} mediatype:etree"
             if date_range:
                 q += f" date:[{date_range[0]} TO {date_range[1]}]"
+            if min_rating is not None:
+                q += f" avg_rating:[{min_rating} TO null]"
             run_query(q, collection)
 
     logging.info(f"  found {sum(len(v) for v in candidates_by_date.values())} candidates across {len(candidates_by_date)} dates")
