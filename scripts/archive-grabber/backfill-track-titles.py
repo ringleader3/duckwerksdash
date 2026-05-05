@@ -64,6 +64,7 @@ def parse_tracks(txt_path):
                 if re.search(r'[-–>]+\s*$', line):
                     continue
                 else:
+                    pending_medley = re.sub(r'\s*\[\d+:\d+\]\s*$', '', pending_medley).strip()
                     tracks.append(pending_medley)
                     pending_medley = None
                 continue
@@ -98,6 +99,7 @@ def parse_tracks(txt_path):
 
     # Flush any pending medley at end of file
     if pending_medley:
+        pending_medley = re.sub(r'\s*\[\d+:\d+\]\s*$', '', pending_medley).strip()
         tracks.append(pending_medley)
 
     return tracks
