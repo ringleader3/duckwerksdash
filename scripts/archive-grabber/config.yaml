@@ -19,11 +19,8 @@ artists:
     sources: [SBD, FM]
 
   - name: Steve Kimock
-    collections:
-      - SteveKimock
-      - SteveKimockBand
+    search_query: "creator:(Steve Kimock) AND avg_rating:[5 TO null]"
     sources: [SBD, FM, AUD]
-    min_rating: 5.0
   
   - name: KVHW
     collections:
