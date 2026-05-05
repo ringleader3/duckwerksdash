@@ -84,10 +84,13 @@ def parse_tracks(txt_path):
         title = re.sub(r'^\)+\s*', '', title).strip()
 
         # Skip lines that look like headers or metadata
-        if re.search(r'(source|transfer|lineage|recorded|total|disc|set\s*\d|show|taped|by:)', title, re.IGNORECASE):
+        if re.search(r'(source|transfer|lineage|recorded|total|disc|set\s*\d|show|taped|by:|kHz|conversion)', title, re.IGNORECASE):
             continue
         # Skip "Set 1:", "Set 2:" style headers matched as track numbers
         if re.match(r'^set\b', title, re.IGNORECASE):
+            continue
+        # Skip titles starting with > (technical signal chain fragments)
+        if title.startswith('>'):
             continue
         if len(title) < 2 or len(title) > 100:
             continue
