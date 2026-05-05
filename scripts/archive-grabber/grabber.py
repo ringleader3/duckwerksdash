@@ -201,7 +201,7 @@ def process_artist(artist_cfg, output_dir, state, dry_run):
             results = ia.search_items(
                 query,
                 fields=["identifier", "date", "title", "coverage", "source",
-                        "subject", "avg_rating", "num_reviews", "description"],
+                        "subject", "avg_rating", "num_reviews", "description", "downloads"],
             )
             for result in results:
                 identifier = result.get("identifier")

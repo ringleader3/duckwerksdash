@@ -9,7 +9,7 @@ artists:
     min_rating: 4.0
 
   - name: Jerry Garcia Band
-    search_query: "collection:taperssection creator:Jerry Garcia"
+    search_query: "collection:taperssection creator:Jerry Garcia AND downloads:[100 TO null]"
     sources: [SBD, FM]
     date_range: ["1970-01-01","1988-12-31"]
 
@@ -23,6 +23,7 @@ artists:
       - SteveKimock
       - SteveKimockBand
     sources: [SBD, FM, AUD]
+    min_rating: 5.0
   
   - name: KVHW
     collections:
