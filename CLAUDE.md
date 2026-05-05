@@ -81,6 +81,8 @@ npm start   # starts Express on http://localhost:3000
 - `scripts/update-site-fees.js` — update site fee config in db
 - `data/ebay-tokens.json` — eBay OAuth tokens (never commit)
 
+> `scripts/archive-grabber/` was extracted to its own repo (`~/projects/archive-grabber`) per issue #118.
+
 **Frontend**
 - `public/v2/index.html` — app shell with `<!-- partial: views/foo -->` and `<!-- partial: modals/foo -->` comment placeholders; server assembles the final HTML at request time by inlining partials (see `server.js` `assembleHTML()`)
 - `public/v2/partials/views/` — view HTML partials (dashboard, items, lots, analytics, comps, catalog, sites)

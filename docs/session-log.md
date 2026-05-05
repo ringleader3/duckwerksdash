@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-05 (continued 4) — archive-grabber extracted (issue #118)
+
+- Moved `scripts/archive-grabber/` to standalone repo `~/projects/archive-grabber`
+- Added note to CLAUDE.md scripts table pointing to new location
+- Webapp design spec written and committed in new repo — ready to build
+
 ### 2026-05-05 (continued 3) — backfill improvements + more artist runs
 
 - `backfill-track-titles.py`: `--artist` no longer requires config entry — derives path from `output_dir/artist`; `--artist-dir` kept for explicit path override
