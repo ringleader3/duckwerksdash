@@ -22,6 +22,7 @@ artists:
       - SteveKimock
       - SteveKimockBand
     sources: [SBD, FM, AUD]
+    date_range: ["1974-01-01", "2000-12-31"]
 
   - name: Medeski Martin & Wood
     collections:
