@@ -84,19 +84,26 @@ def get_flac_files(show_dir):
 
 
 def title_from_filename(flac_path):
-    """Extract title from filename if it contains one after a dash.
+    """Extract title from filename if it contains a human-readable title after a dash.
     e.g. 'Disc101-Juke.flac' -> 'Juke'
-         'skf1997-01-04d1t01.flac' -> None
+         'skf1997-01-04d1t01.flac' -> None  (date/track code, not a title)
     """
-    stem = flac_path.stem  # no extension
-    # Match DiscNNN-Title or similar: digits followed by dash followed by non-numeric text
+    stem = flac_path.stem
+    # Match prefix of letters+digits followed by dash and the rest
     m = re.match(r'^[A-Za-z]*\d+[-_](.+)$', stem)
-    if m:
-        title = m.group(1).strip()
-        # Only use if it looks like a real title (not all digits/codes)
-        if title and not re.match(r'^[dt]\d+$', title, re.IGNORECASE):
-            return title
-    return None
+    if not m:
+        return None
+    title = m.group(1).strip()
+    # Reject if it looks like a date fragment (MM-DD, YYYY-MM-DD)
+    if re.match(r'^\d{2}-\d{2}', title):
+        return None
+    # Reject if it looks like a disc/track code (d1t01, t01, etc.)
+    if re.match(r'^[dt]\d+', title, re.IGNORECASE):
+        return None
+    # Reject if it's all digits/codes with no real words
+    if not re.search(r'[A-Za-z]{2,}', title):
+        return None
+    return title
 
 
 def disc_track_label(flac_path):
