@@ -1,6 +1,15 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-05 (continued 2) — archive-grabber config + client setup
+
+- Switched GD, Kimock, Galactic, MMW to `search_query` with server-side filters; GD needed `NOT collection:stream_only` (Dead locked all SBDs) + AUD added to sources
+- Added `--query` CLI flag for ad-hoc grabs without touching config — takes raw IA query + `--artist` for output dir; optional `--sources`
+- Discovered `stream_only` is a collection membership, not a field — `NOT collection:stream_only` is the correct filter
+- Runs completed: JGB (328 shows), Kimock (filtered to 44 high-download 5-star shows), KVHW, GD (54 AUD shows)
+- Switched iOS client from Symfonium to Amperfy — cleaner, no ads, CarPlay working
+- `backfill-track-titles.py` run for GD, KVHW, Kimock, JGB
+
 ### 2026-05-05 (continued) — archive-grabber query optimizations
 
 - `grabber.py`: `min_rating` now pushed into IA query for collection-based artists (was filtering locally — wasted API traffic)
