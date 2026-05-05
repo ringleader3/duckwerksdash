@@ -303,7 +303,9 @@ def process_artist(artist_cfg, output_dir, state, dry_run):
 def main():
     parser = argparse.ArgumentParser(description="Download live concerts from archive.org")
     parser.add_argument("--config", required=True, help="Path to config.yaml")
-    parser.add_argument("--artist", help="Only process this artist (exact name match)")
+    parser.add_argument("--artist", help="Artist name (required with --query; filters config otherwise)")
+    parser.add_argument("--query", help="Raw IA query — bypasses config, uses --artist for output dir")
+    parser.add_argument("--sources", help="Comma-separated source types for --query mode (default: SBD,FM,AUD)")
     parser.add_argument("--dry-run", action="store_true", help="Log actions without downloading")
     parser.add_argument("--log-file", help="Also write logs to this file")
     args = parser.parse_args()
@@ -312,21 +314,32 @@ def main():
 
     config = load_config(args.config)
     output_dir = config["output_dir"]
-    artists = config["artists"]
-
-    if args.artist:
-        artists = [a for a in artists if a["name"] == args.artist]
-        if not artists:
-            logging.error(f"No artist named '{args.artist}' found in config")
-            sys.exit(1)
 
     if args.dry_run:
         logging.info("DRY RUN — no files will be written")
 
     state = load_state()
 
-    for artist_cfg in artists:
+    if args.query:
+        if not args.artist:
+            logging.error("--query requires --artist")
+            sys.exit(1)
+        sources = [s.strip() for s in args.sources.split(",")] if args.sources else ["SBD", "FM", "AUD"]
+        artist_cfg = {
+            "name": args.artist,
+            "search_query": args.query,
+            "sources": sources,
+        }
         process_artist(artist_cfg, output_dir, state, args.dry_run)
+    else:
+        artists = config["artists"]
+        if args.artist:
+            artists = [a for a in artists if a["name"] == args.artist]
+            if not artists:
+                logging.error(f"No artist named '{args.artist}' found in config")
+                sys.exit(1)
+        for artist_cfg in artists:
+            process_artist(artist_cfg, output_dir, state, args.dry_run)
 
     logging.info("Done.")
 
