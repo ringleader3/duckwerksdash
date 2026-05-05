@@ -31,10 +31,8 @@ artists:
     date_range: ["1992-01-01", "2002-12-31"]
 
   - name: Galactic
-    collections:
-      - Galactic
+    search_query: "collection:GalacticFunk AND downloads:[200 TO null]"
     sources: [SBD, FM, AUD]
-    date_range: ["1996-01-01", "2004-12-31"]
 
   - name: String Cheese Incident
     collections:
