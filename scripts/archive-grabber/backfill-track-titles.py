@@ -60,6 +60,12 @@ def parse_tracks(txt_path):
         if len(title) < 2 or len(title) > 100:
             continue
 
+        # Stop if we've hit technical notes after the setlist
+        if tracks and re.search(r'\b(fix|silence|repair|dropout|sector|extraction|encode|static|DAE|overread|overwrite|burner|retransfer)\b', title, re.IGNORECASE):
+            break
+        if re.match(r'^(comments?|notes?|source|transfer|lineage|recorded|uploaded|edited)\s*:', title, re.IGNORECASE):
+            break
+
         # Strip trailing transition markers like ">", "->", ">"
         title = re.sub(r'\s*[-–>]+\s*$', '', title).strip()
 
