@@ -1,6 +1,20 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-04 — v2.0.18 archive-grabber tool
+
+- Built `scripts/archive-grabber/` — Python script to download high-quality live concerts from archive.org
+- Config-driven: per-artist collections, source type filters (SBD/FM/AUD), optional date ranges
+- Scoring: source rank × 10 + rating tiebreaker; picks best version per show date
+- Downloads FLAC + SHN (converts SHN → FLAC via ffmpeg); also grabs txt/md5/ffp metadata files
+- State tracked per-show in `state.json`; safe to kill and resume
+- `backfill-tags.py` — writes artist/album/date ID3 tags to already-downloaded FLACs from folder structure
+- `backfill-track-titles.py` — parses setlist txt files and writes title tags; priority chain: embedded filename titles → txt setlist → Disc X Track Y pattern
+- Track title parser handles: numbered lists, `Title (mm:ss)` format, multi-line medleys (`song > song`), Set/Disc headers, technical note stop conditions
+- Installed Navidrome on NUC (PM2), pointed at `/mnt/BRData/plex/music`; streaming working via browser + phone (Symfonium via Subsonic API)
+- Verified: SHN conversion, FLAC tagging, Navidrome organization all working end-to-end on Steve Kimock collection
+- First run: ~45 Kimock shows (1974–2000), 41/45 with proper track titles
+
 ### 2026-05-03 — v2.0.17 eBay Inventory API migration complete (Tasks 5-7)
 
 - Task 5: `importAll` in `sites.js` now calls `POST /api/ebay/migrate-listing` before `createListing` for eBay imports, stores `offer_id` on listing
