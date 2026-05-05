@@ -112,6 +112,20 @@ def parse_tracks(txt_path):
         pending_medley = re.sub(r'\s*\[\d+:\d+\]\s*$', '', pending_medley).strip()
         tracks.append(pending_medley)
 
+    # Fallback: if no numbered tracks found, try "Title (mm:ss)" format
+    if not tracks:
+        for line in text.splitlines():
+            line = line.strip()
+            m = re.match(r'^(.+?)\s+\(\d+:\d+\)\s*$', line)
+            if not m:
+                continue
+            title = m.group(1).strip()
+            if len(title) < 2 or len(title) > 100:
+                continue
+            if re.search(r'(source|transfer|lineage|recorded|disc|set|taped)', title, re.IGNORECASE):
+                continue
+            tracks.append(title)
+
     return tracks
 
 
