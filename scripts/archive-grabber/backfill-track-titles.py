@@ -279,6 +279,11 @@ def main():
 
     setup_logging()
 
+    with open(args.config) as f:
+        config = yaml.safe_load(f)
+
+    output_dir = Path(config["output_dir"])
+
     if args.artist_dir:
         artist_dir = Path(args.artist_dir)
         if not artist_dir.exists():
@@ -288,19 +293,16 @@ def main():
         logging.info("Done.")
         return
 
-    with open(args.config) as f:
-        config = yaml.safe_load(f)
-
-    output_dir = Path(config["output_dir"])
-
-    artists = config["artists"]
     if args.artist:
-        artists = [a for a in artists if a["name"] == args.artist]
-        if not artists:
-            logging.error(f"No artist named '{args.artist}' in config")
+        artist_dir = output_dir / args.artist
+        if not artist_dir.exists():
+            logging.error(f"Directory not found: {artist_dir}")
             sys.exit(1)
+        process_artist(args.artist, artist_dir, args.dry_run)
+        logging.info("Done.")
+        return
 
-    for artist_cfg in artists:
+    for artist_cfg in config["artists"]:
         artist_name = artist_cfg["name"]
         artist_dir = output_dir / artist_name
         if not artist_dir.exists():
