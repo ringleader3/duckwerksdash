@@ -135,6 +135,53 @@ def parse_tracks(txt_path):
                 continue
             tracks.append(title)
 
+    # Fallback: plain setlist under Set/Disc headers, or d1-/d2- prefixed lines
+    if not tracks:
+        in_setlist = False
+        for line in text.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+
+            # Stop at technical notes
+            if in_setlist and re.match(r'^(source|transfer|lineage|notes?|comments?|recorded|uploaded|digitized)\b', line, re.IGNORECASE):
+                break
+
+            # Set/Disc headers signal start of setlist
+            if re.match(r'^(set\s*\d+|set\s*one|set\s*two|disc\s*\d+|encore)\s*[:\-]?\s*$', line, re.IGNORECASE):
+                in_setlist = True
+                continue
+
+            # d1-/d2- prefixed lines (Atlanta 77 style)
+            m = re.match(r'^d\d+[-\s]+(.+)', line, re.IGNORECASE)
+            if m:
+                in_setlist = True
+                title = m.group(1).strip()
+                title = re.sub(r'\s*>+\s*$', '', title).strip()
+                title = re.sub(r',\s*$', '', title).strip()
+                if 2 <= len(title) <= 100:
+                    tracks.append(title)
+                continue
+
+            if not in_setlist:
+                continue
+
+            # Plain title line — strip trailing comma, >, timing
+            title = re.sub(r'\s*>+\s*$', '', line).strip()
+            title = re.sub(r',\s*$', '', title).strip()
+            title = re.sub(r'\s+\d+:\d+\s*$', '', title).strip()
+            title = re.sub(r'\s*\(missing\)\s*$', '', title, flags=re.IGNORECASE).strip()
+
+            if not title or len(title) < 2 or len(title) > 100:
+                continue
+            if re.search(r'(source|transfer|lineage|recorded|taped|sbd|aud|flac|shn|wav|kHz|\bby\b)', title, re.IGNORECASE):
+                break
+            # Skip pure E: Encore headers
+            if re.match(r'^E\s*:', title):
+                continue
+
+            tracks.append(title)
+
     return tracks
 
 
