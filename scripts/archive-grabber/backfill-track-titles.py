@@ -140,7 +140,7 @@ def parse_tracks(txt_path):
 
 def find_setlist_txt(show_dir):
     """Find the most likely setlist txt file in a show folder."""
-    txts = [f for f in show_dir.glob("*.txt") if "ffp" not in f.name.lower() and "md5" not in f.name.lower()]
+    txts = [f for f in show_dir.rglob("*.txt") if "ffp" not in f.name.lower() and "md5" not in f.name.lower()]
     if not txts:
         return None
     # Prefer shorter filenames (less likely to be a sub-file)
@@ -149,7 +149,7 @@ def find_setlist_txt(show_dir):
 
 def get_flac_files(show_dir):
     """Return FLAC files sorted by filename (track order)."""
-    return sorted(show_dir.glob("*.flac"))
+    return sorted(show_dir.rglob("*.flac"))
 
 
 def title_from_filename(flac_path):
