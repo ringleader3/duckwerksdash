@@ -90,6 +90,9 @@ def parse_tracks(txt_path):
             pending_medley = title
             continue
 
+        # Strip trailing [timing] like [10:05] or [15:34]
+        title = re.sub(r'\s*\[\d+:\d+\]\s*$', '', title).strip()
+
         if title:
             tracks.append(title)
 
