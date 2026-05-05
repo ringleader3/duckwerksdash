@@ -48,7 +48,7 @@ def parse_tracks(txt_path):
         # Stop if we've hit technical notes after the setlist
         if tracks and re.search(r'\b(fix|silence|repair|dropout|sector|extraction|encode|static|DAE|overread|overwrite|burner|retransfer)\b', line, re.IGNORECASE):
             break
-        if re.match(r'^(comments?|notes?|source|transfer|lineage|recorded|uploaded|edited)\s*:', line, re.IGNORECASE):
+        if tracks and re.match(r'^(comments?|notes?|source|transfer|lineage|recorded|uploaded|edited)\s*:', line, re.IGNORECASE):
             break
 
         # If we're mid-medley, check if this is a continuation line (no leading track number)
