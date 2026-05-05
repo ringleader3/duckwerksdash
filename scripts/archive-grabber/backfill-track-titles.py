@@ -40,12 +40,19 @@ def parse_tracks(txt_path):
         if not line:
             continue
 
-        # Match: "01. Title", "1. Title", "01 Title  8:23", "1 - Title"
-        m = re.match(r'^(?:cd\s*\d+\s+)?(\d+)[.\-\s]+(.+?)(?:\s+[\d:]+\s*)?$', line, re.IGNORECASE)
+        # Skip lines that are just dates (e.g. "1997-01-04" or "12-29-86")
+        if re.match(r'^\d{1,4}[-/]\d{1,2}[-/]\d{2,4}$', line):
+            continue
+
+        # Match: "01. Title", "1. Title", "01 Title  8:23", "1 - Title", "1) Title"
+        m = re.match(r'^(?:cd\s*\d+\s+)?(\d+)[.)\-\s]+(.+?)(?:\s+[\d:]+\s*)?$', line, re.IGNORECASE)
         if not m:
             continue
 
         title = m.group(2).strip()
+
+        # Strip leading junk like ") " that can bleed in from formats like "1) Title"
+        title = re.sub(r'^\)+\s*', '', title).strip()
 
         # Skip lines that look like headers or metadata
         if re.search(r'(source|transfer|lineage|recorded|total|disc|set|show|taped|by:|>)', title, re.IGNORECASE):
