@@ -186,6 +186,7 @@ def process_artist(artist_cfg, output_dir, state, dry_run):
     search_query = artist_cfg.get("search_query")
     allowed_sources = artist_cfg.get("sources", ["SBD", "FM", "AUD"])
     date_range = artist_cfg.get("date_range")
+    min_rating = artist_cfg.get("min_rating")
 
     logging.info(f"=== {name} ===")
 
@@ -237,6 +238,11 @@ def process_artist(artist_cfg, output_dir, state, dry_run):
         best_source = None
 
         for candidate in candidates:
+            if min_rating is not None:
+                avg_rating = float(candidate.get("avg_rating") or 0)
+                num_reviews = int(candidate.get("num_reviews") or 0)
+                if avg_rating < min_rating or num_reviews == 0:
+                    continue
             score, source = score_item(candidate, allowed_sources)
             if score is None:
                 continue
