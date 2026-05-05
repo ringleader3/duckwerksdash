@@ -34,6 +34,7 @@ def parse_tracks(txt_path):
         return []
 
     tracks = []
+    pending_medley = None  # title being built up across continuation lines
 
     for line in text.splitlines():
         line = line.strip()
@@ -43,6 +44,29 @@ def parse_tracks(txt_path):
         # Skip lines that are just dates (e.g. "1997-01-04" or "12-29-86")
         if re.match(r'^\d{1,4}[-/]\d{1,2}[-/]\d{2,4}$', line):
             continue
+
+        # Stop if we've hit technical notes after the setlist
+        if tracks and re.search(r'\b(fix|silence|repair|dropout|sector|extraction|encode|static|DAE|overread|overwrite|burner|retransfer)\b', line, re.IGNORECASE):
+            break
+        if re.match(r'^(comments?|notes?|source|transfer|lineage|recorded|uploaded|edited)\s*:', line, re.IGNORECASE):
+            break
+
+        # If we're mid-medley, check if this is a continuation line (no leading track number)
+        if pending_medley is not None:
+            m_cont = re.match(r'^(?:cd\s*\d+\s+)?(\d+)[.)\-\s]+', line, re.IGNORECASE)
+            if not m_cont:
+                # Continuation line — strip timing, append to medley
+                cont = re.sub(r'\s+[\d:]+\s*$', '', line).strip()
+                cont = re.sub(r'\s*[-–>]+\s*$', '', cont).strip()
+                if cont:
+                    pending_medley += ' > ' + cont
+                # If this continuation line also ends with ->, keep accumulating
+                if re.search(r'[-–>]+\s*$', line):
+                    continue
+                else:
+                    tracks.append(pending_medley)
+                    pending_medley = None
+                continue
 
         # Match: "01. Title", "1. Title", "01 Title  8:23", "1 - Title", "1) Title"
         m = re.match(r'^(?:cd\s*\d+\s+)?(\d+)[.)\-\s]+(.+?)(?:\s+[\d:]+\s*)?$', line, re.IGNORECASE)
@@ -60,17 +84,18 @@ def parse_tracks(txt_path):
         if len(title) < 2 or len(title) > 100:
             continue
 
-        # Stop if we've hit technical notes after the setlist
-        if tracks and re.search(r'\b(fix|silence|repair|dropout|sector|extraction|encode|static|DAE|overread|overwrite|burner|retransfer)\b', title, re.IGNORECASE):
-            break
-        if re.match(r'^(comments?|notes?|source|transfer|lineage|recorded|uploaded|edited)\s*:', title, re.IGNORECASE):
-            break
-
-        # Strip trailing transition markers like ">", "->", ">"
-        title = re.sub(r'\s*[-–>]+\s*$', '', title).strip()
+        # Check if this track ends with -> (medley start)
+        if re.search(r'[-–>]+\s*$', title):
+            title = re.sub(r'\s*[-–>]+\s*$', '', title).strip()
+            pending_medley = title
+            continue
 
         if title:
             tracks.append(title)
+
+    # Flush any pending medley at end of file
+    if pending_medley:
+        tracks.append(pending_medley)
 
     return tracks
 
