@@ -1,0 +1,46 @@
+output_dir: /mnt/BRData/plex/music
+
+artists:
+  - name: Grateful Dead
+    collections:
+      - GratefulDead
+      - GratefulDeadFamily
+    sources: [SBD, FM]
+
+  - name: Jerry Garcia Band
+    collections:
+      - JerryGarciaBand
+    sources: [SBD, FM]
+
+  - name: RatDog
+    collections:
+      - RatDog
+    sources: [SBD, FM]
+
+  - name: Steve Kimock
+    collections:
+      - SteveKimock
+      - SteveKimockBand
+    sources: [SBD, FM, AUD]
+
+  - name: Medeski Martin & Wood
+    collections:
+      - MedeskiMartinWood
+    sources: [SBD, FM, AUD]
+    date_range: ["1992-01-01", "2002-12-31"]
+
+  - name: Galactic
+    collections:
+      - Galactic
+    sources: [SBD, FM, AUD]
+    date_range: ["1996-01-01", "2004-12-31"]
+
+  - name: String Cheese Incident
+    collections:
+      - StringCheeseIncident
+    sources: [SBD, FM]
+
+  - name: Widespread Panic
+    collections:
+      - WidespreadPanic
+    sources: [SBD, FM]
