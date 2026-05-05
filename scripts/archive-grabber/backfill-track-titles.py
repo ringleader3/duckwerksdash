@@ -75,6 +75,11 @@ def parse_tracks(txt_path):
                     tracks.append(pending_medley)
                     pending_medley = None
                 continue
+            else:
+                # Next line is a new numbered track — flush the pending medley as its own track
+                pending_medley = re.sub(r'\s*\[\d+:\d+\]\s*$', '', pending_medley).strip()
+                tracks.append(pending_medley)
+                pending_medley = None
 
         # Match: "01. Title", "1. Title", "01 Title  8:23", "1 - Title", "1) Title"
         # Also: "d1t01 - Title", "d2t03 - Title" (handled by line_for_match above)
