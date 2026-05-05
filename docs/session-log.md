@@ -1,6 +1,16 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-05 — v2.0.18 archive-grabber improvements + NUC infrastructure
+
+- `backfill-track-titles.py`: added support for etree `d1t01 - Title` format; fixed pending medley flush when next numbered track is encountered
+- `grabber.py`: added `search_query` config option (overrides collection-based search for mixed/non-standard collections); added `min_rating` filter
+- Added KVHW collection to config; removed Steve Kimock `date_range`; fixed JGB to use `search_query: "collection:taperssection creator:Jerry Garcia"`
+- Navidrome exposed externally at `music.duckwerks.com` via existing cloudflare tunnel (added ingress rule); added to PM2
+- Gitea data moved from `/mnt/BRData/gitea` to `/mnt/BRPlayground/gitea`; fixed permissions (`chmod o+x /mnt/BRPlayground`)
+- NUC git remote switched to SSH (`git@github.com:ringleader3/duckwerksdash.git`)
+- Runs in progress: KVHW, Steve Kimock (2001+), Jerry Garcia Band (1970–1985)
+
 ### 2026-05-04 — v2.0.18 archive-grabber tool
 
 - Built `scripts/archive-grabber/` — Python script to download high-quality live concerts from archive.org
