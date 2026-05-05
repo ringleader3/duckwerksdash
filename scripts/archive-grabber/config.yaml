@@ -2,11 +2,8 @@ output_dir: /mnt/BRData/plex/music
 
 artists:
   - name: Grateful Dead
-    collections:
-      - GratefulDead
-      - GratefulDeadFamily
+    search_query: "creator:Grateful Dead AND avg_rating:[5 TO null] AND downloads:[18000 TO null]"
     sources: [SBD, FM]
-    min_rating: 4.0
 
   - name: Jerry Garcia Band
     search_query: "collection:taperssection creator:Jerry Garcia AND downloads:[100 TO null]"
