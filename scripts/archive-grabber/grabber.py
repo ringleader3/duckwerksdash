@@ -26,6 +26,7 @@ SOURCE_RANK = {"SBD": 3, "FM": 2, "AUD": 1}
 
 LOSSLESS_EXTS = {".flac", ".shn"}
 LOSSY_EXTS = {".mp3", ".ogg", ".aac", ".m4a"}
+METADATA_EXTS = {".txt", ".md5", ".ffp", ".nfo"}
 
 
 def setup_logging(log_file=None):
@@ -129,7 +130,7 @@ def download_item(item, dest_dir, dry_run):
         ext = Path(f.name).suffix.lower()
         if ext in LOSSY_EXTS:
             continue
-        if ext not in LOSSLESS_EXTS:
+        if ext not in LOSSLESS_EXTS and ext not in METADATA_EXTS:
             continue
 
         dest_path = dest_dir / f.name
@@ -145,6 +146,7 @@ def download_item(item, dest_dir, dry_run):
         downloaded.append(str(dest_path))
         if ext == ".shn":
             to_convert.append(str(dest_path))
+
 
     for shn_path in to_convert:
         flac_path = shn_path.replace(".shn", ".flac")
