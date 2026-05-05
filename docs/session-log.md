@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-05 (continued 3) — backfill improvements + more artist runs
+
+- `backfill-track-titles.py`: `--artist` no longer requires config entry — derives path from `output_dir/artist`; `--artist-dir` kept for explicit path override
+- `backfill-track-titles.py`: `glob` → `rglob` for txt/FLAC discovery to handle nested IA item directories (some uploaders package files in subdirs)
+- `backfill-track-titles.py`: added plain setlist fallback parser — handles `d1-Song` prefix format and plain lines under Set/Disc headers; covers most GD txt formats
+- Galactic, MMW runs kicked off; GD, MMW, Galactic all running in parallel; backfill pending after completion
+- Pending: run backfill for GD, MMW, Galactic when downloads finish
+
 ### 2026-05-05 (continued 2) — archive-grabber config + client setup
 
 - Switched GD, Kimock, Galactic, MMW to `search_query` with server-side filters; GD needed `NOT collection:stream_only` (Dead locked all SBDs) + AUD added to sources
