@@ -19,7 +19,7 @@ artists:
     sources: [SBD, FM]
 
   - name: Steve Kimock
-    search_query: "creator:(Steve Kimock) AND avg_rating:[5 TO null]"
+    search_query: "creator:(Steve Kimock) AND avg_rating:[5 TO null] AND downloads:[4000 TO null]"
     sources: [SBD, FM, AUD]
   
   - name: KVHW
