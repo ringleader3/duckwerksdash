@@ -273,10 +273,20 @@ def main():
     parser = argparse.ArgumentParser(description="Backfill track title tags from setlist txt files")
     parser.add_argument("--config", required=True, help="Path to config.yaml")
     parser.add_argument("--artist", help="Only process this artist")
+    parser.add_argument("--artist-dir", help="Direct path to artist dir (for --query grabs not in config)")
     parser.add_argument("--dry-run", action="store_true", help="Log without writing")
     args = parser.parse_args()
 
     setup_logging()
+
+    if args.artist_dir:
+        artist_dir = Path(args.artist_dir)
+        if not artist_dir.exists():
+            logging.error(f"Directory not found: {artist_dir}")
+            sys.exit(1)
+        process_artist(artist_dir.name, artist_dir, args.dry_run)
+        logging.info("Done.")
+        return
 
     with open(args.config) as f:
         config = yaml.safe_load(f)
