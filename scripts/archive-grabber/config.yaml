@@ -6,11 +6,12 @@ artists:
       - GratefulDead
       - GratefulDeadFamily
     sources: [SBD, FM]
+    min_rating: 4.0
 
   - name: Jerry Garcia Band
-    collections:
-      - JerryGarciaBand
+    search_query: "collection:taperssection creator:Jerry Garcia"
     sources: [SBD, FM]
+    min_rating: 4.0
 
   - name: RatDog
     collections:
