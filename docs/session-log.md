@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-05 (continued) — archive-grabber query optimizations
+
+- `grabber.py`: `min_rating` now pushed into IA query for collection-based artists (was filtering locally — wasted API traffic)
+- `grabber.py`: added `downloads` field to `search_items` fields list
+- JGB `search_query` updated with `AND downloads:[100 TO null]` — trims 1,692 candidates to ~260
+- All three runs (KVHW, Kimock 2001+, JGB) confirmed running; 323GB / 13,002 items on NUC at session close
+
 ### 2026-05-05 — v2.0.18 archive-grabber improvements + NUC infrastructure
 
 - `backfill-track-titles.py`: added support for etree `d1t01 - Title` format; fixed pending medley flush when next numbered track is encountered
