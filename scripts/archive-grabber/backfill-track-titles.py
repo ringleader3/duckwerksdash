@@ -83,20 +83,80 @@ def get_flac_files(show_dir):
     return sorted(show_dir.glob("*.flac"))
 
 
-def tag_titles(show_dir, tracks, dry_run):
+def title_from_filename(flac_path):
+    """Extract title from filename if it contains one after a dash.
+    e.g. 'Disc101-Juke.flac' -> 'Juke'
+         'skf1997-01-04d1t01.flac' -> None
+    """
+    stem = flac_path.stem  # no extension
+    # Match DiscNNN-Title or similar: digits followed by dash followed by non-numeric text
+    m = re.match(r'^[A-Za-z]*\d+[-_](.+)$', stem)
+    if m:
+        title = m.group(1).strip()
+        # Only use if it looks like a real title (not all digits/codes)
+        if title and not re.match(r'^[dt]\d+$', title, re.IGNORECASE):
+            return title
+    return None
+
+
+def disc_track_label(flac_path):
+    """Generate a 'Disc X Track Y' label from filename patterns like d1t03 or d2t01."""
+    stem = flac_path.stem
+    m = re.search(r'd(\d+)t(\d+)', stem, re.IGNORECASE)
+    if m:
+        return f"Disc {int(m.group(1))} Track {int(m.group(2))}"
+    # Fallback: just track number from any trailing digits
+    m = re.search(r'(\d+)$', stem)
+    if m:
+        return f"Track {int(m.group(1))}"
+    return None
+
+
+def resolve_titles(show_dir, txt_tracks):
+    """
+    Resolve titles for each FLAC in show_dir using priority:
+    1. Title embedded in filename
+    2. txt setlist (only if count matches)
+    3. Disc X Track Y from filename pattern
+    4. None (no-op)
+    """
     flacs = get_flac_files(show_dir)
-
     if not flacs:
-        return 0
+        return []
 
-    if len(tracks) != len(flacs):
-        logging.warning(f"  {show_dir.name}: {len(tracks)} tracks parsed but {len(flacs)} FLACs — skipping")
+    results = []
+
+    # Check if all filenames have embedded titles
+    filename_titles = [title_from_filename(f) for f in flacs]
+    if all(t is not None for t in filename_titles):
+        return list(zip(flacs, filename_titles, ['filename'] * len(flacs)))
+
+    # Try txt setlist if count matches
+    if txt_tracks and len(txt_tracks) == len(flacs):
+        return list(zip(flacs, txt_tracks, ['txt'] * len(flacs)))
+
+    if txt_tracks and len(txt_tracks) != len(flacs):
+        logging.warning(f"  {show_dir.name}: {len(txt_tracks)} txt tracks but {len(flacs)} FLACs — falling back to disc/track labels")
+
+    # Fall back to Disc X Track Y
+    for flac_path in flacs:
+        label = disc_track_label(flac_path)
+        results.append((flac_path, label, 'pattern' if label else 'noop'))
+
+    return results
+
+
+def tag_show(show_dir, txt_tracks, dry_run):
+    resolved = resolve_titles(show_dir, txt_tracks)
+    if not resolved:
         return 0
 
     tagged = 0
-    for i, (flac_path, title) in enumerate(zip(flacs, tracks), 1):
+    for i, (flac_path, title, source) in enumerate(resolved, 1):
+        if title is None:
+            continue
         if dry_run:
-            logging.info(f"  [dry-run] {flac_path.name} -> title={title!r}")
+            logging.info(f"  [dry-run] [{source}] {flac_path.name} -> {title!r}")
         else:
             try:
                 audio = FLAC(flac_path)
@@ -107,7 +167,7 @@ def tag_titles(show_dir, tracks, dry_run):
             except Exception as e:
                 logging.warning(f"  failed: {flac_path.name}: {e}")
 
-    return len(tracks) if dry_run else tagged
+    return len(resolved) if dry_run else tagged
 
 
 def process_artist(artist_name, artist_dir, dry_run):
@@ -121,19 +181,10 @@ def process_artist(artist_name, artist_dir, dry_run):
             continue
 
         txt = find_setlist_txt(show_dir)
-        if not txt:
-            logging.debug(f"  {show_dir.name}: no txt file")
-            skipped_shows += 1
-            continue
+        txt_tracks = parse_tracks(txt) if txt else []
 
-        tracks = parse_tracks(txt)
-        if not tracks:
-            logging.debug(f"  {show_dir.name}: no tracks parsed from {txt.name}")
-            skipped_shows += 1
-            continue
-
-        logging.info(f"  {show_dir.name}: {len(tracks)} tracks from {txt.name}")
-        n = tag_titles(show_dir, tracks, dry_run)
+        logging.info(f"  {show_dir.name}: {len(txt_tracks)} txt tracks" + (f" from {txt.name}" if txt else ""))
+        n = tag_show(show_dir, txt_tracks, dry_run)
         if n > 0:
             tagged_shows += 1
         else:
