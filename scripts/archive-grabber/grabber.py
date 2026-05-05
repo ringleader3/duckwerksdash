@@ -19,6 +19,7 @@ from pathlib import Path
 
 import internetarchive as ia
 import yaml
+from mutagen.flac import FLAC
 
 STATE_FILE = Path(__file__).parent / "state.json"
 
@@ -107,6 +108,18 @@ def parse_show_folder(metadata, identifier):
     # Sanitize for filesystem
     folder = re.sub(r'[<>:"/\\|?*]', "-", folder)
     return folder
+
+
+def tag_flac(path, artist, album, date):
+    try:
+        audio = FLAC(path)
+        audio["artist"] = artist
+        audio["albumartist"] = artist
+        audio["album"] = album
+        audio["date"] = date
+        audio.save()
+    except Exception as e:
+        logging.warning(f"  tagging failed for {Path(path).name}: {e}")
 
 
 def has_lossless(item):
@@ -249,6 +262,11 @@ def process_artist(artist_cfg, output_dir, state, dry_run):
             paths = download_item(item, dest_dir, dry_run)
 
             if not dry_run:
+                for p in paths:
+                    if p.endswith(".flac"):
+                        tag_flac(p, name, show_folder, date)
+
+
                 artist_state[date] = {
                     "identifier": identifier,
                     "score": best_score,
