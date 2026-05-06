@@ -206,6 +206,16 @@ document.addEventListener('alpine:init', () => {
       this.$nextTick(() => this.$el.querySelector('[data-focus]')?.focus());
     },
 
+    inventoryDisplayTitle(row) {
+      const m = row.metadata || {};
+      if (m.list_title) return m.list_title;
+      if (row.category === 'disc') {
+        const parts = [m.manufacturer, m.mold, m.plastic, m.weight ? m.weight + 'g' : '', m.color].filter(Boolean);
+        return parts.length ? parts.join(' ') : '—';
+      }
+      return '—';
+    },
+
     async loadInventory() {
       this.inventoryLoading = true;
       this.inventoryErr     = '';

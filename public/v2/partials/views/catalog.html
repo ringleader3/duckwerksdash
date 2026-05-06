@@ -180,10 +180,12 @@
 
                 <!-- Summary row -->
                 <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
-                  <div style="display:flex;gap:16px;align-items:baseline">
-                    <span style="font:700 11px/1 var(--mono)" x-text="row.sku"></span>
-                    <span style="font-size:11px;color:var(--muted)" x-text="row.location || '—'"></span>
-                    <span style="font-size:11px;color:var(--muted)" x-text="row.metadata?.list_title || row.metadata?.manufacturer || '—'" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+                  <div style="display:flex;gap:16px;align-items:baseline;min-width:0">
+                    <span style="font:700 11px/1 var(--mono);flex-shrink:0" x-text="row.sku"></span>
+                    <span style="font-size:11px;color:var(--muted);flex-shrink:0" x-text="row.category || '—'"></span>
+                    <span style="font-size:11px;color:var(--muted);flex-shrink:0" x-text="row.location || '—'"></span>
+                    <span style="font-size:11px;color:var(--muted);flex-shrink:0" x-text="row.metadata?.listPrice ? '$' + row.metadata.listPrice : '—'"></span>
+                    <span style="font-size:11px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" x-text="inventoryDisplayTitle(row)"></span>
                   </div>
                   <button @click="editingSku === row.sku ? cancelEdit() : startEdit(row)"
                     style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 8px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer;flex-shrink:0"
