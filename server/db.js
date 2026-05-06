@@ -103,6 +103,16 @@ db.exec(`
     stability        REAL,
     PRIMARY KEY (manufacturer_key, mold_key)
   );
+
+  CREATE TABLE IF NOT EXISTS inventory (
+    sku        TEXT PRIMARY KEY,
+    location   TEXT,
+    category   TEXT,
+    status     TEXT NOT NULL DEFAULT 'intake'
+               CHECK(status IN ('intake','listed','sold')),
+    metadata   TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 // ── Multi-unit listings — quantity columns (migration) ────────────────────────
