@@ -221,8 +221,13 @@
                             <div style="font-size:11px"><span style="color:var(--muted);font:700 10px/1 var(--mono)">PRICE </span><span x-text="'$' + ebayPreview[row.sku].price"></span><span style="color:var(--muted)"> (auto-decline $<span x-text="ebayPreview[row.sku].autoDecline"></span>)</span></div>
                           </div>
                         </template>
+                        <template x-if="ebayPreview[row.sku].result">
+                          <div style="font-size:11px;padding:4px 0"
+                               :style="ebayPreview[row.sku].result === 'updated' ? 'color:var(--green)' : 'color:var(--red)'"
+                               x-text="ebayPreview[row.sku].result === 'updated' ? 'Updated on eBay.' : ebayPreview[row.sku].result"></div>
+                        </template>
                         <div style="display:flex;gap:8px;margin-top:4px">
-                          <button @click="ebayConfirmUpdate(row)" :disabled="ebayUpdating[row.sku] || ebayPreview[row.sku].error"
+                          <button @click="ebayConfirmUpdate(row)" :disabled="ebayUpdating[row.sku] || !!ebayPreview[row.sku].error || !!ebayPreview[row.sku].result"
                             style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:4px 14px;background:var(--blue);color:#fff;border:none;cursor:pointer"
                             x-text="ebayUpdating[row.sku] ? '...' : 'CONFIRM'"></button>
                           <button @click="ebayCancelPreview(row.sku)"

@@ -299,10 +299,9 @@ document.addEventListener('alpine:init', () => {
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
-        this.ebayCancelPreview(sku);
-        this._showToast(`${sku} updated on eBay`, true);
+        this.ebayPreview = { ...this.ebayPreview, [sku]: { ...this.ebayPreview[sku], result: 'updated' } };
       } catch (e) {
-        this._showToast(`${sku}: ${e.message}`, false);
+        this.ebayPreview = { ...this.ebayPreview, [sku]: { ...this.ebayPreview[sku], result: e.message } };
       }
       const u = { ...this.ebayUpdating };
       delete u[sku];
