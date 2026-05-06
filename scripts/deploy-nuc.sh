@@ -4,8 +4,6 @@
 ssh geoff@fedora.local "
   cd /home/geoff/projects/duckwerksdash &&
   git pull &&
-  node scripts/migrate-plastics-table.js &&
   pm2 restart duckwerks &&
-  sudo systemctl restart cloudflared &&
   echo 'Done.'
 "
