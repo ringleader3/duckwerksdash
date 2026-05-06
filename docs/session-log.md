@@ -1,6 +1,17 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-06 (continued 3) — inventory catalog UX + eBay update flow
+
+- Inventory summary row now shows category, location, list price, and generated display title (`list_title` if present, else assembled from disc metadata fields)
+- `inventoryDisplayTitle()` helper in catalog.js — category-aware title generation
+- `POST /api/ebay/bulk-preview` endpoint — generates title, description, price without touching eBay
+- "UPDATE EBAY" button on each inventory row: preview → CONFIRM → POSTING TO EBAY... → POSTED TO EBAY inline result
+- Sold discs hidden by default in catalog inventory; "SHOW SOLD" toggle added
+- `GET /api/inventory?excludeStatus=` filter added to inventory router
+- deploy-nuc.sh trimmed: removed one-time `migrate-plastics-table.js` and `sudo systemctl restart cloudflared` (was running on every deploy unnecessarily)
+- v2.0.20 → v2.0.21
+
 ### 2026-05-06 (continued 2) — full metadata backfill (issue #119)
 
 - `backfill-inventory-metadata-from-sheet.js` — reads all disc metadata cols (F-X: manufacturer, mold, type, plastic, run, notes, condition, weight, color, flight numbers) into blobs; run on both Mac and NUC
