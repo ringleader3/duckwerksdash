@@ -174,55 +174,59 @@
           <div style="color:var(--muted);font-size:11px">No inventory records.</div>
         </template>
         <template x-if="!inventoryLoading && inventory.length > 0">
-          <table class="data-table" style="width:100%;table-layout:fixed">
-            <thead>
-              <tr>
-                <th style="text-align:left;width:100px">SKU</th>
-                <th style="text-align:left;width:80px">Category</th>
-                <th style="text-align:left">Location</th>
-                <th style="text-align:left;width:70px">Status</th>
-                <th style="width:80px"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <template x-for="row in inventory" :key="row.sku">
-                <tr>
-                  <td style="font:700 11px/1 var(--mono)" x-text="row.sku"></td>
-                  <td style="font-size:11px;color:var(--muted)" x-text="row.category || '—'"></td>
-                  <td>
-                    <template x-if="editingSku !== row.sku">
-                      <span style="font-size:12px" x-text="row.location || '—'"></span>
-                    </template>
-                    <template x-if="editingSku === row.sku">
+          <div>
+            <template x-for="row in inventory" :key="row.sku">
+              <div style="border-bottom:1px solid var(--border)">
+
+                <!-- Summary row -->
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
+                  <div style="display:flex;gap:16px;align-items:baseline">
+                    <span style="font:700 11px/1 var(--mono)" x-text="row.sku"></span>
+                    <span style="font-size:11px;color:var(--muted)" x-text="row.location || '—'"></span>
+                    <span style="font-size:11px;color:var(--muted)" x-text="row.metadata?.list_title || row.metadata?.manufacturer || '—'" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+                  </div>
+                  <button @click="editingSku === row.sku ? cancelEdit() : startEdit(row)"
+                    style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 8px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer;flex-shrink:0"
+                    x-text="editingSku === row.sku ? '✕ CLOSE' : 'EDIT'"></button>
+                </div>
+
+                <!-- Edit panel -->
+                <template x-if="editingSku === row.sku">
+                  <div style="padding:12px 0 16px;display:grid;gap:6px">
+
+                    <!-- location (top-level field) -->
+                    <div style="display:grid;grid-template-columns:160px 1fr;gap:8px;align-items:center">
+                      <span style="font:700 10px/1 var(--mono);letter-spacing:.08em;color:var(--muted)">location</span>
                       <input type="text" x-model="editLocation"
-                        style="width:100%;font-size:12px;padding:2px 6px;border:1px solid var(--border);background:var(--bg);color:var(--ink-1)"
-                        @keydown.enter="saveEdit()" @keydown.escape="cancelEdit()">
+                        style="font-size:12px;padding:3px 6px;border:1px solid var(--border);background:var(--bg);color:var(--ink-1);width:100%"
+                        @keydown.escape="cancelEdit()">
+                    </div>
+
+                    <!-- metadata k/v pairs -->
+                    <template x-for="(pair, idx) in editPairs" :key="idx">
+                      <div style="display:grid;grid-template-columns:160px 1fr;gap:8px;align-items:center">
+                        <span style="font:700 10px/1 var(--mono);letter-spacing:.08em;color:var(--muted)" x-text="pair.key"></span>
+                        <input type="text" x-model="editPairs[idx].value"
+                          style="font-size:12px;padding:3px 6px;border:1px solid var(--border);background:var(--bg);color:var(--ink-1);width:100%"
+                          @keydown.escape="cancelEdit()">
+                      </div>
                     </template>
-                  </td>
-                  <td style="font-size:11px;color:var(--muted)" x-text="row.status || '—'"></td>
-                  <td style="text-align:right">
-                    <template x-if="editingSku !== row.sku">
-                      <button @click="startEdit(row)"
-                        style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 8px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer">
-                        EDIT
+
+                    <div style="display:flex;gap:8px;margin-top:4px">
+                      <button @click="saveEdit()" :disabled="editSaving"
+                        style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:4px 14px;background:var(--blue);color:#fff;border:none;cursor:pointer"
+                        x-text="editSaving ? '...' : 'SAVE'"></button>
+                      <button @click="cancelEdit()"
+                        style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:4px 14px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer">
+                        CANCEL
                       </button>
-                    </template>
-                    <template x-if="editingSku === row.sku">
-                      <span style="display:flex;gap:6px;justify-content:flex-end">
-                        <button @click="saveEdit()" :disabled="editSaving"
-                          style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 8px;background:var(--blue);color:#fff;border:none;cursor:pointer"
-                          x-text="editSaving ? '...' : 'SAVE'"></button>
-                        <button @click="cancelEdit()"
-                          style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 8px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer">
-                          ✕
-                        </button>
-                      </span>
-                    </template>
-                  </td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
+                    </div>
+                  </div>
+                </template>
+
+              </div>
+            </template>
+          </div>
         </template>
       </div>
 

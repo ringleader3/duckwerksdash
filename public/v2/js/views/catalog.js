@@ -36,6 +36,7 @@ document.addEventListener('alpine:init', () => {
     inventoryErr:     '',
     editingSku:       null,
     editLocation:     '',
+    editPairs:        [],  // [{ key, value }] — flattened metadata blob
     editSaving:       false,
 
     TYPES:  ['Distance Driver', 'Fairway Driver', 'Midrange Disc', 'Putting Disc'],
@@ -221,20 +222,24 @@ document.addEventListener('alpine:init', () => {
     startEdit(row) {
       this.editingSku   = row.sku;
       this.editLocation = row.location || '';
+      this.editPairs    = Object.entries(row.metadata || {}).map(([key, value]) => ({ key, value: value ?? '' }));
     },
 
     cancelEdit() {
       this.editingSku   = null;
       this.editLocation = '';
+      this.editPairs    = [];
     },
 
     async saveEdit() {
       this.editSaving = true;
       try {
+        const metadata = {};
+        this.editPairs.forEach(({ key, value }) => { if (key) metadata[key] = value; });
         const res = await fetch(`/api/inventory/${encodeURIComponent(this.editingSku)}`, {
           method:  'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ location: this.editLocation }),
+          body:    JSON.stringify({ location: this.editLocation, metadata }),
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const updated = await res.json();
