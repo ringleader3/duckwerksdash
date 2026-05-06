@@ -34,8 +34,7 @@ router.post('/', (req, res) => {
         db.prepare("UPDATE items SET status = 'Sold' WHERE id = ?").run(item.id);
         db.prepare("UPDATE listings SET status = 'sold', ended_at = datetime('now') WHERE id = ?").run(listing_id);
       }
-      // Fire-and-forget: sync sold status to Google Sheet for DWG items
-      if (item.sku) markDiscSold(item.sku).catch(e => console.error('markDiscSold failed:', e.message));
+      if (item.sku) markDiscSold(item.sku);
     }
   }
   res.status(201).json(db.prepare('SELECT * FROM orders WHERE id = ?').get(result.lastInsertRowid));

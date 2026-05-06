@@ -147,20 +147,14 @@ router.post('/disc', async (req, res) => {
   }
 });
 
-// markDiscSold(sku) — sets column E = TRUE for a DWG-XXX SKU
-// Exported for use by orders.js when an item is marked Sold
-async function markDiscSold(sku) {
-  const match = sku && sku.match(/^DWG-(\d+)$/i);
-  if (!match) return;
-  const discNum = parseInt(match[1], 10);
-  const row     = discNum + 1; // row 1 is header
-  const sheets  = getSheets();
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: SHEET_ID,
-    range:         `${SHEET_NAME}!E${row}`,
-    valueInputOption: 'RAW',
-    requestBody:   { values: [['TRUE']] },
-  });
+const markSoldStmt = db.prepare(
+  "UPDATE inventory SET status = 'sold' WHERE sku = ?"
+);
+
+// markDiscSold(sku) — marks inventory row as sold for DWG-XXX SKUs
+function markDiscSold(sku) {
+  if (!sku || !sku.match(/^DWG-\d+$/i)) return;
+  markSoldStmt.run(sku);
 }
 
 module.exports = { router, markDiscSold };
