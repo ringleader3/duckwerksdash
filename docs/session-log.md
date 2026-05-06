@@ -1,6 +1,17 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-06 — local inventory table (issue #119)
+
+- New `inventory` SQLite table: `sku PK`, `location`, `category`, `status`, `metadata JSON`
+- New `/api/inventory` router: GET list, GET by SKU, PATCH by SKU
+- Backfill script reads Google Sheet cols A+B → 292 DWG-NNN rows with box locations; run on both Mac and NUC
+- Catalog intake now writes to `inventory` on every new disc (location + full metadata blob); sheet kept as backup
+- Location chip shown in sites view order rows (eBay + Reverb) after Check for New Orders
+- Location column added to shipping (in-transit) modal
+- Inventory table with inline location edit added to Catalog view
+- v2.0.18 → v2.0.19
+
 ### 2026-05-05 (continued 4) — archive-grabber extracted (issue #118)
 
 - Moved `scripts/archive-grabber/` to standalone repo `~/projects/archive-grabber`

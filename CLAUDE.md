@@ -62,10 +62,12 @@ npm start   # starts Express on http://localhost:3000
 - `server/ebay-auth.js` — eBay OAuth (one-time setup + auto-refresh)
 - `server/ebay.js` — eBay Sell Fulfillment + Inventory API (`/api/ebay/*`); includes `POST /api/ebay/migrate-listing` and `GET /api/ebay/offer`
 - `server/ebay-listings.js` — eBay Inventory API bulk listing (`POST /api/ebay/bulk-list`)
+- `server/inventory.js` — local inventory CRUD (`GET /api/inventory`, `GET /api/inventory/:sku`, `PATCH /api/inventory/:sku`)
 - `scripts/deploy-nuc.sh` — pull + PM2 restart on the NUC; run after every push
 - `scripts/print-server.js` — dead code; was local Mac print server for Rollo via CUPS (replaced by direct Zebra TCP)
 - `scripts/bulk-list-discs.js` — bulk eBay lister; idempotent (safe to re-run)
 - `scripts/backfill-skus.js` — one-time SKU backfill from eBay Inventory API; dry-run by default, `--confirm` to write
+- `scripts/backfill-inventory-from-sheet.js` — one-time DG disc location backfill from Google Sheet into `inventory` table; dry-run by default, `--confirm` to write
 - `scripts/migrate-to-inventory-api.js` — two-pass bulk backfill of `offer_id` on listings; pass 1 migrates legacy listings, pass 2 backfills DG discs via `GET /offer`
 - `scripts/backfill-flight-numbers.js` — one-time flight number backfill for disc items
 - `scripts/seed-flight-numbers.js` — seeds flight number reference data
