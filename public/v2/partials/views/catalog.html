@@ -208,7 +208,7 @@
                 <template x-if="ebayPreview[row.sku]">
                   <div style="padding:10px 0 14px;border-top:1px solid var(--border)">
                     <template x-if="ebayPreview[row.sku] === 'loading'">
-                      <span style="font-size:11px;color:var(--muted)">Generating preview...</span>
+                      <span style="font-size:11px;color:var(--muted);font:700 10px/1 var(--mono);letter-spacing:.08em">FETCHING PREVIEW...</span>
                     </template>
                     <template x-if="ebayPreview[row.sku] !== 'loading'">
                       <div style="display:grid;gap:6px">
@@ -224,12 +224,12 @@
                         <template x-if="ebayPreview[row.sku].result">
                           <div style="font-size:11px;padding:4px 0"
                                :style="ebayPreview[row.sku].result === 'updated' ? 'color:var(--green)' : 'color:var(--red)'"
-                               x-text="ebayPreview[row.sku].result === 'updated' ? 'Updated on eBay.' : ebayPreview[row.sku].result"></div>
+                               x-text="ebayPreview[row.sku].result === 'updated' ? 'POSTED TO EBAY' : ebayPreview[row.sku].result"></div>
                         </template>
                         <div style="display:flex;gap:8px;margin-top:4px">
                           <button @click="ebayConfirmUpdate(row)" :disabled="ebayUpdating[row.sku] || !!ebayPreview[row.sku].error || !!ebayPreview[row.sku].result"
                             style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:4px 14px;background:var(--blue);color:#fff;border:none;cursor:pointer"
-                            x-text="ebayUpdating[row.sku] ? '...' : 'CONFIRM'"></button>
+                            x-text="ebayUpdating[row.sku] ? 'POSTING TO EBAY...' : 'CONFIRM'"></button>
                           <button @click="ebayCancelPreview(row.sku)"
                             style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:4px 14px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer">
                             CANCEL
