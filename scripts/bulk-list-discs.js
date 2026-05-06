@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// scripts/bulk-list-discs.js — eBay bulk listing/updating from CSV or Google Sheet
-// Usage: node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <ids> [--api <url>] [--confirm]
-//        node scripts/bulk-list-discs.js --csv <path>  --photos <dir> --ids <ids> [--api <url>] [--confirm]
-//        node scripts/bulk-list-discs.js --sheet <url> --ids <ids> --update [--confirm]  (updates title/description/price on existing listings)
+// scripts/bulk-list-discs.js — eBay bulk listing/updating from local inventory DB
+// Usage: node scripts/bulk-list-discs.js --ids <ids> --photos <dir> [--api <url>] [--confirm]
+//        node scripts/bulk-list-discs.js --ids <ids> --update [--confirm]
+//        node scripts/bulk-list-discs.js --ids <ids> --photos-only [--confirm]
+//        <ids> accepts ranges and lists: 1-20,25,30-35
 
 const fs   = require('fs');
 const path = require('path');
-const { parse } = require('csv-parse/sync');
 
 // ── CLI args ──────────────────────────────────────────────────────────────────
 
@@ -15,22 +15,19 @@ function arg(name) {
   return i >= 0 ? process.argv[i + 1] : null;
 }
 
-const sheetUrl  = arg('--sheet');
-const csvPath   = arg('--csv');
-const photosDir = arg('--photos');
-const idsArg    = arg('--ids');
-const apiBase   = arg('--api') || 'http://localhost:3000';
-const confirm       = process.argv.includes('--confirm');
-const updateMode    = process.argv.includes('--update');
+const idsArg         = arg('--ids');
+const photosDir      = arg('--photos');
+const apiBase        = arg('--api') || 'http://localhost:3000';
+const confirm        = process.argv.includes('--confirm');
+const updateMode     = process.argv.includes('--update');
 const photosOnlyMode = process.argv.includes('--photos-only');
-const maxRetries    = parseInt(arg('--retries') || '3', 10);
+const maxRetries     = parseInt(arg('--retries') || '3', 10);
 
-if ((!sheetUrl && !csvPath) || !idsArg || (!updateMode && !photosDir)) {
-  console.error('Usage: node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <ids> [--api <url>] [--confirm]');
-  console.error('       node scripts/bulk-list-discs.js --sheet <url> --ids <ids> --update [--confirm]');
-  console.error('       node scripts/bulk-list-discs.js --sheet <url> --photos <dir> --ids <ids> --photos-only [--confirm]');
+if (!idsArg || (!updateMode && !photosDir)) {
+  console.error('Usage: node scripts/bulk-list-discs.js --ids <ids> --photos <dir> [--api <url>] [--confirm]');
+  console.error('       node scripts/bulk-list-discs.js --ids <ids> --update [--confirm]');
+  console.error('       node scripts/bulk-list-discs.js --ids <ids> --photos-only [--confirm]');
   console.error('       <ids> accepts ranges and lists: 1-20,25,30-35');
-  console.error('       Omit --confirm to do a dry run (default)');
   process.exit(1);
 }
 
@@ -60,59 +57,46 @@ const targetIds = parseIds(idsArg);
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
-  let csvText;
-  if (sheetUrl) {
-    const res = await fetch(sheetUrl);
-    if (!res.ok) throw new Error(`Failed to fetch sheet: ${res.status}`);
-    csvText = await res.text();
-  } else {
-    csvText = fs.readFileSync(csvPath, 'utf8');
-  }
+  const res  = await fetch(`${apiBase}/api/inventory?ids=${encodeURIComponent(idsArg)}`);
+  if (!res.ok) throw new Error(`Inventory fetch failed: ${res.status}`);
+  const { inventory } = await res.json();
 
-  const records = parse(csvText, { columns: true, skip_empty_lines: true, bom: true });
-
-  if (records.length === 0) {
-    console.error('CSV has no rows.');
+  if (inventory.length === 0) {
+    console.error('No inventory rows found for the requested IDs.');
     process.exit(1);
   }
 
-  // Filter to the requested IDs
-  const rangeRows = records.filter(r => targetIds.has(parseInt(r['Disc #'], 10)));
-
-  if (rangeRows.length === 0) {
-    console.error(`No rows found for the requested IDs. Check the 'Disc #' column.`);
-    process.exit(1);
-  }
-
-  // Build per-disc plan: validate + collect photos
-  const plan = rangeRows.map(row => {
-    const id       = parseInt(row['Disc #'], 10);
+  // Build per-disc plan
+  const plan = inventory.map(row => {
+    const m       = row.sku.match(/^DWG-(\d+)$/i);
+    const id      = m ? parseInt(m[1], 10) : 0;
     const paddedId = String(id).padStart(3, '0');
-    const title    = (row['List Title'] || '').trim();
-    const price    = parseFloat((row['List Price'] || '').replace(/[$,]/g, ''));
+    const meta    = row.metadata || {};
+    const title   = (meta.list_title || '').trim();
+    const price   = parseFloat(meta.listPrice) || 0;
 
     const warnings = [];
-    if (!row['List Price'] || isNaN(price) || price <= 0) warnings.push('no List Price');
+    if (!price)  warnings.push('no listPrice in metadata');
+    if (!title)  warnings.push('no list_title in metadata');
 
-    // Skip sold items in all modes
-    if ((row['Sold'] || '').toUpperCase() === 'TRUE') return { id, paddedId, row, title, skip: 'sold' };
+    if (row.status === 'sold') return { id, paddedId, row, meta, title, skip: 'sold' };
 
     if (updateMode) {
-      return { id, paddedId, row, title, price, warnings: warnings.length ? warnings : null };
+      return { id, paddedId, row, meta, title, price, warnings: warnings.length ? warnings : null };
     }
 
     if (photosOnlyMode) {
       const photoPattern = new RegExp(`^DWG-${id}-.*\\.jpe?g$`, 'i');
       const photoFiles   = fs.readdirSync(photosDir).filter(f => photoPattern.test(f));
-      if (photoFiles.length === 0) return { id, paddedId, row, title, skip: 'no photos' };
-      return { id, paddedId, row, title, photoFiles };
+      if (photoFiles.length === 0) return { id, paddedId, row, meta, title, skip: 'no photos' };
+      return { id, paddedId, row, meta, title, photoFiles };
     }
 
     const photoPattern = new RegExp(`^DWG-${id}-.*\\.jpe?g$`, 'i');
     const photoFiles   = fs.readdirSync(photosDir).filter(f => photoPattern.test(f));
     if (photoFiles.length === 0) warnings.push('no photos');
 
-    return { id, paddedId, row, title, price, photoFiles, warnings: warnings.length ? warnings : null };
+    return { id, paddedId, row, meta, title, price, photoFiles, warnings: warnings.length ? warnings : null };
   });
 
   const total = plan.length;
@@ -168,21 +152,21 @@ async function main() {
           id:           p.id,
           title:        p.title,
           listPrice:    p.price,
-          description:  p.row['Description']    || '',
-          condition:    p.row['Condition']      || '',
-          manufacturer: p.row['Manufacturer']   || '',
-          mold:         p.row['Mold']           || '',
-          type:         p.row['Type']           || '',
-          plastic:      p.row['Plastic']        || '',
-          color:        p.row['Color']          || '',
-          run:          p.row['Run / Edition']  || '',
-          weight:       p.row['Weight (g)']     || '',
-          notes:        p.row['Notes']          || '',
-          speed:        p.row['speed']          || '',
-          glide:        p.row['glide']          || '',
-          turn:         p.row['turn']           || '',
-          fade:         p.row['fade']           || '',
-          stability:    p.row['stability']      || '',
+          description:  p.meta.description    || '',
+          condition:    p.meta.condition      || '',
+          manufacturer: p.meta.manufacturer   || '',
+          mold:         p.meta.mold           || '',
+          type:         p.meta.type           || '',
+          plastic:      p.meta.plastic        || '',
+          color:        p.meta.color          || '',
+          run:          p.meta.run            || '',
+          weight:       p.meta.weight         || '',
+          notes:        p.meta.notes          || '',
+          speed:        p.meta.speed          || '',
+          glide:        p.meta.glide          || '',
+          turn:         p.meta.turn           || '',
+          fade:         p.meta.fade           || '',
+          stability:    p.meta.stability      || '',
         };
 
         let response, result;
@@ -254,7 +238,6 @@ async function main() {
   totalListed  += listed;
   totalSkipped += skipped;
 
-  // Auto-retry error IDs up to maxRetries times with a short delay
   for (let cycle = 1; cycle <= maxRetries && errorIds.length > 0; cycle++) {
     console.log(`\nRetrying ${errorIds.length} error(s) — cycle ${cycle}/${maxRetries} (waiting 10s)...`);
     await new Promise(r => setTimeout(r, 10000));
