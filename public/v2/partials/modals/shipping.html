@@ -25,6 +25,7 @@
                 <th style="white-space:nowrap;width:130px">Status</th>
                 <th style="white-space:nowrap;width:80px">Carrier</th>
                 <th style="white-space:nowrap;width:110px">Est. Delivery</th>
+                <th style="white-space:nowrap;width:80px">Location</th>
               </tr>
             </thead>
             <tbody>
@@ -37,6 +38,10 @@
                   </td>
                   <td style="color:var(--muted);font-size:12px" x-text="trackCarrier(r)"></td>
                   <td style="color:var(--muted);font-size:12px" x-text="trackEstDelivery(r) || 'n/a'"></td>
+                  <td style="font-size:12px">
+                    <span x-show="locations[r.sku]" style="background:var(--ink-4);color:var(--ink-1);font:700 9px/1 var(--mono);letter-spacing:.1em;padding:2px 5px" x-text="locations[r.sku]"></span>
+                    <span x-show="!locations[r.sku]" style="color:var(--muted)">—</span>
+                  </td>
                 </tr>
               </template>
             </tbody>

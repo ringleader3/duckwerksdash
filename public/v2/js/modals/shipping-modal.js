@@ -4,6 +4,7 @@ document.addEventListener('alpine:init', () => {
     loading:      false,
     refreshing:   false,
     trackingData: {},  // { [recordId]: { status, carrier, estDelivery, publicUrl } | null }
+    locations:    {},
     errMsg:       '',
 
     init() {
@@ -16,7 +17,9 @@ document.addEventListener('alpine:init', () => {
       this.loading      = true;
       this.errMsg       = '';
       this.trackingData = {};
+      this.locations    = {};
       await this._loadAll();
+      await this._fetchLocations(this.inTransitRecords);
       this.loading = false;
     },
 
@@ -43,8 +46,25 @@ document.addEventListener('alpine:init', () => {
     async refreshAll() {
       this.refreshing   = true;
       this.trackingData = {};
+      this.locations    = {};
       await this._loadAll();
+      await this._fetchLocations(this.inTransitRecords);
       this.refreshing = false;
+    },
+
+    async _fetchLocations(records) {
+      const skus = [...new Set(records.map(r => r.sku).filter(Boolean))];
+      const results = await Promise.all(skus.map(async sku => {
+        try {
+          const res = await fetch(`/api/inventory/${encodeURIComponent(sku)}`);
+          if (!res.ok) return { sku, location: null };
+          const data = await res.json();
+          return { sku, location: data.location || null };
+        } catch { return { sku, location: null }; }
+      }));
+      const map = {};
+      results.forEach(({ sku, location }) => { map[sku] = location; });
+      this.locations = map;
     },
 
     openItem(r) {
