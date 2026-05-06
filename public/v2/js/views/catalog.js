@@ -34,6 +34,7 @@ document.addEventListener('alpine:init', () => {
     inventory:        [],
     inventoryLoading: false,
     inventoryErr:     '',
+    inventoryShowSold: false,
     editingSku:       null,
     editLocation:     '',
     editPairs:        [],  // [{ key, value }] — flattened metadata blob
@@ -222,7 +223,8 @@ document.addEventListener('alpine:init', () => {
       this.inventoryLoading = true;
       this.inventoryErr     = '';
       try {
-        const res  = await fetch('/api/inventory');
+        const url  = this.inventoryShowSold ? '/api/inventory' : '/api/inventory?excludeStatus=sold';
+        const res  = await fetch(url);
         const data = await res.json();
         this.inventory = data.inventory || [];
       } catch (e) {

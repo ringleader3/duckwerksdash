@@ -167,7 +167,12 @@
 
       <!-- ── Inventory ──────────────────────────────────────────────────────── -->
       <div style="margin-top:48px">
-        <div class="modal-section-label" style="margin-bottom:12px">Inventory</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="modal-section-label">Inventory</div>
+          <button @click="inventoryShowSold = !inventoryShowSold; loadInventory()"
+            style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 8px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer"
+            x-text="inventoryShowSold ? 'HIDE SOLD' : 'SHOW SOLD'"></button>
+        </div>
         <div x-show="inventoryLoading" style="color:var(--muted);font-size:11px;letter-spacing:1px">Loading...</div>
         <div x-show="inventoryErr" x-text="inventoryErr" style="color:var(--red);font-size:11px"></div>
         <template x-if="!inventoryLoading && inventory.length === 0">

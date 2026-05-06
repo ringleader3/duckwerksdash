@@ -44,6 +44,10 @@ router.get('/', (req, res) => {
   if (req.query.category) {
     rows = rows.filter(r => r.category === req.query.category);
   }
+  if (req.query.excludeStatus) {
+    const excluded = req.query.excludeStatus.split(',');
+    rows = rows.filter(r => !excluded.includes(r.status));
+  }
   res.json({ inventory: rows.map(parseRow) });
 });
 
