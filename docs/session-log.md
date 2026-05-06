@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-06 (continued) — inventory API + bulk-list + catalog edit (issue #119)
+
+- `POST /api/inventory` upsert route added; `GET /api/inventory?ids=` range filter added
+- `bulk-list-discs.js` rewritten to read from inventory DB instead of Google Sheet; drops `--sheet`/`--csv` flags
+- Backfill script `backfill-inventory-copy-from-sheet.js` — merges list_title + listPrice from sheet into existing blobs (292 rows); run on both Mac and NUC
+- Catalog inventory edit panel redesigned: EDIT explodes blob into all k/v pairs, all values editable inline
+- v2.0.19 → v2.0.20
+
 ### 2026-05-06 — local inventory table (issue #119)
 
 - New `inventory` SQLite table: `sku PK`, `location`, `category`, `status`, `metadata JSON`
