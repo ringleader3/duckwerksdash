@@ -104,6 +104,7 @@ app.use('/api/comps',     require('./server/comps').router);
 app.use('/api/print',          require('./server/print'));
 app.use('/api/catalog-intake',  require('./server/catalog-intake').router);
 app.use('/api/flight-numbers',  require('./server/flight-numbers'));
+app.use('/api/inventory',       require('./server/inventory'));
 
 // ── START ─────────────────────────────────────────────────────────────────────
 
