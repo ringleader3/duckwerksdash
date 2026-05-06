@@ -8,6 +8,7 @@ document.addEventListener('alpine:init', () => {
     reverbOrders:    [],
     ebayOrdersErr:   '',
     reverbOrdersErr: '',
+    locations:       {},
 
     // ── Listings ──────────────────────────────────────────────────────────────
     listingsLoading:  false,
@@ -57,6 +58,11 @@ document.addEventListener('alpine:init', () => {
       ]);
       if (ebay.status   === 'rejected') this.ebayOrdersErr   = ebay.reason?.message   || 'eBay fetch failed';
       if (reverb.status === 'rejected') this.reverbOrdersErr = reverb.reason?.message || 'Reverb fetch failed';
+      const allSkus = [
+        ...this.ebayOrders.flatMap(e => e.items.map(i => i.rec?.sku).filter(Boolean)),
+        ...this.reverbOrders.map(e => e.rec?.sku).filter(Boolean),
+      ];
+      if (allSkus.length) await this._fetchLocations(allSkus);
       this.ordersLoading = false;
     },
 
@@ -97,6 +103,21 @@ document.addEventListener('alpine:init', () => {
         );
         return { order, rec };
       });
+    },
+
+    async _fetchLocations(skus) {
+      const unique = [...new Set(skus.filter(Boolean))];
+      const results = await Promise.all(unique.map(async sku => {
+        try {
+          const res = await fetch(`/api/inventory/${encodeURIComponent(sku)}`);
+          if (!res.ok) return { sku, location: null };
+          const data = await res.json();
+          return { sku, location: data.location || null };
+        } catch { return { sku, location: null }; }
+      }));
+      const map = {};
+      results.forEach(({ sku, location }) => { map[sku] = location; });
+      this.locations = map;
     },
 
     openEbayShip(orderEntry) {

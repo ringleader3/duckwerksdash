@@ -34,7 +34,12 @@
                       <div style="font-size:11px;color:var(--ink-2);margin-top:2px">
                         <span x-text="item.lineItem.title"></span>
                         <template x-if="item.rec?.sku">
-                          <span style="color:var(--muted);margin-left:6px" x-text="'· ' + item.rec.sku"></span>
+                          <span style="color:var(--muted);margin-left:6px">
+                            <span x-text="'· ' + item.rec.sku"></span>
+                            <template x-if="locations[item.rec.sku]">
+                              <span style="margin-left:6px;background:var(--ink-4);color:var(--ink-1);font:700 9px/1 var(--mono);letter-spacing:.1em;padding:2px 5px" x-text="locations[item.rec.sku]"></span>
+                            </template>
+                          </span>
                         </template>
                       </div>
                     </template>
@@ -59,7 +64,12 @@
                     <div style="font-size:12px;font-weight:700;letter-spacing:.05em" x-text="entry.order.shipping_address?.name || entry.order.order_number"></div>
                     <div style="font-size:11px;color:var(--ink-2);margin-top:2px" x-text="entry.order.title"></div>
                     <template x-if="entry.rec?.sku">
-                      <div style="font-size:10px;color:var(--muted);margin-top:2px" x-text="entry.rec.sku"></div>
+                      <div style="font-size:10px;color:var(--muted);margin-top:2px">
+                        <span x-text="entry.rec.sku"></span>
+                        <template x-if="locations[entry.rec.sku]">
+                          <span style="margin-left:6px;background:var(--ink-4);color:var(--ink-1);font:700 9px/1 var(--mono);letter-spacing:.1em;padding:2px 5px" x-text="locations[entry.rec.sku]"></span>
+                        </template>
+                      </div>
                     </template>
                     <div style="font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.05em" x-text="'Order #' + entry.order.order_number"></div>
                   </div>
