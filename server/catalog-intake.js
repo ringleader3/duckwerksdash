@@ -11,6 +11,14 @@ const lookupFlight = db.prepare(
   'SELECT speed, glide, turn, fade, stability FROM flight_numbers WHERE manufacturer_key = ? AND mold_key = ?'
 );
 
+const upsertInventory = db.prepare(`
+  INSERT INTO inventory (sku, location, category, metadata)
+  VALUES (@sku, @location, 'disc', @metadata)
+  ON CONFLICT(sku) DO UPDATE SET
+    location = excluded.location,
+    metadata = excluded.metadata
+`);
+
 const SHEET_ID   = '1Gmdw2qcHRA_9wz29CXul3pTCT92pX56V4FPLkrhNnHE';
 const SHEET_NAME = 'duckwerks-dg-catalog';
 const KEY_PATH   = path.join(__dirname, '..', 'docs', 'handicaps-244e5d936e6c.json');
@@ -120,6 +128,19 @@ router.post('/disc', async (req, res) => {
       valueInputOption: 'USER_ENTERED',
       resource: { values: [row] },
     });
+    const sku      = `DWG-${String(discNum).padStart(3, '0')}`;
+    const metadata = JSON.stringify({
+      manufacturer, mold, type, plastic,
+      run:       run || null,
+      condition, weight, color,
+      listPrice,
+      speed:     flight.speed     ?? null,
+      glide:     flight.glide     ?? null,
+      turn:      flight.turn      ?? null,
+      fade:      flight.fade      ?? null,
+      stability: flight.stability ?? null,
+    });
+    upsertInventory.run({ sku, location: box || null, metadata });
     res.json({ discNum });
   } catch (err) {
     res.status(500).json({ error: err.message });
