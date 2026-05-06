@@ -164,6 +164,68 @@
         </div>
 
       </form>
+
+      <!-- ── Inventory ──────────────────────────────────────────────────────── -->
+      <div style="margin-top:48px">
+        <div class="modal-section-label" style="margin-bottom:12px">Inventory</div>
+        <div x-show="inventoryLoading" style="color:var(--muted);font-size:11px;letter-spacing:1px">Loading...</div>
+        <div x-show="inventoryErr" x-text="inventoryErr" style="color:var(--red);font-size:11px"></div>
+        <template x-if="!inventoryLoading && inventory.length === 0">
+          <div style="color:var(--muted);font-size:11px">No inventory records.</div>
+        </template>
+        <template x-if="!inventoryLoading && inventory.length > 0">
+          <table class="data-table" style="width:100%;table-layout:fixed">
+            <thead>
+              <tr>
+                <th style="text-align:left;width:100px">SKU</th>
+                <th style="text-align:left;width:80px">Category</th>
+                <th style="text-align:left">Location</th>
+                <th style="text-align:left;width:70px">Status</th>
+                <th style="width:80px"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="row in inventory" :key="row.sku">
+                <tr>
+                  <td style="font:700 11px/1 var(--mono)" x-text="row.sku"></td>
+                  <td style="font-size:11px;color:var(--muted)" x-text="row.category || '—'"></td>
+                  <td>
+                    <template x-if="editingSku !== row.sku">
+                      <span style="font-size:12px" x-text="row.location || '—'"></span>
+                    </template>
+                    <template x-if="editingSku === row.sku">
+                      <input type="text" x-model="editLocation"
+                        style="width:100%;font-size:12px;padding:2px 6px;border:1px solid var(--border);background:var(--bg);color:var(--ink-1)"
+                        @keydown.enter="saveEdit()" @keydown.escape="cancelEdit()">
+                    </template>
+                  </td>
+                  <td style="font-size:11px;color:var(--muted)" x-text="row.status || '—'"></td>
+                  <td style="text-align:right">
+                    <template x-if="editingSku !== row.sku">
+                      <button @click="startEdit(row)"
+                        style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 8px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer">
+                        EDIT
+                      </button>
+                    </template>
+                    <template x-if="editingSku === row.sku">
+                      <span style="display:flex;gap:6px;justify-content:flex-end">
+                        <button @click="saveEdit()" :disabled="editSaving"
+                          style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 8px;background:var(--blue);color:#fff;border:none;cursor:pointer"
+                          x-text="editSaving ? '...' : 'SAVE'"></button>
+                        <button @click="cancelEdit()"
+                          style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 8px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer">
+                          ✕
+                        </button>
+                      </span>
+                    </template>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </template>
+      </div>
+
       </div><!-- /catalog padding wrapper -->
     </div>
 

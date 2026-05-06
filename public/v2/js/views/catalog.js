@@ -30,6 +30,14 @@ document.addEventListener('alpine:init', () => {
     toast:         null,   // { msg, ok }
     submitting:    false,
 
+    // inventory list
+    inventory:        [],
+    inventoryLoading: false,
+    inventoryErr:     '',
+    editingSku:       null,
+    editLocation:     '',
+    editSaving:       false,
+
     TYPES:  ['Distance Driver', 'Fairway Driver', 'Midrange Disc', 'Putting Disc'],
     COLORS: [
       'Beige','Black','Blue','Bronze','Brown','Gold','Gray','Green',
@@ -75,6 +83,8 @@ document.addEventListener('alpine:init', () => {
       await Promise.all([this._fetchNextDiscNum(), this._fetchManufacturers(), this._fetchMolds(), this._fetchPlastics()]);
       this.$watch('mold',    () => { this.type = ''; this._fetchFlightNumbers(); });
       this.$watch('moldNew', () => { this.type = ''; this._fetchFlightNumbers(); });
+      this.$watch('$store.dw.activeView', val => { if (val === 'catalog') this.loadInventory(); });
+      if (this.$store.dw.activeView === 'catalog') this.loadInventory();
     },
 
     async _fetchNextDiscNum() {
@@ -193,6 +203,48 @@ document.addEventListener('alpine:init', () => {
       this.flightData   = null;
       // box kept as-is
       this.$nextTick(() => this.$el.querySelector('[data-focus]')?.focus());
+    },
+
+    async loadInventory() {
+      this.inventoryLoading = true;
+      this.inventoryErr     = '';
+      try {
+        const res  = await fetch('/api/inventory');
+        const data = await res.json();
+        this.inventory = data.inventory || [];
+      } catch (e) {
+        this.inventoryErr = e.message;
+      }
+      this.inventoryLoading = false;
+    },
+
+    startEdit(row) {
+      this.editingSku   = row.sku;
+      this.editLocation = row.location || '';
+    },
+
+    cancelEdit() {
+      this.editingSku   = null;
+      this.editLocation = '';
+    },
+
+    async saveEdit() {
+      this.editSaving = true;
+      try {
+        const res = await fetch(`/api/inventory/${encodeURIComponent(this.editingSku)}`, {
+          method:  'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ location: this.editLocation }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const updated = await res.json();
+        const idx = this.inventory.findIndex(r => r.sku === this.editingSku);
+        if (idx !== -1) this.inventory[idx] = updated;
+        this.cancelEdit();
+      } catch (e) {
+        this.inventoryErr = e.message;
+      }
+      this.editSaving = false;
     },
 
     _showToast(msg, ok) {
