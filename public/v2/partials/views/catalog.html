@@ -187,10 +187,48 @@
                     <span style="font-size:11px;color:var(--muted);flex-shrink:0" x-text="row.metadata?.listPrice ? '$' + row.metadata.listPrice : '—'"></span>
                     <span style="font-size:11px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" x-text="inventoryDisplayTitle(row)"></span>
                   </div>
-                  <button @click="editingSku === row.sku ? cancelEdit() : startEdit(row)"
-                    style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 8px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer;flex-shrink:0"
-                    x-text="editingSku === row.sku ? '✕ CLOSE' : 'EDIT'"></button>
+                  <div style="display:flex;gap:6px;flex-shrink:0">
+                    <button @click="ebayPreviewDisc(row)"
+                      x-show="!ebayPreview[row.sku]"
+                      style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 8px;background:transparent;border:1px solid var(--blue);color:var(--blue);cursor:pointer">
+                      UPDATE EBAY
+                    </button>
+                    <button @click="editingSku === row.sku ? cancelEdit() : startEdit(row)"
+                      style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:3px 8px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer"
+                      x-text="editingSku === row.sku ? '✕ CLOSE' : 'EDIT'"></button>
+                  </div>
                 </div>
+
+                <!-- eBay preview panel -->
+                <template x-if="ebayPreview[row.sku]">
+                  <div style="padding:10px 0 14px;border-top:1px solid var(--border)">
+                    <template x-if="ebayPreview[row.sku] === 'loading'">
+                      <span style="font-size:11px;color:var(--muted)">Generating preview...</span>
+                    </template>
+                    <template x-if="ebayPreview[row.sku] !== 'loading'">
+                      <div style="display:grid;gap:6px">
+                        <template x-if="ebayPreview[row.sku].error">
+                          <span style="font-size:11px;color:var(--red)" x-text="ebayPreview[row.sku].error"></span>
+                        </template>
+                        <template x-if="!ebayPreview[row.sku].error">
+                          <div style="display:grid;gap:4px">
+                            <div style="font-size:11px"><span style="color:var(--muted);font:700 10px/1 var(--mono)">TITLE </span><span x-text="ebayPreview[row.sku].title"></span></div>
+                            <div style="font-size:11px"><span style="color:var(--muted);font:700 10px/1 var(--mono)">PRICE </span><span x-text="'$' + ebayPreview[row.sku].price"></span><span style="color:var(--muted)"> (auto-decline $<span x-text="ebayPreview[row.sku].autoDecline"></span>)</span></div>
+                          </div>
+                        </template>
+                        <div style="display:flex;gap:8px;margin-top:4px">
+                          <button @click="ebayConfirmUpdate(row)" :disabled="ebayUpdating[row.sku] || ebayPreview[row.sku].error"
+                            style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:4px 14px;background:var(--blue);color:#fff;border:none;cursor:pointer"
+                            x-text="ebayUpdating[row.sku] ? '...' : 'CONFIRM'"></button>
+                          <button @click="ebayCancelPreview(row.sku)"
+                            style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:4px 14px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer">
+                            CANCEL
+                          </button>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </template>
 
                 <!-- Edit panel -->
                 <template x-if="editingSku === row.sku">

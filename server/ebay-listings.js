@@ -415,6 +415,22 @@ router.post('/bulk-photos', (req, res, next) => {
   }
 });
 
+// POST /api/ebay/bulk-preview — returns generated title, description, price without touching eBay
+router.post('/bulk-preview', (req, res) => {
+  try {
+    const disc = typeof req.body.disc === 'string' ? JSON.parse(req.body.disc) : req.body.disc;
+    const title = disc.title || generateTitle(disc);
+    res.json({
+      title,
+      price:       disc.listPrice,
+      autoDecline: minOffer(disc.listPrice),
+      description: descriptionHtml(disc),
+    });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 // POST /api/ebay/bulk-update — update title, description, price on existing listings
 // Body: JSON { disc: { id, title, description, listPrice, ... } }
 // No photos required. Does not republish — changes take effect on active listing immediately.

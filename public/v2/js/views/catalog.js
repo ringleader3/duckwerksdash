@@ -38,6 +38,8 @@ document.addEventListener('alpine:init', () => {
     editLocation:     '',
     editPairs:        [],  // [{ key, value }] — flattened metadata blob
     editSaving:       false,
+    ebayPreview:      {},  // sku -> { title, price, autoDecline, description } | { error } | 'loading'
+    ebayUpdating:     {},  // sku -> true while PUT in flight
 
     TYPES:  ['Distance Driver', 'Fairway Driver', 'Midrange Disc', 'Putting Disc'],
     COLORS: [
@@ -260,6 +262,49 @@ document.addEventListener('alpine:init', () => {
         this.inventoryErr = e.message;
       }
       this.editSaving = false;
+    },
+
+    async ebayPreviewDisc(row) {
+      const sku  = row.sku;
+      const disc = { id: parseInt(sku.replace(/^DWG-0*/i, ''), 10), ...row.metadata };
+      this.ebayPreview = { ...this.ebayPreview, [sku]: 'loading' };
+      try {
+        const res  = await fetch('/api/ebay/bulk-preview', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ disc }),
+        });
+        const data = await res.json();
+        this.ebayPreview = { ...this.ebayPreview, [sku]: data };
+      } catch (e) {
+        this.ebayPreview = { ...this.ebayPreview, [sku]: { error: e.message } };
+      }
+    },
+
+    ebayCancelPreview(sku) {
+      const p = { ...this.ebayPreview };
+      delete p[sku];
+      this.ebayPreview = p;
+    },
+
+    async ebayConfirmUpdate(row) {
+      const sku  = row.sku;
+      const disc = { id: parseInt(sku.replace(/^DWG-0*/i, ''), 10), ...row.metadata };
+      this.ebayUpdating = { ...this.ebayUpdating, [sku]: true };
+      try {
+        const res  = await fetch('/api/ebay/bulk-update', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ disc }),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        this.ebayCancelPreview(sku);
+        this._showToast(`${sku} updated on eBay`, true);
+      } catch (e) {
+        this._showToast(`${sku}: ${e.message}`, false);
+      }
+      const u = { ...this.ebayUpdating };
+      delete u[sku];
+      this.ebayUpdating = u;
     },
 
     _showToast(msg, ok) {
