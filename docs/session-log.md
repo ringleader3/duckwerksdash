@@ -1,6 +1,12 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-06 (continued 2) — full metadata backfill (issue #119)
+
+- `backfill-inventory-metadata-from-sheet.js` — reads all disc metadata cols (F-X: manufacturer, mold, type, plastic, run, notes, condition, weight, color, flight numbers) into blobs; run on both Mac and NUC
+- Google Sheet is now fully redundant — all data is in the inventory DB
+- 4 discs (DWG-146/147/148/158) have surviving AI-written descriptions from the list-item skill
+
 ### 2026-05-06 (continued) — inventory API + bulk-list + catalog edit (issue #119)
 
 - `POST /api/inventory` upsert route added; `GET /api/inventory?ids=` range filter added

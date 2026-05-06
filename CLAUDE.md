@@ -69,6 +69,7 @@ npm start   # starts Express on http://localhost:3000
 - `scripts/backfill-skus.js` — one-time SKU backfill from eBay Inventory API; dry-run by default, `--confirm` to write
 - `scripts/backfill-inventory-from-sheet.js` — one-time DG disc location backfill from Google Sheet into `inventory` table; dry-run by default, `--confirm` to write
 - `scripts/backfill-inventory-copy-from-sheet.js` — one-time merge of list_title + listPrice from sheet into existing inventory blobs; dry-run by default, `--confirm` to write
+- `scripts/backfill-inventory-metadata-from-sheet.js` — one-time merge of full disc metadata (manufacturer, mold, type, plastic, condition, weight, color, flight numbers) from sheet into inventory blobs; dry-run by default, `--confirm` to write
 - `scripts/migrate-to-inventory-api.js` — two-pass bulk backfill of `offer_id` on listings; pass 1 migrates legacy listings, pass 2 backfills DG discs via `GET /offer`
 - `scripts/backfill-flight-numbers.js` — one-time flight number backfill for disc items
 - `scripts/seed-flight-numbers.js` — seeds flight number reference data
