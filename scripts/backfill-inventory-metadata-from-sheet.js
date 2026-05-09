@@ -4,11 +4,12 @@
 //   F=Manufacturer, G=Mold, H=Type, I=Plastic, J=Run/Edition,
 //   K=Notes, L=Condition, M=Weight, N=Color, O=EstValue, P=ListPrice,
 //   Q=Platform, R=Status, S=CompPull, T=speed, U=glide, V=turn, W=fade, X=stability
-// Only overwrites fields with non-empty values from the sheet.
+// Writes all schema keys to every blob; sheet values overlay, missing values become null.
 // Usage: node scripts/backfill-inventory-metadata-from-sheet.js [--confirm]
-const { google } = require('googleapis');
-const path       = require('path');
-const Database   = require('better-sqlite3');
+const { google }        = require('googleapis');
+const path              = require('path');
+const Database          = require('better-sqlite3');
+const { normalizeBlob } = require('../server/inventory-schemas');
 
 const SHEET_ID   = '1Gmdw2qcHRA_9wz29CXul3pTCT92pX56V4FPLkrhNnHE';
 const SHEET_NAME = 'duckwerks-dg-catalog';
@@ -40,29 +41,27 @@ async function main() {
     const meta = existing.metadata ? JSON.parse(existing.metadata) : {};
 
     const fromSheet = {
-      manufacturer: col(r, 5),   // F
-      mold:         col(r, 6),   // G
-      type:         col(r, 7),   // H
-      plastic:      col(r, 8),   // I
-      run:          col(r, 9),   // J
-      notes:        col(r, 10),  // K
-      condition:    col(r, 11),  // L
-      weight:       col(r, 12),  // M
-      color:        col(r, 13),  // N
-      listPrice:    col(r, 15),  // P
-      list_title:   col(r, 2),   // C
-      description:  col(r, 3),   // D
-      speed:        col(r, 19),  // T
-      glide:        col(r, 20),  // U
-      turn:         col(r, 21),  // V
-      fade:         col(r, 22),  // W
-      stability:    col(r, 23),  // X
+      list_title:   col(r, 2)  || null,  // C
+      description:  col(r, 3)  || null,  // D
+      manufacturer: col(r, 5)  || null,  // F
+      mold:         col(r, 6)  || null,  // G
+      type:         col(r, 7)  || null,  // H
+      plastic:      col(r, 8)  || null,  // I
+      run:          col(r, 9)  || null,  // J
+      notes:        col(r, 10) || null,  // K
+      condition:    col(r, 11) || null,  // L
+      weight:       col(r, 12) || null,  // M
+      color:        col(r, 13) || null,  // N
+      listPrice:    col(r, 15) || null,  // P
+      speed:        col(r, 19) || null,  // T
+      glide:        col(r, 20) || null,  // U
+      turn:         col(r, 21) || null,  // V
+      fade:         col(r, 22) || null,  // W
+      stability:    col(r, 23) || null,  // X
     };
 
-    const patch = { ...meta };
-    for (const [key, val] of Object.entries(fromSheet)) {
-      if (val) patch[key] = val;
-    }
+    // Start from schema (all keys present), overlay existing meta, then sheet values
+    const patch = normalizeBlob('disc', { ...meta, ...Object.fromEntries(Object.entries(fromSheet).filter(([, v]) => v !== null)) });
 
     console.log(`  ${sku}  ${fromSheet.manufacturer} ${fromSheet.mold}  price=${fromSheet.listPrice || '—'}`);
     if (confirm) patchMd.run(JSON.stringify(patch), sku);

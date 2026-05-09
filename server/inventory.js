@@ -1,6 +1,7 @@
 // server/inventory.js — GET/POST/PATCH /api/inventory
-const router = require('express').Router();
-const db     = require('./db');
+const router              = require('express').Router();
+const db                  = require('./db');
+const { normalizeBlob }   = require('./inventory-schemas');
 
 const getBySku = db.prepare('SELECT * FROM inventory WHERE sku = ?');
 const listAll  = db.prepare('SELECT * FROM inventory ORDER BY created_at DESC');
@@ -77,12 +78,18 @@ router.patch('/:sku', (req, res) => {
   const { location, category, status, metadata } = req.body;
   const row = getBySku.get(req.params.sku);
   if (!row) return res.status(404).json({ error: 'not found' });
+  let normalizedMeta = null;
+  if (metadata !== undefined) {
+    const existingMeta = row.metadata ? JSON.parse(row.metadata) : {};
+    const merged = { ...existingMeta, ...metadata };
+    normalizedMeta = JSON.stringify(normalizeBlob(category ?? row.category, merged));
+  }
   patch.run({
     sku:      req.params.sku,
     location: location  ?? null,
     category: category  ?? null,
     status:   status    ?? null,
-    metadata: metadata !== undefined ? JSON.stringify(metadata) : null,
+    metadata: normalizedMeta,
   });
   res.json(parseRow(getBySku.get(req.params.sku)));
 });
