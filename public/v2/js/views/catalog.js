@@ -15,7 +15,7 @@ document.addEventListener('alpine:init', () => {
     plasticNew:       '',
     run:           '',
     notes:         '',
-    condition:     'Unthrown',
+    condition:     'NEW',
     weight:        '',
     color:         '',
     listPrice:     '',
