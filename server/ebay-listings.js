@@ -26,10 +26,12 @@ function minOffer(listPrice) {
   return Math.floor(parseFloat(listPrice) * MIN_OFFER_PCT);
 }
 
+const CONDITION_DISPLAY = { NEW: 'Unthrown', NEW_OTHER: 'Unthrown', USED: 'Used' };
+
 function generateTitle({ manufacturer, mold, plastic, run, weight, color, condition }) {
   const parts = [manufacturer, mold, plastic];
   if (run) parts.push(run);
-  parts.push(`${weight}g`, color, condition);
+  parts.push(`${weight}g`, color, CONDITION_DISPLAY[condition] ?? condition);
   const title = parts.join(' ');
   if (title.length <= 80) return title;
   return title.slice(0, 81).replace(/\s+\S*$/, '');
@@ -190,7 +192,7 @@ async function savePhotos(files) {
 }
 
 async function putInventoryItem(sku, disc, photoUrls, headers) {
-  const condition = disc.condition?.toLowerCase() === 'unthrown' ? 'NEW' : 'USED_EXCELLENT';
+  const condition = disc.condition || 'NEW';
   const body = {
     product: {
       title:       disc.title.slice(0, 80),
@@ -450,7 +452,7 @@ router.post('/bulk-update', async (req, res) => {
     const existing = await getInventoryItem(sku, headers);
     if (!existing) return res.json({ discId: disc.id, error: `No inventory item found for ${sku}` });
     const imageUrls = existing.product?.imageUrls || [];
-    const condition = disc.condition?.toLowerCase() === 'unthrown' ? 'NEW' : 'USED_EXCELLENT';
+    const condition = disc.condition || 'NEW';
 
     // Use curated title/description from sheet if present; otherwise generate from metadata
     disc.title       = disc.title || generateTitle(disc);

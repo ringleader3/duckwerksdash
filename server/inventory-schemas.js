@@ -12,7 +12,7 @@ const SCHEMAS = {
     plastic:      null,
     run:          null,
     notes:        null,
-    condition:    null,
+    condition:    null,  // eBay enum: NEW | NEW_OTHER | USED
     weight:       null,
     color:        null,
     speed:        null,
