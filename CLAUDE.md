@@ -32,6 +32,15 @@ npm start   # starts Express on http://localhost:3000
 - Commit after any meaningful session of changes
 - Never commit `.env`, `node_modules/`, `*.pdf`, `test.html`, `comic-reselling-project.md`, `data/duckwerks.db`
 
+## The NUC
+
+The production server is an Intel NUC at `fedora.local`. Claude has SSH access and should use it directly.
+
+- **SSH:** `ssh geoff@fedora.local`
+- **Project path:** `/home/geoff/projects/duckwerksdash`
+- **Database:** `/home/geoff/projects/duckwerksdash/data/duckwerks.db` — this is the source of truth. The local `data/duckwerks.db` is stale and useless. Never query it.
+- **Scripts that touch the DB must run on the NUC**, not locally. SSH in and run them there.
+
 ## Dev vs Production
 
 > **Every commit must be followed immediately by `git push origin main` and `bash scripts/deploy-nuc.sh`. A commit alone is invisible to Geoff. Do not tell Geoff to check anything until deploy-nuc.sh has confirmed the restart.**
@@ -63,7 +72,7 @@ npm start   # starts Express on http://localhost:3000
 - `server/ebay.js` — eBay Sell Fulfillment + Inventory API (`/api/ebay/*`); includes `POST /api/ebay/migrate-listing` and `GET /api/ebay/offer`
 - `server/ebay-listings.js` — eBay Inventory API bulk listing (`POST /api/ebay/bulk-list`)
 - `server/inventory.js` — local inventory CRUD (`GET /api/inventory`, `GET /api/inventory/:sku`, `PATCH /api/inventory/:sku`)
-- `scripts/deploy-nuc.sh` — pull + PM2 restart on the NUC; run after every push
+- `scripts/deploy-nuc.sh` — pull + PM2 restart on the NUC; run after every push. SSH: `ssh geoff@fedora.local`, project at `/home/geoff/projects/duckwerksdash`
 - `scripts/print-server.js` — dead code; was local Mac print server for Rollo via CUPS (replaced by direct Zebra TCP)
 - `scripts/bulk-list-discs.js` — bulk eBay lister; idempotent (safe to re-run)
 - `scripts/backfill-skus.js` — one-time SKU backfill from eBay Inventory API; dry-run by default, `--confirm` to write
@@ -173,12 +182,13 @@ At the end of every session:
 1. Bump patch version in `config.js` + `package.json` (if anything shipped)
 2. Update `CLAUDE.md` with any structural changes made this session
 3. Update `docs/session-log.md`
-4. Save any useful memories (new patterns, decisions, persistent context) to the memory system
-5. Commit all changes including docs with ticket refs
-6. Push to origin
-7. Run `bash scripts/deploy-nuc.sh`
+4. Commit all changes including docs with ticket refs
+5. Push to origin
+6. Run `bash scripts/deploy-nuc.sh`
 
-Tell Geoff what was updated in CLAUDE.md, session-log.md, and memory — one line each.
+**Memory vs. CLAUDE.md:** Project knowledge — infra, data model, schemas, file roles, NUC access, workflows — belongs in CLAUDE.md, not memory. Memory is only for cross-project behavioral preferences Geoff has expressed (communication style, how he likes to collaborate). When in doubt, put it in CLAUDE.md.
+
+Tell Geoff what was updated in CLAUDE.md and session-log.md — one line each.
 
 ---
 

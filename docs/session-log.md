@@ -1,6 +1,28 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-09 — inventory blob schema + condition enum cleanup
+
+- `server/inventory-schemas.js` — canonical disc blob schema (17 keys); `normalizeBlob()` used by all write paths
+- Backfill re-run: all 292 disc blobs now have all schema keys; missing values are `null` instead of absent
+- Condition field migrated to eBay enums: `NEW` / `NEW_OTHER` / `USED` (was freeform `Unthrown`/`Used`)
+- `ebay-listings.js` — condition passed through directly; title generator maps enum to display string
+- Catalog intake condition buttons updated to the three enum values
+- PATCH route normalizes metadata against schema on every write
+- Added "The NUC" section to CLAUDE.md; clarified memory vs. CLAUDE.md boundary
+- v2.0.21 → v2.0.22
+
+### 2026-05-08 — analytics + network mapping (no code shipped)
+
+- Investigated analytics view: Browse API used only for listing enumeration (to get IDs for traffic_report); Sell Analytics already in use
+- All 202 active eBay listings have offer_id + item_sku via items join on NUC DB; listings.sku column is unused/null
+- Concluded: Inventory API swap would be under-the-hood only, no new analytics data unlocked; Browse API left as-is
+- Mapped home network devices via `sudo nmap -sn 192.168.68.0/24`; full device list documented in session log
+- NUC SSH: `ssh geoff@fedora.local`, project at `/home/geoff/projects/duckwerksdash`
+
+**Network map (192.168.68.x):**
+.1 Deco node | .100 iPhone | .101 MBA wired | .102 Govee ceiling light | .103 AiDot kitchen bulb | .104 Govee curtain light | .105 Zebra printer | .106 Roku | .107 Govee icicle light | .108 Canon printer | .109 AiDot bedroom bulb | .110 iPad | .111/.112 AiDot kitchen bulbs | .113 Apple TV | .114 NUC (git.duckwerks.com) | .115 MBA wifi | .116 Zia's Govee ceiling light | .117 TCL TV | .118 Zia's Findpop ceiling light | .249/.250 Deco nodes
+
 ### 2026-05-06 (continued 3) — inventory catalog UX + eBay update flow
 
 - Inventory summary row now shows category, location, list price, and generated display title (`list_title` if present, else assembled from disc metadata fields)
