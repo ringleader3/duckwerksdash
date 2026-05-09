@@ -522,7 +522,8 @@ router.post('/bulk-update', async (req, res) => {
       throw new Error(`offer PUT ${offerRes.status}: ${text}`);
     }
 
-    res.json({ discId: disc.id, sku, offerId: offer.offerId, listingId: offer.listing?.listingId });
+    const listingId = offer.listing?.listingId;
+    res.json({ discId: disc.id, sku, offerId: offer.offerId, listingId, url: listingId ? `https://ebay.com/itm/${listingId}` : null });
   } catch (e) {
     console.error('[ebay-listings] bulk-update error:', e);
     res.json({ discId: disc?.id, error: e.message });

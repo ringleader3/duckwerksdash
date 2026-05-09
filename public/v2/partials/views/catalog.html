@@ -225,9 +225,14 @@
                           </div>
                         </template>
                         <template x-if="ebayPreview[row.sku].result">
-                          <div style="font-size:11px;padding:4px 0"
-                               :style="ebayPreview[row.sku].result === 'updated' ? 'color:var(--green)' : 'color:var(--red)'"
-                               x-text="ebayPreview[row.sku].result === 'updated' ? 'POSTED TO EBAY' : ebayPreview[row.sku].result"></div>
+                          <div style="font-size:11px;padding:4px 0;display:flex;align-items:center;gap:8px">
+                            <span :style="ebayPreview[row.sku].result === 'updated' ? 'color:var(--green)' : 'color:var(--red)'"
+                                  x-text="ebayPreview[row.sku].result === 'updated' ? 'POSTED TO EBAY' : ebayPreview[row.sku].result"></span>
+                            <template x-if="ebayPreview[row.sku].result === 'updated' && ebayPreview[row.sku].url">
+                              <a :href="ebayPreview[row.sku].url" target="_blank"
+                                 style="font:700 9px/1 var(--mono);letter-spacing:.1em;color:var(--blue);text-decoration:none">VIEW →</a>
+                            </template>
+                          </div>
                         </template>
                         <div style="display:flex;gap:8px;margin-top:4px">
                           <button @click="ebayConfirmUpdate(row)" :disabled="ebayUpdating[row.sku] || !!ebayPreview[row.sku].error || !!ebayPreview[row.sku].result"

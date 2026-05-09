@@ -299,7 +299,7 @@ document.addEventListener('alpine:init', () => {
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
-        this.ebayPreview = { ...this.ebayPreview, [sku]: { ...this.ebayPreview[sku], result: 'updated' } };
+        this.ebayPreview = { ...this.ebayPreview, [sku]: { ...this.ebayPreview[sku], result: 'updated', url: data.url } };
       } catch (e) {
         this.ebayPreview = { ...this.ebayPreview, [sku]: { ...this.ebayPreview[sku], result: e.message } };
       }
