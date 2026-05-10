@@ -1,6 +1,15 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-09 (continued) — catalog batch eBay update flow
+
+- Edit row → save → row closes with blue QUEUED tag + left border indicator
+- Batch banner shows queued count; "UPDATE ALL ON EBAY" fires sequentially with X / N progress
+- UPDATED badge is a clickable link to the listing; individual UPDATE EBAY button still works independently
+- Auto-trigger eBay preview after single row save (later replaced by queue flow)
+- VIEW → link after single-row confirm update
+- v2.0.22 → v2.0.23
+
 ### 2026-05-09 — inventory blob schema + condition enum cleanup
 
 - `server/inventory-schemas.js` — canonical disc blob schema (17 keys); `normalizeBlob()` used by all write paths
