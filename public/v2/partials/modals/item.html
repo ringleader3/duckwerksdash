@@ -249,11 +249,7 @@
           <div class="modal-row">
             <span class="modal-field">Status</span>
             <span class="modal-val">
-              <select class="modal-select" x-model="form.status">
-                <template x-for="s in ['Prepping','Listed','Sold']" :key="s">
-                  <option :value="s" x-text="s"></option>
-                </template>
-              </select>
+              <span class="badge" :class="badgeClass(form.status)" x-text="form.status || 'n/a'"></span>
             </span>
           </div>
           <div class="modal-row">
