@@ -44,6 +44,7 @@ document.addEventListener('alpine:init', () => {
     ebayQueue:        [],  // skus edited and waiting for batch update
     ebayBatchRunning: false,
     ebayBatchResults: {},  // sku -> { ok, url, error }
+    ebayBatchProgress: { done: 0, total: 0 },
 
     TYPES:  ['Distance Driver', 'Fairway Driver', 'Midrange Disc', 'Putting Disc'],
     COLORS: [
@@ -317,6 +318,7 @@ document.addEventListener('alpine:init', () => {
     async ebayBatchUpdate() {
       this.ebayBatchRunning = true;
       const skus = [...this.ebayQueue];
+      this.ebayBatchProgress = { done: 0, total: skus.length };
       for (const sku of skus) {
         const row = this.inventory.find(r => r.sku === sku);
         if (!row) continue;
@@ -333,6 +335,7 @@ document.addEventListener('alpine:init', () => {
           this.ebayBatchResults = { ...this.ebayBatchResults, [sku]: { ok: false, error: e.message } };
         }
         this.ebayQueue = this.ebayQueue.filter(s => s !== sku);
+        this.ebayBatchProgress = { ...this.ebayBatchProgress, done: this.ebayBatchProgress.done + 1 };
       }
       this.ebayBatchRunning = false;
     },

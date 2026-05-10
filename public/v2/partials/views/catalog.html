@@ -179,7 +179,8 @@
         <!-- Batch update banner -->
         <template x-if="ebayQueue.length > 0 || ebayBatchRunning">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:12px;background:var(--surface);border:1px solid var(--blue)">
-            <span style="font:700 10px/1 var(--mono);letter-spacing:.08em;color:var(--blue)" x-text="ebayBatchRunning ? 'UPDATING EBAY...' : ebayQueue.length + ' ITEM' + (ebayQueue.length === 1 ? '' : 'S') + ' QUEUED'"></span>
+            <span style="font:700 10px/1 var(--mono);letter-spacing:.08em;color:var(--blue)"
+                  x-text="ebayBatchRunning ? ebayBatchProgress.done + ' / ' + ebayBatchProgress.total + ' UPDATED...' : ebayQueue.length + ' ITEM' + (ebayQueue.length === 1 ? '' : 'S') + ' QUEUED'"></span>
             <button @click="ebayBatchUpdate()" :disabled="ebayBatchRunning"
               style="font:700 9px/1 var(--mono);letter-spacing:.1em;padding:4px 14px;background:var(--blue);color:#fff;border:none;cursor:pointer">
               UPDATE ALL ON EBAY
