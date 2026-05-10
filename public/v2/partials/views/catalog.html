@@ -207,7 +207,8 @@
                     <span style="font-size:11px;color:var(--muted);flex-shrink:0" x-text="row.metadata?.listPrice ? '$' + row.metadata.listPrice : '—'"></span>
                     <span style="font-size:11px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" x-text="inventoryDisplayTitle(row)"></span>
                     <span x-show="ebayQueue.includes(row.sku)" style="font:700 9px/1 var(--mono);letter-spacing:.08em;color:var(--blue);flex-shrink:0">QUEUED</span>
-                    <span x-show="ebayBatchResults[row.sku]?.ok" style="font:700 9px/1 var(--mono);letter-spacing:.08em;color:var(--green);flex-shrink:0">UPDATED</span>
+                    <a x-show="ebayBatchResults[row.sku]?.ok" :href="ebayBatchResults[row.sku]?.url" target="_blank"
+                       style="font:700 9px/1 var(--mono);letter-spacing:.08em;color:var(--green);flex-shrink:0;text-decoration:none">UPDATED →</a>
                     <span x-show="ebayBatchResults[row.sku]?.error" style="font:700 9px/1 var(--mono);letter-spacing:.08em;color:var(--red);flex-shrink:0" x-text="ebayBatchResults[row.sku]?.error"></span>
                   </div>
                   <div style="display:flex;gap:6px;flex-shrink:0">
