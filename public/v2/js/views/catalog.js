@@ -41,6 +41,9 @@ document.addEventListener('alpine:init', () => {
     editSaving:       false,
     ebayPreview:      {},  // sku -> { title, price, autoDecline, description } | { error } | 'loading'
     ebayUpdating:     {},  // sku -> true while PUT in flight
+    ebayQueue:        [],  // skus edited and waiting for batch update
+    ebayBatchRunning: false,
+    ebayBatchResults: {},  // sku -> { ok, url, error }
 
     TYPES:  ['Distance Driver', 'Fairway Driver', 'Midrange Disc', 'Putting Disc'],
     COLORS: [
@@ -259,9 +262,10 @@ document.addEventListener('alpine:init', () => {
         const updated = await res.json();
         const idx = this.inventory.findIndex(r => r.sku === this.editingSku);
         if (idx !== -1) this.inventory[idx] = updated;
-        const savedRow = updated;
+        const sku = this.editingSku;
         this.cancelEdit();
-        this.ebayPreviewDisc(savedRow);
+        if (!this.ebayQueue.includes(sku)) this.ebayQueue = [...this.ebayQueue, sku];
+        delete this.ebayBatchResults[sku];
       } catch (e) {
         this.inventoryErr = e.message;
       }
@@ -308,6 +312,29 @@ document.addEventListener('alpine:init', () => {
       const u = { ...this.ebayUpdating };
       delete u[sku];
       this.ebayUpdating = u;
+    },
+
+    async ebayBatchUpdate() {
+      this.ebayBatchRunning = true;
+      const skus = [...this.ebayQueue];
+      for (const sku of skus) {
+        const row = this.inventory.find(r => r.sku === sku);
+        if (!row) continue;
+        const disc = { id: parseInt(sku.replace(/^DWG-0*/i, ''), 10), ...row.metadata };
+        try {
+          const res  = await fetch('/api/ebay/bulk-update', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ disc }),
+          });
+          const data = await res.json();
+          if (data.error) throw new Error(data.error);
+          this.ebayBatchResults = { ...this.ebayBatchResults, [sku]: { ok: true, url: data.url } };
+        } catch (e) {
+          this.ebayBatchResults = { ...this.ebayBatchResults, [sku]: { ok: false, error: e.message } };
+        }
+        this.ebayQueue = this.ebayQueue.filter(s => s !== sku);
+      }
+      this.ebayBatchRunning = false;
     },
 
     _showToast(msg, ok) {
