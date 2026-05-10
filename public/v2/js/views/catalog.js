@@ -259,7 +259,9 @@ document.addEventListener('alpine:init', () => {
         const updated = await res.json();
         const idx = this.inventory.findIndex(r => r.sku === this.editingSku);
         if (idx !== -1) this.inventory[idx] = updated;
+        const savedRow = updated;
         this.cancelEdit();
+        this.ebayPreviewDisc(savedRow);
       } catch (e) {
         this.inventoryErr = e.message;
       }
