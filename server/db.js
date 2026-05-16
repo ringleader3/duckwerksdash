@@ -11,6 +11,13 @@ const db = new Database(path.join(DATA_DIR, 'duckwerks.db'));
 // Enable foreign keys (off by default in SQLite)
 db.pragma('foreign_keys = ON');
 db.pragma('journal_mode = WAL');
+db.pragma('wal_autocheckpoint = 1000');
+
+// WAL accumulates while the process runs because the long-lived connection
+// blocks auto-truncation. Checkpoint hourly to keep the WAL from bloating.
+setInterval(() => {
+  try { db.pragma('wal_checkpoint(PASSIVE)'); } catch (_) {}
+}, 60 * 60 * 1000);
 
 // ── Schema ────────────────────────────────────────────────────────────────────
 
