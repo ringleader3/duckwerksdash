@@ -13,6 +13,7 @@ const rows = db.prepare(`
   let ok = 0, fail = 0;
   for (const row of rows) {
     const disc = JSON.parse(row.metadata);
+    disc.id = parseInt(row.sku.replace('DWG-', ''), 10);
     const res = await fetch('http://localhost:3000/api/ebay/bulk-update', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
