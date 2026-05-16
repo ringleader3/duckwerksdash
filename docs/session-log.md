@@ -1,6 +1,16 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-15 — Title cleanup: remove Unthrown, clear curated titles
+
+- Removed "Unthrown" from generateTitle(); USED discs still get "Used" appended
+- Nulled list_title on all 87 non-sold inventory blobs
+- Pushed regenerated titles to eBay for 145/153 active listings via bulk-update route
+- 6 USED disc failures: pre-existing bug in bulk-update (condition serialization); titles already correct on eBay
+- 2 eBay 500s (DWG-173, DWG-175): transient, listings exist
+- Added push-titles-to-ebay.js one-shot script (delete after use)
+- v2.0.24 → v2.0.25
+
 ### 2026-05-15 — SQLite WAL bloat fix
 
 - 5.8M WAL against 596K main file; TRUNCATE checkpoint reclaimed it immediately
