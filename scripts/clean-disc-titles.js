@@ -4,15 +4,16 @@
 //
 // Affected SKUs: any non-sold inventory row where list_title is set
 // (curated titles are removed; generateTitle() produces the new value)
+//
+// eBay updates go through the local /api/ebay/bulk-update route — same path
+// the UI uses, no direct API calls needed.
 
-const db      = require('../server/db');
-const { getAccessToken } = require('../server/ebay-auth');
-
-const CONFIRM = process.argv.includes('--confirm');
-const CACHE_FILE = require('path').join(__dirname, '.clean-disc-titles-cache.json');
+const db = require('../server/db');
 const fs = require('fs');
 
-const EBAY_API = 'https://api.ebay.com';
+const CONFIRM    = process.argv.includes('--confirm');
+const CACHE_FILE = require('path').join(__dirname, '.clean-disc-titles-cache.json');
+const LOCAL_API  = 'http://localhost:3000';
 
 function generateTitle({ manufacturer, mold, plastic, run, weight, color, condition }) {
   const parts = [manufacturer, mold, plastic];
@@ -24,117 +25,70 @@ function generateTitle({ manufacturer, mold, plastic, run, weight, color, condit
   return title.slice(0, 81).replace(/\s+\S*$/, '');
 }
 
-async function pushTitleToEbay(token, offerId, title) {
-  // PATCH the inventory item's title via the offer's SKU
-  const offerRes = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offerId}`, {
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+async function pushToEbay(disc) {
+  const res = await fetch(`${LOCAL_API}/api/ebay/bulk-update`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ disc }),
   });
-  if (!offerRes.ok) throw new Error(`GET offer ${offerId} → ${offerRes.status}`);
-  const offer = await offerRes.json();
-  const sku = offer.sku;
-
-  const itemRes = await fetch(`${EBAY_API}/sell/inventory/v1/inventory_item/${sku}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!itemRes.ok) throw new Error(`GET inventory_item ${sku} → ${itemRes.status}`);
-  const item = await itemRes.json();
-
-  item.product.title = title;
-
-  const putRes = await fetch(`${EBAY_API}/sell/inventory/v1/inventory_item/${sku}`, {
-    method: 'PUT',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(item),
-  });
-  if (!putRes.ok) {
-    const err = await putRes.text();
-    throw new Error(`PUT inventory_item ${sku} → ${putRes.status}: ${err}`);
-  }
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
 }
 
 async function main() {
-  const fetch = (...args) => import('node-fetch').then(m => m.default(...args));
-  global.fetch = fetch;
-
+  // Build plan from all non-sold inventory with an offer_id (has a live listing)
   const rows = db.prepare(`
-    SELECT i.sku,
-           json_extract(i.metadata, '$.list_title') as list_title,
-           i.metadata,
-           l.offer_id
+    SELECT i.sku, i.metadata, l.offer_id
     FROM inventory i
-    LEFT JOIN listings l ON l.item_id = (
+    JOIN listings l ON l.item_id = (
       SELECT id FROM items WHERE sku = i.sku LIMIT 1
     )
     WHERE i.status != 'sold'
-      AND json_extract(i.metadata, '$.list_title') IS NOT NULL
+      AND l.status = 'active'
+      AND l.offer_id IS NOT NULL
     ORDER BY i.sku
   `).all();
 
   if (rows.length === 0) {
-    console.log('No curated list_title entries found.');
+    console.log('No active listings found.');
     return;
   }
 
   const plan = rows.map(row => {
     const meta = JSON.parse(row.metadata);
     const newTitle = generateTitle(meta);
-    return {
-      sku:       row.sku,
-      offer_id:  row.offer_id,
-      old_title: row.list_title,
-      new_title: newTitle,
-    };
+    return { sku: row.sku, offer_id: row.offer_id, new_title: newTitle, disc: meta };
   });
 
   if (!CONFIRM) {
-    console.log(`DRY RUN — ${plan.length} listings would be updated:\n`);
-    plan.forEach(p => {
-      console.log(`${p.sku}  [offer: ${p.offer_id || 'none'}]`);
-      console.log(`  OLD: ${p.old_title}`);
-      console.log(`  NEW: ${p.new_title}`);
-    });
+    console.log(`DRY RUN — ${plan.length} listings would be pushed to eBay:\n`);
+    plan.forEach(p => console.log(`${p.sku}: ${p.new_title}`));
     fs.writeFileSync(CACHE_FILE, JSON.stringify(plan, null, 2));
-    console.log(`\nCache written to ${CACHE_FILE}`);
-    console.log('Re-run with --confirm to apply.');
+    console.log(`\nCache written. Re-run with --confirm to apply.`);
     return;
   }
 
-  // --confirm: read cache if available, else use fresh plan
   let work = plan;
   if (fs.existsSync(CACHE_FILE)) {
     work = JSON.parse(fs.readFileSync(CACHE_FILE));
     console.log(`Using cached plan (${work.length} entries).`);
   }
 
-  const token = await getAccessToken();
-  let dbOk = 0, ebayOk = 0, ebaySkipped = 0, ebayFail = 0;
-
+  let ok = 0, skipped = 0, failed = 0;
   for (const p of work) {
-    // 1. Null out list_title in DB
-    const meta = JSON.parse(db.prepare('SELECT metadata FROM inventory WHERE sku = ?').get(p.sku).metadata);
-    delete meta.list_title;
-    db.prepare('UPDATE inventory SET metadata = ? WHERE sku = ?')
-      .run(JSON.stringify(meta), p.sku);
-    dbOk++;
-
-    // 2. Push new title to eBay
-    if (!p.offer_id) {
-      console.log(`${p.sku}: DB updated, no offer_id — skipping eBay`);
-      ebaySkipped++;
-      continue;
-    }
     try {
-      await pushTitleToEbay(token, p.offer_id, p.new_title);
+      await pushToEbay(p.disc);
       console.log(`${p.sku}: OK — "${p.new_title}"`);
-      ebayOk++;
+      ok++;
     } catch (e) {
-      console.error(`${p.sku}: eBay FAILED — ${e.message}`);
-      ebayFail++;
+      console.error(`${p.sku}: FAILED — ${e.message}`);
+      failed++;
     }
   }
 
-  fs.unlinkSync(CACHE_FILE);
-  console.log(`\nDone. DB: ${dbOk} updated. eBay: ${ebayOk} ok, ${ebaySkipped} skipped (no offer_id), ${ebayFail} failed.`);
+  if (fs.existsSync(CACHE_FILE)) fs.unlinkSync(CACHE_FILE);
+  console.log(`\nDone. ${ok} ok, ${skipped} skipped, ${failed} failed.`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
