@@ -24,4 +24,5 @@ const rows = db.prepare(`
     else { console.log(row.sku + ': OK'); ok++; }
   }
   console.log(`\nDone. ok=${ok} fail=${fail}`);
+  process.exit(0);
 })();
