@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-15 — SQLite WAL bloat fix
+
+- 5.8M WAL against 596K main file; TRUNCATE checkpoint reclaimed it immediately
+- Added hourly `PASSIVE` checkpoint via `setInterval` in `server/db.js`
+- Root cause: long-lived PM2 process holds connection open, blocking WAL auto-truncation
+- v2.0.23 → v2.0.24
+
 ### 2026-05-09 (continued) — catalog batch eBay update flow
 
 - Edit row → save → row closes with blue QUEUED tag + left border indicator
