@@ -27,7 +27,7 @@ function generateDiscTitle({ manufacturer, mold, plastic, run, weight, color, co
   const parts = [manufacturer, mold, plastic];
   if (run) parts.push(run);
   parts.push(`${weight}g`, color);
-  if (condition === 'USED') parts.push('Used');
+  if (condition.startsWith('USED')) parts.push('Used');
   const title = parts.join(' ');
   if (title.length <= 80) return title;
   return title.slice(0, 81).replace(/\s+\S*$/, '');
@@ -100,10 +100,10 @@ function renderSkillDescriptionHtml(text) {
 // blob: the metadata JSON from the inventory table (already parsed)
 // Returns the normalized payload shape the list/update routes accept.
 function buildDiscPayload(blob) {
-  const title     = blob.list_title || generateDiscTitle(blob);
+  const condition = normalizeCondition(blob.condition);
+  const title     = blob.list_title || generateDiscTitle({ ...blob, condition });
   const specLines = buildDiscSpecLines(blob);
   const price     = parseFloat(blob.listPrice);
-  const condition = normalizeCondition(blob.condition);
 
   const aspects = {
     Type: ['Disc Golf Disc'],
