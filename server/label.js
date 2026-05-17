@@ -182,14 +182,16 @@ async function easypostRates(toAddress, parcel) {
   return { rates, warnings };
 }
 
-async function easypostPurchase(rateObjectId, insurance = '100.00') {
+async function easypostPurchase(rateObjectId, insurance = null) {
   const [shipmentId, rateId] = rateObjectId.split('|');
   if (!shipmentId || !rateId) throw new Error('Invalid EasyPost rate ID');
-  const token = easypostToken();
+  const token   = easypostToken();
+  const payload = { rate: { id: rateId } };
+  if (insurance != null) payload.insurance = String(parseFloat(insurance) || 100);
   const res   = await fetch(`${EASYPOST_API}/shipments/${shipmentId}/buy`, {
     method:  'POST',
     headers: easypostHeaders(token),
-    body: JSON.stringify({ rate: { id: rateId }, insurance: String(parseFloat(insurance) || 100) }),
+    body: JSON.stringify(payload),
   });
   const data = await res.json();
   if (!res.ok) throw Object.assign(new Error('EasyPost error'), { status: res.status, data });

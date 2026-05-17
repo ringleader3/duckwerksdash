@@ -4,6 +4,7 @@ document.addEventListener('alpine:init', () => {
     step:           'form',   // 'form' | 'rates' | 'result'
     addrText:       '',
     insuredAmount:  '100',
+    insureEnabled:  true,
     parcel:         { type: 'poly', weightLbs: '0', weightOz: '8', length: '9.5', width: '9.5', height: '1' },
     rates:          [],
     purchaseResult: null,
@@ -35,6 +36,8 @@ document.addEventListener('alpine:init', () => {
     async _open() {
       this.step              = 'form';
       this.addrText          = '';
+      const isDisc           = r.category?.name?.toLowerCase() === 'disc golf';
+      this.insureEnabled     = !isDisc;
       this.insuredAmount     = '100';
       this.rates             = [];
       this.purchaseResult    = null;
@@ -240,7 +243,7 @@ document.addEventListener('alpine:init', () => {
         const res  = await fetch('/api/label/purchase', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ rateObjectId: rateId, insurance: this.insuredAmount || '100' }),
+          body:    JSON.stringify({ rateObjectId: rateId, ...(this.insureEnabled ? { insurance: this.insuredAmount || '100' } : {}) }),
         });
         const data = await res.json();
         if (!res.ok) {
