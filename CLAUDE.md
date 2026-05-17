@@ -58,7 +58,7 @@ The production server is an Intel NUC at `fedora.local`. Claude has SSH access a
 - `server.js` — Express entry point: mounts routers, serves static, redirects `/` → `/v2`
 - `server/db.js` — opens SQLite db via better-sqlite3; shared across all routers
 - `server/catalog.js` — `/api/sites`, `/api/categories`
-- `server/catalog-intake.js` — `/api/catalog-intake/*` — Google Sheets backend; key at `docs/handicaps-244e5d936e6c.json`
+- `server/catalog-intake.js` — `/api/catalog-intake/*` — disc intake (manufacturers, molds, plastics, disc save); DB-only, no Google Sheets
 - `server/items.js` — `/api/items` CRUD
 - `server/lots.js` — `/api/lots` CRUD
 - `server/listings.js` — `/api/listings` CRUD
@@ -70,28 +70,13 @@ The production server is an Intel NUC at `fedora.local`. Claude has SSH access a
 - `server/reverb.js` — Reverb proxy (`/api/reverb/*`)
 - `server/ebay-auth.js` — eBay OAuth (one-time setup + auto-refresh)
 - `server/ebay.js` — eBay Sell Fulfillment + Inventory API (`/api/ebay/*`); includes `POST /api/ebay/migrate-listing` and `GET /api/ebay/offer`
-- `server/ebay-listings.js` — eBay Inventory API bulk listing (`POST /api/ebay/bulk-list`)
+- `server/ebay-client.js` — shared eBay API plumbing (headers, policies, EPS upload, inventory item PUT/GET, offer upsert/update/publish)
+- `server/ebay-builders.js` — disc payload builder (`buildDiscPayload`), description renderers; add new category builders here
+- `server/ebay-listings.js` — eBay listing routes (`/api/ebay/bulk-list`, `bulk-update`, `bulk-preview`, `bulk-photos`, `list-item`, `update-item`); thin handlers only
 - `server/inventory.js` — local inventory CRUD (`GET /api/inventory`, `GET /api/inventory/:sku`, `PATCH /api/inventory/:sku`)
 - `scripts/deploy-nuc.sh` — pull + PM2 restart on the NUC; run after every push. SSH: `ssh geoff@fedora.local`, project at `/home/geoff/projects/duckwerksdash`
-- `scripts/print-server.js` — dead code; was local Mac print server for Rollo via CUPS (replaced by direct Zebra TCP)
 - `scripts/bulk-list-discs.js` — bulk eBay lister; idempotent (safe to re-run)
-- `scripts/backfill-skus.js` — one-time SKU backfill from eBay Inventory API; dry-run by default, `--confirm` to write
-- `scripts/backfill-inventory-from-sheet.js` — one-time DG disc location backfill from Google Sheet into `inventory` table; dry-run by default, `--confirm` to write
-- `scripts/backfill-inventory-copy-from-sheet.js` — one-time merge of list_title + listPrice from sheet into existing inventory blobs; dry-run by default, `--confirm` to write
-- `scripts/backfill-inventory-metadata-from-sheet.js` — one-time merge of full disc metadata (manufacturer, mold, type, plastic, condition, weight, color, flight numbers) from sheet into inventory blobs; dry-run by default, `--confirm` to write
-- `scripts/migrate-to-inventory-api.js` — two-pass bulk backfill of `offer_id` on listings; pass 1 migrates legacy listings, pass 2 backfills DG discs via `GET /offer`
-- `scripts/backfill-flight-numbers.js` — one-time flight number backfill for disc items
-- `scripts/seed-flight-numbers.js` — seeds flight number reference data
-- `scripts/assign-lot.js` — assign items to a lot; dry-run by default
-- `scripts/bulk-comp-discs.js` — bulk comp research runner for disc inventory
-- `scripts/check-aspects.js` — inspect eBay item aspects for a listing
-- `scripts/check-conditions.js` — inspect valid eBay condition values for a category
-- `scripts/check-offer.js` — inspect an eBay offer by SKU
-- `scripts/ebay-traffic-merge.js` — merge eBay traffic report data into local db
-- `scripts/rename-disc-photos.js` — batch rename disc photo files to match SKU convention
-- `scripts/reverb-scrape.js` — scrape Reverb listing data for comp research
-- `scripts/test-rates.js` — test EasyPost/Shippo rate fetching for a given package
-- `scripts/update-site-fees.js` — update site fee config in db
+- `scripts/README.md` — index of all active scripts with usage examples
 - `data/ebay-tokens.json` — eBay OAuth tokens (never commit)
 
 > `scripts/archive-grabber/` was extracted to its own repo (`~/projects/archive-grabber`) per issue #118.

@@ -1,6 +1,14 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-16 — Catalog intake cleanup + script purge
+
+- Stripped Google Sheets entirely from `catalog-intake.js` — `next-disc-num` now reads max SKU from inventory DB; disc POST writes directly to inventory DB; no network calls on save
+- `catalog-intake.js` disc POST now calls `normalizeBlob` and includes `notes`; `_reset()` condition fixed from `'Unthrown'` → `'NEW'`; status set to `'intake'` on new discs
+- Deleted 9 dead scripts (all sheet backfills, one-time migrations, dead print server, push-titles one-shot)
+- Added `scripts/README.md` — one-liner index of all active scripts
+- v2.0.26 → v2.0.27
+
 ### 2026-05-16 — eBay listing/update refactor (ref #121)
 
 - Extracted `server/ebay-client.js` — all shared eBay API plumbing (headers, policies, location, EPS upload, inventory item PUT/GET, offer upsert/update/publish). Pure functions, no Express, no DB.
