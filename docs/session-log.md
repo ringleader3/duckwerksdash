@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-16 — Inline price edit with keyboard tab flow in catalog inventory
+
+- Price cell in inventory list is now focusable and editable inline — click, Enter, or type a digit to activate
+- Tab from input → QUEUE button; Tab from QUEUE → saves to DB, queues for eBay batch update, advances to next row
+- Typing a digit while focused on the price span seeds the input with that digit (no Enter required)
+- v2.0.27 → v2.0.28
+
 ### 2026-05-16 — Catalog intake cleanup + script purge
 
 - Stripped Google Sheets entirely from `catalog-intake.js` — `next-disc-num` now reads max SKU from inventory DB; disc POST writes directly to inventory DB; no network calls on save
