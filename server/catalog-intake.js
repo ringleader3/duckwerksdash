@@ -1,7 +1,8 @@
-const { google } = require('googleapis');
-const path       = require('path');
-const router     = require('express').Router();
-const db         = require('./db');
+const { google }       = require('googleapis');
+const path             = require('path');
+const router           = require('express').Router();
+const db               = require('./db');
+const { normalizeBlob } = require('./inventory-schemas');
 
 function normalize(s) {
   return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
@@ -129,17 +130,18 @@ router.post('/disc', async (req, res) => {
       resource: { values: [row] },
     });
     const sku      = `DWG-${String(discNum).padStart(3, '0')}`;
-    const metadata = JSON.stringify({
+    const metadata = JSON.stringify(normalizeBlob('disc', {
       manufacturer, mold, type, plastic,
       run:       run || null,
-      condition, weight, color,
-      listPrice,
+      notes:     notes || null,
+      condition,
+      weight, color, listPrice,
       speed:     flight.speed     ?? null,
       glide:     flight.glide     ?? null,
       turn:      flight.turn      ?? null,
       fade:      flight.fade      ?? null,
       stability: flight.stability ?? null,
-    });
+    }));
     upsertInventory.run({ sku, location: box || null, metadata });
     res.json({ discNum });
   } catch (err) {
