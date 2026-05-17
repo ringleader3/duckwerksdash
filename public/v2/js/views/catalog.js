@@ -342,9 +342,9 @@ document.addEventListener('alpine:init', () => {
       this.ebayBatchRunning = false;
     },
 
-    startPriceEdit(row) {
+    startPriceEdit(row, seed = null) {
       this.priceEditSku = row.sku;
-      this.priceEditVal = row.metadata?.listPrice ?? '';
+      this.priceEditVal = seed !== null ? Number(seed) : (row.metadata?.listPrice ?? '');
       this.$nextTick(() => document.getElementById('price-input-' + row.sku)?.focus());
     },
 

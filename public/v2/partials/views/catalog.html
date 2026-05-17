@@ -211,6 +211,7 @@
                           tabindex="0"
                           :data-sku="row.sku"
                           @keydown.enter.prevent="startPriceEdit(row)"
+                          @keydown="if(/^\d$/.test($event.key)){ $event.preventDefault(); startPriceEdit(row, $event.key) }"
                           @click="startPriceEdit(row)"
                           :style="row.metadata?.listPrice ? 'color:var(--ink-1)' : 'color:var(--muted)'"
                           style="font-size:11px;flex-shrink:0;cursor:pointer;outline:none;border-bottom:1px dotted var(--ink-3)"
