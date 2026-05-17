@@ -8,6 +8,7 @@ _Most recent first. Update this at the end of every session._
 - Rewrote `server/ebay-listings.js` — 500 lines removed, thin route handlers only; all six route names preserved (zero changes to callers)
 - Fixed trailing `\n` on Notes spec line (minor output cleanup)
 - Confirmed pre-existing USED disc condition bug (errorId 2004) is unchanged/tracked as #121
+- Fixed USED condition bug: migrated 12 DB rows USED → USED_EXCELLENT on NUC; added normalizeCondition() guard in builder. Category 184356 has no sub-grades in UI but API requires USED_EXCELLENT (its internal default for "Used")
 - Documented two-mode architecture: inventory-backed (disc builder) vs session-backed (skill checkpoint) in plan doc
 - v2.0.25 → v2.0.26
 
