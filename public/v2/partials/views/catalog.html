@@ -205,7 +205,34 @@
                     <span style="font:700 11px/1 var(--mono);flex-shrink:0" x-text="row.sku"></span>
                     <span style="font-size:11px;color:var(--muted);flex-shrink:0" x-text="row.category || '—'"></span>
                     <span style="font-size:11px;color:var(--muted);flex-shrink:0" x-text="row.location || '—'"></span>
-                    <span style="font-size:11px;color:var(--muted);flex-shrink:0" x-text="row.metadata?.listPrice ? '$' + row.metadata.listPrice : '—'"></span>
+                    <!-- inline price edit -->
+                    <span x-show="priceEditSku !== row.sku"
+                          class="price-cell"
+                          tabindex="0"
+                          :data-sku="row.sku"
+                          @keydown.enter.prevent="startPriceEdit(row)"
+                          @click="startPriceEdit(row)"
+                          :style="row.metadata?.listPrice ? 'color:var(--ink-1)' : 'color:var(--muted)'"
+                          style="font-size:11px;flex-shrink:0;cursor:pointer;outline:none;border-bottom:1px dotted var(--ink-3)"
+                          x-text="row.metadata?.listPrice ? '$' + row.metadata.listPrice : '—'"></span>
+                    <span x-show="priceEditSku === row.sku" style="display:flex;gap:4px;align-items:center;flex-shrink:0">
+                      <input type="number" min="0" step="1"
+                             x-model.number="priceEditVal"
+                             :id="'price-input-' + row.sku"
+                             @keydown.enter.prevent="focusPriceQueue(row.sku)"
+                             @keydown.escape="cancelPriceEdit()"
+                             style="font-size:11px;width:60px;padding:1px 4px;border:1px solid var(--blue);background:var(--bg);color:var(--ink-1)">
+                      <button :id="'price-queue-' + row.sku"
+                              @click="savePriceEdit(row)"
+                              @keydown.tab.prevent="savePriceEditAndAdvance(row, $event)"
+                              style="font:700 9px/1 var(--mono);letter-spacing:.08em;padding:2px 8px;background:var(--blue);color:#fff;border:none;cursor:pointer">
+                        QUEUE
+                      </button>
+                      <button @click="cancelPriceEdit()"
+                              style="font:700 9px/1 var(--mono);letter-spacing:.08em;padding:2px 6px;background:transparent;border:1px solid var(--ink-3);color:var(--ink-2);cursor:pointer">
+                        ✕
+                      </button>
+                    </span>
                     <span style="font-size:11px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" x-text="inventoryDisplayTitle(row)"></span>
                     <span x-show="ebayQueue.includes(row.sku)" style="font:700 9px/1 var(--mono);letter-spacing:.08em;color:var(--blue);flex-shrink:0">QUEUED</span>
                     <a x-show="ebayBatchResults[row.sku]?.ok" :href="ebayBatchResults[row.sku]?.url" target="_blank"

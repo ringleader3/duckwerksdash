@@ -41,6 +41,8 @@ document.addEventListener('alpine:init', () => {
     editSaving:       false,
     ebayPreview:      {},  // sku -> { title, price, autoDecline, description } | { error } | 'loading'
     ebayUpdating:     {},  // sku -> true while PUT in flight
+    priceEditSku:     null,
+    priceEditVal:     '',
     ebayQueue:        [],  // skus edited and waiting for batch update
     ebayBatchRunning: false,
     ebayBatchResults: {},  // sku -> { ok, url, error }
@@ -338,6 +340,52 @@ document.addEventListener('alpine:init', () => {
         this.ebayBatchProgress = { ...this.ebayBatchProgress, done: this.ebayBatchProgress.done + 1 };
       }
       this.ebayBatchRunning = false;
+    },
+
+    startPriceEdit(row) {
+      this.priceEditSku = row.sku;
+      this.priceEditVal = row.metadata?.listPrice ?? '';
+      this.$nextTick(() => document.getElementById('price-input-' + row.sku)?.focus());
+    },
+
+    cancelPriceEdit() {
+      this.priceEditSku = null;
+      this.priceEditVal = '';
+    },
+
+    focusPriceQueue(sku) {
+      document.getElementById('price-queue-' + sku)?.focus();
+    },
+
+    async savePriceEdit(row) {
+      const sku      = row.sku;
+      const newPrice = this.priceEditVal;
+      const metadata = { ...(row.metadata || {}), listPrice: newPrice };
+      try {
+        const res = await fetch(`/api/inventory/${encodeURIComponent(sku)}`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ metadata }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const updated = await res.json();
+        const idx = this.inventory.findIndex(r => r.sku === sku);
+        if (idx !== -1) this.inventory[idx] = updated;
+        if (!this.ebayQueue.includes(sku)) this.ebayQueue = [...this.ebayQueue, sku];
+        delete this.ebayBatchResults[sku];
+      } catch (e) {
+        this.inventoryErr = e.message;
+      }
+      this.cancelPriceEdit();
+    },
+
+    async savePriceEditAndAdvance(row) {
+      const sku = row.sku;
+      await this.savePriceEdit(row);
+      this.$nextTick(() => {
+        const priceSpans = Array.from(this.$el.querySelectorAll('span.price-cell[tabindex="0"]'));
+        const idx = priceSpans.findIndex(el => el.dataset.sku === sku);
+        if (idx !== -1 && priceSpans[idx + 1]) priceSpans[idx + 1].focus();
+      });
     },
 
     _showToast(msg, ok) {
