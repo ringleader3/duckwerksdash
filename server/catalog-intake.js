@@ -1,7 +1,6 @@
-const { google }       = require('googleapis');
-const path             = require('path');
-const router           = require('express').Router();
-const db               = require('./db');
+// server/catalog-intake.js — catalog intake routes (manufacturers, molds, plastics, disc save)
+const router            = require('express').Router();
+const db                = require('./db');
 const { normalizeBlob } = require('./inventory-schemas');
 
 function normalize(s) {
@@ -12,38 +11,27 @@ const lookupFlight = db.prepare(
   'SELECT speed, glide, turn, fade, stability FROM flight_numbers WHERE manufacturer_key = ? AND mold_key = ?'
 );
 
-const upsertInventory = db.prepare(`
-  INSERT INTO inventory (sku, location, category, metadata)
-  VALUES (@sku, @location, 'disc', @metadata)
+const maxDiscNum = db.prepare(
+  "SELECT MAX(CAST(SUBSTR(sku, 5) AS INTEGER)) as max FROM inventory WHERE sku LIKE 'DWG-%'"
+);
+
+const upsert = db.prepare(`
+  INSERT INTO inventory (sku, location, category, status, metadata)
+  VALUES (@sku, @location, 'disc', 'intake', @metadata)
   ON CONFLICT(sku) DO UPDATE SET
     location = excluded.location,
     metadata = excluded.metadata
 `);
 
-const SHEET_ID   = '1Gmdw2qcHRA_9wz29CXul3pTCT92pX56V4FPLkrhNnHE';
-const SHEET_NAME = 'duckwerks-dg-catalog';
-const KEY_PATH   = path.join(__dirname, '..', 'docs', 'handicaps-244e5d936e6c.json');
-
-function getSheets() {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: KEY_PATH,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-  return google.sheets({ version: 'v4', auth });
-}
+const markSoldStmt = db.prepare(
+  "UPDATE inventory SET status = 'sold' WHERE sku = ?"
+);
 
 // GET /api/catalog-intake/next-disc-num
-router.get('/next-disc-num', async (req, res) => {
+router.get('/next-disc-num', (req, res) => {
   try {
-    const sheets = getSheets();
-    const resp   = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!A:A`,
-    });
-    const rows    = resp.data.values || [];
-    const dataRows = rows.slice(1).filter(r => r[0]);
-    const lastNum  = dataRows.length > 0 ? parseInt(dataRows[dataRows.length - 1][0], 10) : 0;
-    res.json({ nextDiscNum: (isNaN(lastNum) ? 0 : lastNum) + 1 });
+    const { max } = maxDiscNum.get();
+    res.json({ nextDiscNum: (max || 0) + 1 });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -52,9 +40,8 @@ router.get('/next-disc-num', async (req, res) => {
 // GET /api/catalog-intake/manufacturers
 router.get('/manufacturers', (req, res) => {
   try {
-    const rows  = db.prepare('SELECT DISTINCT manufacturer FROM flight_numbers ORDER BY manufacturer').all();
-    const names = rows.map(r => r.manufacturer).filter(Boolean);
-    res.json({ manufacturers: names });
+    const rows = db.prepare('SELECT DISTINCT manufacturer FROM flight_numbers ORDER BY manufacturer').all();
+    res.json({ manufacturers: rows.map(r => r.manufacturer).filter(Boolean) });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -67,8 +54,7 @@ router.get('/molds', (req, res) => {
     const rows = manufacturer
       ? db.prepare('SELECT DISTINCT mold FROM flight_numbers WHERE manufacturer_key = ? ORDER BY mold').all(normalize(manufacturer))
       : db.prepare('SELECT DISTINCT mold FROM flight_numbers ORDER BY mold').all();
-    const names = rows.map(r => r.mold).filter(Boolean);
-    res.json({ molds: names });
+    res.json({ molds: rows.map(r => r.mold).filter(Boolean) });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -88,51 +74,14 @@ router.get('/plastics', (req, res) => {
 });
 
 // POST /api/catalog-intake/disc
-router.post('/disc', async (req, res) => {
+router.post('/disc', (req, res) => {
   try {
     const { discNum, box, manufacturer, mold, type, plastic, run, notes, condition, weight, color, listPrice } = req.body;
-    const flight = lookupFlight.get(normalize(manufacturer), normalize(mold)) || {};
-    // Column order: A=Disc#, B=Box, C=ListTitle(blank), D=Description(blank),
-    // E=Sold, F=Manufacturer, G=Mold, H=Type, I=Plastic, J=Run/Edition,
-    // K=Notes, L=Condition, M=Weight, N=Color, O=EstValue(blank), P=ListPrice, Q=Platform, R=Status(blank)
-    // S=Comp Pull, T=speed, U=glide, V=turn, W=fade, X=stability
-    const row = [
-      discNum,              // A
-      box,                  // B
-      '',                   // C List Title
-      '',                   // D Description
-      'FALSE',              // E Sold
-      manufacturer,         // F
-      mold,                 // G
-      type,                 // H
-      plastic,              // I
-      run || '',            // J Run/Edition
-      notes || '',          // K Notes
-      condition,            // L
-      weight,               // M
-      color,                // N
-      '',                   // O Est. Value
-      listPrice,            // P
-      'Ebay',               // Q Platform
-      '',                   // R Status
-      '',                   // S Comp Pull
-      flight.speed     ?? '', // T
-      flight.glide     ?? '', // U
-      flight.turn      ?? '', // V
-      flight.fade      ?? '', // W
-      flight.stability ?? '', // X
-    ];
-    const sheets = getSheets();
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: SHEET_ID,
-      range: `${SHEET_NAME}!A:X`,
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: [row] },
-    });
+    const flight   = lookupFlight.get(normalize(manufacturer), normalize(mold)) || {};
     const sku      = `DWG-${String(discNum).padStart(3, '0')}`;
     const metadata = JSON.stringify(normalizeBlob('disc', {
       manufacturer, mold, type, plastic,
-      run:       run || null,
+      run:       run   || null,
       notes:     notes || null,
       condition,
       weight, color, listPrice,
@@ -142,18 +91,14 @@ router.post('/disc', async (req, res) => {
       fade:      flight.fade      ?? null,
       stability: flight.stability ?? null,
     }));
-    upsertInventory.run({ sku, location: box || null, metadata });
+    upsert.run({ sku, location: box || null, metadata });
     res.json({ discNum });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-const markSoldStmt = db.prepare(
-  "UPDATE inventory SET status = 'sold' WHERE sku = ?"
-);
-
-// markDiscSold(sku) — marks inventory row as sold for DWG-XXX SKUs
+// markDiscSold(sku) — called by orders.js when an eBay order is fulfilled
 function markDiscSold(sku) {
   if (!sku || !sku.match(/^DWG-\d+$/i)) return;
   markSoldStmt.run(sku);
