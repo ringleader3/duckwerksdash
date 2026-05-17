@@ -1,6 +1,16 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-16 — eBay listing/update refactor (ref #121)
+
+- Extracted `server/ebay-client.js` — all shared eBay API plumbing (headers, policies, location, EPS upload, inventory item PUT/GET, offer upsert/update/publish). Pure functions, no Express, no DB.
+- Created `server/ebay-builders.js` — `buildDiscPayload(blob)` transforms inventory blob → normalized payload; `renderDescriptionHtml` unifies description rendering; `renderSkillDescriptionHtml` handles skill checkpoint text; `minOffer` helper
+- Rewrote `server/ebay-listings.js` — 500 lines removed, thin route handlers only; all six route names preserved (zero changes to callers)
+- Fixed trailing `\n` on Notes spec line (minor output cleanup)
+- Confirmed pre-existing USED disc condition bug (errorId 2004) is unchanged/tracked as #121
+- Documented two-mode architecture: inventory-backed (disc builder) vs session-backed (skill checkpoint) in plan doc
+- v2.0.25 → v2.0.26
+
 ### 2026-05-15 — Title cleanup: remove Unthrown, clear curated titles
 
 - Removed "Unthrown" from generateTitle(); USED discs still get "Used" appended
