@@ -77,7 +77,6 @@ async function main() {
 
     const warnings = [];
     if (!price)  warnings.push('no listPrice in metadata');
-    if (!title)  warnings.push('no list_title in metadata');
 
     if (row.status === 'sold') return { id, paddedId, row, meta, title, skip: 'sold' };
 
