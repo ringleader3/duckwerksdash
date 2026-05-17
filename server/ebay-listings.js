@@ -1,230 +1,51 @@
-// server/ebay-listings.js — POST /api/ebay/bulk-list
+// server/ebay-listings.js — eBay listing routes
+// All eBay API calls go through ebay-client.js.
+// Disc-specific field mapping goes through ebay-builders.js.
+// Route names are preserved for backward compatibility with scripts and the skill.
+
 const express = require('express');
 const router  = express.Router();
 const multer  = require('multer');
 const path    = require('path');
 const fs      = require('fs');
 const db      = require('./db');
-const { getAccessToken } = require('./ebay-auth');
 
-const EBAY_API      = 'https://api.ebay.com';
-const EBAY_MEDIA    = 'https://apim.ebay.com/commerce/media/v1_beta';
-const PHOTOS_DIR    = path.join(__dirname, '..', 'public', 'dg-photos');
-const DG_CATEGORY   = '184356'; // eBay: Sporting Goods > Disc Golf > Discs
-const EBAY_STORE_CATEGORY = 'Multiple Discounts'; // optional store category to assign to all listings
-const MARKETPLACE   = 'EBAY_US';
-const LISTING_FOOTER = '\nAll sales final and all items sold as is. Please ask questions before purchasing.\nAll my listings ship with Free shipping for your ease, none of this $30 shipping on a 1 pound item. I price my listings fairly but please feel free to make an offer.\nI am a single person listing and selling 250 or so discs, so I might have missed a mark or two in my descriptions. Please ask if you want more photos or details about any of my discs, or let me know if you see any issues. \nThanks for looking!';
-const MIN_OFFER_PCT = 0.75; // auto-decline offers below this fraction of list price
+const {
+  ebayHeaders, fetchPolicies, getMerchantLocationKey,
+  uploadToEPS, getInventoryItem, putInventoryItem,
+  getOfferBySku, upsertOffer, updateOffer, publishOffer,
+  MARKETPLACE,
+} = require('./ebay-client');
 
-const DISC_TYPE_MAP = { 'Putter': 'Putting Disc', 'Midrange': 'Midrange Disc' };
-function normalizeDiscType(type) { return DISC_TYPE_MAP[type] || type; }
+const { buildDiscPayload, renderDescriptionHtml, renderSkillDescriptionHtml, minOffer } = require('./ebay-builders');
 
-const MANUFACTURER_MAP = { 'Streamline': 'Streamline Discs' };
-function normalizeManufacturer(m) { return MANUFACTURER_MAP[m] || m; }
-
-function minOffer(listPrice) {
-  return Math.floor(parseFloat(listPrice) * MIN_OFFER_PCT);
-}
-
-function generateTitle({ manufacturer, mold, plastic, run, weight, color, condition }) {
-  const parts = [manufacturer, mold, plastic];
-  if (run) parts.push(run);
-  parts.push(`${weight}g`, color);
-  if (condition === 'USED') parts.push('Used');
-  const title = parts.join(' ');
-  if (title.length <= 80) return title;
-  return title.slice(0, 81).replace(/\s+\S*$/, '');
-}
-
-const VALID_COLORS = new Set([
-  'Beige', 'Black', 'Blue', 'Bronze', 'Brown', 'Gold', 'Gray', 'Green',
-  'Multi-Color', 'Orange', 'Pink', 'Purple', 'Red', 'Silver', 'White', 'Yellow',
-]);
+const PHOTOS_DIR          = path.join(__dirname, '..', 'public', 'dg-photos');
+const EBAY_STORE_CATEGORY = 'Multiple Discounts';
 
 if (!fs.existsSync(PHOTOS_DIR)) fs.mkdirSync(PHOTOS_DIR, { recursive: true });
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-let _merchantLocationKey = null;
+// ── Shared helpers ────────────────────────────────────────────────────────────
 
-async function uploadToEPS(buffer, filename) {
-  const token    = await getAccessToken();
-  const formData = new FormData();
-  formData.set('image', new Blob([buffer], { type: 'image/jpeg' }), filename);
-
-  // Step 1: upload file → 201 + Location header containing image resource URI
-  const uploadRes = await fetch(`${EBAY_MEDIA}/image/create_image_from_file`, {
-    method:  'POST',
-    headers: { 'Authorization': `Bearer ${token}` },
-    body:    formData,
-  });
-  if (uploadRes.status !== 201) {
-    const text = await uploadRes.text();
-    throw new Error(`EPS upload failed for ${filename} (${uploadRes.status}): ${text.slice(0, 200)}`);
-  }
-  const location = uploadRes.headers.get('Location');
-  if (!location) throw new Error(`EPS upload for ${filename}: no Location header in 201 response`);
-
-  // Step 2: GET the image resource to retrieve the EPS CDN URL
-  const getRes  = await fetch(location, { headers: { 'Authorization': `Bearer ${token}` } });
-  const getText = await getRes.text();
-  if (!getRes.ok) throw new Error(`EPS getImage failed for ${filename} (${getRes.status}): ${getText.slice(0, 200)}`);
-  const data = JSON.parse(getText);
-  return data.imageUrl;
-}
-
-async function getMerchantLocationKey(headers) {
-  if (_merchantLocationKey) return _merchantLocationKey;
-  const res  = await fetch(`${EBAY_API}/sell/inventory/v1/location`, { headers });
-  const data = await res.json();
-  if (data.locations?.length > 0) {
-    _merchantLocationKey = data.locations[0].merchantLocationKey;
-    return _merchantLocationKey;
-  }
-  // No locations — create a default one (key must be alphanumeric + underscores only)
-  const key         = 'duckwerks1';
-  const postHeaders = { ...headers };
-  delete postHeaders['Content-Language']; // location API rejects this header
-  const created = await fetch(`${EBAY_API}/sell/inventory/v1/location/${key}`, {
-    method:  'POST',
-    headers: postHeaders,
-    body: JSON.stringify({
-      location: {
-        address: {
-          addressLine1:    process.env.FROM_STREET1,
-          city:            process.env.FROM_CITY,
-          stateOrProvince: process.env.FROM_STATE,
-          postalCode:      process.env.FROM_ZIP,
-          country:         process.env.FROM_COUNTRY || 'US',
-        },
-      },
-      locationTypes: ['WAREHOUSE'],
-      name:          'Duckwerks',
-    }),
-  });
-  if (!created.ok) {
-    const err = await created.text();
-    throw new Error(`merchant location create failed: ${err}`);
-  }
-  _merchantLocationKey = key;
-  return _merchantLocationKey;
-}
-
-async function ebayHeaders() {
-  const token = await getAccessToken();
+function buildInventoryItemBody(payload, imageUrls) {
   return {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json',
-    'Content-Language': 'en-US',
-    'X-EBAY-C-MARKETPLACE-ID': MARKETPLACE,
-    'Accept-Language': 'en-US',
-  };
-}
-
-async function fetchPolicies(headers) {
-  const [fp, rp, pp] = await Promise.all([
-    fetch(`${EBAY_API}/sell/account/v1/fulfillment_policy?marketplace_id=${MARKETPLACE}`, { headers }).then(r => r.json()),
-    fetch(`${EBAY_API}/sell/account/v1/return_policy?marketplace_id=${MARKETPLACE}`, { headers }).then(r => r.json()),
-    fetch(`${EBAY_API}/sell/account/v1/payment_policy?marketplace_id=${MARKETPLACE}`, { headers }).then(r => r.json()),
-  ]);
-  const fulfillmentPolicyId = fp.fulfillmentPolicies?.[0]?.fulfillmentPolicyId;
-  const returnPolicyId      = rp.returnPolicies?.[0]?.returnPolicyId;
-  const paymentPolicyId     = pp.paymentPolicies?.[0]?.paymentPolicyId;
-  if (!fulfillmentPolicyId || !returnPolicyId || !paymentPolicyId) {
-    throw new Error('No eBay business policies found. Enable them at Seller Hub > Account > Business policies.');
-  }
-  return { fulfillmentPolicyId, returnPolicyId, paymentPolicyId };
-}
-
-function buildDescription(disc) {
-  const lines = [];
-  if (disc.manufacturer) lines.push(`Brand: ${disc.manufacturer}`);
-  if (disc.mold)         lines.push(`Mold: ${disc.mold}`);
-  if (disc.type)         lines.push(`Type: ${disc.type}`);
-  if (disc.plastic)      lines.push(`Plastic: ${disc.plastic}`);
-  if (disc.run)          lines.push(`Run/Edition: ${disc.run}`);
-  if (disc.weight)       lines.push(`Weight: ${disc.weight}g`);
-  if (disc.stability)    lines.push(`Stability: ${disc.stability}`);
-  const hasVal = v => v != null && v !== '';
-  if (hasVal(disc.speed) || hasVal(disc.glide) || hasVal(disc.turn) || hasVal(disc.fade)) {
-    const parts = [];
-    if (hasVal(disc.speed)) parts.push(`Speed: ${disc.speed}`);
-    if (hasVal(disc.glide)) parts.push(`Glide: ${disc.glide}`);
-    if (hasVal(disc.turn))  parts.push(`Turn: ${disc.turn}`);
-    if (hasVal(disc.fade))  parts.push(`Fade: ${disc.fade}`);
-    lines.push(`Flight Numbers: ${parts.join(' | ')}`);
-  }
-  if (disc.notes)        lines.push(`\nNotes: ${disc.notes}`);
-  return lines.join('\n')
-}
-
-function descriptionHtml(disc) {
-  const footerLines = LISTING_FOOTER.split('\n').filter(Boolean);
-  const footer      = footerLines.map(l => `<p>${l}</p>`).join('');
-
-  if (disc.description) {
-    // Curated: specs | prose on mobile (eBay truncates at 800 chars), prose + spec list + footer on desktop
-    const paraLines  = disc.description.split('\n').filter(Boolean);
-    const specLines  = buildDescription(disc).split('\n').filter(Boolean);
-    const mobileText = specLines.join('  |  ') + '  |  ' + paraLines.join(' ');
-    const specList   = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
-    const fullHtml   = paraLines.map(l => `<p>${l}</p>`).join('');
-    return `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileText}</span></div>${fullHtml}${specList}${footer}`;
-  }
-
-  // Generated description — pipe-separated on mobile, bullet list on desktop
-  const specLines  = buildDescription(disc).split('\n').filter(Boolean);
-  const mobileText = specLines.join('  |  ');
-  const specList   = `<ul>${specLines.map(l => `<li>${l}</li>`).join('')}</ul>`;
-  return `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileText}</span></div>${specList}${footer}`;
-}
-
-async function savePhotos(files) {
-  const urls = [];
-  for (const file of files) {
-    const dest = path.join(PHOTOS_DIR, file.originalname);
-    if (!fs.existsSync(dest)) fs.writeFileSync(dest, file.buffer);
-    const epsUrl = await uploadToEPS(file.buffer, file.originalname);
-    urls.push(epsUrl);
-  }
-  return urls;
-}
-
-async function putInventoryItem(sku, disc, photoUrls, headers) {
-  const condition = disc.condition || 'NEW';
-  const body = {
     product: {
-      title:       disc.title.slice(0, 80),
-      description: descriptionHtml(disc),
-      imageUrls:   photoUrls,
-      aspects: {
-        Type:                                        ['Disc Golf Disc'],
-        ...(disc.manufacturer && { Brand:            [normalizeManufacturer(disc.manufacturer)] }),
-        ...(disc.mold         && { Model:            [disc.mold] }),
-        ...(disc.type         && { 'Disc Type':      [normalizeDiscType(disc.type)] }),
-        ...(disc.plastic      && { 'Disc Plastic Type': [disc.plastic] }),
-        ...(disc.weight       && { 'Disc Weight':    [`${disc.weight} grams`] }),
-        ...(disc.speed != null && disc.speed !== '' && { 'Speed Rating':        [String(disc.speed)] }),
-        ...(disc.glide != null && disc.glide !== '' && { 'Glide Rating':        [String(disc.glide)] }),
-        ...(disc.turn  != null && disc.turn  !== '' && { 'Turn (Right) Rating': [String(disc.turn)] }),
-        ...(disc.fade  != null && disc.fade  !== '' && { 'Fade (Left) Rating':  [String(disc.fade)] }),
-      },
+      title:       payload.title.slice(0, 80),
+      description: renderDescriptionHtml({ description: payload.description, specLines: payload.specLines }),
+      imageUrls,
+      aspects:     Object.fromEntries(
+        Object.entries(payload.aspects || {}).map(([k, v]) => [k, Array.isArray(v) ? v : [String(v)]])
+      ),
     },
-    condition,
+    condition: payload.condition,
+    ...(payload.conditionNotes && { conditionDescription: payload.conditionNotes }),
     availability: { shipToLocationAvailability: { quantity: 1 } },
   };
-  const res = await fetch(
-    `${EBAY_API}/sell/inventory/v1/inventory_item/${encodeURIComponent(sku)}`,
-    { method: 'PUT', headers, body: JSON.stringify(body) }
-  );
-  if (res.status !== 200 && res.status !== 204) {
-    const text = await res.text();
-    throw new Error(`inventory_item PUT ${res.status}: ${text}`);
-  }
 }
 
-async function createOffer(sku, disc, policies, locationKey, headers) {
-  const body = {
+function buildOfferBody(sku, payload, policies, locationKey) {
+  return {
     sku,
     marketplaceId:       MARKETPLACE,
     format:              'FIXED_PRICE',
@@ -235,84 +56,37 @@ async function createOffer(sku, disc, policies, locationKey, headers) {
       paymentPolicyId:     policies.paymentPolicyId,
       bestOfferTerms: {
         bestOfferEnabled: true,
-        autoDeclinePrice: { value: String(minOffer(disc.listPrice)), currency: 'USD' },
+        autoDeclinePrice: { value: String(payload.minOffer), currency: 'USD' },
       },
     },
     pricingSummary: {
-      price: { value: String(disc.listPrice), currency: 'USD' },
+      price: { value: String(payload.price), currency: 'USD' },
     },
-    categoryId:         DG_CATEGORY,
+    categoryId:         payload.categoryId,
     storeCategoryNames: [EBAY_STORE_CATEGORY],
-    listingDescription: descriptionHtml(disc),
+    listingDescription: renderDescriptionHtml({ description: payload.description, specLines: payload.specLines }),
     shipToLocations: {
       regionIncluded: [{ regionType: 'COUNTRY', regionName: 'US' }],
     },
-
   };
-  const res  = await fetch(`${EBAY_API}/sell/inventory/v1/offer`, {
-    method: 'POST', headers, body: JSON.stringify(body),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    // Offer already exists from a prior partial run — patch it with current body and reuse
-    const existing = data.errors?.find(e => e.errorId === 25002 && e.parameters?.find(p => p.name === 'offerId'));
-    if (existing) {
-      const offerId = existing.parameters.find(p => p.name === 'offerId').value;
-      const patch = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offerId}`, {
-        method: 'PUT', headers, body: JSON.stringify(body),
-      });
-      if (!patch.ok) {
-        const patchData = await patch.json();
-        throw new Error(`offer PUT ${patch.status}: ${JSON.stringify(patchData)}`);
-      }
-      return offerId;
-    }
-    throw new Error(`offer POST ${res.status}: ${JSON.stringify(data)}`);
+}
+
+async function savePhotos(files) {
+  const urls = [];
+  for (const file of files) {
+    const dest = path.join(PHOTOS_DIR, file.originalname);
+    if (!fs.existsSync(dest)) fs.writeFileSync(dest, file.buffer);
+    urls.push(await uploadToEPS(file.buffer, file.originalname));
   }
-  return data.offerId;
+  return urls;
 }
 
-async function publishOffer(offerId, headers) {
-  const attempt = async () => {
-    const res  = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offerId}/publish`, {
-      method: 'POST', headers,
-    });
-    const data = await res.json();
-    if (!res.ok) throw Object.assign(new Error(`offer publish ${res.status}: ${JSON.stringify(data)}`), { data });
-    return data.listingId;
-  };
-  try {
-    return await attempt();
-  } catch (e) {
-    // 25604 = transient "Product not found" — retry once
-    if (e.data?.errors?.some(err => err.errorId === 25604)) {
-      await new Promise(r => setTimeout(r, 3000));
-      return await attempt();
-    }
-    throw e;
-  }
-}
+// ── DB writes ─────────────────────────────────────────────────────────────────
 
-async function getInventoryItem(sku, headers) {
-  const res  = await fetch(`${EBAY_API}/sell/inventory/v1/inventory_item/${encodeURIComponent(sku)}`, { headers });
-  if (!res.ok) return null;
-  return res.json();
-}
-
-async function getOfferBySku(sku, headers) {
-  const res  = await fetch(`${EBAY_API}/sell/inventory/v1/offer?sku=${encodeURIComponent(sku)}`, { headers });
-  const data = await res.json();
-  return data.offers?.[0] || null;
-}
-
-function dbWrite(disc, listingId, sku) {
-  // Idempotent: skip if platform_listing_id already exists (handles crash-before-CSV-write)
-  const existing = db.prepare(
-    'SELECT id FROM listings WHERE platform_listing_id = ?'
-  ).get(String(listingId));
+function dbWriteDiscListing(title, listPrice, listingId, sku) {
+  const existing = db.prepare('SELECT id FROM listings WHERE platform_listing_id = ?').get(String(listingId));
   if (existing) return;
 
-  // Ensure Disc Golf category exists
   let cat = db.prepare("SELECT id FROM categories WHERE name = 'Disc Golf'").get();
   if (!cat) {
     const r = db.prepare(
@@ -322,359 +96,24 @@ function dbWrite(disc, listingId, sku) {
   }
 
   const ebaySite = db.prepare("SELECT id FROM sites WHERE name = 'eBay'").get();
-  if (!ebaySite) throw new Error('eBay site not found in DB — run server once to seed');
+  if (!ebaySite) throw new Error('eBay site not found in DB');
 
   const item = db.prepare(
-    "INSERT INTO items (name, status, category_id, cost, lot_id, sku) VALUES (?, 'Listed', ?, 0, 9, ?)" // lot_id=9 = Bulk-listed DG discs lot
-  ).run(disc.title, cat.id, sku || null);
+    "INSERT INTO items (name, status, category_id, cost, lot_id, sku) VALUES (?, 'Listed', ?, 0, 9, ?)"
+  ).run(title, cat.id, sku || null);
 
   db.prepare(
     'INSERT INTO listings (item_id, site_id, platform_listing_id, list_price, shipping_estimate, url) VALUES (?, ?, ?, ?, 7, ?)'
-  ).run(item.lastInsertRowid, ebaySite.id, String(listingId), disc.listPrice, `https://ebay.com/itm/${listingId}`);
+  ).run(item.lastInsertRowid, ebaySite.id, String(listingId), listPrice, `https://ebay.com/itm/${listingId}`);
 }
 
-router.post('/bulk-list', (req, res, next) => {
-  upload.any()(req, res, err => {
-    if (err) {
-      console.error('[ebay-listings] multer error:', err);
-      return res.json({ error: `Upload error: ${err.message}` });
-    }
-    next();
-  });
-}, async (req, res) => {
-  let disc;
-  try {
-    disc = JSON.parse(req.body.disc);
-  } catch {
-    return res.status(400).json({ error: 'Invalid disc JSON in request body' });
-  }
-
-  try {
-    const headers     = await ebayHeaders();
-    const policies    = await fetchPolicies(headers);
-    const locationKey = await getMerchantLocationKey(headers);
-    const sku         = `DWG-${String(disc.id).padStart(3, '0')}`;
-    disc.title        = disc.title || generateTitle(disc);
-    const photoUrls   = await savePhotos(req.files || []);
-
-    await putInventoryItem(sku, disc, photoUrls, headers);
-    const offerId   = await createOffer(sku, disc, policies, locationKey, headers);
-    const listingId = await publishOffer(offerId, headers);
-
-    dbWrite(disc, listingId, sku);
-
-    res.json({ discId: disc.id, sku, listingId, url: `https://ebay.com/itm/${listingId}` });
-  } catch (e) {
-    console.error('[ebay-listings] handler error:', e);
-    res.json({ discId: disc?.id, error: e.message });
-  }
-});
-
-// POST /api/ebay/bulk-photos — replace photos on an existing listing; skips offer update entirely
-// Avoids the "item is part of a sale" error when price updates are blocked.
-router.post('/bulk-photos', (req, res, next) => {
-  upload.any()(req, res, err => {
-    if (err) return res.json({ error: `Upload error: ${err.message}` });
-    next();
-  });
-}, async (req, res) => {
-  let disc;
-  try {
-    disc = typeof req.body.disc === 'string' ? JSON.parse(req.body.disc) : req.body.disc;
-  } catch {
-    return res.status(400).json({ error: 'Invalid disc JSON' });
-  }
-
-  try {
-    const headers  = await ebayHeaders();
-    const sku      = `DWG-${String(disc.id).padStart(3, '0')}`;
-    const photos   = (req.files || []).filter(f => f.fieldname.startsWith('photos['));
-    if (photos.length === 0) return res.json({ discId: disc.id, error: 'No photos provided' });
-
-    const imageUrls = await savePhotos(photos);
-
-    const existing = await getInventoryItem(sku, headers);
-    if (!existing) return res.json({ discId: disc.id, error: `No inventory item found for ${sku}` });
-
-    const itemBody = {
-      product:      { ...existing.product, imageUrls },
-      condition:    existing.condition,
-      availability: existing.availability,
-    };
-    const itemRes = await fetch(`${EBAY_API}/sell/inventory/v1/inventory_item/${encodeURIComponent(sku)}`, {
-      method: 'PUT', headers, body: JSON.stringify(itemBody),
-    });
-    if (itemRes.status !== 200 && itemRes.status !== 204) {
-      const text = await itemRes.text();
-      throw new Error(`inventory_item PUT ${itemRes.status}: ${text}`);
-    }
-
-    res.json({ discId: disc.id, sku, photoCount: imageUrls.length });
-  } catch (e) {
-    console.error('[ebay-listings] bulk-photos error:', e);
-    res.json({ discId: disc?.id, error: e.message });
-  }
-});
-
-// POST /api/ebay/bulk-preview — returns generated title, description, price without touching eBay
-router.post('/bulk-preview', (req, res) => {
-  try {
-    const disc = typeof req.body.disc === 'string' ? JSON.parse(req.body.disc) : req.body.disc;
-    const title = disc.title || generateTitle(disc);
-    res.json({
-      title,
-      price:       disc.listPrice,
-      autoDecline: minOffer(disc.listPrice),
-      description: descriptionHtml(disc),
-    });
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
-});
-
-// POST /api/ebay/bulk-update — update title, description, price on existing listings
-// Body: JSON { disc: { id, title, description, listPrice, ... } }
-// No photos required. Does not republish — changes take effect on active listing immediately.
-router.post('/bulk-update', async (req, res) => {
-  let disc;
-  try {
-    disc = typeof req.body.disc === 'string' ? JSON.parse(req.body.disc) : req.body.disc;
-  } catch {
-    return res.status(400).json({ error: 'Invalid disc JSON' });
-  }
-
-  try {
-    const headers = await ebayHeaders();
-    const sku     = `DWG-${String(disc.id).padStart(3, '0')}`;
-
-    // 1. GET existing inventory item to preserve imageUrls
-    const existing = await getInventoryItem(sku, headers);
-    if (!existing) return res.json({ discId: disc.id, error: `No inventory item found for ${sku}` });
-    const imageUrls = existing.product?.imageUrls || [];
-    const condition = disc.condition || 'NEW';
-
-    // Use curated title/description from sheet if present; otherwise generate from metadata
-    disc.title       = disc.title || generateTitle(disc);
-    // disc.description left as-is — descriptionHtml() uses it if set, falls back to buildDescription()
-
-    // 2. PUT inventory item — update title, description, condition, preserve photos
-    const itemBody = {
-      product: {
-        title:       disc.title.slice(0, 80),
-        description: descriptionHtml(disc),
-        imageUrls,
-        aspects: {
-          Type:                                        ['Disc Golf Disc'],
-          ...(disc.manufacturer && { Brand:            [normalizeManufacturer(disc.manufacturer)] }),
-          ...(disc.mold         && { Model:            [disc.mold] }),
-          ...(disc.type         && { 'Disc Type':      [normalizeDiscType(disc.type)] }),
-          ...(disc.plastic      && { 'Disc Plastic Type': [disc.plastic] }),
-          ...(disc.weight       && { 'Disc Weight':    [`${disc.weight} grams`] }),
-          ...(disc.color && VALID_COLORS.has(disc.color) && { Color: [disc.color] }),
-          ...(disc.speed != null && disc.speed !== '' && { 'Speed Rating':        [String(disc.speed)] }),
-          ...(disc.glide != null && disc.glide !== '' && { 'Glide Rating':        [String(disc.glide)] }),
-          ...(disc.turn  != null && disc.turn  !== '' && { 'Turn (Right) Rating': [String(disc.turn)] }),
-          ...(disc.fade  != null && disc.fade  !== '' && { 'Fade (Left) Rating':  [String(disc.fade)] }),
-        },
-      },
-      condition,
-      availability: { shipToLocationAvailability: { quantity: 1 } },
-    };
-    const itemRes = await fetch(`${EBAY_API}/sell/inventory/v1/inventory_item/${encodeURIComponent(sku)}`, {
-      method: 'PUT', headers, body: JSON.stringify(itemBody),
-    });
-    if (itemRes.status !== 200 && itemRes.status !== 204) {
-      const text = await itemRes.text();
-      throw new Error(`inventory_item PUT ${itemRes.status}: ${text}`);
-    }
-
-    // 3. GET offer by SKU
-    const offer = await getOfferBySku(sku, headers);
-    if (!offer) return res.json({ discId: disc.id, error: `No offer found for ${sku}` });
-
-    // 4. PATCH offer — update price + description
-    const offerBody = {
-      sku,
-      marketplaceId:       MARKETPLACE,
-      format:              'FIXED_PRICE',
-      merchantLocationKey: offer.merchantLocationKey,
-      listingPolicies: {
-        ...offer.listingPolicies,
-        bestOfferTerms: {
-          bestOfferEnabled: true,
-          autoDeclinePrice: { value: String(minOffer(disc.listPrice)), currency: 'USD' },
-        },
-      },
-      pricingSummary: {
-        price: { value: String(disc.listPrice), currency: 'USD' },
-      },
-      categoryId:         DG_CATEGORY,
-      storeCategoryNames: [EBAY_STORE_CATEGORY],
-      listingDescription: descriptionHtml(disc),
-      shipToLocations:    offer.shipToLocations,
-    };
-    const offerRes = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offer.offerId}`, {
-      method: 'PUT', headers, body: JSON.stringify(offerBody),
-    });
-    if (!offerRes.ok) {
-      const text = await offerRes.text();
-      throw new Error(`offer PUT ${offerRes.status}: ${text}`);
-    }
-
-    const listingId = offer.listing?.listingId;
-    res.json({ discId: disc.id, sku, offerId: offer.offerId, listingId, url: listingId ? `https://ebay.com/itm/${listingId}` : null });
-  } catch (e) {
-    console.error('[ebay-listings] bulk-update error:', e);
-    res.json({ discId: disc?.id, error: e.message });
-  }
-});
-
-function listingDescriptionHtml(text) {
-  // Split into blocks separated by blank lines, preserving order
-  const blocks = text.split(/\n\n+/).map(b => b.trim()).filter(Boolean);
-  const specLines = [];
-  const htmlParts = [];
-
-  for (const block of blocks) {
-    const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
-    if (lines.every(l => l.includes(' | '))) {
-      // Pure spec block — render as <ul>
-      specLines.push(...lines);
-      htmlParts.push(`<ul>${lines.map(l => `<li>${l}</li>`).join('')}</ul>`);
-    } else {
-      // Prose block — each line becomes a <p>
-      lines.forEach(l => htmlParts.push(`<p>${l}</p>`));
-    }
-  }
-
-  const mobileText = text.replace(/\n+/g, '  |  ');
-  return `<div vocab="https://schema.org/" typeof="Product" style="display:none"><span property="description">${mobileText}</span></div>${htmlParts.join('')}`;
-}
-
-// POST /api/ebay/list-item — generic single-item listing from skill checkpoint data
-// Body JSON: { sku, title, description, conditionNotes, price, minOffer,
-//              ebayCategoryId, ebayConditionId, aspects, photos: [] }
-// photos: array of { filename, base64 } — optional; skill sends file contents encoded
-router.post('/list-item', express.json({ limit: '20mb' }), async (req, res) => {
-  const item = req.body;
-  if (!item?.sku || !item?.title || !item?.price || !item?.ebayCategoryId || !item?.ebayConditionId) {
-    return res.status(400).json({ error: 'Missing required fields: sku, title, price, ebayCategoryId, ebayConditionId' });
-  }
-
-  try {
-    const headers     = await ebayHeaders();
-    const policies    = await fetchPolicies(headers);
-    const locationKey = await getMerchantLocationKey(headers);
-
-    // Upload photos if provided
-    let photoUrls = [];
-    if (Array.isArray(item.photos) && item.photos.length > 0) {
-      for (const photo of item.photos) {
-        const buffer = Buffer.from(photo.base64, 'base64');
-        const url = await uploadToEPS(buffer, photo.filename);
-        photoUrls.push(url);
-      }
-    }
-
-    const descHtml = listingDescriptionHtml(item.description || '');
-
-    // PUT inventory item
-    const inventoryBody = {
-      product: {
-        title:       item.title.slice(0, 80),
-        description: descHtml,
-        imageUrls:   photoUrls,
-        aspects:     Object.fromEntries(
-          Object.entries(item.aspects || {}).map(([k, v]) => [k, Array.isArray(v) ? v : [String(v)]])
-        ),
-      },
-      condition:    item.ebayConditionId,
-      ...(item.conditionNotes && { conditionDescription: item.conditionNotes }),
-      ...(item.conditionDescriptors && {
-        conditionDescriptors: item.conditionDescriptors.map(d => ({
-          name:   d.conditionDescriptorId || d.name,
-          values: d.conditionDescriptorValueIds || d.values,
-        })),
-      }),
-      availability: { shipToLocationAvailability: { quantity: 1 } },
-    };
-    const itemRes = await fetch(
-      `${EBAY_API}/sell/inventory/v1/inventory_item/${encodeURIComponent(item.sku)}`,
-      { method: 'PUT', headers, body: JSON.stringify(inventoryBody) }
-    );
-    if (itemRes.status !== 200 && itemRes.status !== 204) {
-      const text = await itemRes.text();
-      throw new Error(`inventory_item PUT ${itemRes.status}: ${text}`);
-    }
-
-    // POST offer
-    const offerBody = {
-      sku:                 item.sku,
-      marketplaceId:       MARKETPLACE,
-      format:              'FIXED_PRICE',
-      merchantLocationKey: locationKey,
-      listingPolicies: {
-        fulfillmentPolicyId: policies.fulfillmentPolicyId,
-        returnPolicyId:      policies.returnPolicyId,
-        paymentPolicyId:     policies.paymentPolicyId,
-        bestOfferTerms: {
-          bestOfferEnabled:  true,
-          autoDeclinePrice:  { value: String(item.minOffer), currency: 'USD' },
-        },
-      },
-      pricingSummary: {
-        price: { value: String(item.price), currency: 'USD' },
-      },
-      categoryId:         item.ebayCategoryId,
-      storeCategoryNames: [EBAY_STORE_CATEGORY],
-      listingDescription: descHtml,
-      shipToLocations: {
-        regionIncluded: [{ regionType: 'COUNTRY', regionName: 'US' }],
-      },
-    };
-    const offerRes  = await fetch(`${EBAY_API}/sell/inventory/v1/offer`, {
-      method: 'POST', headers, body: JSON.stringify(offerBody),
-    });
-    const offerData = await offerRes.json();
-    let offerId;
-    if (!offerRes.ok) {
-      const existing = offerData.errors?.find(e => e.errorId === 25002 && e.parameters?.find(p => p.name === 'offerId'));
-      if (existing) {
-        offerId = existing.parameters.find(p => p.name === 'offerId').value;
-        const patch = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offerId}`, {
-          method: 'PUT', headers, body: JSON.stringify(offerBody),
-        });
-        if (!patch.ok) {
-          const patchData = await patch.json();
-          throw new Error(`offer PUT ${patch.status}: ${JSON.stringify(patchData)}`);
-        }
-      } else {
-        throw new Error(`offer POST ${offerRes.status}: ${JSON.stringify(offerData)}`);
-      }
-    } else {
-      offerId = offerData.offerId;
-    }
-
-    const listingId = await publishOffer(offerId, headers);
-
-    // Write to DB
-    listItemDbWrite(item, listingId);
-
-    res.json({ sku: item.sku, listingId, url: `https://ebay.com/itm/${listingId}` });
-  } catch (e) {
-    console.error('[ebay-listings] list-item error:', e);
-    res.status(500).json({ error: e.message });
-  }
-});
-
-function listItemDbWrite(item, listingId) {
+function dbWriteSkillListing(item, listingId) {
   const existing = db.prepare('SELECT id FROM listings WHERE platform_listing_id = ?').get(String(listingId));
   if (existing) return;
 
   const ebaySite = db.prepare("SELECT id FROM sites WHERE name = 'eBay'").get();
   if (!ebaySite) throw new Error('eBay site not found in DB');
 
-  // Find or create internal category by label (first segment before ' > ')
   const catLabel = item.internalCategory || (item.categoryLabel?.split(' > ')[0]) || 'Uncategorized';
   let cat = db.prepare('SELECT id FROM categories WHERE name = ?').get(catLabel);
   if (!cat) {
@@ -691,8 +130,221 @@ function listItemDbWrite(item, listingId) {
   ).run(ins.lastInsertRowid, ebaySite.id, String(listingId), item.price, `https://ebay.com/itm/${listingId}`);
 }
 
-// POST /api/ebay/update-item — update title, description, price, aspects on an existing listing
-// Same payload shape as list-item. SKU must already exist in eBay inventory.
+// ── Routes ────────────────────────────────────────────────────────────────────
+
+// POST /api/ebay/bulk-list — list a disc from inventory blob + photos
+// Called by scripts/bulk-list-discs.js
+router.post('/bulk-list', (req, res, next) => {
+  upload.any()(req, res, err => {
+    if (err) return res.json({ error: `Upload error: ${err.message}` });
+    next();
+  });
+}, async (req, res) => {
+  let disc;
+  try {
+    disc = JSON.parse(req.body.disc);
+  } catch {
+    return res.status(400).json({ error: 'Invalid disc JSON in request body' });
+  }
+
+  try {
+    const headers     = await ebayHeaders();
+    const policies    = await fetchPolicies(headers);
+    const locationKey = await getMerchantLocationKey(headers);
+    const sku         = `DWG-${String(disc.id).padStart(3, '0')}`;
+    const payload     = buildDiscPayload(disc);
+    const photoUrls   = await savePhotos(req.files || []);
+
+    await putInventoryItem(sku, buildInventoryItemBody(payload, photoUrls), headers);
+    const offerId   = await upsertOffer(buildOfferBody(sku, payload, policies, locationKey), headers);
+    const listingId = await publishOffer(offerId, headers);
+
+    dbWriteDiscListing(payload.title, payload.price, listingId, sku);
+
+    res.json({ discId: disc.id, sku, listingId, url: `https://ebay.com/itm/${listingId}` });
+  } catch (e) {
+    console.error('[ebay-listings] bulk-list error:', e);
+    res.json({ discId: disc?.id, error: e.message });
+  }
+});
+
+// POST /api/ebay/bulk-photos — replace photos on existing listing without touching offer
+// Called by scripts/bulk-list-discs.js --photos-only
+router.post('/bulk-photos', (req, res, next) => {
+  upload.any()(req, res, err => {
+    if (err) return res.json({ error: `Upload error: ${err.message}` });
+    next();
+  });
+}, async (req, res) => {
+  let disc;
+  try {
+    disc = typeof req.body.disc === 'string' ? JSON.parse(req.body.disc) : req.body.disc;
+  } catch {
+    return res.status(400).json({ error: 'Invalid disc JSON' });
+  }
+
+  try {
+    const headers = await ebayHeaders();
+    const sku     = `DWG-${String(disc.id).padStart(3, '0')}`;
+    const photos  = (req.files || []).filter(f => f.fieldname.startsWith('photos['));
+    if (photos.length === 0) return res.json({ discId: disc.id, error: 'No photos provided' });
+
+    const imageUrls = await savePhotos(photos);
+    const existing  = await getInventoryItem(sku, headers);
+    if (!existing) return res.json({ discId: disc.id, error: `No inventory item found for ${sku}` });
+
+    await putInventoryItem(sku, {
+      product:      { ...existing.product, imageUrls },
+      condition:    existing.condition,
+      availability: existing.availability,
+    }, headers);
+
+    res.json({ discId: disc.id, sku, photoCount: imageUrls.length });
+  } catch (e) {
+    console.error('[ebay-listings] bulk-photos error:', e);
+    res.json({ discId: disc?.id, error: e.message });
+  }
+});
+
+// POST /api/ebay/bulk-preview — preview title/description/price without touching eBay
+// Called by catalog UI
+router.post('/bulk-preview', (req, res) => {
+  try {
+    const disc    = typeof req.body.disc === 'string' ? JSON.parse(req.body.disc) : req.body.disc;
+    const payload = buildDiscPayload(disc);
+    res.json({
+      title:       payload.title,
+      price:       payload.price,
+      autoDecline: payload.minOffer,
+      description: renderDescriptionHtml({ description: payload.description, specLines: payload.specLines }),
+    });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// POST /api/ebay/bulk-update — update title/description/price on an existing disc listing
+// Called by catalog UI, scripts/bulk-list-discs.js --update, scripts/clean-disc-titles.js
+router.post('/bulk-update', async (req, res) => {
+  let disc;
+  try {
+    disc = typeof req.body.disc === 'string' ? JSON.parse(req.body.disc) : req.body.disc;
+  } catch {
+    return res.status(400).json({ error: 'Invalid disc JSON' });
+  }
+
+  try {
+    const headers = await ebayHeaders();
+    const sku     = `DWG-${String(disc.id).padStart(3, '0')}`;
+    const payload = buildDiscPayload(disc);
+
+    const existing = await getInventoryItem(sku, headers);
+    if (!existing) return res.json({ discId: disc.id, error: `No inventory item found for ${sku}` });
+
+    const imageUrls = existing.product?.imageUrls || [];
+    await putInventoryItem(sku, buildInventoryItemBody(payload, imageUrls), headers);
+
+    const offer = await getOfferBySku(sku, headers);
+    if (!offer) return res.json({ discId: disc.id, error: `No offer found for ${sku}` });
+
+    await updateOffer(offer.offerId, {
+      sku,
+      marketplaceId:       MARKETPLACE,
+      format:              'FIXED_PRICE',
+      merchantLocationKey: offer.merchantLocationKey,
+      listingPolicies: {
+        ...offer.listingPolicies,
+        bestOfferTerms: {
+          bestOfferEnabled: true,
+          autoDeclinePrice: { value: String(payload.minOffer), currency: 'USD' },
+        },
+      },
+      pricingSummary: {
+        price: { value: String(payload.price), currency: 'USD' },
+      },
+      categoryId:         payload.categoryId,
+      storeCategoryNames: [EBAY_STORE_CATEGORY],
+      listingDescription: renderDescriptionHtml({ description: payload.description, specLines: payload.specLines }),
+      shipToLocations:    offer.shipToLocations,
+    }, headers);
+
+    const listingId = offer.listing?.listingId;
+    res.json({ discId: disc.id, sku, offerId: offer.offerId, listingId, url: listingId ? `https://ebay.com/itm/${listingId}` : null });
+  } catch (e) {
+    console.error('[ebay-listings] bulk-update error:', e);
+    res.json({ discId: disc?.id, error: e.message });
+  }
+});
+
+// POST /api/ebay/list-item — list a one-off item from skill checkpoint data
+// Called by the list-item skill. Payload arrives pre-built (no builder needed).
+router.post('/list-item', express.json({ limit: '20mb' }), async (req, res) => {
+  const item = req.body;
+  if (!item?.sku || !item?.title || !item?.price || !item?.ebayCategoryId || !item?.ebayConditionId) {
+    return res.status(400).json({ error: 'Missing required fields: sku, title, price, ebayCategoryId, ebayConditionId' });
+  }
+
+  try {
+    const headers     = await ebayHeaders();
+    const policies    = await fetchPolicies(headers);
+    const locationKey = await getMerchantLocationKey(headers);
+
+    let photoUrls = [];
+    if (Array.isArray(item.photos) && item.photos.length > 0) {
+      for (const photo of item.photos) {
+        photoUrls.push(await uploadToEPS(Buffer.from(photo.base64, 'base64'), photo.filename));
+      }
+    }
+
+    const descHtml = renderSkillDescriptionHtml(item.description || '');
+
+    await putInventoryItem(item.sku, {
+      product: {
+        title:       item.title.slice(0, 80),
+        description: descHtml,
+        imageUrls:   photoUrls,
+        aspects:     Object.fromEntries(
+          Object.entries(item.aspects || {}).map(([k, v]) => [k, Array.isArray(v) ? v : [String(v)]])
+        ),
+      },
+      condition: item.ebayConditionId,
+      ...(item.conditionNotes && { conditionDescription: item.conditionNotes }),
+      availability: { shipToLocationAvailability: { quantity: 1 } },
+    }, headers);
+
+    const offerId = await upsertOffer({
+      sku:                 item.sku,
+      marketplaceId:       MARKETPLACE,
+      format:              'FIXED_PRICE',
+      merchantLocationKey: locationKey,
+      listingPolicies: {
+        fulfillmentPolicyId: policies.fulfillmentPolicyId,
+        returnPolicyId:      policies.returnPolicyId,
+        paymentPolicyId:     policies.paymentPolicyId,
+        bestOfferTerms: {
+          bestOfferEnabled:  true,
+          autoDeclinePrice:  { value: String(item.minOffer), currency: 'USD' },
+        },
+      },
+      pricingSummary: { price: { value: String(item.price), currency: 'USD' } },
+      categoryId:         item.ebayCategoryId,
+      storeCategoryNames: [EBAY_STORE_CATEGORY],
+      listingDescription: descHtml,
+      shipToLocations: { regionIncluded: [{ regionType: 'COUNTRY', regionName: 'US' }] },
+    }, headers);
+
+    const listingId = await publishOffer(offerId, headers);
+    dbWriteSkillListing(item, listingId);
+
+    res.json({ sku: item.sku, listingId, url: `https://ebay.com/itm/${listingId}` });
+  } catch (e) {
+    console.error('[ebay-listings] list-item error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/ebay/update-item — update an existing one-off listing from skill checkpoint
+// Called by the list-item skill update flow.
 router.post('/update-item', async (req, res) => {
   const item = req.body;
   if (!item?.sku || !item?.price) {
@@ -700,14 +352,13 @@ router.post('/update-item', async (req, res) => {
   }
 
   try {
-    const headers = await ebayHeaders();
-    const descHtml = listingDescriptionHtml(item.description || '');
+    const headers  = await ebayHeaders();
+    const descHtml = renderSkillDescriptionHtml(item.description || '');
 
-    // GET existing inventory item to preserve imageUrls and fill any missing fields
     const existing = await getInventoryItem(item.sku, headers);
     if (!existing) return res.status(404).json({ error: `No inventory item found for SKU ${item.sku}` });
 
-    const inventoryBody = {
+    await putInventoryItem(item.sku, {
       ...existing,
       product: {
         ...existing.product,
@@ -719,24 +370,14 @@ router.post('/update-item', async (req, res) => {
           ),
         }),
       },
-      ...(item.ebayConditionId  && { condition: item.ebayConditionId }),
-      ...(item.conditionNotes   && { conditionDescription: item.conditionNotes }),
-    };
+      ...(item.ebayConditionId && { condition: item.ebayConditionId }),
+      ...(item.conditionNotes  && { conditionDescription: item.conditionNotes }),
+    }, headers);
 
-    const itemRes = await fetch(
-      `${EBAY_API}/sell/inventory/v1/inventory_item/${encodeURIComponent(item.sku)}`,
-      { method: 'PUT', headers, body: JSON.stringify(inventoryBody) }
-    );
-    if (itemRes.status !== 200 && itemRes.status !== 204) {
-      const text = await itemRes.text();
-      throw new Error(`inventory_item PUT ${itemRes.status}: ${text}`);
-    }
-
-    // GET offer by SKU
     const offer = await getOfferBySku(item.sku, headers);
     if (!offer) return res.status(404).json({ error: `No offer found for SKU ${item.sku}` });
 
-    const offerBody = {
+    await updateOffer(offer.offerId, {
       sku:                 item.sku,
       marketplaceId:       MARKETPLACE,
       format:              'FIXED_PRICE',
@@ -748,27 +389,15 @@ router.post('/update-item', async (req, res) => {
           autoDeclinePrice: { value: String(item.minOffer ?? minOffer(item.price)), currency: 'USD' },
         },
       },
-      pricingSummary: {
-        price: { value: String(item.price), currency: 'USD' },
-      },
+      pricingSummary: { price: { value: String(item.price), currency: 'USD' } },
       categoryId:         item.ebayCategoryId || offer.categoryId,
       storeCategoryNames: [EBAY_STORE_CATEGORY],
       listingDescription: descHtml,
       shipToLocations:    offer.shipToLocations,
-    };
+    }, headers);
 
-    const offerRes = await fetch(`${EBAY_API}/sell/inventory/v1/offer/${offer.offerId}`, {
-      method: 'PUT', headers, body: JSON.stringify(offerBody),
-    });
-    if (!offerRes.ok) {
-      const text = await offerRes.text();
-      throw new Error(`offer PUT ${offerRes.status}: ${text}`);
-    }
-
-    // Update DB listing price if it changed
-    db.prepare(
-      'UPDATE listings SET list_price = ? WHERE platform_listing_id = ?'
-    ).run(item.price, String(offer.listing?.listingId));
+    db.prepare('UPDATE listings SET list_price = ? WHERE platform_listing_id = ?')
+      .run(item.price, String(offer.listing?.listingId));
 
     res.json({ sku: item.sku, offerId: offer.offerId, listingId: offer.listing?.listingId });
   } catch (e) {
