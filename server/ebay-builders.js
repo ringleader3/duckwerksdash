@@ -15,8 +15,12 @@ const VALID_COLORS = new Set([
   'Multi-Color', 'Orange', 'Pink', 'Purple', 'Red', 'Silver', 'White', 'Yellow',
 ]);
 
+// eBay Inventory API does not accept bare "USED" — map it to the closest specific enum
+const CONDITION_MAP = { 'USED': 'USED_EXCELLENT' };
+
 function normalizeDiscType(type) { return DISC_TYPE_MAP[type] || type; }
 function normalizeManufacturer(m) { return MANUFACTURER_MAP[m] || m; }
+function normalizeCondition(c) { return CONDITION_MAP[c] || c || 'NEW'; }
 function minOffer(price) { return Math.floor(parseFloat(price) * MIN_OFFER_PCT); }
 
 function generateDiscTitle({ manufacturer, mold, plastic, run, weight, color, condition }) {
@@ -99,7 +103,7 @@ function buildDiscPayload(blob) {
   const title     = blob.list_title || generateDiscTitle(blob);
   const specLines = buildDiscSpecLines(blob);
   const price     = parseFloat(blob.listPrice);
-  const condition = blob.condition || 'NEW';
+  const condition = normalizeCondition(blob.condition);
 
   const aspects = {
     Type: ['Disc Golf Disc'],
