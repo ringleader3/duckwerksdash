@@ -1,6 +1,13 @@
 # Session Log
 _Most recent first. Update this at the end of every session._
 
+### 2026-05-16 — Insurance toggle in label modal; disc golf defaults uninsured
+
+- Added INSURE checkbox to label modal; unchecked = no insurance field sent to EasyPost at all
+- Disc golf items default to unchecked; all other categories default to checked
+- eBay high-value auto-bump (>$100 → insuredAmount = sale price) still works; just ignored for DG unless you check the box
+- Fixed server-side `easypostPurchase` to omit `insurance` from payload when not passed (was always sending it before)
+
 ### 2026-05-16 — Inline price edit with keyboard tab flow in catalog inventory
 
 - Price cell in inventory list is now focusable and editable inline — click, Enter, or type a digit to activate
